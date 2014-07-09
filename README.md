@@ -22,6 +22,16 @@ be run as an unprivileged user in the product directory::
     pip install -r requirements-dev.txt
 
 
+Create a configuration file
+---------------------------
+
+To set up a configuration file run the following commands and look in
+settings.example for an settings example file::
+
+    mkdir -p instance
+    touch instance/settings.py
+
+
 Create database
 -------------------------
 
