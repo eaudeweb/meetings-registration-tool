@@ -21,8 +21,10 @@ class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(35), nullable=False)
     acronym = db.Column(db.String(10), nullable=False)
-    slug = db.Column(db.String(10))
-    type = db.Column(db.String(35), nullable=False)
+    type_id = db.Column(db.String(35), db.ForeignKey('type.slug'),
+                        nullable=False)
+    type = db.relationship('MeetingType',
+                           backref=db.backref('meetings', lazy='dynamic'))
     date_start = db.Column(db.DateTime, nullable=False)
     date_end = db.Column(db.DateTime, nullable=False)
     venue_address = db.Column(db.String(70))
@@ -37,3 +39,9 @@ class Meeting(db.Model):
 
     def __repr__(self):
         return '{}'.format(self.title)
+
+
+class MeetingType(db.Model):
+
+    slug = db.Column(db.String(10), primary_key=True)
+    name = db.Column(db.String(35), nullable=False)
