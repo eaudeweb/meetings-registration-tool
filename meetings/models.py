@@ -48,3 +48,50 @@ class MeetingType(db.Model):
 
     slug = db.Column(db.String(16), primary_key=True)
     name = db.Column(db.String(32), nullable=False)
+
+
+class Translation(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    english = db.Column(db.String(128), nullable=False)
+    french = db.Column(db.String(128))
+    spanish = db.Column(db.String)
+
+    def __repr__(self):
+        return '{}'.format(self.english)
+
+
+class Fee(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship('Meeting', db.backref('fees', lazy='dynamic'))
+
+    name_translation_id = db.Column(
+        db.Integer, db.ForeignKey('translation.id'),
+        nullable=False)
+    name = db.relationship('Translation', db.backref('fees', lazy='dynamic'))
+
+    def __repr__(self):
+        return '{}'.format(self.name)
+
+
+class Phrase(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), nullable=False)
+    descpription_translation_id = db.Column(
+        db.Integer, db.ForeignKey('translation.id'),
+        nullable=False)
+    description = db.relationship(
+        'Translation',
+        db.backref('phrases', lazy='dynamic'))
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship('Meeting', db.backref('phrases', lazy='dynamic'))
+
+    def __repr__(self):
+        return '{}'.format(self.name)
