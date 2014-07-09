@@ -31,7 +31,7 @@ def shell(ctx):
 
 
 @cli.command()
-@click.argument('alembic_args', nargs=-1)
+@click.argument('alembic_args', nargs=-1, type=click.Path())
 @click.pass_context
 def alembic(ctx, alembic_args):
     app = ctx.obj['app']

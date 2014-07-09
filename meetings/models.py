@@ -21,10 +21,14 @@ class Meeting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(32), nullable=False)
     acronym = db.Column(db.String(16), nullable=False)
-    type_id = db.Column(db.String(32), db.ForeignKey('type.slug'),
-                        nullable=False)
-    type = db.relationship('MeetingType',
-                           backref=db.backref('meetings', lazy='dynamic'))
+
+    meeting_type_id = db.Column(
+        db.String(32), db.ForeignKey('meeting_type.slug'),
+        nullable=False)
+    meeting_type = db.relationship(
+        'MeetingType',
+        backref=db.backref('meetings', lazy='dynamic'))
+
     date_start = db.Column(db.DateTime, nullable=False)
     date_end = db.Column(db.DateTime, nullable=False)
     venue_address = db.Column(db.String(128))

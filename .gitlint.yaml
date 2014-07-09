@@ -47,7 +47,7 @@ pep8:
   - .py
   command: pep8
   arguments:
-  - "--max-line-length=80"
+  - "--max-line-length=80 --exclude=alembic"
   filter: "^%(filename)s:(?P<line>%(lines)s):((?P<column>\\d+):)? (?P<message_id>\\S+) (?P<message>.+)$"
   installation: "Run pip install pep8."
 

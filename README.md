@@ -44,6 +44,13 @@ extension, and grant access to your user::
     postgres=# \q
 
 
+Create a migration after changes in models.py
+---------------------------------------------
+
+    ./manage.py alembic revision -- --autogenerate -m 'commit message'
+    ./manage.py alembic upgrade head
+
+
 Setup Git Pre-Commit Lint
 -------------------------
 
