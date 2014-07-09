@@ -28,25 +28,6 @@ csslint:
   filter: "^%(filename)s: line (?P<line>%(lines)s), col (?P<column>\\d+)?, (?P<severity>\\S+) - (?P<message>.+)"
   installation: "Go to https://github.com/stubbornella/csslint/wiki/Command-line-interface for installation instructions."
 
-# SCSS
-# Sample output:
-# /home/skreft/opensource/git-lint/test/e2etest/data/scss/error.scss:2 [W] `0px` should be written without units as `0`
-scss:
-  extensions:
-  - .scss
-  command: scss-lint
-  filter: "^%(filename)s:(?P<line>%(lines)s) \\[(?P<severity>.+)\\] (?P<message>.+)"
-  installation: "gem install scss-lint or go to https://github.com/causes/scss-lint"
-
-# Javascript
-# Sample output:
-# Line 1, E:0002: Missing space before "="
-gjslint:
-  extensions:
-  - .js
-  command: gjslint
-  filter: "^Line\\s+(?P<line>%(lines)s), (?P<severity>[^: ]+):((?P<column>\\d+):)? (?P<message>.+)"
-  installation: "Run pip install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz, or visit https://developers.google.com/closure/utilities/docs/linter_howto for installation instructions."
 
 # Sample output:
 # /home/skreft/opensource/git-lint/test/e2etest/data/jshint/error.js: line 1, col 3, Use '===' to compare with ''.
@@ -59,31 +40,6 @@ jshint:
   - "%(DEFAULT_CONFIGS)s/jshint.json"
   filter: "^%(filename)s: line (?P<line>%(lines)s), col (?P<column>\\d+), (?P<message>.+)"
   installation: "Visit http://www.jshint.com/install/ for installation instructions."
-
-# PHP
-# Sample output:
-# PHP Parse error:  syntax error, unexpected 'bar' (T_STRING) in /home/skreft/opensource/git-lint/test/e2etest/data/php/error.php on line 3
-php:
-  extensions:
-  - .php
-  command: php
-  arguments:
-  - "-l"
-  filter: "^(?P<message>.*) in %(filename)s on line (?P<line>\\d+)"
-  installation: "You first need to install PHP."
-
-# Sample output:
-# 2 | ERROR | Expected "if (...) {\n"; found "if (...) {"
-phpcs:
-  extensions:
-  - .php
-  command: phpcs
-  arguments:
-  - "--report-width=1000"
-  - "--standard=PSR2"
-  filter: "^\\s*(?P<line>%(lines)s)\\s+[|]\\s+(?P<severity>\\S+)\\s+[|]\\s+(?P<message>.+)"
-  installation: "Visit https://github.com/squizlabs/PHP_CodeSniffer for installation instructions"
-
 
 # Sample output: gitlint/__init__.py:68:80: E501 line too long (80 > 79 characters)
 pep8:
@@ -119,82 +75,6 @@ rst:
   filter: "^%(filename)s:(?P<line>%(lines)s): [(](?P<severity>.+)[)] (?P<message>.+)"
   installation: "Run pip install docutils."
 
-# PNG
-pngcrush:
-  extensions:
-  - .png
-  command: pngcrush-linter.sh
-  requirements:
-  - pngcrush
-  filter: "(?P<message>.+)$"
-  installation: "Run apt-get install pngcrush."
-
-optipng:
-  extensions:
-  - .png
-  command: optipng-linter.sh
-  requirements:
-  - optipng
-  filter: "(?P<message>.+)$"
-  installation: "Run apt-get install optipng."
-
-# JPEG
-jpegtran:
-  extensions:
-  - .jpg
-  - .jpeg
-  command: jpegtran-linter.sh
-  requirements:
-  - jpegtran
-  filter: "(?P<message>.+)"
-  installation: "Run apt-get install jpegtran."
-
-# SHELL scripts
-# Sample output
-# /home/skreft/opensource/git-lint/test/e2etest/data/bash/error.sh: line 3: syntax error: unexpected end of file
-bash:
-  extensions:
-  - .sh
-  command: bash
-  arguments:
-  - "-n"
-  filter: "%(filename)s: line (?P<line>%(lines)s): (?P<message>.+)"
-  installation: "Please install bash in your system."
-
-# YAML
-yaml:
-  extensions:
-  - .yaml
-  - .yml
-  command: yaml_linter.py
-  filter: "(?P<message>.+)$"
-  installation: "Run pip install PyYAML."
-
-# INI
-ini:
-  extensions:
-  - .ini
-  command: ini_linter.py
-  filter: "(?P<message>.+)$"
-  installation: ""
-
-# HTML
-# Sample output:
-# line 2 column 1 - Warning: missing </h2> before </h3>
-tidy:
-  extensions:
-  - .html
-  command: tidy-wrapper.sh
-  requirements:
-  - tidy
-  - remove_template.py
-  - grep
-  arguments:
-  - "-qe"
-  - "--drop-empty-elements"
-  - "false"
-  installation: "Visit https://w3c.github.io/tidy-html5/"
-  filter: "^line (?P<line>%(lines)s) column (?P<column>\\d+) - (?P<severity>[^:]+): (?P<message>.+)"
 
 # Sample output:
 # 1:10: Error: Javascript ...
@@ -208,58 +88,3 @@ html_lint:
   installation: "pip install html-linter."
   filter: "^(?P<line>%(lines)s):(?P<column>\\d+): (?P<severity>\\S+): (?P<message>.+)"
 
-# Ruby
-# Sample output:
-# error.rb: warning: line 1, column 1: unused constant FOO
-rubylint:
-  command: ruby-lint
-  extensions:
-  - '.rb'
-  # The first component is the basename, but it's not supported yet.
-  filter: ".*: (?P<severity>.+): line (?P<line>%(lines)s), column (?P<column>\\d+): (?P<message>.+)"
-  installation: "sudo gem install ruby-lint (requires ruby 1.9) or visit https://github.com/yorickpeterse/ruby-lint"
-
-
-# Sample output:
-# test/e2etest/data/rubocop/error.rb:1:4: C: Surrounding space missing for operator '='.
-rubocop:
-  command: rubocop
-  extensions:
-  - '.rb'
-  # The first component is the relpath, but it's not supported yet.
-  filter: ".*:(?P<line>%(lines)s):((?P<column>\\d+):)? (?P<severity>.+): (?P<message>.+)"
-  installation: "sudo gem install rubocop or visit https://github.com/bbatsov/rubocop"
-
-#Java
-# Sample output:
-# /home/skreft/opensource/git-lint/test/e2etest/data/checkstyle/error.java:0: Missing package-info.java file.
-# /home/skreft/opensource/git-lint/test/e2etest/data/checkstyle/error.java:1:7: warning: Name 'foo' must match pattern '^[A-Z][a-zA-Z0-9]*$'.
-checkstyle:
-  command: checkstyle
-  extensions:
-  - .java
-  requirements:
-  - java
-  arguments:
-  - "-c"
-  - "%(DEFAULT_CONFIGS)s/checkstyle.xml"
-  filter: "%(filename)s:(?P<line>%(lines)s):((?P<column>\\d+):)? (?P<message>.+)"
-  installation: "sudo apt-get install checkstyle or go to http://checkstyle.sourceforge.net/cmdline.html"
-
-# Sample output:
-# /home/skreft/opensource/git-lint/test/e2etest/data/pmd/error.java:1:  All methods are static.
-pmd:
-  command: run.sh
-  extensions:
-  - .java
-  requirements:
-  - java
-  arguments:
-  - "pmd"
-  - "-format"
-  - "text"
-  - "-rulesets"
-  - "rulesets/java/android.xml,rulesets/java/basic.xml,rulesets/java/braces.xml,rulesets/java/clone.xml,rulesets/java/codesize.xml,rulesets/java/coupling.xml,rulesets/java/design.xml,rulesets/java/empty.xml,rulesets/java/finalizers.xml,rulesets/java/imports.xml,rulesets/java/j2ee.xml,rulesets/java/junit.xml,rulesets/java/logging-jakarta-commons.xml,rulesets/java/optimizations.xml,rulesets/java/strictexception.xml,rulesets/java/strings.xml,rulesets/java/sunsecure.xml,rulesets/java/typeresolution.xml,rulesets/java/unnecessary.xml,rulesets/java/unusedcode.xml"
-  - "-d"
-  filter: "%(filename)s:(?P<line>%(lines)s):\\s+(?P<message>.+)"
-  installation: "Go to http://pmd.sourceforge.net/pmd-5.1.1/installing.html"

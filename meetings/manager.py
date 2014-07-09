@@ -1,5 +1,6 @@
 import click
 import code
+from alembic.config import CommandLine
 
 
 @click.group()
@@ -27,3 +28,12 @@ def shell(ctx):
     except ImportError:
         pass
     code.interact(local=context)
+
+
+@cli.command()
+@click.argument('alembic_args', nargs=-1)
+@click.pass_context
+def alembic(ctx, alembic_args):
+    app = ctx.obj['app']
+    with app.test_request_context():
+        CommandLine().main(argv=alembic_args)
