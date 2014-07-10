@@ -20,14 +20,16 @@ def runserver(ctx, host, port):
 @cli.command()
 @click.pass_context
 def shell(ctx):
-    context = dict(app=ctx.obj['app'])
-    try:
-        from bpython import embed
-        embed(locals_=context)
-        return
-    except ImportError:
-        pass
-    code.interact(local=context)
+    app = ctx.obj['app']
+    context = dict(app=app)
+    with app.test_request_context():
+        try:
+            from bpython import embed
+            embed(locals_=context)
+            return
+        except ImportError:
+            pass
+        code.interact(local=context)
 
 
 @cli.command()
