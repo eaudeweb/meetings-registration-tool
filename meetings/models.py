@@ -212,7 +212,7 @@ class Category(db.Model):
         nullable=False)
     name = db.relationship(
         'Translation',
-        db.backref('categories', lazy='dynamic'))
+        backref=db.backref('categories', lazy='dynamic'))
 
     color = db.Column(db.String(16), nullable=False)
     background = db.Column(db.String(32), nullable=False)
@@ -223,7 +223,7 @@ class Category(db.Model):
         nullable=False)
     meeting = db.relationship(
         'Meeting',
-        db.backref('categories', lazy='dynamic'))
+        backref=db.backref('categories', lazy='dynamic'))
 
     def __repr__(self):
         return '{} {}'.format(self.meeting.acronym, self.name.english)
@@ -237,7 +237,7 @@ class CategoryDefault(db.Model):
         nullable=False)
     name = db.relationship(
         'Translation',
-        db.backref('default_categories', lazy='dynamic'))
+        backref=db.backref('default_categories', lazy='dynamic'))
     color = db.Column(db.String(16), nullable=False)
     background = db.Column(db.String(32), nullable=False)
     type = db.Column(db.String(32), nullable=False)
@@ -266,12 +266,14 @@ class Phrase(db.Model):
         nullable=False)
     description = db.relationship(
         'Translation',
-        db.backref('phrases', lazy='dynamic'))
+        backref=db.backref('phrases', lazy='dynamic'))
 
     meeting_id = db.Column(
         db.Integer, db.ForeignKey('meeting.id'),
         nullable=False)
-    meeting = db.relationship('Meeting', db.backref('phrases', lazy='dynamic'))
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('phrases', lazy='dynamic'))
 
     group = db.Column(db.String(32), nullable=True)
     sort = db.Column(db.Integer, default=0)
