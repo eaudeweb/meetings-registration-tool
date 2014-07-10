@@ -7,10 +7,163 @@ db = SQLAlchemy()
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(32), nullable=False)
-    last_name = db.Column(db.String(32), nullable=False)
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(128))
+
+    def __repr__(self):
+        return '{}'.format(self.email)
+
+
+class Staff(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'),
+        nullable=False)
+    user = db.relationship(
+        'User',
+        backref=db.backref('staffs', lazy='dynamic'))
+
+    role_id = db.Column(
+        db.Integer, db.ForeignKey('role.id'),
+        nullable=False)
+    role = db.relationship(
+        'Role',
+        backref=db.backref('staffs', lazy='dynamic'))
+
+
+class Role(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+
+class Participant(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('participants', lazy='dynamic'))
+
+    title = db.Column(db.String(8), nullable=False)
+    first_name = db.Column(db.String(64), nullable=False)
+    last_name = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(64), nullable=False)
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'),
+        nullable=True)
+    user = db.relationship(
+        'User',
+        backref=db.backref('participants', lazy='dynamic'))
+
+    category_id = db.Column(
+        db.Integer, db.ForeignKey('category.id'),
+        nullable=False)
+    category = db.relationship(
+        'Category',
+        backref=db.backref('participants', lazy='dynamic'))
+
+    def __repr__(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+
+class CustomField(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('custom_fields', lazy='dynamic'))
+
+    type = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return '{} {}'.format(self.type, self.meeting.acronym)
+
+
+class CustomFieldChoice(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    custom_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id'),
+        nullable=False)
+    custom_field = db.relationship(
+        'CustomField',
+        backref=db.backref('custom_field_choices', lazy='dynamic'))
+
+    value_id = db.Column(
+        db.Integer, db.ForeignKey('translation.id'),
+        nullable=False)
+    value = db.relationship(
+        'Translation',
+        backref=db.backref('custom_field_choices', lazy='dynamic'))
+
+    def __repr__(self):
+        return '{}'.format(self.value.english)
+
+
+class CustomFieldValue(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    custom_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id'),
+        nullable=False)
+    custom_field = db.relationship(
+        'CustomField',
+        backref=db.backref('custom_field_values', lazy='dynamic'))
+
+    participant_id = db.Column(
+        db.Integer, db.ForeignKey('participant.id'),
+        nullable=False)
+    participant = db.relationship(
+        'Participant',
+        backref=db.backref('custom_field_values', lazy='dynamic'))
+
+    value = db.Column(db.String(64), nullable=False)
+
+    choice_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field_choice.id'),
+        nullable=True)
+    choice = db.relationship(
+        'CustomFieldChoice',
+        backref=db.backref('custom_field_values', lazy='dynamic'))
+
+    def __repr__(self):
+        return '{}'.format(self.value)
+
+
+class MediaPaticipant(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('media_participants', lazy='dynamic'))
+
+    title = db.Column(db.String(8), nullable=False)
+    first_name = db.Column(db.String(64), nullable=False)
+    last_name = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(64), nullable=False)
+
+    category_id = db.Column(
+        db.Integer, db.ForeignKey('category.id'),
+        nullable=False)
+    category = db.relationship(
+        'Category',
+        backref=db.backref('media_participants', lazy='dynamic'))
 
     def __repr__(self):
         return '{} {}'.format(self.first_name, self.last_name)
@@ -47,35 +200,61 @@ class Meeting(db.Model):
 class MeetingType(db.Model):
 
     slug = db.Column(db.String(16), primary_key=True)
-    name = db.Column(db.String(32), nullable=False)
+    label = db.Column(db.String(32), nullable=False)
+
+
+class Category(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    name_id = db.Column(
+        db.Integer, db.ForeignKey('translation.id'),
+        nullable=False)
+    name = db.relationship(
+        'Translation',
+        db.backref('categories', lazy='dynamic'))
+
+    color = db.Column(db.String(16), nullable=False)
+    background = db.Column(db.String(32), nullable=False)
+    type = db.Column(db.String(32), nullable=False)
+
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship(
+        'Meeting',
+        db.backref('categories', lazy='dynamic'))
+
+    def __repr__(self):
+        return '{} {}'.format(self.meeting.acronym, self.name.english)
+
+
+class CategoryDefault(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    name_id = db.Column(
+        db.Integer, db.ForeignKey('translation.id'),
+        nullable=False)
+    name = db.relationship(
+        'Translation',
+        db.backref('default_categories', lazy='dynamic'))
+    color = db.Column(db.String(16), nullable=False)
+    background = db.Column(db.String(32), nullable=False)
+    type = db.Column(db.String(32), nullable=False)
+
+    def __repr__(self):
+        return '{}'.format(self.name.english)
 
 
 class Translation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    english = db.Column(db.String(128), nullable=False)
-    french = db.Column(db.String(128))
-    spanish = db.Column(db.String)
+    english = db.Column(db.Text, nullable=False)
+    french = db.Column(db.Text)
+    spanish = db.Column(db.Text)
 
     def __repr__(self):
         return '{}'.format(self.english)
-
-
-class Fee(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-    meeting_id = db.Column(
-        db.Integer, db.ForeignKey('meeting.id'),
-        nullable=False)
-    meeting = db.relationship('Meeting', db.backref('fees', lazy='dynamic'))
-
-    name_translation_id = db.Column(
-        db.Integer, db.ForeignKey('translation.id'),
-        nullable=False)
-    name = db.relationship('Translation', db.backref('fees', lazy='dynamic'))
-
-    def __repr__(self):
-        return '{}'.format(self.name)
 
 
 class Phrase(db.Model):
@@ -88,10 +267,14 @@ class Phrase(db.Model):
     description = db.relationship(
         'Translation',
         db.backref('phrases', lazy='dynamic'))
+
     meeting_id = db.Column(
         db.Integer, db.ForeignKey('meeting.id'),
         nullable=False)
     meeting = db.relationship('Meeting', db.backref('phrases', lazy='dynamic'))
+
+    group = db.Column(db.String(32), nullable=True)
+    sort = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return '{}'.format(self.name)
