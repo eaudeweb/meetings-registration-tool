@@ -7,17 +7,17 @@ Install dependencies
 We should use Virtualenv for isolated environments. The following commands will
 be run as an unprivileged user in the product directory::
 
-1. Clone the repository::
+Clone the repository::
 
-    git svn clone git@github.com:eaudeweb/meetings-registration-tool.git
+    git clone git@github.com:eaudeweb/meetings-registration-tool.git
 
-2. Create & activate a virtual environment::
+Create & activate a virtual environment::
 
     virtualenv --no-site-packages sandbox
     echo '*' > sandbox/.gitignore
     source sandbox/bin/activate
 
-3. Install dependencies::
+Install dependencies::
 
     pip install -r requirements-dev.txt
 
