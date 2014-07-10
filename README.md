@@ -5,19 +5,19 @@ meetings-registration-tool
 Install dependencies
 --------------------
 We should use Virtualenv for isolated environments. The following commands will
-be run as an unprivileged user in the product directory::
+be run as an unprivileged user in the product directory
 
-Clone the repository::
+Clone the repository
 
     git clone git@github.com:eaudeweb/meetings-registration-tool.git
 
-Create & activate a virtual environment::
+Create & activate a virtual environment
 
     virtualenv --no-site-packages sandbox
     echo '*' > sandbox/.gitignore
     source sandbox/bin/activate
 
-Install dependencies::
+Install dependencies
 
     pip install -r requirements-dev.txt
 
@@ -26,7 +26,7 @@ Create a configuration file
 ---------------------------
 
 To set up a configuration file run the following commands and look in
-settings.example for an settings example file::
+settings.example for an settings example file
 
     mkdir -p instance
     touch instance/settings.py
@@ -38,7 +38,7 @@ Create database
 To set up the PostgreSQL database in Debian, you need to install the
 packages `postgresql-9.1`, `postgresql-contrib-9.1` and
 `postgresql-server-dev-9.1`. Then create a database, enable the `hstore`
-extension, and grant access to your user::
+extension, and grant access to your user
 
     root # su - postgres
     postgres $ psql
@@ -64,7 +64,7 @@ Create a migration after changes in models.py
 Setup Git Pre-Commit Lint
 -------------------------
 
-Lint python files on commit::
+Lint python files on commit
 
     echo 'git lint' > .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
