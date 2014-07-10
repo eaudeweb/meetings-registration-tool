@@ -37,8 +37,7 @@ Create database
 
 To set up the PostgreSQL database in Debian, you need to install the
 packages `postgresql-9.1`, `postgresql-contrib-9.1` and
-`postgresql-server-dev-9.1`. Then create a database, enable the `hstore`
-extension, and grant access to your user
+`postgresql-server-dev-9.1`. 
 
     root # su - postgres
     postgres $ psql
