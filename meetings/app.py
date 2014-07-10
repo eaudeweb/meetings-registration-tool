@@ -5,8 +5,8 @@ from meetings.assets import assets_env
 
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
-    app.config.update(config)
     app.config.from_pyfile('settings.py')
+    app.config.update(config)
 
     assets_env.init_app(app)
     db.init_app(app)

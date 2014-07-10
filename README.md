@@ -32,6 +32,14 @@ settings.example for an settings example file
     touch instance/settings.py
 
 
+Running unit tests
+------------------
+
+Simply run ``py.test testsuite``, it will find and run the tests. For a
+bit of speedup you can install ``pytest-xdist`` and run tests in
+parallel, ``py.test testsuite -n 4``.
+
+
 Create database
 -------------------------
 

@@ -1,5 +1,9 @@
 -r requirements.txt
 
+# pytest
+py==1.4.20
+pytest==2.5.2
+
 # git lint
 docopt==0.6.2
 docutils==0.11
