@@ -1,11 +1,11 @@
-from meetings.models import User
+from mrt.models import User, db
 
 
-def test_model(app, session):
+def test_model(app):
     user = User(email='johndoe@eaudeweb.ro')
 
-    session.add(user)
-    session.commit()
+    db.session.add(user)
+    db.session.commit()
 
     count = User.query.count()
     assert count == 1

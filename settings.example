@@ -1,1 +1,2 @@
 SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
+SECRET_KEY = 'secret'

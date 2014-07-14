@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from meetings.app import create_app
-from meetings.manager import cli
+from mrt.app import create_app
+from mrt.manager import cli
 
 
 app = create_app()

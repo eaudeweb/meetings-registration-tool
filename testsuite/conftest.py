@@ -1,6 +1,6 @@
 from pytest import fixture
-from meetings.app import create_app
-from meetings.models import db
+from mrt.app import create_app
+from mrt.models import db
 
 
 TEST_CONFIG = {
@@ -25,21 +25,3 @@ def app(request):
 
     return app
 
-
-@fixture
-def session(request):
-    """Creates a new database session for a test."""
-    connection = db.engine.connect()
-    transaction = connection.begin()
-
-    session = db.create_scoped_session()
-
-    db.session = session
-
-    @request.addfinalizer
-    def teardown():
-        transaction.rollback()
-        connection.close()
-        session.remove()
-
-    return session

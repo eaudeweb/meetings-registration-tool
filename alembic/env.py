@@ -14,7 +14,7 @@ fileConfig(config.config_file_name)
 # add your model's MetaData object here
 # for 'autogenerate' support
 from flask import current_app as app
-from meetings.models import db
+from mrt.models import db
 config.set_main_option("sqlalchemy.url",
                        app.config.get('SQLALCHEMY_DATABASE_URI'))
 target_metadata = db.metadata
