@@ -2,6 +2,7 @@ from wtforms import Form
 from wtforms import TextField, PasswordField, validators
 
 from mrt.models import User
+from mrt.forms.meeting import ModelForm
 
 
 class LoginForm(Form):
@@ -23,3 +24,9 @@ class LoginForm(Form):
 
     def get_user(self):
         return User.query.filter_by(email=self.email.data).first()
+
+
+class UserForm(ModelForm):
+
+    class Meta:
+        model = User
