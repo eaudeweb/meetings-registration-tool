@@ -1,4 +1,4 @@
-from flask.ext.wtf import Form
+from wtforms import Form
 from wtforms import TextField, PasswordField, validators
 
 from mrt.models import User
