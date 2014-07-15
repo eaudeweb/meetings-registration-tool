@@ -1,8 +1,9 @@
-from flask.ext.wtf import Form
-
+from wtforms import Form, widgets
 from wtforms_alchemy import model_form_factory
-from meetings.models import db
-from meetings.models import Meeting
+from wtforms_alchemy import ModelFormField
+
+from mrt.models import db
+from mrt.models import Meeting, Translation
 
 
 BaseModelForm = model_form_factory(Form)
@@ -15,7 +16,27 @@ class ModelForm(BaseModelForm):
         return db.session
 
 
-class MeetingForm(ModelForm):
+class TranslationInpuForm(ModelForm):
+
+    class Meta:
+        model = Translation
+        field_args = {
+            'english': {
+                'widget': widgets.TextInput()
+            },
+            'french': {
+                'widget': widgets.TextInput()
+            },
+            'spanish': {
+                'widget': widgets.TextInput()
+            }
+
+        }
+
+
+class MeetingEditForm(ModelForm):
 
     class Meta:
         model = Meeting
+
+    title = ModelFormField(TranslationInpuForm, label='Description')

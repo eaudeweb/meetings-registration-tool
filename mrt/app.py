@@ -5,6 +5,8 @@ from mrt import auth
 from mrt.models import db, User
 from mrt.assets import assets_env
 
+from mrt.meetings.urls import meetings
+
 
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
@@ -14,6 +16,8 @@ def create_app(config={}):
 
     assets_env.init_app(app)
     db.init_app(app)
+
+    app.register_blueprint(meetings)
 
     login_manager = LoginManager()
     login_manager.init_app(app)

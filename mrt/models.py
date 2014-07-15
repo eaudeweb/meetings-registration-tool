@@ -191,7 +191,9 @@ class MediaPaticipant(db.Model):
 class Meeting(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(32), nullable=False)
+    title_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
+                         nullable=False)
+    title = db.relationship('Translation')
     acronym = db.Column(db.String(16), nullable=False)
 
     meeting_type_id = db.Column(
@@ -268,9 +270,10 @@ class CategoryDefault(db.Model):
 class Translation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    english = db.Column(db.Text, nullable=False)
-    french = db.Column(db.Text)
-    spanish = db.Column(db.Text)
+    english = db.Column(db.Text, nullable=False,
+                        info={'label': 'English'})
+    french = db.Column(db.Text, info={'label': 'French'})
+    spanish = db.Column(db.Text, info={'label': 'Spanish'})
 
     def __repr__(self):
         return '{}'.format(self.english)

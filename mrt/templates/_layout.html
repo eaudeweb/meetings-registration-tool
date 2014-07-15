@@ -14,7 +14,9 @@
   </head>
 
   <body>
-    {% block content %}{% endblock %}
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
     {% assets "js" %}
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
