@@ -191,10 +191,13 @@ class MediaPaticipant(db.Model):
 class Meeting(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
+
     title_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
                          nullable=False)
-    title = db.relationship('Translation')
-    acronym = db.Column(db.String(16), nullable=False)
+    title = db.relationship('Translation', foreign_keys=title_id)
+
+    acronym = db.Column(db.String(16), nullable=False,
+                        info={'label': 'Acronym'})
 
     meeting_type_id = db.Column(
         db.String(32), db.ForeignKey('meeting_type.slug'),
@@ -203,11 +206,18 @@ class Meeting(db.Model):
         'MeetingType',
         backref=db.backref('meetings', lazy='dynamic'))
 
-    date_start = db.Column(db.DateTime, nullable=False)
-    date_end = db.Column(db.DateTime, nullable=False)
-    venue_address = db.Column(db.String(128))
-    venue_city = db.Column(db.String(32), nullable=False)
+    date_start = db.Column(db.DateTime, nullable=False,
+                           info={'label': 'Start Date'})
+    date_end = db.Column(db.DateTime, nullable=False,
+                         info={'label': 'End Date'})
+    venue_address = db.Column(db.String(128),
+                              info={'label': 'Address'})
+
+    venue_city_id = db.Column(db.Integer, db.ForeignKey('translation.id'))
+    venue_city = db.relationship('Translation', foreign_keys=venue_city_id)
+
     venue_country = db.Column(db.String(32), nullable=False)
+
     admin_name = db.Column(db.String(32))
     admin_email = db.Column(db.String(32))
     media_admin_name = db.Column(db.String(32))
@@ -221,7 +231,7 @@ class Meeting(db.Model):
 class MeetingType(db.Model):
 
     slug = db.Column(db.String(16), primary_key=True)
-    label = db.Column(db.String(32), nullable=False)
+    title = db.Column(db.String(32), nullable=False)
 
 
 class Category(db.Model):

@@ -4,6 +4,7 @@ from flask.ext.assets import Environment, Bundle
 _BUNDLE_CSS = (
     'css/bootstrap.min.css',
     'css/bootstrap-theme.min.css',
+    'css/main.css',
 )
 
 

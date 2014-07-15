@@ -1,4 +1,4 @@
-{% extends '_layout.html' %}
+{% extends "_layout.html" %}
 
 
 {% block content %}
@@ -11,27 +11,138 @@
 
   <form class="form-horizontal" role="form">
 
-    <div class="form-group">
-      {{ form.title.label(class_="col-sm-2 control-label") }}
-      <div class="col-sm-10">
-        <div class="well">
-          <ul class="list-unstyled field-i18nstring">
-            <li>
-              {{ form.title.english.label }}
-              {{ form.title.english() }}
-            </li>
-            <li>
-              {{ form.title.french.label }}
-              {{ form.title.french() }}
-            </li>
-            <li>
-              {{ form.title.spanish.label }}
-              {{ form.title.spanish() }}
-            </li>
-          </ul>
-        </div>
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <b>{{ form.title.label.text }}</b>
       </div>
-    </div> {# form-group #}
+
+      <div class="panel-body">
+
+        <div class="form-group">
+          {{ form.title.english.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-8">
+            {{ form.title.english(class_="form-control") }}
+          </div>
+        </div> {# form-group #}
+
+        <div class="form-group">
+          {{ form.title.french.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-8">
+            {{ form.title.french(class_="form-control") }}
+          </div>
+        </div> {# form-group #}
+
+        <div class="form-group">
+          {{ form.title.spanish.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-8">
+            {{ form.title.spanish(class_="form-control") }}
+          </div>
+        </div> {# form-group #}
+
+      </div> {# panel-body #}
+
+    </div> {# panel #}
+
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <b>Venue</b>
+      </div>
+
+      <div class="panel-body">
+
+       <div class="form-group">
+          {{ form.venue_address.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-8">
+            {{ form.venue_address(class_="form-control") }}
+          </div>
+        </div> {# form-group #}
+
+        <div class="form-group">
+          {{ form.venue_city.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-8">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <ul class="list-unstyled">
+                  <li>
+                    {{ form.venue_city.english.label }}
+                    {{ form.venue_city.english(class_="form-control") }}
+                  </li>
+                  <li>
+                    {{ form.venue_city.french.label }}
+                    {{ form.venue_city.french(class_="form-control") }}
+                  </li>
+                  <li>
+                    {{ form.venue_city.spanish.label }}
+                    {{ form.venue_city.french(class_="form-control") }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div> {# form-group #}
+
+
+      </div> {# panel-body #}
+
+    </div> {# panel #}
+
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <b>Meeting Date</b>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="form-group">
+          {{ form.date_start.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-3">
+            {{ form.date_start(class_="form-control") }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          {{ form.date_end.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-3">
+            {{ form.date_end(class_="form-control") }}
+          </div>
+        </div>
+
+      </div>
+
+    </div> {# panel #}
+
+
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <b>General</b>
+      </div>
+
+      <div class="panel-body">
+
+        <div class="form-group">
+          {{ form.meeting_type.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-3">
+            {{ form.meeting_type.slug(class_="form-control") }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          {{ form.acronym.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-3">
+            {{ form.acronym(class_="form-control") }}
+          </div>
+        </div>
+
+      </div>
+
+    </div> {# panel #}
+
+    <button type="submit" class="btn btn-primary">
+      Save changes</button> or <a>Cancel</a>
 
   </form>
 

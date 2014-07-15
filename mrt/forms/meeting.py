@@ -1,9 +1,9 @@
-from wtforms import Form, widgets
+from wtforms import Form, fields, widgets
 from wtforms_alchemy import model_form_factory
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db
-from mrt.models import Meeting, Translation
+from mrt.models import Meeting, MeetingType, Translation
 
 
 BaseModelForm = model_form_factory(Form)
@@ -34,9 +34,33 @@ class TranslationInpuForm(ModelForm):
         }
 
 
+class MeetingTypeForm(ModelForm):
+
+    slug = fields.SelectField('Acronym', choices=[])
+
+    class Meta:
+        model = MeetingType
+        only = ('slug',)
+
+    def __init__(self, *args, **kwargs):
+        super(MeetingTypeForm, self).__init__(*args, **kwargs)
+        self.slug.choices = (
+            MeetingType.query
+            .with_entities(MeetingType.slug, MeetingType.title)
+            .all()
+        )
+
+
 class MeetingEditForm(ModelForm):
 
     class Meta:
         model = Meeting
+        field_args = {
+            'venue_address': {
+                'widget': widgets.TextArea()
+            }
+        }
 
     title = ModelFormField(TranslationInpuForm, label='Description')
+    venue_city = ModelFormField(TranslationInpuForm, label='City')
+    meeting_type = ModelFormField(MeetingTypeForm, label='Type')
