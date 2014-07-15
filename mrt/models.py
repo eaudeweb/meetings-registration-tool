@@ -9,8 +9,8 @@ db = SQLAlchemy()
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True)
-    password = db.Column(db.String(128))
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(128), nullable=False)
 
     def __repr__(self):
         return '{}'.format(self.email)
@@ -37,6 +37,8 @@ class User(db.Model):
 class Staff(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(8), nullable=False)
+    full_name = db.Column(db.String(128), nullable=False)
 
     user_id = db.Column(
         db.Integer, db.ForeignKey('user.id'),
@@ -47,10 +49,13 @@ class Staff(db.Model):
 
     role_id = db.Column(
         db.Integer, db.ForeignKey('role.id'),
-        nullable=False)
+        nullable=True)
     role = db.relationship(
         'Role',
         backref=db.backref('staffs', lazy='dynamic'))
+
+    def __repr__(self):
+        return '{}'.format(self.full_name)
 
 
 class Role(db.Model):

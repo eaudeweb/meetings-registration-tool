@@ -12,9 +12,9 @@ def initialize_app(app):
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    form = LoginForm(request.form)
     next = request.values.get('next')
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == 'POST' and form.validate():
         user = form.get_user()
         login_user(user)
         return redirect(next or url_for('temp'))
