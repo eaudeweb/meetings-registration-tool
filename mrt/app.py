@@ -17,6 +17,7 @@ def create_app(config={}):
 
     login_manager = LoginManager()
     login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
 
     auth.initialize_app(app)
 

@@ -1,4 +1,23 @@
 {% extends "_layout.html" %}
+
 {% block content %}
-<h1>Login</h1>
+
+  <div class="container">
+
+    {% if form.errors %}
+      <p class="alert alert-danger">Login failed</p>
+    {% endif %}
+
+    <h1>Login</h1>
+
+    <form class="well form-inline" method="post" action="/login">
+      {{ form.csrf_token }}
+      {{ form.email.label }} {{ form.email }}
+      {{ form.password.label }} {{ form.password }}
+      <input type=hidden value="{{ next or '' }}" name=next>
+      <button class="btn" type="submit">Sign in</button>
+    </form>
+
+  </div>
+
 {% endblock %}
