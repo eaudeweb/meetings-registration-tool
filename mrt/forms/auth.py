@@ -30,3 +30,10 @@ class UserForm(ModelForm):
 
     class Meta:
         model = User
+
+
+class UserEditForm(ModelForm):
+
+    class Meta:
+        model = User
+        exclude = ['password']

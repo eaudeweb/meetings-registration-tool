@@ -11,3 +11,9 @@ class StaffForm(ModelForm):
         model = Staff
 
     user = ModelFormField(UserForm, label='User')
+
+
+class StaffEditForm(ModelForm):
+
+    class Meta:
+        model = Staff
