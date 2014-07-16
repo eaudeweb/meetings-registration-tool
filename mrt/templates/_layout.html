@@ -5,7 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>{% block title %}{% endblock %}</title>
+    <title>
+      {% block title %}{% endblock %} - {{ config.PRODUCT_TITLE }}
+    </title>
 
     {% assets "css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}">
@@ -14,6 +16,15 @@
   </head>
 
   <body>
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">
+            {{ config.PRODUCT_TITLE }}</a>
+        </div>
+      </div>
+    </nav>
+
     <div class="container">
       {% block content %}{% endblock %}
     </div>

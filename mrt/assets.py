@@ -4,6 +4,7 @@ from flask.ext.assets import Environment, Bundle
 _BUNDLE_CSS = (
     'css/bootstrap.min.css',
     'css/bootstrap-theme.min.css',
+    'css/bootstrap-datetimepicker.min.css',
     'css/main.css',
 )
 
@@ -11,6 +12,9 @@ _BUNDLE_CSS = (
 _BUNDLE_JS = (
     'js/lib/jquery.min.js',
     'js/lib/bootstrap.min.js',
+    'js/lib/moment.js',
+    'js/lib/bootstrap-datetimepicker.min.js',
+    'js/main.js',
 )
 
 

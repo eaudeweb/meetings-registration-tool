@@ -1,5 +1,6 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy_utils import CountryType
 
 
 db = SQLAlchemy()
@@ -194,6 +195,7 @@ class Meeting(db.Model):
 
     title_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
                          nullable=False)
+
     title = db.relationship('Translation', foreign_keys=title_id)
 
     acronym = db.Column(db.String(16), nullable=False,
@@ -202,27 +204,39 @@ class Meeting(db.Model):
     meeting_type_id = db.Column(
         db.String(32), db.ForeignKey('meeting_type.slug'),
         nullable=False)
+
     meeting_type = db.relationship(
         'MeetingType',
         backref=db.backref('meetings', lazy='dynamic'))
 
-    date_start = db.Column(db.DateTime, nullable=False,
+    date_start = db.Column(db.Date, nullable=False,
                            info={'label': 'Start Date'})
-    date_end = db.Column(db.DateTime, nullable=False,
+
+    date_end = db.Column(db.Date, nullable=False,
                          info={'label': 'End Date'})
+
     venue_address = db.Column(db.String(128),
                               info={'label': 'Address'})
 
-    venue_city_id = db.Column(db.Integer, db.ForeignKey('translation.id'))
+    venue_city_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
+                              nullable=False)
+
     venue_city = db.relationship('Translation', foreign_keys=venue_city_id)
 
-    venue_country = db.Column(db.String(32), nullable=False)
+    venue_country = db.Column(CountryType, nullable=False,
+                              info={'label': 'Country'})
 
     admin_name = db.Column(db.String(32))
+
     admin_email = db.Column(db.String(32))
+
     media_admin_name = db.Column(db.String(32))
+
     media_admin_email = db.Column(db.String(32))
-    online_registration = db.Column(db.Boolean, nullable=False, default=True)
+
+    online_registration = db.Column(
+        db.Boolean, nullable=False, default=True,
+        info={'label': 'Allow Online Registration'})
 
     def __repr__(self):
         return '{}'.format(self.title)

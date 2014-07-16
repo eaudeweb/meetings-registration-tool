@@ -1,0 +1,25 @@
+
+{% macro form_group(field, label_size="2", input_size="8",
+                    class_="", options={}) %}
+
+  {% set label_cls = "col-sm-" + label_size  + " control-label" %}
+
+  <div class="form-group {% if field.errors %}has-error{% endif %}">
+    <label class="{{ label_cls }}" for="{{ field.id }}">
+      {{ field.label.text }}
+      {% if field.flags.required %}
+        <span class="text-danger">*</span>
+      {% else %}
+      {% endif %}
+    </label>
+
+    <div class="col-sm-{{ input_size }}">
+      {{ field(class_="form-control " + class_, **options) }}
+      {% if field.errors %}
+        <div class="text-danger"><small>{{ field.errors[0] }}</small></div>
+      {% endif %}
+    </div>
+  </div> {# form-group #}
+
+
+{% endmacro %}

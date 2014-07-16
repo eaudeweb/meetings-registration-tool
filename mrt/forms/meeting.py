@@ -36,7 +36,7 @@ class TranslationInpuForm(ModelForm):
 
 class MeetingTypeForm(ModelForm):
 
-    slug = fields.SelectField('Acronym', choices=[])
+    slug = fields.SelectField('Type', choices=[])
 
     class Meta:
         model = MeetingType
@@ -58,9 +58,18 @@ class MeetingEditForm(ModelForm):
         field_args = {
             'venue_address': {
                 'widget': widgets.TextArea()
+            },
+            'date_start': {
+                'format': '%d.%m.%Y'
+            },
+            'date_end': {
+                'format': '%d.%m.%Y'
             }
         }
 
     title = ModelFormField(TranslationInpuForm, label='Description')
     venue_city = ModelFormField(TranslationInpuForm, label='City')
-    meeting_type = ModelFormField(MeetingTypeForm, label='Type')
+    meeting_type = ModelFormField(MeetingTypeForm)
+
+    def save(self):
+        pass

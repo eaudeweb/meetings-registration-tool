@@ -1,5 +1,6 @@
 from flask import Flask
 from flask.ext.login import LoginManager
+from flask.ext.babel import Babel
 
 from mrt import auth
 from mrt.models import db, User
@@ -14,6 +15,7 @@ def create_app(config={}):
     app.config.update(config)
     app.debug = True
 
+    Babel(app)
     assets_env.init_app(app)
     db.init_app(app)
 
