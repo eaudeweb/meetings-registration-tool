@@ -8,7 +8,7 @@
       <h2>Add new staff member</h2>
     </div>
 
-    <form class="well form-horizontal" role="form" method="post" action="{{ url_for('.staff_add') }}">
+    <form class="well form-horizontal" role="form" method="post" action="{{ submit_url }}">
       {{ form.csrf_token }}
 
       <div class="form-group row">
@@ -25,6 +25,7 @@
         </div>
       </div>
 
+      {% if form.user %}
       <div class="form-group row">
         {{ form.user.label(class_='control-label col-sm-2') }}
         <div class="controls col-sm-10">
@@ -40,6 +41,7 @@
           </ul>
         </div>
       </div>
+      {% endif %}
 
       <input type=hidden value="{{ next or '' }}" name=next>
       <button class="btn" type="submit">Add</button>

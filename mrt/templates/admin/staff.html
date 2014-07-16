@@ -18,7 +18,7 @@
     <tbody>
       {% for member in staff %}
         <tr>
-          <td>{{ member.full_name }}</td>
+          <td><a href="{{ url_for('.staff_edit', staff_id=member.id) }}">{{ member.full_name }}</a></td>
           <td>{{ member.user.email }}</td>
         <tr>
       {% endfor %}
