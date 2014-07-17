@@ -227,6 +227,10 @@ class Meeting(db.Model):
     venue_country = db.Column(CountryType, nullable=False,
                               info={'label': 'Country'})
 
+    venue_state = db.Column(db.String(128))
+
+    venue_code = db.Column(db.String(16))
+
     admin_name = db.Column(db.String(32))
 
     admin_email = db.Column(db.String(32))
