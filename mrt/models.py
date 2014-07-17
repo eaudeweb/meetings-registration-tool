@@ -1,6 +1,6 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy_utils import CountryType
+from sqlalchemy_utils import ChoiceType, CountryType
 
 
 db = SQLAlchemy()
@@ -201,13 +201,7 @@ class Meeting(db.Model):
     acronym = db.Column(db.String(16), nullable=False,
                         info={'label': 'Acronym'})
 
-    meeting_type_id = db.Column(
-        db.String(32), db.ForeignKey('meeting_type.slug'),
-        nullable=False)
-
-    meeting_type = db.relationship(
-        'MeetingType',
-        backref=db.backref('meetings', lazy='dynamic'))
+    meeting_type = db.Column(db.String(3), nullable=False)
 
     date_start = db.Column(db.Date, nullable=False,
                            info={'label': 'Start Date'})
@@ -240,12 +234,6 @@ class Meeting(db.Model):
 
     def __repr__(self):
         return '{}'.format(self.title)
-
-
-class MeetingType(db.Model):
-
-    slug = db.Column(db.String(16), primary_key=True)
-    title = db.Column(db.String(32), nullable=False)
 
 
 class Category(db.Model):
