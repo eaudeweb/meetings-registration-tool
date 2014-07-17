@@ -1,0 +1,27 @@
+{% extends "_layout.html" %}
+
+{% block content %}
+
+  <div class="container">
+
+    {% if form.errors %}
+      <p class="alert alert-danger">Email is not valid</p>
+    {% endif %}
+
+    {% if form.validate %}
+      <h1>Tay</h1>
+    {% endif %}
+
+    <div class="page-header">
+      <h1>Recover password</h1>
+    </div>
+
+    <form class="well form-inline" method="post">
+      {{ form.csrf_token }}
+      {{ form.email.label }} {{ form.email }}
+      <button class="btn" type="submit">Send email</button>
+    </form>
+
+  </div>
+
+{% endblock %}
