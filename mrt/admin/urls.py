@@ -1,7 +1,9 @@
 from flask import Blueprint
 from mrt.admin import StaffList, StaffEdit
 
+
 admin = Blueprint('admin', __name__, url_prefix='/admin')
+
 
 admin.add_url_rule('/list', view_func=StaffList.as_view('list'))
 
