@@ -1,22 +1,14 @@
-from wtforms import Form, fields, widgets
-from wtforms_alchemy import model_form_factory
+from flask import current_app as app
+from wtforms import fields, widgets
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db
-from mrt.models import Meeting, MeetingType, Translation
+from mrt.models import Meeting, Translation
+
+from .base import BaseForm
 
 
-BaseModelForm = model_form_factory(Form)
-
-
-class ModelForm(BaseModelForm):
-
-    @classmethod
-    def get_session(self):
-        return db.session
-
-
-class TranslationInpuForm(ModelForm):
+class TranslationInpuForm(BaseForm):
 
     class Meta:
         model = Translation
@@ -34,24 +26,7 @@ class TranslationInpuForm(ModelForm):
         }
 
 
-class MeetingTypeForm(ModelForm):
-
-    slug = fields.SelectField('Type', choices=[])
-
-    class Meta:
-        model = MeetingType
-        only = ('slug',)
-
-    def __init__(self, *args, **kwargs):
-        super(MeetingTypeForm, self).__init__(*args, **kwargs)
-        self.slug.choices = (
-            MeetingType.query
-            .with_entities(MeetingType.slug, MeetingType.title)
-            .all()
-        )
-
-
-class MeetingEditForm(ModelForm):
+class MeetingEditForm(BaseForm):
 
     class Meta:
         model = Meeting
@@ -69,7 +44,11 @@ class MeetingEditForm(ModelForm):
 
     title = ModelFormField(TranslationInpuForm, label='Description')
     venue_city = ModelFormField(TranslationInpuForm, label='City')
-    meeting_type = ModelFormField(MeetingTypeForm)
+    meeting_type = fields.SelectField('Meeting Type')
+
+    def __init__(self, *args, **kwargs):
+        super(MeetingEditForm, self).__init__(*args, **kwargs)
+        self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
 
     def save(self):
         pass

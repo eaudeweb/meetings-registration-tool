@@ -1,5 +1,15 @@
 SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
 SECRET_KEY = 'secret'
 
+
 PRODUCT_NAME = ''
 PRODUCT_TITLE = ''
+
+
+MEETING_TYPES = (
+    ('cop', 'Conference of the Parties'),
+    ('ac', 'Animals Committee'),
+    ('scc', 'Scientific Council'),
+    ('sc', 'Standing Committee'),
+    ('pc', 'Plants Committee'),
+)
