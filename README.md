@@ -60,6 +60,10 @@ packages `postgresql-9.1`, `postgresql-contrib-9.1` and
     GRANT
     postgres=# \q
 
+After that, run alembic upgrade to have the tables created:
+
+    ./manage.py alembic upgrade head
+    
 
 Create a migration after changes in models.py
 ---------------------------------------------
