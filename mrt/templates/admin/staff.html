@@ -18,14 +18,14 @@
     <tbody>
       {% for member in staff %}
         <tr>
-          <td><a href="{{ url_for('.staff_edit', staff_id=member.id) }}">{{ member.full_name }}</a></td>
+          <td><a href="{{ url_for('.edit', staff_id=member.id) }}">{{ member.full_name }}</a></td>
           <td>{{ member.user.email }}</td>
         <tr>
       {% endfor %}
     </tbody>
     </table>
 
-    <a class="btn btn-primary" href="{{ url_for('.staff_add') }}">Add staff</a>
+    <a class="btn btn-primary" href="{{ url_for('.edit') }}">Add staff</a>
 
 
   </div>

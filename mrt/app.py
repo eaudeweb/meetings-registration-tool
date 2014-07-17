@@ -2,11 +2,12 @@ from flask import Flask
 from flask.ext.login import LoginManager
 from flask.ext.babel import Babel
 
-from mrt import auth, admin
+from mrt import auth
 from mrt.models import db, User
 from mrt.assets import assets_env
 
 from mrt.meetings.urls import meetings
+from mrt.admin.urls import admin
 
 
 def create_app(config={}):
@@ -26,7 +27,7 @@ def create_app(config={}):
     login_manager.login_view = 'auth.login'
 
     auth.initialize_app(app)
-    admin.initialize_app(app)
+    app.register_blueprint(admin)
 
     @login_manager.user_loader
     def load_user(user_id):

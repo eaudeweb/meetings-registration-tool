@@ -1,8 +1,8 @@
 from wtforms import Form
 from wtforms import TextField, PasswordField, validators
 
+from .base import BaseForm
 from mrt.models import User
-from mrt.forms.meeting import ModelForm
 
 
 class LoginForm(Form):
@@ -26,7 +26,7 @@ class LoginForm(Form):
         return User.query.filter_by(email=self.email.data).first()
 
 
-class UserForm(ModelForm):
+class UserForm(BaseForm):
 
     class Meta:
         model = User
