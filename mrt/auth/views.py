@@ -1,11 +1,10 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 from flask.views import MethodView
 from flask.ext.login import login_user, logout_user
 
-from uuid import uuid4
-from datetime import datetime
-
-from mrt.forms.auth import LoginForm, RecoverForm
+from mrt.forms.auth import LoginForm, RecoverForm, ResetPasswordForm
+from mrt.models import db, User
+from mrt.mail import send_reset_mail
 
 
 class Login(MethodView):
@@ -41,6 +40,34 @@ class RecoverPassword(MethodView):
     def post(self):
         form = RecoverForm(request.form)
         if form.validate():
-            form.save()
-            #TODO create token and timpstamp on user, send email with url+token
+            user = form.save()
+            send_reset_mail(user.email, user.recover_token)
+            return redirect(url_for('temp'))
         return render_template('auth/recover.html', form=form)
+
+
+class ResetPassword(MethodView):
+
+    def get(self, token):
+        form = ResetPasswordForm()
+        user = User.query.filter_by(recover_token=token).first()
+        if user is None:
+            flash('Invalid token')
+            return redirect(url_for('temp'))
+
+        return render_template('auth/reset_password.html', form=form)
+
+    def post(self, token):
+        form = ResetPasswordForm(request.form)
+        user = User.query.filter_by(recover_token=token).first()
+        if user is None:
+            flash('Invalid token')
+            return redirect(url_for('temp'))
+
+        if form.validate():
+            user.set_password(form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            flash('Password changed succesfully')
+            return redirect(url_for('auth.login'))
+        return render_template('auth/reset_password.html', form=form)

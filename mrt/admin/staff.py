@@ -7,7 +7,7 @@ from mrt.forms.admin import StaffAddForm, StaffEditForm
 
 
 class StaffList(MethodView):
-    decorators = [login_required]
+    decorators = (login_required, )
 
     def get(self):
         staff = Staff.query.all()
@@ -15,7 +15,7 @@ class StaffList(MethodView):
 
 
 class StaffEdit(MethodView):
-    decorators = [login_required]
+    decorators = (login_required, )
 
     def get(self, staff_id=None):
         if staff_id:

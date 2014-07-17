@@ -8,6 +8,7 @@ from mrt.assets import assets_env
 from mrt.meetings.urls import meetings
 from mrt.admin.urls import admin
 from mrt.auth.urls import auth
+from mrt.mail import mail
 
 
 def create_app(config={}):
@@ -27,6 +28,8 @@ def create_app(config={}):
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+
+    mail.init_app(app)
 
     @login_manager.user_loader
     def load_user(user_id):

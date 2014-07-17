@@ -15,13 +15,11 @@ class LoginForm(Form):
 
     def validate_email(self, field):
         user = self.get_user()
-
         if user is None:
             raise validators.ValidationError('Invalid user')
 
     def validate_password(self, field):
         user = self.get_user()
-
         if user and not user.check_password(self.password.data):
             raise validators.ValidationError('Invalid password')
 
@@ -41,7 +39,6 @@ class RecoverForm(Form):
 
     def validate_email(self, field):
         user = self.get_user()
-
         if user is None:
             raise validators.ValidationError('Invalid user')
 
@@ -55,6 +52,17 @@ class RecoverForm(Form):
 
         user.recover_token = token
         user.recover_time = time
-
         db.session.add(user)
         db.session.commit()
+
+        return user
+
+
+class ResetPasswordForm(Form):
+
+    password = PasswordField('Password', [validators.Required()])
+    confirm = PasswordField('Confirm Password', [validators.Required()])
+
+    def validate_confirm(self, field):
+        if self.password.data != self.confirm.data:
+            return validators.ValidationError('Passwords differ!')
