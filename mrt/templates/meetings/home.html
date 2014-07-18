@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, row_link %}
 
 
 {% block title %}Meetings{% endblock %}
@@ -68,6 +68,10 @@
               {% if meeting.venue_state %}
                 <div>{{ meeting.venue_state }}</div>
               {% endif %}
+
+              {{ row_link(
+                  [url_for('.edit', meeting_id=meeting.id), 'edit']
+                 ) }}
             </td>
           </tr>
         {% endfor %}

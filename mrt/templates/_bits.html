@@ -42,3 +42,13 @@
   </ol>
 
 {% endmacro %}
+
+
+{% macro row_link(link) %}
+
+  <div class="row-link">
+    <a href="{{ link[0] }}" class="label label-danger">
+      {{ link[1] }}</a>
+  </div>
+
+{% endmacro %}
