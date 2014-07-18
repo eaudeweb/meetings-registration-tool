@@ -7,18 +7,21 @@
 
 {% macro list_inputs(inputs) %}
 
-  <ul class="list-unstyled">
+  <ul class="list-unstyled row">
     {% for input in inputs %}
-      {{ input.label }}
-      {% if input.flags.required %}
-        <span class="text-danger">*</span>
-      {% endif %}
-      {{ input(class_="form-control") }}
-      {% if input.flags.required %}
-        <div class="text-danger">
-          <small>{{ input.errors[0] }}</small>
-        </div>
-      {% endif %}
+      <li class="col-sm-4">
+        {{ input.label }}
+        {% if input.flags.required %}
+          <span class="text-danger">*</span>
+        {% endif %}
+        {{ input(class_="form-control",
+                 placeholder=input.label.text) }}
+        {% if input.flags.required %}
+          <div class="text-danger">
+            <small>{{ input.errors[0] }}</small>
+          </div>
+        {% endif %}
+      </li>
     {% endfor %}
   </ul>
 
@@ -42,13 +45,9 @@
       </div>
 
       <div class="panel-body">
-
         {{ form_group(form.title.english) }}
-
         {{ form_group(form.title.french) }}
-
         {{ form_group(form.title.spanish) }}
-
       </div> {# panel-body #}
 
     </div> {# panel #}
@@ -64,6 +63,19 @@
         {{ form_group(form.venue_address) }}
 
         <div class="form-group">
+          {{ form.venue_country.label(class_="col-sm-2 control-label") }}
+          <div class="col-sm-8">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                {{ list_inputs([form.venue_country,
+                                form.venue_state,
+                                form.venue_code]) }}
+              </div>
+            </div>
+          </div>
+        </div> {# form-group #}
+
+        <div class="form-group">
           {{ form.venue_city.label(class_="col-sm-2 control-label") }}
           <div class="col-sm-8">
             <div class="panel panel-default">
@@ -76,12 +88,6 @@
           </div>
         </div> {# form-group #}
 
-        {{ form_group(form.venue_state) }}
-
-        {{ form_group(form.venue_code) }}
-
-        {{ form_group(form.venue_country,
-                      label_size="2", input_size="3") }}
 
       </div> {# panel-body #}
 
@@ -94,7 +100,6 @@
       </div>
 
       <div class="panel-body">
-
         {{ form_group(form.date_start,
                       label_size="2", input_size="3",
                       class_="picker",
@@ -104,7 +109,6 @@
                       label_size="2", input_size="3",
                       class_="picker",
                       options={"data-date-format": "DD.MM.YYYY"}) }}
-
       </div>
 
     </div> {# panel #}
@@ -119,7 +123,6 @@
       <div class="panel-body">
         {{ form_group(form.meeting_type,
                       label_size="2", input_size="3") }}
-
         {{ form_group(form.acronym,
                       label_size="2", input_size="3") }}
         {{ form_group(form.online_registration) }}

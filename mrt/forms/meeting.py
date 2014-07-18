@@ -22,7 +22,6 @@ class TranslationInpuForm(BaseForm):
             'spanish': {
                 'widget': widgets.TextInput()
             }
-
         }
 
 
@@ -51,4 +50,8 @@ class MeetingEditForm(BaseForm):
         self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
 
     def save(self):
-        pass
+        meeting = self.obj or Meeting()
+        self.populate_obj(meeting)
+        db.session.add(meeting)
+        db.session.commit()
+        return meeting

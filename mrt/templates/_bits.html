@@ -14,7 +14,9 @@
     </label>
 
     <div class="col-sm-{{ input_size }}">
-      {{ field(class_="form-control " + class_, **options) }}
+      {{ field(class_="form-control " + class_,
+               placeholder=field.label.text,
+               **options) }}
       {% if field.errors %}
         <div class="text-danger"><small>{{ field.errors[0] }}</small></div>
       {% endif %}
