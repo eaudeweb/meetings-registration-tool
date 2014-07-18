@@ -1,0 +1,86 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% block title %}Meetings{% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#meetings').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ breadcrumb( [('', 'Meetings')] ) }}
+
+  <div class="page-header">
+    <h2>Meetings</h2>
+  </div>
+
+  <div class="actions">
+    <a href="{{ url_for('.edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new meeting</a>
+  </div>
+
+  <div class="table-responsive">
+
+    <table id="meetings" class="table table-bordered table-condensed">
+
+      <thead>
+        <tr>
+          <th style="width: 60px;" class="text-center">Id</th>
+          <th>Meeting</th>
+          <th>Venue</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for meeting in meetings %}
+          {% set url = url_for('.edit', meeting_id=meeting.id) %}
+          <tr class="{% if meeting.online_registration %}info{% endif %}">
+            <td class="text-center">{{ meeting.acronym }}</td>
+            <td>
+              <div>
+                <a href="{{ url }}">{{ meeting.title.english }}</a>
+              </div>
+              <div>
+                <small>
+                  {{ meeting.date_start.strftime('%d.%m.%Y') }} -
+                  {{ meeting.date_end.strftime('%d.%m.%Y') }}
+                </small>
+              </div>
+            </td>
+            <td>
+              <div>{{ meeting.venue_address|nl2br }}</div>
+              {% if meeting.venue_code %}
+                <div>{{ meeting.venue_code }}</div>
+              {% endif %}
+              <div>{{ meeting.venue_city.english }},
+                   {{ meeting.venue_country }}</div>
+              {% if meeting.venue_state %}
+                <div>{{ meeting.venue_state }}</div>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+
+  </div> {# table-responsive #}
+
+  <div class="actions">
+    <a href="{{ url_for('.edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new meeting</a>
+  </div>
+
+{% endblock %}

@@ -3,6 +3,17 @@
     padding-bottom: 20px;
 }
 
+.page-header {
+    margin-top: 0;
+}
+
+.actions {
+    margin-bottom: 20px;
+}
+.actions .glyphicon {
+    font-size: 10px;
+}
+
 .meeting-container .field-i18nstring li {
     margin-bottom: 15px;
 }

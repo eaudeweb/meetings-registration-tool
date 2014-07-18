@@ -1,8 +1,12 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import form_group %}
+{% from "_bits.html" import breadcrumb, form_group %}
 
 
-{% block title %}Add a new meeting{% endblock %}
+{% set title = 'Edit meeting (%s)'|format(meeting.acronym)
+               if meeting else 'Add a new meeting' %}
+
+
+{% block title %} {{ title }} {% endblock %}
 
 
 {% macro list_inputs(inputs) %}
@@ -32,8 +36,10 @@
 
 <div class="meeting-container">
 
+  {{ breadcrumb( [(url_for('.home'), 'Meetings'), ('', title)] ) }}
+
   <div class="page-header">
-    <h2>Add a new meeting</h2>
+    <h2>{{ title }}</h2>
   </div>
 
   <form class="form-horizontal" role="form" method="POST">
@@ -133,7 +139,7 @@
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">
         Save changes</button> <small>or</small>
-        <small><a href="{{ url_for('.list') }}">Cancel</a></small>
+        <small><a href="{{ url_for('.home') }}">Cancel</a></small>
     </div>
   </form>
 

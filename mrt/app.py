@@ -10,6 +10,8 @@ from mrt.admin.urls import admin
 from mrt.auth.urls import auth
 from mrt.mail import mail
 
+from mrt.template import nl2br
+
 
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
@@ -24,6 +26,8 @@ def create_app(config={}):
     app.register_blueprint(meetings)
     app.register_blueprint(auth)
     app.register_blueprint(admin)
+
+    app.add_template_filter(nl2br)
 
     login_manager = LoginManager()
     login_manager.init_app(app)

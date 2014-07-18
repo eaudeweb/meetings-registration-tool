@@ -52,6 +52,7 @@ class MeetingEditForm(BaseForm):
     def save(self):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
-        db.session.add(meeting)
+        if meeting.id is None:
+            db.session.add(meeting)
         db.session.commit()
         return meeting

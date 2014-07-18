@@ -25,3 +25,20 @@
 
 
 {% endmacro %}
+
+
+{% macro breadcrumb(crumbs) %}
+
+  <ol class="breadcrumb">
+    {% for crumb in crumbs %}
+      <li class="{% if loop.last %}active{% endif %}">
+        {% if not loop.last %}
+          <a href="{{ crumb[0] }}">{{ crumb[1] }}</a>
+        {% else %}
+         {{ crumb[1] }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+
+{% endmacro %}
