@@ -4,4 +4,6 @@ $(function () {
         pickTime: false,
     })
 
+    $(".autosize").autosize();
+
 });

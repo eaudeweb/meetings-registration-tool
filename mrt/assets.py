@@ -17,6 +17,7 @@ _BUNDLE_JS = (
     'js/lib/bootstrap-datetimepicker.min.js',
     'js/lib/jquery.dataTables.min.js',
     'js/lib/dataTables.bootstrap.js',
+    'js/lib/jquery.autosize.min.js',
     'js/main.js',
 )
 
