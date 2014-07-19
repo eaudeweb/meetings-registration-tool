@@ -1,4 +1,5 @@
 import re
+from flask import request
 from jinja2 import evalcontextfilter, Markup, escape
 
 
@@ -12,3 +13,8 @@ def nl2br(eval_ctx, value):
     if eval_ctx.autoescape:
         result = Markup(result)
     return result
+
+
+def active(pattern):
+    return 'active' if re.search(pattern, request.path) else ''
+

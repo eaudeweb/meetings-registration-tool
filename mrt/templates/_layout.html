@@ -23,6 +23,14 @@
              href="{{ url_for('meetings.home') }}">
             {{ config.PRODUCT_TITLE }}</a>
         </div>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li class="{{ active('/meetings') }}">
+          <a href="{{ url_for('meetings.home') }}">
+            Meetings</a>
+        </li>
+      </ul>
+
       </div>
     </nav>
 

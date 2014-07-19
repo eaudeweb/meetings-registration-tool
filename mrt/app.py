@@ -10,7 +10,7 @@ from mrt.admin.urls import admin
 from mrt.auth.urls import auth
 from mrt.mail import mail
 
-from mrt.template import nl2br
+from mrt.template import nl2br, active
 
 
 def create_app(config={}):
@@ -28,6 +28,7 @@ def create_app(config={}):
     app.register_blueprint(admin)
 
     app.add_template_filter(nl2br)
+    app.add_template_global(active)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
