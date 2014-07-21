@@ -29,7 +29,7 @@
         <div class="panel-body">
           {{ form_group(form.title) }}
           {{ form_group(form.full_name) }}
-          {{ form_group(form.email) }}
+          {{ form_group(form.user.email) }}
         </div>
       </div>
 
@@ -51,21 +51,17 @@
 {% endblock %}
 
 {% block scripts %}
+
   <script>
     $(function() {
-      $("#delete-button").on("click", function (e) {
-        e.preventDefault();
+      $("#delete-button").on("click", function () {
         var url = $(this).attr("href");
         if (confirm('Are you sure you want to delete this member?')) {
-          $.ajax({
-            type: "DELETE",
-            url: url
-        }).done(function (data) {
-          var data = $.parseJSON(data);
-          document.location = data.url;
-        });
+          $.ajax({type: "DELETE", url: url}).done(function (data) {
+            document.location = data.url;
+          });
         }
-        });
+      });
     });
   </script>
 

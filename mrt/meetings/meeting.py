@@ -22,7 +22,7 @@ class MeetingEdit(MethodView):
         else:
             meeting = None
         form = MeetingEditForm(obj=meeting)
-        return render_template('meetings/edit.html',
+        return render_template('meetings/meeting/edit.html',
                                form=form, meeting=meeting)
 
     def post(self, meeting_id=None):
@@ -34,4 +34,4 @@ class MeetingEdit(MethodView):
         if form.validate():
             form.save()
             return redirect(url_for('.home'))
-        return render_template('meetings/edit.html', form=form)
+        return render_template('meetings/meeting/edit.html', form=form)

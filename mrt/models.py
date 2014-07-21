@@ -1,6 +1,6 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy_utils import ChoiceType, CountryType
+from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 
 from datetime import datetime
 
@@ -11,7 +11,8 @@ db = SQLAlchemy()
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), unique=True, nullable=False)
+    email = db.Column(EmailType, unique=True, nullable=False,
+                      info={'label': 'Email'})
     password = db.Column(db.String(128), nullable=True)
     recover_token = db.Column(db.String(64))
     recover_time = db.Column(db.DateTime)
