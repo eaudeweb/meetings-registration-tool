@@ -29,6 +29,17 @@
           <a href="{{ url_for('meetings.home') }}">
             Meetings</a>
         </li>
+        <li class="{{ active('/admin') }} dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">
+            Admin <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" role="menu">
+            <li class="{{ active('/admin/categories') }}">
+              <a href="{{ url_for('admin.categories') }}">
+                Categories</a>
+            </li>
+          </ul>
+        </li>
       </ul>
 
       </div>

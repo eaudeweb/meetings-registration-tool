@@ -6,11 +6,12 @@ from mrt.models import Meeting
 from mrt.forms import MeetingEditForm
 
 
-class MeetingHome(MethodView):
+class Meetings(MethodView):
 
     def get(self):
         meetings = Meeting.query.all()
-        return render_template('meetings/home.html', meetings=meetings)
+        return render_template('meetings/meeting/list.html',
+                               meetings=meetings)
 
 
 class MeetingEdit(MethodView):
