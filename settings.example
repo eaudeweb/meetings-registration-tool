@@ -13,3 +13,12 @@ MEETING_TYPES = (
     ('sc', 'Standing Committee'),
     ('pc', 'Plants Committee'),
 )
+
+
+#CONFIG FOR FLASK-MAIL
+MAIL_SERVER = ''
+MAIL_PORT = 25
+MAIL_USE_TLS = False
+MAIL_USE_SSL = True
+MAIL_USERNAME = ''
+MAIL_PASSWORD = ''
