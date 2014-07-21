@@ -51,7 +51,7 @@ class ResetPassword(MethodView):
     def get(self, token):
         form = ResetPasswordForm()
         user = User.query.filter_by(recover_token=token).first()
-        if user is None:
+        if user is None or not user.token_is_active:
             flash('Invalid token')
             return redirect(url_for('temp'))
 
@@ -60,13 +60,13 @@ class ResetPassword(MethodView):
     def post(self, token):
         form = ResetPasswordForm(request.form)
         user = User.query.filter_by(recover_token=token).first()
-        if user is None:
+        if user is None or not user.token_is_active:
             flash('Invalid token')
             return redirect(url_for('temp'))
 
         if form.validate():
             user.set_password(form.password.data)
-            db.session.add(user)
+            user.is_active = True
             db.session.commit()
             flash('Password changed succesfully')
             return redirect(url_for('auth.login'))

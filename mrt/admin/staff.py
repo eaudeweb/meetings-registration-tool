@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask.ext.login import login_required
 
 from mrt.models import db, Staff
-from mrt.forms.admin import StaffAddForm, StaffEditForm
+from mrt.forms.admin import StaffEditForm
 
 
 class StaffList(MethodView):
@@ -11,7 +11,7 @@ class StaffList(MethodView):
 
     def get(self):
         staff = Staff.query.all()
-        return render_template('admin/staff.html', staff=staff)
+        return render_template('admin/staff/list.html', staff=staff)
 
 
 class StaffEdit(MethodView):
@@ -20,26 +20,25 @@ class StaffEdit(MethodView):
     def get(self, staff_id=None):
         if staff_id:
             staff = Staff.query.get_or_404(staff_id)
-            form = StaffEditForm(obj=staff)
+            email = staff.user.email
         else:
             staff = None
-            form = StaffAddForm()
+            email = None
+        form = StaffEditForm(obj=staff, email=email)
 
-        return render_template('admin/edit.html', form=form, staff=staff)
+        return render_template('admin/staff/edit.html', form=form, staff=staff)
 
     def post(self, staff_id=None):
         if staff_id:
             staff = Staff.query.get_or_404(staff_id)
-            form = StaffEditForm(request.form, obj=staff)
         else:
             staff = None
-            form = StaffAddForm(request.form)
-
+        form = StaffEditForm(request.form, obj=staff)
         if form.validate():
             form.save()
-            return redirect(url_for('.list'))
+            return redirect(url_for('.staff'))
 
-        return render_template('admin/edit.html', form=form, staff=staff)
+        return render_template('admin/staff/edit.html', form=form, staff=staff)
 
     def delete(self, staff_id):
         staff = Staff.query.get_or_404(staff_id)
@@ -48,7 +47,7 @@ class StaffEdit(MethodView):
         db.session.commit()
         response = {
             "status": "success",
-            "url": url_for('.list')
+            "url": url_for('.staff')
         }
 
         return jsonify(response).data

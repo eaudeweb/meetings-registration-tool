@@ -1,0 +1,63 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% block title %}Staff{% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#staff').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+{% block content %}
+
+  {{ breadcrumb( [('', 'Staff members')] ) }}
+
+  <div class="page-header">
+    <h1>Staff</h1>
+  </div>
+
+  <div class="actions">
+    <a href="{{ url_for('.edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new staff member</a>
+  </div>
+
+  <div class="table-responsive">
+    <table id="staff" class="table table-bordered table-condensed">
+
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for member in staff %}
+          {% set url = url_for('.edit', staff_id=member.id) %}
+          <tr>
+            <td><a href="{{ url }}">{{ member.full_name }}</a></td>
+            <td>{{ member.user.email }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table> {# table-responsive #}
+
+  </div>
+
+  <div class="actions">
+    <a href="{{ url_for('.edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new staff member</a>
+  </div>
+
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb,form_group %}
+
+{% set title = 'Edit staff' if staff else 'Add a new staff' %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block content %}
+
+  <div class="staff=container">
+
+    {{ breadcrumb( [(url_for('.staff'), 'Staff'), ('', title)] ) }}
+
+    <div class="page-header">
+      <h2>{{ page_title }}</h2>
+    </div>
+
+    <form class="form-horizontal" role="form" method="POST">
+      {{ form.csrf_token }}
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <b>Member details</b>
+        </div>
+
+        <div class="panel-body">
+          {{ form_group(form.title) }}
+          {{ form_group(form.full_name) }}
+          {{ form_group(form.email) }}
+        </div>
+      </div>
+
+      <input type=hidden value="{{ next or '' }}" name=next>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        {% if staff %}
+          <a id="delete-button" class="btn btn-primary btn-danger">Delete</a>
+        {% endif %}
+        <small>or</small>
+        <small><a href="{{ url_for('.staff') }}">Cancel</a></small>
+      </div>
+
+    </form>
+
+  </div> {# / .staff-container #}
+
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(function() {
+      $("#delete-button").on("click", function (e) {
+        e.preventDefault();
+        var url = $(this).attr("href");
+        if (confirm('Are you sure you want to delete this member?')) {
+          $.ajax({
+            type: "DELETE",
+            url: url
+        }).done(function (data) {
+          var data = $.parseJSON(data);
+          document.location = data.url;
+        });
+        }
+        });
+    });
+  </script>
+
+{% endblock %}

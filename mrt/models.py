@@ -2,6 +2,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_utils import ChoiceType, CountryType
 
+from datetime import datetime
+
 
 db = SQLAlchemy()
 
@@ -10,9 +12,10 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(128), nullable=True)
     recover_token = db.Column(db.String(64))
     recover_time = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
         return '{}'.format(self.email)
@@ -27,7 +30,7 @@ class User(db.Model):
         return True
 
     def is_active(self):
-        return True
+        return self.is_active
 
     def is_anonymous(self):
         return False
@@ -35,12 +38,16 @@ class User(db.Model):
     def get_id(self):
         return unicode(self.id)
 
+    def token_is_active(self):
+        return (datetime.now() - self.recover_time).seconds < 86400
+
 
 class Staff(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64), nullable=True)
-    full_name = db.Column(db.String(128), nullable=False)
+    title = db.Column(db.String(64), nullable=True, info={'label': 'Ttile'})
+    full_name = db.Column(db.String(128), nullable=False,
+                          info={'label': 'Full Name'})
 
     user_id = db.Column(
         db.Integer, db.ForeignKey('user.id'),

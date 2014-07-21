@@ -18,6 +18,9 @@ class LoginForm(Form):
         if user is None:
             raise validators.ValidationError('Invalid user')
 
+        if not user.is_active:
+            raise validators.ValidationError('Inactive user')
+
     def validate_password(self, field):
         user = self.get_user()
         if user and not user.check_password(self.password.data):
@@ -52,7 +55,6 @@ class RecoverForm(Form):
 
         user.recover_token = token
         user.recover_time = time
-        db.session.add(user)
         db.session.commit()
 
         return user
