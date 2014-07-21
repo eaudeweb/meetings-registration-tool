@@ -1,18 +1,26 @@
-from mrt.models import User, db
+from mrt.models import Meeting
+from flask import url_for
+from .factories import MeetingFactory
 
 
-def test_model(app):
-    user = User(email='johndoe@eaudeweb.ro')
-
-    db.session.add(user)
-    db.session.commit()
-
-    count = User.query.count()
+def test_model_factory(app):
+    MeetingFactory()
+    count = Meeting.query.count()
     assert count == 1
 
 
-def test_view(app):
-    with app.test_client() as client:
-        response = client.get('/')
+def test_add_meeting(app):
+    data = MeetingFactory.attributes()
+    data['online_registration'] = u'y'
+    data['date_start'] = data['date_start'].strftime('%d.%m.%Y')
+    data['date_end'] = data['date_end'].strftime('%d.%m.%Y')
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
 
-    assert response.status_code == 200
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.edit')
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert Meeting.query.count() == 1
