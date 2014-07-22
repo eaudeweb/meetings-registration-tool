@@ -1,5 +1,6 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, form_group %}
+{% from "_bits.html" import breadcrumb, form_group,
+                            flashed_messages %}
 
 
 {% set title = 'Edit meeting (%s)'|format(meeting.acronym)
@@ -37,6 +38,8 @@
 <div class="meeting-container">
 
   {{ breadcrumb( [(url_for('.home'), 'Meetings'), ('', title)] ) }}
+
+  {{ flashed_messages() }}
 
   <div class="page-header">
     <h2>{{ title }}</h2>
@@ -106,6 +109,7 @@
       </div>
 
       <div class="panel-body">
+
         {{ form_group(form.date_start,
                       label_size="2", input_size="3",
                       class_="picker",
@@ -136,10 +140,20 @@
 
     </div> {# panel #}
 
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">
-        Save changes</button> <small>or</small>
-        <small><a href="{{ url_for('.home') }}">Cancel</a></small>
+    <div class="form-actions row">
+      <div class="col-sm-6">
+        <button type="submit" class="btn btn-primary">
+          Save changes</button> <small>or <a href="{{ url_for('.home') }}">Cancel</a></small>
+      </div>
+      {% if meeting %}
+        <div class="col-sm-6 text-right">
+          <a class="delete" data-toggle="delete"
+             data-href="{{ url_for('.edit', meeting_id=meeting.id) }}"
+             data-message="Are you sure you want to delete this meeting?">
+            <span class="glyphicon glyphicon-remove"></span>
+            Delete this meeting</a>
+        </div>
+      {% endif %}
     </div>
   </form>
 

@@ -35,14 +35,16 @@ class MeetingEdit(MethodView):
         if form.validate():
             form.save()
             if meeting_id:
-                flash('Meeting successfully added', 'success')
-            else:
                 flash('Meeting successfully updated', 'success')
+            else:
+                flash('Meeting successfully added', 'success')
             return redirect(url_for('.home'))
+        flash('Meeting was not saved. Please see the errors bellow', 'danger')
         return render_template('meetings/meeting/edit.html', form=form)
 
     def delete(self, meeting_id=None):
         meeting = Meeting.query.get_or_404(meeting_id)
         db.session.delete(meeting)
         db.session.commit()
+        flash('Meeting successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.home'))

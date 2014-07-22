@@ -35,10 +35,12 @@ class CategoryEdit(MethodView):
         if form.validate():
             form.save()
             if category_id:
-                flash('Category successfully added', 'success')
-            else:
                 flash('Category successfully updated', 'success')
+            else:
+                flash('Category successfully added', 'success')
             return redirect(url_for('.categories'))
+        flash('Category was not saved. Please see the errors bellow',
+              'danger')
         return render_template('admin/category/edit.html',
                                form=form, category=category)
 
@@ -46,4 +48,5 @@ class CategoryEdit(MethodView):
         category = CategoryDefault.query.get_or_404(category_id)
         db.session.delete(category)
         db.session.commit()
+        flash('Category successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.categories'))

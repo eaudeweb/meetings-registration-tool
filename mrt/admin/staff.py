@@ -37,15 +37,17 @@ class StaffEdit(MethodView):
         if form.validate():
             form.save()
             if staff_id:
-                flash('Staff successfully added', 'success')
-            else:
                 flash('Staff successfully updated', 'success')
+            else:
+                flash('Staff successfully added', 'success')
             return redirect(url_for('.staff'))
-
+        flash('Staff was not saved. Please see the errors bellow',
+              'danger')
         return render_template('admin/staff/edit.html', form=form, staff=staff)
 
     def delete(self, staff_id):
         staff = Staff.query.get_or_404(staff_id)
         db.session.delete(staff)
         db.session.commit()
+        flash('Staff successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.staff'))

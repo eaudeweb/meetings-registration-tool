@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, form_group %}
+{% from "_bits.html" import breadcrumb, form_group, flashed_messages %}
 
 
 {% set title = 'Edit category' if category else 'Add a new default category' %}
@@ -13,6 +13,8 @@
   <div class="category-container">
     {{ breadcrumb( [ (url_for('.categories'), 'Default Categories'),
                      ('', title)] ) }}
+
+    {{ flashed_messages() }}
 
     <div class="page-header">
       <h2>{{ title }}</h2>
