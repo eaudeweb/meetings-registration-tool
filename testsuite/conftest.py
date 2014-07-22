@@ -24,4 +24,3 @@ def app(request):
         app_context.pop()
 
     return app
-

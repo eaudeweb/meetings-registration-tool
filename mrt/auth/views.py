@@ -20,7 +20,7 @@ class Login(MethodView):
         if form.validate():
             user = form.get_user()
             login_user(user)
-            return redirect(next or url_for('temp'))
+            return redirect(next or url_for('meetings.home'))
         return render_template('auth/login.html', form=form, next=next)
 
 
@@ -42,7 +42,7 @@ class RecoverPassword(MethodView):
         if form.validate():
             user = form.save()
             send_reset_mail(user.email, user.recover_token)
-            return redirect(url_for('temp'))
+            return redirect(url_for('meetings.home'))
         return render_template('auth/recover.html', form=form)
 
 
@@ -53,7 +53,7 @@ class ResetPassword(MethodView):
         user = User.query.filter_by(recover_token=token).first()
         if user is None or not user.token_is_active:
             flash('Invalid token')
-            return redirect(url_for('temp'))
+            return redirect(url_for('meetings.home'))
 
         return render_template('auth/reset_password.html', form=form)
 
@@ -62,7 +62,7 @@ class ResetPassword(MethodView):
         user = User.query.filter_by(recover_token=token).first()
         if user is None or not user.token_is_active:
             flash('Invalid token')
-            return redirect(url_for('temp'))
+            return redirect(url_for('meetings.home'))
 
         if form.validate():
             user.set_password(form.password.data)
