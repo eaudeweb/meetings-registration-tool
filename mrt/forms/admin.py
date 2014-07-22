@@ -3,8 +3,9 @@ from uuid import uuid4
 
 from flaskext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from wtforms_alchemy import ModelFormField
+from wtforms import ValidationError
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
@@ -17,7 +18,11 @@ backgrounds = UploadSet('backgrounds', IMAGES)
 
 def _staff_user_unique(*args, **kwargs):
     def validate(form, field):
-        return Staff.query.filter(Staff.user.has(email=field.data)).first()
+        try:
+            Staff.query.filter(Staff.user.has(email=field.data)).scalar()
+        except MultipleResultsFound:
+            raise ValidationError(
+                'Another staff with this email already exists')
     return validate
 
 
@@ -51,7 +56,7 @@ class StaffEditForm(BaseForm):
                                   recover_time=datetime.now(),
                                   is_active=False)
 
-            if not staff.user.is_active:
+            if not staff.user.password:
                 send_activation_mail(
                     staff.user.email, staff.user.recover_token)
 
