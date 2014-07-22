@@ -1,6 +1,9 @@
+import os
+
 from flask import Flask
 from flask.ext.login import LoginManager
 from flask.ext.babel import Babel
+from flask.ext.uploads import configure_uploads
 
 from mrt.models import db, User
 from mrt.assets import assets_env
@@ -11,11 +14,20 @@ from mrt.auth.urls import auth
 from mrt.mail import mail
 
 from mrt.template import nl2br, active
+from mrt.forms.admin import backgrounds
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+DEFAULT_CONFIG = {
+    'UPLOADED_BACKGROUNDS_DEST': os.path.join(
+        BASE_DIR, 'files', 'backgrounds'),
+}
 
 
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile('settings.py')
+    app.config.update(DEFAULT_CONFIG)
     app.config.update(config)
     app.debug = True
 
@@ -35,6 +47,8 @@ def create_app(config={}):
     login_manager.login_view = 'auth.login'
 
     mail.init_app(app)
+
+    configure_uploads(app, (backgrounds,))
 
     @login_manager.user_loader
     def load_user(user_id):

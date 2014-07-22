@@ -12,11 +12,13 @@
       {% else %}
       {% endif %}
     </label>
-
+    {% if field.type not in ('FileField',)%}
+      {% set cls = "form-control" + class_ %}
+    {% else %}
+      {% set cls = class_ %}
+    {% endif %}
     <div class="col-sm-{{ input_size }}">
-      {{ field(class_="form-control " + class_,
-               placeholder=field.label.text,
-               **options) }}
+      {{ field(class_=cls, placeholder=field.label.text, **options) }}
       {% if field.errors %}
         <div class="text-danger"><small>{{ field.errors[0] }}</small></div>
       {% endif %}

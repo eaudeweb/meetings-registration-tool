@@ -2,6 +2,10 @@ a {
     cursor: pointer;
 }
 
+input[type=file] {
+    margin-bottom: 10px;
+}
+
 .form-actions {
     padding-bottom: 20px;
 }
@@ -12,6 +16,10 @@ a {
 
 .panel label {
     font-weight: normal;
+}
+.panel input[type="file"] {
+    position: relative;
+    top: 8px;
 }
 
 .actions {

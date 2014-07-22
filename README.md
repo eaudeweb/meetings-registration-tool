@@ -29,6 +29,7 @@ To set up a configuration file run the following commands and look in
 settings.example for an settings example file
 
     mkdir -p instance
+    echo '*' >> instance/.gitignore
     touch instance/settings.py
 
 
@@ -45,7 +46,7 @@ Create database
 
 To set up the PostgreSQL database in Debian, you need to install the
 packages `postgresql-9.1`, `postgresql-contrib-9.1` and
-`postgresql-server-dev-9.1`. 
+`postgresql-server-dev-9.1`.
 
     root # su - postgres
     postgres $ psql
@@ -63,7 +64,7 @@ packages `postgresql-9.1`, `postgresql-contrib-9.1` and
 After that, run alembic upgrade to have the tables created:
 
     ./manage.py alembic upgrade head
-    
+
 
 Create a migration after changes in models.py
 ---------------------------------------------

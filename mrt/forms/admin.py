@@ -1,11 +1,18 @@
-from wtforms_alchemy import ModelFormField
-from sqlalchemy.orm.exc import NoResultFound
-from uuid import uuid4
 from datetime import datetime
+from uuid import uuid4
 
-from .base import BaseForm
-from mrt.models import db, Staff, User
+from flaskext.uploads import UploadSet, IMAGES
+from flask_wtf.file import FileField, FileAllowed
+from sqlalchemy.orm.exc import NoResultFound
+from wtforms_alchemy import ModelFormField
+
 from mrt.mail import send_activation_mail
+from mrt.models import db
+from mrt.models import Staff, User, CategoryDefault
+from .base import BaseForm, TranslationInpuForm
+
+
+backgrounds = UploadSet('backgrounds', IMAGES)
 
 
 def _staff_user_unique(*args, **kwargs):
@@ -31,19 +38,40 @@ class StaffEditForm(BaseForm):
 
     def save(self):
         staff = self.obj or Staff()
+        # do not use populate_obj here, session.add will not work
         staff.full_name = self.full_name.data
+        email = self.user.email.data
         if staff.user is None:
             try:
-                staff.user = User.query.filter_by(
-                    email=self.user.email.data).one()
+                staff.user = User.query.filter_by(email=email).one()
             except NoResultFound:
                 staff.user = User(email=self.user.email.data,
                                   recover_token=str(uuid4()),
                                   recover_time=datetime.now(),
                                   is_active=False)
+
             send_activation_mail(staff.user.email, staff.user.recover_token)
 
         if staff.id is None:
             db.session.add(staff)
         db.session.commit()
         return staff
+
+
+class CategoryEditForm(BaseForm):
+
+    class Meta:
+        model = CategoryDefault
+
+    name = ModelFormField(TranslationInpuForm, label='Name')
+    background = FileField('Background',
+                           [FileAllowed(backgrounds, 'Image is not valid')])
+
+    def save(self):
+        category = self.obj or CategoryDefault()
+        self.populate_obj(category)
+        category.background = backgrounds.save(self.background.data)
+        if category.id is None:
+            db.session.add(category)
+        db.session.commit()
+        return category

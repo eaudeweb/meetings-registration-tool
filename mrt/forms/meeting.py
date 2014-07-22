@@ -3,26 +3,9 @@ from wtforms import fields, widgets
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db
-from mrt.models import Meeting, Translation
+from mrt.models import Meeting
 
-from .base import BaseForm
-
-
-class TranslationInpuForm(BaseForm):
-
-    class Meta:
-        model = Translation
-        field_args = {
-            'english': {
-                'widget': widgets.TextInput()
-            },
-            'french': {
-                'widget': widgets.TextInput()
-            },
-            'spanish': {
-                'widget': widgets.TextInput()
-            }
-        }
+from .base import BaseForm, TranslationInpuForm
 
 
 class MeetingEditForm(BaseForm):

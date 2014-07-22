@@ -1,0 +1,66 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+
+{% set title = 'Edit category' if category else 'Add a new default category' %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block content %}
+
+  <div class="category-container">
+    {{ breadcrumb( [ (url_for('.categories'), 'Categories'),
+                     ('', title)] ) }}
+
+    <div class="page-header">
+      <h2>{{ title }}</h2>
+    </div>
+
+    <form class="form-horizontal" role="form" method="POST"
+          enctype="multipart/form-data">
+
+      {{ form.csrf_token }}
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <b>{{ form.name.label.text }}</b>
+        </div>
+
+        <div class="panel-body">
+          {{ form_group(form.name.english) }}
+          {{ form_group(form.name.french) }}
+          {{ form_group(form.name.spanish) }}
+        </div> {# panel-body #}
+
+      </div> {# panel #}
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <b>General</b>
+        </div>
+
+        <div class="panel-body">
+          {{ form_group(form.type, label_size="2", input_size="3") }}
+          {{ form_group(form.color, label_size="2", input_size="3") }}
+          {{ form_group(form.background) }}
+        </div>
+
+      </div> {# panel #}
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+          Save changes</button> <small>or</small>
+          <small><a href="{{ url_for('.categories') }}">
+          Cancel</a></small>
+      </div>
+
+    </form>
+
+
+  </div> {# category-container #}
+
+{% endblock %}
