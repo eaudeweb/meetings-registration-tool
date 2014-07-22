@@ -18,9 +18,10 @@ from mrt.forms.admin import backgrounds
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
 DEFAULT_CONFIG = {
     'UPLOADED_BACKGROUNDS_DEST': os.path.join(
-        BASE_DIR, 'files', 'backgrounds'),
+        INSTANCE_DIR, 'files', 'backgrounds'),
 }
 
 

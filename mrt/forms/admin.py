@@ -71,7 +71,10 @@ class CategoryEditForm(BaseForm):
     def save(self):
         category = self.obj or CategoryDefault()
         self.populate_obj(category)
-        category.background = backgrounds.save(self.background.data)
+        if self.background.data:
+            category.background = backgrounds.save(self.background.data)
+        else:
+            category.background = None
         if category.id is None:
             db.session.add(category)
         db.session.commit()

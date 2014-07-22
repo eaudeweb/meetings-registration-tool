@@ -51,12 +51,23 @@
 
       </div> {# panel #}
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">
-          Save changes</button> <small>or</small>
-          <small><a href="{{ url_for('.categories') }}">
-          Cancel</a></small>
-      </div>
+      <div class="form-actions row">
+        <div class="col-sm-6">
+          <button type="submit" class="btn btn-primary">
+            Save changes</button>
+          <small>or <a href="{{ url_for('.categories') }}">
+            Cancel</a></small>
+        </div>
+        {% if category %}
+          <div class="col-sm-6 text-right">
+            <a class="delete" data-toggle="delete"
+               data-href="{{ url_for('.category_edit', category_id=category.id) }}"
+               data-message="Are you sure you want to delete this category?">
+              <span class="glyphicon glyphicon-remove"></span>
+              Delete this category</a>
+          </div>
+        {% endif %}
+      </div> {# form-actions #}
 
     </form>
 

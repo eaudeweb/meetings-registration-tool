@@ -267,7 +267,7 @@ class Category(db.Model):
         backref=db.backref('categories', lazy='dynamic'))
 
     color = db.Column(db.String(16), nullable=False)
-    background = db.Column(db.String(32), nullable=False)
+    background = db.Column(db.String(32))
     type = db.Column(db.String(32), nullable=False)
 
     meeting_id = db.Column(
@@ -316,7 +316,7 @@ class CategoryDefault(db.Model):
         backref=db.backref('default_categories', lazy='dynamic'))
     color = db.Column(ChoiceType(COLORS), nullable=False,
                       info={'label': 'Color'})
-    background = db.Column(db.String(32), nullable=False)
+    background = db.Column(db.String(32))
     type = db.Column(ChoiceType(CATEGORY_TYPES), nullable=False,
                      info={'label': 'Category Type'})
 

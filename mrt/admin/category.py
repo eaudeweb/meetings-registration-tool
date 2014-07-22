@@ -1,8 +1,8 @@
 from flask import request, redirect, url_for
-from flask import render_template
+from flask import render_template, jsonify
 from flask.views import MethodView
 
-from mrt.models import CategoryDefault
+from mrt.models import db, CategoryDefault
 from mrt.forms import CategoryEditForm
 
 
@@ -22,7 +22,8 @@ class CategoryEdit(MethodView):
         else:
             category = None
         form = CategoryEditForm(obj=category)
-        return render_template('admin/category/edit.html', form=form)
+        return render_template('admin/category/edit.html',
+                               form=form, category=category)
 
     def post(self, category_id=None):
         if category_id:
@@ -30,8 +31,14 @@ class CategoryEdit(MethodView):
         else:
             category = None
         form = CategoryEditForm(request.form, obj=category)
-        print form.validate(), form.errors
         if form.validate():
             form.save()
             return redirect(url_for('.categories'))
-        return render_template('admin/category/edit.html', form=form)
+        return render_template('admin/category/edit.html',
+                               form=form, category=category)
+
+    def delete(self, category_id):
+        category = CategoryDefault.query.get_or_404(category_id)
+        db.session.delete(category)
+        db.session.commit()
+        return jsonify(status="success", url=url_for('.categories'))
