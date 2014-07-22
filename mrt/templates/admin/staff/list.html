@@ -24,7 +24,7 @@
   </div>
 
   <div class="actions">
-    <a href="{{ url_for('.edit') }}" class="btn btn-primary btn-sm">
+    <a href="{{ url_for('.staff_edit') }}" class="btn btn-primary btn-sm">
       <span class="glyphicon glyphicon-plus"></span>
       Add a new staff member</a>
   </div>
@@ -41,7 +41,7 @@
 
       <tbody>
         {% for member in staff %}
-          {% set url = url_for('.edit', staff_id=member.id) %}
+          {% set url = url_for('.staff_edit', staff_id=member.id) %}
           <tr>
             <td><a href="{{ url }}">{{ member.full_name }}</a></td>
             <td>{{ member.user.email }}</td>
@@ -54,7 +54,7 @@
   </div>
 
   <div class="actions">
-    <a href="{{ url_for('.edit') }}" class="btn btn-primary btn-sm">
+    <a href="{{ url_for('.staff_edit') }}" class="btn btn-primary btn-sm">
       <span class="glyphicon glyphicon-plus"></span>
       Add a new staff member</a>
   </div>

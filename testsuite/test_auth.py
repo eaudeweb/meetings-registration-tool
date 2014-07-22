@@ -4,15 +4,6 @@ from mrt.models import User
 from .factories import UserFactory
 
 
-def test_login_required_view(app):
-    client = app.test_client()
-    with app.test_request_context():
-        url = url_for('admin.staff')
-        resp = client.get(url)
-
-    assert resp.status_code == 302
-
-
 def test_login_succesfull(app):
     UserFactory()
     data = UserFactory.attributes()

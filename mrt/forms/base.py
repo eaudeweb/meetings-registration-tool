@@ -18,7 +18,7 @@ class BaseForm(ModelForm):
             if request.files:
                 formdata.update(request.files)
         super(BaseForm, self).__init__(formdata=formdata, obj=obj, **kwargs)
-        self.obj = kwargs.get('obj', None)
+        self.obj = obj
 
 
 class TranslationInpuForm(BaseForm):

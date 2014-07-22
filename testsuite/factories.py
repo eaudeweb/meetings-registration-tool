@@ -3,7 +3,7 @@ from factory import SubFactory
 from sqlalchemy_utils import CountryType
 from werkzeug.security import generate_password_hash
 
-from mrt.models import db, User, Meeting, Translation
+from mrt import models
 
 from datetime import date
 
@@ -21,8 +21,8 @@ class SQLAlchemyModelFactory(BaseModelFactory):
 
 class UserFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = User
-        sqlalchemy_session = db.session
+        model = models.User
+        sqlalchemy_session = models.db.session
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
@@ -39,16 +39,16 @@ class UserFactory(SQLAlchemyModelFactory):
 
 class MeetingTitleFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = Translation
-        sqlalchemy_session = db.session
+        model = models.Translation
+        sqlalchemy_session = models.db.session
 
     english = 'Twenty-first meeting of the Plants Committee'
 
 
 class MeetingVenueCityFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = Translation
-        sqlalchemy_session = db.session
+        model = models.Translation
+        sqlalchemy_session = models.db.session
 
     english = 'Bucharest'
 
@@ -56,13 +56,13 @@ class MeetingVenueCityFactory(SQLAlchemyModelFactory):
 class CountryTypeFactory(SQLAlchemyModelFactory):
     class Meta:
         model = CountryType
-        sqlalchemy_session = db.session
+        sqlalchemy_session = models.db.session
 
 
 class MeetingFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = Meeting
-        sqlalchemy_session = db.session
+        model = models.Meeting
+        sqlalchemy_session = models.db.session
 
     title = SubFactory(MeetingTitleFactory)
     acronym = 'MOTPC'
@@ -72,3 +72,13 @@ class MeetingFactory(SQLAlchemyModelFactory):
     venue_city = SubFactory(MeetingVenueCityFactory)
     venue_country = 'RO'
     online_registration = False
+
+
+class StaffFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Staff
+        sqlalchemy_session = models.db.session
+
+    title = 'Head of department'
+    full_name = 'John Doe'
+    user = SubFactory(UserFactory)

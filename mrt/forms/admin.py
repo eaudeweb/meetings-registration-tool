@@ -40,6 +40,7 @@ class StaffEditForm(BaseForm):
         staff = self.obj or Staff()
         # do not use populate_obj here, session.add will not work
         staff.full_name = self.full_name.data
+        staff.title = self.title.data
         email = self.user.email.data
         if staff.user is None:
             try:

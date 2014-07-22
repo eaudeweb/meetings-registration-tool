@@ -46,7 +46,7 @@ class User(db.Model):
 class Staff(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64), nullable=True, info={'label': 'Ttile'})
+    title = db.Column(db.String(64), nullable=True, info={'label': 'Title'})
     full_name = db.Column(db.String(128), nullable=False,
                           info={'label': 'Full Name'})
 

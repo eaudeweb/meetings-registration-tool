@@ -59,6 +59,18 @@ def test_meeting_edit(app):
         Meeting.venue_city.has(english='Rome')).count() == 1
 
 
+def test_meeting_delete(app):
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.delete(url)
+
+    assert resp.status_code == 200
+    assert Meeting.query.count() == 0
+
+
 def normalize_data(data):
 
     def convert_data(value):
