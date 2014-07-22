@@ -43,6 +43,15 @@ input[type=file] {
     display: block;
 }
 
+.stripe {
+    border: 1px solid #666;
+    padding: 0 8px;
+}
+
+.category-container .color {
+    padding-left: 10px;
+}
+
 .meeting-container .field-i18nstring li {
     margin-bottom: 15px;
 }
