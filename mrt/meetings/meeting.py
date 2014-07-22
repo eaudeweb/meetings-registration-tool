@@ -1,9 +1,9 @@
-from flask import request, redirect, render_template
+from flask import request, redirect, render_template, jsonify
 from flask import url_for
 from flask import flash
 from flask.views import MethodView
 
-from mrt.models import Meeting
+from mrt.models import Meeting, db
 from mrt.forms import MeetingEditForm
 
 
@@ -40,3 +40,9 @@ class MeetingEdit(MethodView):
                 flash('Meeting successfully updated', 'success')
             return redirect(url_for('.home'))
         return render_template('meetings/meeting/edit.html', form=form)
+
+    def delete(self, meeting_id=None):
+        meeting = Meeting.query.get_or_404(meeting_id)
+        db.session.delete(meeting)
+        db.session.commit()
+        return jsonify(status="success", url=url_for('.home'))
