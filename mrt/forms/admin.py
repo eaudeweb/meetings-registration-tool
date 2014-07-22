@@ -17,7 +17,7 @@ backgrounds = UploadSet('backgrounds', IMAGES)
 
 def _staff_user_unique(*args, **kwargs):
     def validate(form, field):
-        return Staff.query.filter(Staff.user.has(email=field.data)).scalar()
+        return Staff.query.filter(Staff.user.has(email=field.data)).first()
     return validate
 
 
@@ -51,7 +51,9 @@ class StaffEditForm(BaseForm):
                                   recover_time=datetime.now(),
                                   is_active=False)
 
-            send_activation_mail(staff.user.email, staff.user.recover_token)
+            if not staff.user.is_active:
+                send_activation_mail(
+                    staff.user.email, staff.user.recover_token)
 
         if staff.id is None:
             db.session.add(staff)

@@ -73,6 +73,14 @@ Create a migration after changes in models.py
     ./manage.py alembic upgrade head
 
 
+Create a user
+-------------
+
+To create a user run the following command:
+
+    ./manage.py create_user
+
+
 Setup Git Pre-Commit Lint
 -------------------------
 

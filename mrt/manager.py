@@ -1,3 +1,5 @@
+from .models import User, db
+
 import click
 import code
 from alembic.config import CommandLine
@@ -30,6 +32,25 @@ def shell(ctx):
         except ImportError:
             pass
         code.interact(local=context)
+
+
+@cli.command()
+@click.pass_context
+def create_user(ctx):
+    email = click.prompt('Enter email', type=str)
+    password = click.prompt('Enter password', type=str, hide_input=True)
+    confirm = click.prompt('Enter password again', type=str, hide_input=True)
+
+    if password == confirm:
+        app = ctx.obj['app']
+        with app.app_context():
+            user = User(email=email)
+            user.set_password(password)
+            db.session.add(user)
+            db.session.commit()
+            click.echo('User has been created')
+    else:
+        click.echo('Passwords differ')
 
 
 @cli.command()
