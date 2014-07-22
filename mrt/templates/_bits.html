@@ -54,3 +54,14 @@
   </div>
 
 {% endmacro %}
+
+
+{% macro flashed_messages() -%}
+
+  {% for categ, msg in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ categ }}" role="alert">
+      {{ msg|safe }}</div>
+  {% endfor %}
+
+{%- endmacro %}
+

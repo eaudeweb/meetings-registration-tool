@@ -1,4 +1,5 @@
-from flask import render_template, request, redirect, url_for, jsonify
+from flask import request, redirect, url_for, jsonify
+from flask import render_template, flash
 from flask.views import MethodView
 from flask.ext.login import login_required
 
@@ -35,6 +36,10 @@ class StaffEdit(MethodView):
         form = StaffEditForm(request.form, obj=staff)
         if form.validate():
             form.save()
+            if staff_id:
+                flash('Staff successfully added', 'success')
+            else:
+                flash('Staff successfully updated', 'success')
             return redirect(url_for('.staff'))
 
         return render_template('admin/staff/edit.html', form=form, staff=staff)

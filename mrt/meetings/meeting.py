@@ -1,5 +1,6 @@
 from flask import request, redirect, render_template
 from flask import url_for
+from flask import flash
 from flask.views import MethodView
 
 from mrt.models import Meeting
@@ -33,5 +34,9 @@ class MeetingEdit(MethodView):
         form = MeetingEditForm(request.form, obj=meeting)
         if form.validate():
             form.save()
+            if meeting_id:
+                flash('Meeting successfully added', 'success')
+            else:
+                flash('Meeting successfully updated', 'success')
             return redirect(url_for('.home'))
         return render_template('meetings/meeting/edit.html', form=form)

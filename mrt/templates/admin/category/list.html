@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, row_link %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
 
 
 {% block title %}Default Categories{% endblock %}
@@ -19,6 +19,8 @@
 {% block content %}
 
   {{ breadcrumb( [('', 'Default Categories')] ) }}
+
+  {{ flashed_messages() }}
 
   <div class="page-header">
     <h2>Default Categories</h2>

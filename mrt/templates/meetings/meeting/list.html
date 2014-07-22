@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, row_link %}
+{% from "_bits.html" import breadcrumb, row_link, flashed_messages %}
 
 
 {% block title %}Meetings{% endblock %}
@@ -19,6 +19,8 @@
 {% block content %}
 
   {{ breadcrumb( [('', 'Meetings')] ) }}
+
+  {{ flashed_messages() }}
 
   <div class="page-header">
     <h2>Meetings</h2>

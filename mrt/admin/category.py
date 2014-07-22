@@ -1,5 +1,6 @@
 from flask import request, redirect, url_for
 from flask import render_template, jsonify
+from flask import flash
 from flask.views import MethodView
 
 from mrt.models import db, CategoryDefault
@@ -33,6 +34,10 @@ class CategoryEdit(MethodView):
         form = CategoryEditForm(request.form, obj=category)
         if form.validate():
             form.save()
+            if category_id:
+                flash('Category successfully added', 'success')
+            else:
+                flash('Category successfully updated', 'success')
             return redirect(url_for('.categories'))
         return render_template('admin/category/edit.html',
                                form=form, category=category)
