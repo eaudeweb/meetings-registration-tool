@@ -1,23 +1,31 @@
 {% extends "_layout.html" %}
 
+
+{% block title %}Login{% endblock %}
+
+
 {% block content %}
 
-  <div class="container">
 
-    {% if form.errors %}
-      <p class="alert alert-danger">Login failed</p>
-    {% endif %}
+  {% if form.errors %}
+    <p class="alert alert-danger">Login failed</p>
+  {% endif %}
 
+  <div class="page-header">
     <h1>Login</h1>
+  </div>
 
-    <form class="well form-inline" method="post" action="/login">
-      {{ form.csrf_token }}
-      {{ form.email.label }} {{ form.email }}
-      {{ form.password.label }} {{ form.password }}
+    <form class="form-inline well" method="POST">
+
+        {{ form.csrf_token }}
+        {{ form.email(placeholder=form.email.label.text) }}
+        {{ form.password(placeholder=form.password.label.text) }}
       <input type=hidden value="{{ next or '' }}" name=next>
       <button class="btn" type="submit">Sign in</button>
-    </form>
 
-  </div>
+      <div>
+        <a href="{{ url_for('.recover') }}">Forgot password?</a>
+      </div>
+    </form>
 
 {% endblock %}

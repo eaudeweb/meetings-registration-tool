@@ -28,7 +28,7 @@ class Logout(MethodView):
 
     def get(self):
         logout_user()
-        return redirect(url_for('temp'))
+        return redirect(url_for('auth.login'))
 
 
 class RecoverPassword(MethodView):
