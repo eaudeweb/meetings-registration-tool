@@ -1,10 +1,11 @@
-from flask import request, redirect, url_for
-from flask import render_template, jsonify
 from flask import flash
+from flask import render_template, jsonify
+from flask import request, redirect, url_for
 from flask.views import MethodView
 
-from mrt.models import db, CategoryDefault
 from mrt.forms import CategoryEditForm
+from mrt.models import db, CategoryDefault
+from mrt.utils import unlink_uploaded_file
 
 
 class Categories(MethodView):
@@ -48,5 +49,6 @@ class CategoryEdit(MethodView):
         category = CategoryDefault.query.get_or_404(category_id)
         db.session.delete(category)
         db.session.commit()
+        unlink_uploaded_file(category.background, 'backgrounds')
         flash('Category successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.categories'))

@@ -1,15 +1,18 @@
 from datetime import datetime
 from uuid import uuid4
 
-from flaskext.uploads import UploadSet, IMAGES
+from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed
+
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from wtforms_alchemy import ModelFormField
 from wtforms import ValidationError
+from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
 from mrt.models import Staff, User, CategoryDefault
+from mrt.utils import unlink_uploaded_file
+
 from .base import BaseForm, TranslationInpuForm
 
 
@@ -77,8 +80,10 @@ class CategoryEditForm(BaseForm):
 
     def save(self):
         category = self.obj or CategoryDefault()
+        background = category.background
         self.populate_obj(category)
         if self.background.data:
+            unlink_uploaded_file(background, 'backgrounds')
             category.background = backgrounds.save(self.background.data)
         else:
             category.background = None
