@@ -54,7 +54,8 @@ def create_app(config={}):
 def _configure_uploads(app):
     files_path = path(app.instance_path) / 'files'
 
-    app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / 'backgrounds'
+    if 'UPLOADED_BACKGROUNDS_DEST' not in app.config:
+        app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / 'backgrounds'
     configure_uploads(app, (backgrounds,))
     patch_request_class(app, 1 * 1024 * 1024)  # limit upload size to 1MB
 

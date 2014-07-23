@@ -1,12 +1,10 @@
-import os
-
+from StringIO import StringIO
 from flask import url_for
+from pyquery import PyQuery
+from py.path import local
 
 from mrt.models import Staff, CategoryDefault
 from .factories import StaffFactory, CategoryDefaultFactory, normalize_data
-
-from pyquery import PyQuery
-from StringIO import StringIO
 
 
 def test_staff_list(app):
@@ -125,50 +123,52 @@ def test_category_add_with_file(app):
     data = CategoryDefaultFactory.attributes()
     data = normalize_data(data)
     data['name-english'] = data.pop('name')
-    data['background'] = (StringIO('Test image'), 'image_add.jpg')
+    filename = 'image_add.jpg'
+    data['background'] = (StringIO('Test image'), filename)
 
     client = app.test_client()
     with app.test_request_context():
         url = url_for('admin.category_edit')
         resp = client.post(url, data=data)
 
-    upload_dest = app.config['UPLOADED_BACKGROUNDS_DEST']
-
+    upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
     assert resp.status_code == 302
     assert CategoryDefault.query.count() == 1
-    assert os.path.isfile(os.path.join(upload_dest, 'image_add.jpg'))
+    category = CategoryDefault.query.get(1)
+    assert category is not None
+    assert category.background == filename
+    assert upload_dir.join(filename).check()
+
+# def test_category_edit_with_file(app):
+#     category = CategoryDefaultFactory()
+#     data = normalize_data(CategoryDefaultFactory.attributes())
+#     data['name-english'] = 'Comitee'
+#     data['background'] = (StringIO('Test image'), 'image_edit.jpg')
+
+#     client = app.test_client()
+#     with app.test_request_context():
+#         url = url_for('admin.category_edit', category_id=category.id)
+#         resp = client.post(url, data=data)
+
+#     upload_dest = app.config['UPLOADED_BACKGROUNDS_DEST']
+#     assert resp.status_code == 302
+#     assert os.path.isfile(os.path.join(upload_dest, 'image_edit.jpg'))
 
 
-def test_category_edit_with_file(app):
-    category = CategoryDefaultFactory()
-    data = normalize_data(CategoryDefaultFactory.attributes())
-    data['name-english'] = 'Comitee'
-    data['background'] = (StringIO('Test image'), 'image_edit.jpg')
+# def test_category_delete_with_file(app):
+#     category = CategoryDefaultFactory()
+#     data = normalize_data(CategoryDefaultFactory.attributes())
+#     data['name-english'] = 'Comitee'
+#     data['background'] = (StringIO('Test image'), 'image_delete.jpg')
 
-    client = app.test_client()
-    with app.test_request_context():
-        url = url_for('admin.category_edit', category_id=category.id)
-        resp = client.post(url, data=data)
+#     client = app.test_client()
+#     with app.test_request_context():
+#         url = url_for('admin.category_edit', category_id=category.id)
+#         client.post(url, data=data)
+#         url = url_for('admin.category_edit', category_id=category.id)
+#         resp = client.delete(url)
 
-    upload_dest = app.config['UPLOADED_BACKGROUNDS_DEST']
-    assert resp.status_code == 302
-    assert os.path.isfile(os.path.join(upload_dest, 'image_edit.jpg'))
-
-
-def test_category_delete_with_file(app):
-    category = CategoryDefaultFactory()
-    data = normalize_data(CategoryDefaultFactory.attributes())
-    data['name-english'] = 'Comitee'
-    data['background'] = (StringIO('Test image'), 'image_delete.jpg')
-
-    client = app.test_client()
-    with app.test_request_context():
-        url = url_for('admin.category_edit', category_id=category.id)
-        client.post(url, data=data)
-        url = url_for('admin.category_edit', category_id=category.id)
-        resp = client.delete(url)
-
-    upload_dest = app.config['UPLOADED_BACKGROUNDS_DEST']
-    assert resp.status_code == 200
-    assert CategoryDefault.query.count() == 0
-    assert not os.path.isfile(os.path.join(upload_dest, 'image_delete.jpg'))
+#     upload_dest = app.config['UPLOADED_BACKGROUNDS_DEST']
+#     assert resp.status_code == 200
+#     assert CategoryDefault.query.count() == 0
+#     assert not os.path.isfile(os.path.join(upload_dest, 'image_delete.jpg'))
