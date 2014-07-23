@@ -89,8 +89,9 @@ bit of speedup you can install ``pytest-xdist`` and run tests in
 parallel, ``py.test testsuite -n 4``.
 
 
-Create a migration after changes in models.py::
+Create a migration after changes in models.py
 ---------------------------------------------
+Simply run the next commands::
 
     ./manage.py alembic revision -- --autogenerate -m 'commit message'
     ./manage.py alembic upgrade head
