@@ -1,6 +1,6 @@
 from factory.alchemy import SQLAlchemyModelFactory as BaseModelFactory
 from factory import SubFactory
-from sqlalchemy_utils import CountryType
+from sqlalchemy_utils import CountryType, Choice
 from werkzeug.security import generate_password_hash
 
 from mrt import models
@@ -82,3 +82,39 @@ class StaffFactory(SQLAlchemyModelFactory):
     title = 'Head of department'
     full_name = 'John Doe'
     user = SubFactory(UserFactory)
+
+
+class CategoryDefaultNameFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Translation
+        sqlalchemy_session = models.db.session
+
+    english = 'Member of Party'
+
+
+class CategoryDefaultFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.CategoryDefault
+        sqlalchemy_session = models.db.session
+
+    name = SubFactory(CategoryDefaultNameFactory)
+    color = Choice(code='#93284c', value='scarlet red')
+    type = Choice(code='member', value='Member')
+
+
+def normalize_data(data):
+
+    def convert_data(value):
+        if isinstance(value, date):
+            return value.strftime('%d.%m.%Y')
+        elif isinstance(value, bool):
+            return u'y' if value else u''
+        elif isinstance(value, Choice):
+            return value.code
+        return value
+
+    new_data = dict(data)
+    for k, v in new_data.items():
+        new_data[k] = convert_data(v)
+
+    return new_data

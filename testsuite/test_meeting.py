@@ -1,8 +1,7 @@
 from mrt.models import Meeting
 from flask import url_for
-from .factories import MeetingFactory
+from .factories import MeetingFactory, normalize_data
 
-from datetime import date
 from pyquery import PyQuery
 
 
@@ -69,19 +68,3 @@ def test_meeting_delete(app):
 
     assert resp.status_code == 200
     assert Meeting.query.count() == 0
-
-
-def normalize_data(data):
-
-    def convert_data(value):
-        if isinstance(value, date):
-            return value.strftime('%d.%m.%Y')
-        elif isinstance(value, bool):
-            return u'y' if value else u''
-        return value
-
-    new_data = dict(data)
-    for k, v in new_data.items():
-        new_data[k] = convert_data(v)
-
-    return new_data
