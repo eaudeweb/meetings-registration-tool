@@ -1,29 +1,46 @@
 meetings-registration-tool
 ==========================
 
+.. contents ::
+
+Project Name
+------------
+The Project Name is Meetings Registration Tool
+
+Prerequisites - System packages
+-------------------------------
+
+These packages should be installed as superuser (root).
+
+Debian based systems
+~~~~~~~~~~~~~~~~~~~~
+Install these before setting up an environment::
+
+    apt-get install python-setuptools python-dev python-virtualenv git \
+    postgresql-9.1 postgresql-contrib-9.1 postgresql-server-dev-9.1
+
 
 Install dependencies
 --------------------
 We should use Virtualenv for isolated environments. The following commands will
 be run as an unprivileged user in the product directory
 
-Clone the repository
+1. Clone the repository
 
     git clone git@github.com:eaudeweb/meetings-registration-tool.git
 
-Create & activate a virtual environment
+2. Create & activate a virtual environment
 
     virtualenv --no-site-packages sandbox
     echo '*' > sandbox/.gitignore
     source sandbox/bin/activate
 
-Install dependencies
+3. Install dependencies
 
     pip install -r requirements-dev.txt
 
 
-Create a configuration file
----------------------------
+4. Create a configuration file
 
 To set up a configuration file run the following commands and look in
 settings.example for an settings example file
@@ -33,16 +50,7 @@ settings.example for an settings example file
     touch instance/settings.py
 
 
-Running unit tests
-------------------
-
-Simply run ``py.test testsuite``, it will find and run the tests. For a
-bit of speedup you can install ``pytest-xdist`` and run tests in
-parallel, ``py.test testsuite -n 4``.
-
-
-Create database
--------------------------
+5. Set up the PostgreSQL database
 
 To set up the PostgreSQL database in Debian, you need to install the
 packages `postgresql-9.1`, `postgresql-contrib-9.1` and
@@ -64,6 +72,25 @@ packages `postgresql-9.1`, `postgresql-contrib-9.1` and
 After that, run alembic upgrade to have the tables created:
 
     ./manage.py alembic upgrade head
+
+
+Development hints
+=================
+
+Requirements
+------------
+
+User ``requirements-dev.txt``::
+
+    pip install -r requirements-dev.txt
+
+
+Running unit tests
+------------------
+
+Simply run ``py.test testsuite``, it will find and run the tests. For a
+bit of speedup you can install ``pytest-xdist`` and run tests in
+parallel, ``py.test testsuite -n 4``.
 
 
 Create a migration after changes in models.py
