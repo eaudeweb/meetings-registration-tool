@@ -5,7 +5,7 @@ from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed
 
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from wtforms import ValidationError
+from wtforms import ValidationError, BooleanField
 from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
@@ -77,17 +77,24 @@ class CategoryEditForm(BaseForm):
     name = ModelFormField(TranslationInpuForm, label='Name')
     background = FileField('Background',
                            [FileAllowed(backgrounds, 'Image is not valid')])
+    background_delete = BooleanField()
 
     def save(self):
         category = self.obj or CategoryDefault()
         background = category.background
         self.populate_obj(category)
+        category.background = background
+
         if self.background.data:
             unlink_uploaded_file(background, 'backgrounds')
             category.background = backgrounds.save(self.background.data)
         else:
-            category.background = None
+            if self.background_delete.data:
+                unlink_uploaded_file(background, 'backgrounds')
+                category.background = None
+
         if category.id is None:
             db.session.add(category)
         db.session.commit()
+
         return category

@@ -1,9 +1,11 @@
-import os
+from werkzeug import SharedDataMiddleware
 
 from flask import Flask
 from flask.ext.login import LoginManager
 from flask.ext.babel import Babel
-from flask.ext.uploads import configure_uploads
+from flask.ext.uploads import configure_uploads, patch_request_class
+
+from path import path
 
 from mrt.models import db, User
 from mrt.assets import assets_env
@@ -17,18 +19,9 @@ from mrt.template import nl2br, active
 from mrt.forms.admin import backgrounds
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
-DEFAULT_CONFIG = {
-    'UPLOADED_BACKGROUNDS_DEST': os.path.join(
-        INSTANCE_DIR, 'files', 'backgrounds'),
-}
-
-
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile('settings.py')
-    app.config.update(DEFAULT_CONFIG)
     app.config.update(config)
     app.debug = True
 
@@ -49,14 +42,23 @@ def create_app(config={}):
 
     mail.init_app(app)
 
-    configure_uploads(app, (backgrounds,))
+    _configure_uploads(app)
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(user_id)
 
-    @app.route('/')
-    def temp():
-        from flask import render_template
-        return render_template('_layout.html')
     return app
+
+
+def _configure_uploads(app):
+    files_path = path(app.instance_path) / 'files'
+
+    app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / 'backgrounds'
+    configure_uploads(app, (backgrounds,))
+    patch_request_class(app, 1 * 1024 * 1024)  # limit upload size to 1MB
+
+    app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
+    app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
+        '/static/files': files_path
+    })

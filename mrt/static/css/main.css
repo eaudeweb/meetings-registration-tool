@@ -36,6 +36,17 @@ input[type=file] {
     top: 8px;
 }
 
+.form-horizontal .checkbox {
+    margin-left: 188px;
+}
+.form-horizontal .checkbox a {
+    margin-right: 10px;
+}
+.form-horizontal .checkbox input {
+    margin-left: -15px;
+}
+
+
 .actions {
     margin-bottom: 20px;
 }

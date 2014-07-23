@@ -8,6 +8,18 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block head %}
+
+  <style type="text/css">
+    .checkbox {
+      margin-top: -10px!important;
+      padding-top: 0!important;
+    }
+  </style>
+
+{% endblock %}
+
+
 {% block content %}
 
   <div class="category-container">
@@ -22,8 +34,6 @@
 
     <form class="form-horizontal" role="form" method="POST"
           enctype="multipart/form-data">
-
-      {{ form.csrf_token }}
 
       <div class="panel panel-default">
 
@@ -49,6 +59,18 @@
           {{ form_group(form.type, label_size="2", input_size="3") }}
           {{ form_group(form.color, label_size="2", input_size="3") }}
           {{ form_group(form.background) }}
+          {% if form.background.data %}
+            <div class="checkbox">
+              {% set url = url_for("files",
+                  filename="backgrounds/" ~ form.background.data) %}
+              <a href="{{ url }}" target="_blank">
+                {{ form.background.data }}</a>
+              <label>
+                {{ form.background_delete() }}
+                <small>Delete this file?</small></label>
+            </div>
+            </div>
+          {% endif %}
         </div>
 
       </div> {# panel #}
@@ -72,7 +94,6 @@
       </div> {# form-actions #}
 
     </form>
-
 
   </div> {# category-container #}
 
