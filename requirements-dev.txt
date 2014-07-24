@@ -1,5 +1,6 @@
 -r requirements.txt
 
+Fabric==1.9.0
 factory-boy==2.4.1
 pyquery==1.2.8
 # pytest
