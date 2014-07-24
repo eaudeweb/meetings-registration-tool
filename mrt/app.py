@@ -1,6 +1,6 @@
 from werkzeug import SharedDataMiddleware
 
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask.ext.login import LoginManager
 from flask.ext.babel import Babel
 from flask.ext.uploads import configure_uploads, patch_request_class
@@ -47,6 +47,10 @@ def create_app(config={}):
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(user_id)
+
+    @app.route('/')
+    def index():
+        return redirect(url_for('meetings.home'))
 
     return app
 
