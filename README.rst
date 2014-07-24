@@ -76,7 +76,7 @@ Development hints
 Requirements
 ------------
 
-User ``requirements-dev.txt``::
+Use ``requirements-dev.txt``::
 
     pip install -r requirements-dev.txt
 
