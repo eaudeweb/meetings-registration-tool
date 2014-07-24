@@ -19,7 +19,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        return '{}'.format(self.email)
+        return '%s' % self.email
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
