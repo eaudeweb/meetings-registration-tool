@@ -239,13 +239,9 @@ class Meeting(db.Model):
 
     venue_code = db.Column(db.String(16), info={'label': 'Zip code'})
 
-    admin_name = db.Column(db.String(32))
+    owner_id = db.Column(db.Integer, db.ForeignKey('staff.id'))
 
-    admin_email = db.Column(db.String(32))
-
-    media_admin_name = db.Column(db.String(32))
-
-    media_admin_email = db.Column(db.String(32))
+    owner = db.relationship('Staff', foreign_keys=owner_id)
 
     online_registration = db.Column(
         db.Boolean, nullable=False, default=True,
