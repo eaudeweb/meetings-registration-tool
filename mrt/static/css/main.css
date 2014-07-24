@@ -1,3 +1,9 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,300);
+
+body, input, select, textarea {
+    font-family: 'Open Sans', sans-serif;
+}
+
 a {
     cursor: pointer;
 }
@@ -79,4 +85,52 @@ input[type=file] {
 
 .meeting-container .field-i18nstring li {
     margin-bottom: 15px;
+}
+
+.login-box {
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background: #95a5a6;
+    width: 480px;
+    color: #fff;
+}
+.login-box a {
+    color: #eee;
+}
+.login-box a:hover {
+    color: #fff;
+}
+.login-box .login-logo {
+    padding: 25px 0 10px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 300;
+}
+.login-box hr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgba(0, 0, 0, 0.13);
+    margin: 10px auto 20px;
+    width: 70%;
+}
+.login-box .login-form input {
+    background: none repeat scroll 0 0 #fefefe;
+    border: 0 none;
+    border-radius: 2px;
+    color: #6c6c6c;
+    display: block;
+    margin: 0 auto 15px;
+    padding: 8px;
+    width: 70%;
+}
+.login-box .btn-login {
+    background: none repeat scroll 0 0 #7f8c8d;
+    text-transform: uppercase;
+    margin: 20px auto;
+    display: block;
+    width: 120px;
+    color: #fff;
+}
+.login-box .login-links {
+    padding-bottom: 25px;
 }
