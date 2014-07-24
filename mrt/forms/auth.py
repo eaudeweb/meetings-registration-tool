@@ -1,5 +1,5 @@
 from wtforms import Form
-from wtforms import TextField, PasswordField, validators
+from wtforms import StringField, PasswordField, validators
 
 from uuid import uuid4
 from datetime import datetime
@@ -10,7 +10,7 @@ from mrt.models import db, User
 
 class LoginForm(Form):
 
-    email = TextField('Email')
+    email = StringField('Email')
     password = PasswordField('Password')
 
     def validate_email(self, field):
@@ -38,7 +38,7 @@ class UserForm(BaseForm):
 
 class RecoverForm(Form):
 
-    email = TextField('Email', [validators.Required()])
+    email = StringField('Email', [validators.Required()])
 
     def validate_email(self, field):
         user = self.get_user()

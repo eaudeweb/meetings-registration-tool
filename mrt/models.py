@@ -177,7 +177,7 @@ class CustomFieldValue(db.Model):
         return '{}'.format(self.value)
 
 
-class MediaPaticipant(db.Model):
+class MediaParticipant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
