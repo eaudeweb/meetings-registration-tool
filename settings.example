@@ -18,4 +18,4 @@ MEETING_TYPES = (
 
 
 #Mail used for sending reset tokens
-RESET_EMAIL = ''
+DEFAULT_MAIL_SENDER = ''

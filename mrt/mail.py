@@ -9,8 +9,7 @@ def send_reset_mail(email, token):
     url = app.config.get('HOSTNAME') + 'reset/' + token
     subject = "Reset your password"
     body = "Your reset link is: " + url
-    sender = app.config.get('RESET_EMAIL')
-
+    sender = app.config['DEFAULT_MAIL_SENDER']
     msg = Message(subject=subject, body=body, sender=sender,
                   recipients=[email, ])
     mail.send(msg)
@@ -19,9 +18,9 @@ def send_reset_mail(email, token):
 def send_activation_mail(email, token):
     url = app.config.get('HOSTNAME') + 'reset/' + token
     subject = "Activate your account"
-    body = "Your user has been created. To complete your activation \
-follow the link: " + url
-    sender = app.config.get('RESET_EMAIL')
+    body = ("Your user has been created. To complete your activation "
+            "follow the link: " + url)
+    sender = app.config['DEFAULT_MAIL_SENDER']
 
     msg = Message(subject=subject, body=body, sender=sender,
                   recipients=[email, ])

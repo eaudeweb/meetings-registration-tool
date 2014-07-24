@@ -3,8 +3,8 @@
                             flashed_messages %}
 
 
-{% set title = 'Edit meeting (%s)'|format(meeting.acronym)
-               if meeting else 'Add a new meeting' %}
+{% set title = 'Edit meeting (%s)'|format(g.meeting.acronym)
+               if g.meeting else 'Add a new meeting' %}
 
 
 {% block title %} {{ title }} {% endblock %}
@@ -49,6 +49,7 @@
 
 
 {% block content %}
+
 
 <div class="meeting-container">
 
@@ -160,10 +161,10 @@
         <button type="submit" class="btn btn-primary">
           Save changes</button> <small>or <a href="{{ url_for('.home') }}">Cancel</a></small>
       </div>
-      {% if meeting %}
+      {% if g.meeting %}
         <div class="col-sm-6 text-right">
           <a class="delete" data-toggle="delete"
-             data-href="{{ url_for('.edit', meeting_id=meeting.id) }}"
+             data-href="{{ url_for('.edit') }}"
              data-message="Are you sure you want to delete this meeting?">
             <span class="glyphicon glyphicon-remove"></span>
             Delete this meeting</a>

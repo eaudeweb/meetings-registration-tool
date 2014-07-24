@@ -46,7 +46,8 @@
 
       <tbody>
         {% for meeting in meetings %}
-          {% set url = url_for('.edit', meeting_id=meeting.id) %}
+          {% set url = url_for('.participants',
+                               meeting_id=meeting.id) %}
           <tr class="{% if meeting.online_registration %}info{% endif %}">
             <td class="text-center">{{ meeting.acronym }}</td>
             <td>
