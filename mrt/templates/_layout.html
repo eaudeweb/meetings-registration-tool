@@ -25,6 +25,17 @@
         </div>
 
       <ul class="nav navbar-nav navbar-right">
+        {% if current_user.is_authenticated() %}
+          <li>
+            <a class="dropdown-toggle" data-toggle="dropdown">
+              {{ current_user }} <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+              </li>
+            </ul>
+          </li>
+        {% endif %}
         <li class="{{ active('/meetings') }}">
           <a href="{{ url_for('meetings.home') }}">
             Meetings</a>
@@ -41,11 +52,6 @@
             <li class="{{ active('/admin/staff') }}">
               <a href="{{ url_for('admin.staff') }}">
                 Staff</a>
-            </li>
-            <li class="divider"></li>
-            <li>
-              <a href="{{ url_for('auth.logout') }}">
-                Logout</a>
             </li>
           </ul>
         </li>
