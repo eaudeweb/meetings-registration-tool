@@ -12,6 +12,7 @@ def app(request, tmpdir):
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite://',
         'UPLOADED_BACKGROUNDS_DEST': str(tmpdir.join('backgrounds')),
+        'HOSTNAME': 'http://meetings.edw.ro/'
     }
 
     app = create_app(test_config)

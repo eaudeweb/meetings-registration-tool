@@ -2,6 +2,7 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
 SECRET_KEY = 'secret'
 
 
+HOSTNAME = ''
 PRODUCT_NAME = ''
 PRODUCT_TITLE = ''
 
@@ -15,13 +16,6 @@ MEETING_TYPES = (
 )
 
 
-#CONFIG FOR FLASK-MAIL
-MAIL_SERVER = ''
-MAIL_PORT = 25
-MAIL_USE_TLS = False
-MAIL_USE_SSL = True
-MAIL_USERNAME = ''
-MAIL_PASSWORD = ''
 
 #Mail used for sending reset tokens
 RESET_EMAIL = ''
