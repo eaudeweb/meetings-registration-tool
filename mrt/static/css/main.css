@@ -91,7 +91,7 @@ input[type=file] {
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
-    background: #95a5a6;
+    background: #b3b9b9;
     width: 480px;
     color: #fff;
 }
@@ -124,7 +124,7 @@ input[type=file] {
     width: 70%;
 }
 .login-box .btn-login {
-    background: none repeat scroll 0 0 #7f8c8d;
+    background: none repeat scroll 0 0 #878d8d;
     text-transform: uppercase;
     margin: 20px auto;
     display: block;
