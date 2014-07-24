@@ -2,6 +2,7 @@ from flask import flash
 from flask import render_template, jsonify
 from flask import request, redirect, url_for
 from flask.views import MethodView
+from flask.ext.login import login_required
 
 from mrt.forms import CategoryEditForm
 from mrt.models import db, CategoryDefault
@@ -10,6 +11,8 @@ from mrt.utils import unlink_uploaded_file
 
 class Categories(MethodView):
 
+    decorators = (login_required, )
+
     def get(self):
         categories = CategoryDefault.query.all()
         return render_template('admin/category/list.html',
@@ -17,6 +20,8 @@ class Categories(MethodView):
 
 
 class CategoryEdit(MethodView):
+
+    decorators = (login_required, )
 
     def get(self, category_id=None):
         if category_id:

@@ -1,13 +1,15 @@
 from flask import request, redirect, render_template, jsonify
-from flask import url_for
-from flask import flash
+from flask import url_for, flash
 from flask.views import MethodView
+from flask.ext.login import login_required
 
 from mrt.models import Meeting, db
 from mrt.forms import MeetingEditForm
 
 
 class Meetings(MethodView):
+
+    decorators = (login_required, )
 
     def get(self):
         meetings = Meeting.query.all()
@@ -16,6 +18,8 @@ class Meetings(MethodView):
 
 
 class MeetingEdit(MethodView):
+
+    decorators = (login_required, )
 
     def get(self, meeting_id=None):
         if meeting_id:
