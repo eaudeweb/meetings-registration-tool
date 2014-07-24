@@ -3,6 +3,30 @@
 
 {% block content %}
 
+  <div class="meeting-title">
+
+    <hgroup>
+      <h2 style="text-align:center;">
+        {{ g.meeting.acronym }}: {{ g.meeting.title.english }}
+      </h2>
+      <h3 class="text-center">
+        {{ g.meeting.venue_city.english }}
+        ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
+        {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
+      </h3>
+    </hgroup>
+
+    {% if g.meeting.venue_address %}
+      <p class="text-center">
+        <b>
+          {{ g.meeting.venue_address }}
+          {%- if g.meeting.venue_code %}, {{ g.meeting.venue_code }} {% endif -%}
+        </b>
+      </p>
+    {% endif %}
+
+  </div> {# meeting-title #}
+
   <ul class="nav nav-tabs" role="tablist">
     <li class="{{ active('/participants') }}">
       <a href="{{ url_for('meetings.participants') }}">
@@ -14,9 +38,19 @@
     <li>
       <a href="#">Printouts</a>
     </li>
-    <li class="dropdown">
+    <li class="dropdown {{ active('/settings') }}">
       <a class="dropdown-toggle" data-toggle="dropdown">
         Settings <span class="caret"></span></a>
+      <ul class="dropdown-menu" role="menu">
+        <li>
+          <a href="">Categories</a>
+        </li>
+        <li class="divider"></li>
+        <li>
+          <a href="{{ url_for('meetings.edit') }}">
+            Edit this meeting</a>
+        </li>
+      </ul>
     </li>
   </ul>
 

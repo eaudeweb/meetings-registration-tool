@@ -3,6 +3,8 @@ from flask import g, url_for, flash
 from flask.views import MethodView
 from flask.ext.login import login_required
 
+from sqlalchemy import desc
+
 from mrt.models import Meeting, db
 from mrt.forms import MeetingEditForm
 
@@ -12,7 +14,7 @@ class Meetings(MethodView):
     decorators = (login_required, )
 
     def get(self):
-        meetings = Meeting.query.all()
+        meetings = Meeting.query.order_by(desc(Meeting.date_start))
         return render_template('meetings/meeting/list.html',
                                meetings=meetings)
 

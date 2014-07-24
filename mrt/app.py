@@ -15,7 +15,7 @@ from mrt.admin.urls import admin
 from mrt.auth.urls import auth
 from mrt.mail import mail
 
-from mrt.template import nl2br, active
+from mrt.template import nl2br, active, date_processor
 from mrt.forms.admin import backgrounds
 
 
@@ -35,6 +35,7 @@ def create_app(config={}):
 
     app.add_template_filter(nl2br)
     app.add_template_global(active)
+    app.add_template_global(date_processor)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
