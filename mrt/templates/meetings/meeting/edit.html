@@ -10,6 +10,21 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block scripts %}
+
+  {% assets "datepicker" %}
+     <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+  <script>
+    $(function () {
+      $(".picker").datetimepicker({pickTime: false});
+    });
+  </script>
+
+{% endblock %}
+
+
 {% macro list_inputs(inputs) %}
 
   <ul class="list-unstyled row">

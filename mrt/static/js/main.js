@@ -1,9 +1,5 @@
 $(function () {
 
-    $(".picker").datetimepicker({
-        pickTime: false,
-    })
-
     $(".autosize").autosize();
 
     $("[data-toggle=delete]").on("click", function () {
