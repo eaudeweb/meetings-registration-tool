@@ -1,4 +1,5 @@
 from flask import url_for
+from pyquery import PyQuery
 
 from mrt.models import User
 from mrt.mail import mail
@@ -37,3 +38,40 @@ def test_recover_password(app):
         resp = client.post(url, data=data)
 
     assert user.check_password('webdeeau')
+
+
+def test_change_password_succesfully(app):
+    user = UserFactory()
+    data = UserFactory.attributes()
+    data['new_password'] = 'webdeeau'
+    data['confirm'] = 'webdeeau'
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('auth.login')
+        resp = client.post(url, data=data)
+        url = url_for('auth.change_password')
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert user.check_password('webdeeau')
+
+
+def test_change_password_fail(app):
+    UserFactory()
+    data = UserFactory.attributes()
+    data['new_password'] = 'webdeeau'
+    data['confirm'] = 'webeau'
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('auth.login')
+        resp = client.post(url, data=data)
+        data['password'] = 'baddpass'
+        url = url_for('auth.change_password')
+        resp = client.post(url, data=data)
+
+    errors = PyQuery(resp.data)('.alert-danger')
+
+    assert resp.status_code == 200
+    assert len(errors) == 2
