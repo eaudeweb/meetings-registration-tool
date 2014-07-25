@@ -8,8 +8,7 @@ from .factories import CategoryDefaultFactory, normalize_data
 
 
 def test_category_list(app):
-    CategoryDefaultFactory()
-    CategoryDefaultFactory()
+    CategoryDefaultFactory.create_batch(5)
 
     client = app.test_client()
     with app.test_request_context():
@@ -20,7 +19,7 @@ def test_category_list(app):
     tbody = table('tbody')
     row_count = len(tbody('tr'))
 
-    assert row_count == 2
+    assert row_count == 5
 
 
 def test_category_add_without_file(app):
@@ -84,6 +83,33 @@ def test_category_add_with_file(app):
     category = CategoryDefault.query.get(1)
     assert category.background == filename
     assert upload_dir.join(filename).check()
+
+
+def test_category_edit_file_delete(app):
+    data = CategoryDefaultFactory.attributes()
+    data = normalize_data(data)
+    data['name-english'] = data.pop('name')
+    filename = 'image_edit_delete.jpg'
+    data['background'] = (StringIO('Test image'), filename)
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('admin.category_edit')
+        resp = client.post(url, data=data)
+
+    upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
+    assert resp.status_code == 302
+    assert CategoryDefault.query.count() == 1
+    assert upload_dir.join(filename).check()
+
+    data.pop('background')
+    data['background_delete'] = 'y'
+    with app.test_request_context():
+        url = url_for('admin.category_edit', category_id=1)
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert not upload_dir.join(filename).check()
 
 
 def test_category_edit_with_file(app):

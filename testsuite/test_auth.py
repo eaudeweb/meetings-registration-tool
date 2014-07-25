@@ -1,6 +1,7 @@
 from flask import url_for
 
 from mrt.models import User
+from mrt.mail import mail
 from .factories import UserFactory
 
 
@@ -21,9 +22,10 @@ def test_recover_password(app):
     data = UserFactory.attributes()
 
     client = app.test_client()
-    with app.test_request_context():
+    with app.test_request_context(), mail.record_messages() as outbox:
         url = url_for('auth.recover')
         resp = client.post(url, data=data)
+        assert len(outbox) == 1
 
     assert resp.status_code == 302
     user = User.query.get(user.id)

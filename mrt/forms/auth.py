@@ -38,7 +38,7 @@ class UserForm(BaseForm):
 
 class RecoverForm(Form):
 
-    email = StringField('Email', [validators.Required()])
+    email = StringField('Email', [validators.DataRequired()])
 
     def validate_email(self, field):
         user = self.get_user()
@@ -62,8 +62,8 @@ class RecoverForm(Form):
 
 class ResetPasswordForm(Form):
 
-    password = PasswordField('Password', [validators.Required()])
-    confirm = PasswordField('Confirm Password', [validators.Required()])
+    password = PasswordField('Password', [validators.DataRequired()])
+    confirm = PasswordField('Confirm Password', [validators.DataRequired()])
 
     def validate_confirm(self, field):
         if self.password.data != self.confirm.data:

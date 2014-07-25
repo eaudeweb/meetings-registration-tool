@@ -2,7 +2,6 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
 SECRET_KEY = 'secret'
 
 
-HOSTNAME = ''
 PRODUCT_NAME = ''
 PRODUCT_TITLE = ''
 
@@ -19,3 +18,6 @@ MEETING_TYPES = (
 
 #Mail used for sending reset tokens
 DEFAULT_MAIL_SENDER = ''
+
+#Supress sendding mails on localhost
+MAIL_SUPPRESS_SEND = False

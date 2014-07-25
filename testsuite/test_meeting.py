@@ -12,8 +12,7 @@ def test_model_factory(app):
 
 
 def test_meeting_list(app):
-    MeetingFactory()
-    MeetingFactory()
+    MeetingFactory.create_batch(5)
 
     client = app.test_client()
     with app.test_request_context():
@@ -24,7 +23,7 @@ def test_meeting_list(app):
     tbody = table('tbody')
     row_count = len(tbody('tr'))
 
-    assert row_count == 2
+    assert row_count == 5
 
 
 def test_meeting_add(app):
