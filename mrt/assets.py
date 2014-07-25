@@ -6,6 +6,7 @@ _BUNDLE_CSS = (
     'css/bootstrap-theme.min.css',
     'css/bootstrap-datetimepicker.min.css',
     'css/dataTables.bootstrap.css',
+    'css/select2.css',
     'css/main.css',
 )
 
@@ -17,6 +18,7 @@ _BUNDLE_JS = (
     'js/lib/jquery.dataTables.min.js',
     'js/lib/dataTables.bootstrap.js',
     'js/lib/jquery.autosize.min.js',
+    'js/lib/select2.min.js',
     'js/main.js',
 )
 

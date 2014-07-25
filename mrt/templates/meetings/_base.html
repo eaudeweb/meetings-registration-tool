@@ -17,12 +17,7 @@
     </hgroup>
 
     {% if g.meeting.venue_address %}
-      <p class="text-center">
-        <b>
-          {{ g.meeting.venue_address }}
-          {%- if g.meeting.venue_code %}, {{ g.meeting.venue_code }} {% endif -%}
-        </b>
-      </p>
+      <p class="text-center"><b>{{ g.meeting.venue_address }}</b></p>
     {% endif %}
 
   </div> {# meeting-title #}

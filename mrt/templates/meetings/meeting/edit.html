@@ -87,18 +87,7 @@
 
         {{ form_group(form.venue_address, class_="autosize") }}
 
-        <div class="form-group">
-          {{ form.venue_country.label(class_="col-sm-2 control-label") }}
-          <div class="col-sm-8">
-            <div class="panel panel-default">
-              <div class="panel-body">
-                {{ list_inputs([form.venue_country,
-                                form.venue_state,
-                                form.venue_code]) }}
-              </div>
-            </div>
-          </div>
-        </div> {# form-group #}
+        {{ form_group(form.venue_country) }}
 
         <div class="form-group">
           {{ form.venue_city.label(class_="col-sm-2 control-label") }}

@@ -12,7 +12,7 @@
       {% else %}
       {% endif %}
     </label>
-    {% if field.type not in ('FileField',)%}
+    {% if field.type not in ('FileField',) %}
       {% set cls = "form-control " + class_ %}
     {% else %}
       {% set cls = class_ %}

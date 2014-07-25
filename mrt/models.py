@@ -235,10 +235,6 @@ class Meeting(db.Model):
     venue_country = db.Column(CountryType, nullable=False,
                               info={'label': 'Country'})
 
-    venue_state = db.Column(db.String(128), info={'label': 'State/Province'})
-
-    venue_code = db.Column(db.String(16), info={'label': 'Zip code'})
-
     owner_id = db.Column(db.Integer, db.ForeignKey('staff.id'))
 
     owner = db.relationship('Staff', foreign_keys=owner_id)
