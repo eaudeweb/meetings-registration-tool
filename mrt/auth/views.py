@@ -1,8 +1,8 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask.views import MethodView
-from flask.ext.login import login_user, logout_user
+from flask.ext.login import login_user, logout_user, login_required
 
-from mrt.forms.auth import LoginForm, RecoverForm, ResetPasswordForm
+from mrt.forms import auth
 from mrt.models import db, User
 from mrt.mail import send_reset_mail
 
@@ -10,12 +10,12 @@ from mrt.mail import send_reset_mail
 class Login(MethodView):
 
     def get(self):
-        form = LoginForm()
+        form = auth.LoginForm()
         next = request.values.get('next')
         return render_template('auth/login.html', form=form, next=next)
 
     def post(self):
-        form = LoginForm(request.form)
+        form = auth.LoginForm(request.form)
         next = request.values.get('next')
         if form.validate():
             user = form.get_user()
@@ -34,35 +34,53 @@ class Logout(MethodView):
 class RecoverPassword(MethodView):
 
     def get(self):
-        form = RecoverForm()
+        form = auth.RecoverForm()
         return render_template('auth/recover.html', form=form)
 
     def post(self):
-        form = RecoverForm(request.form)
+        form = auth.RecoverForm(request.form)
         if form.validate():
             user = form.save()
             send_reset_mail(user.email, user.recover_token)
-            return redirect(url_for('meetings.home'))
+            flash('Please check your email')
+            return redirect(url_for('auth.login'))
         return render_template('auth/recover.html', form=form)
+
+
+class ChangePassword(MethodView):
+
+    decorators = (login_required, )
+
+    def get(self):
+        form = auth.ChangePasswordForm()
+        return render_template('auth/change_password.html', form=form)
+
+    def post(self):
+        form = auth.ChangePasswordForm(request.form)
+        if form.validate():
+            form.save()
+            flash('Password changed succesfully')
+            return redirect(url_for('meetings.home'))
+        return render_template('auth/change_password.html', form=form)
 
 
 class ResetPassword(MethodView):
 
     def get(self, token):
-        form = ResetPasswordForm()
+        form = auth.ResetPasswordForm()
         user = User.query.filter_by(recover_token=token).first()
         if user is None or not user.token_is_active:
             flash('Invalid token')
-            return redirect(url_for('meetings.home'))
+            return redirect(url_for('auth.login'))
 
         return render_template('auth/reset_password.html', form=form)
 
     def post(self, token):
-        form = ResetPasswordForm(request.form)
+        form = auth.ResetPasswordForm(request.form)
         user = User.query.filter_by(recover_token=token).first()
         if user is None or not user.token_is_active:
             flash('Invalid token')
-            return redirect(url_for('meetings.home'))
+            return redirect(url_for('auth.login'))
 
         if form.validate():
             user.set_password(form.password.data)

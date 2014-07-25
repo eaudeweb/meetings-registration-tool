@@ -1,5 +1,6 @@
 from wtforms import Form
 from wtforms import StringField, PasswordField, validators
+from flask.ext.login import current_user
 
 from uuid import uuid4
 from datetime import datetime
@@ -67,4 +68,25 @@ class ResetPasswordForm(Form):
 
     def validate_confirm(self, field):
         if self.password.data != self.confirm.data:
-            return validators.ValidationError('Passwords differ!')
+            raise validators.ValidationError('Passwords differ!')
+
+
+class ChangePasswordForm(Form):
+    password = PasswordField('Password', [validators.DataRequired()])
+    new_password = PasswordField('New Password', [validators.DataRequired()])
+    confirm = PasswordField('Confirm Password', [validators.DataRequired()])
+
+    def validate_password(self, field):
+        if not current_user.check_password(self.password.data):
+            raise validators.ValidationError('Password is incorrect')
+
+    def validate_confirm(self, field):
+        if self.new_password.data != self.confirm.data:
+            raise validators.ValidationError('Passwords differ')
+
+    def save(self):
+        user = current_user
+        user.set_password(self.new_password.data)
+        db.session.commit()
+
+        return user

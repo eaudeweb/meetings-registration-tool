@@ -35,5 +35,5 @@ def deploy():
         run('git pull --rebase')
         run('pip install -r requirements.txt')
         run('python manage.py alembic upgrade head')
-        run('supervisorctl -c %(supervisord_conf)s restart meetings-staging'
+        run('supervisorctl -c %(supervisord_conf)s restart %(name)s'
             % env)

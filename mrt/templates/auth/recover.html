@@ -1,24 +1,31 @@
-{% extends "_layout.html" %}
+{% extends "auth/_layout_simple.html" %}
 
 
-{% block title %}Recover password{% endblock %}
+{% block title %}Recover password - {{ config.PRODUCT_TITLE }}{% endblock %}
 
 {% block content %}
 
 
   {% if form.errors %}
-    <p class="alert alert-danger">Email is not valid</p>
+    <div class="alert alert-danger center-block">
+      Email is not valid</div>
   {% endif %}
 
-  <div class="page-header">
-    <h1>Recover password</h1>
-  </div>
-
-  <form class="well form-inline" method="post">
-    {{ form.csrf_token }}
-    {{ form.email(placeholder=form.email.label.text) }}
-    <button class="btn" type="submit">Send email</button>
-  </form>
+  <div class="login-box center-block">
+    <div class="login-logo">{{ config.PRODUCT_TITLE }}</div>
+    <hr>
+    <div class="login-form">
+      <form method="post">
+        {{ form.csrf_token }}
+        {{ form.email(placeholder=form.email.label.text,
+                      autofocus="autofocus") }}
+        <button class="btn btn-login" type="submit">Send email</button>
+      </form>
+      <div class="login-links text-center">
+         <a href="{{ url_for('.login') }}">Login</a>
+      </div>
+    </div> {# login-form #}
+  </div> {# login-box #}
 
 
 {% endblock %}
