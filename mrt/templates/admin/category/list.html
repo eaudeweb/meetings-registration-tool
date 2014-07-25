@@ -33,41 +33,7 @@
       Add a new category</a>
   </div>
 
-  <div class="category-container">
-
-    <div class="table-responsive">
-
-      <table id="categories" class="table table-bordered table-condensed">
-
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Badge color</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for category in categories %}
-            {% set url = url_for('.category_edit',
-                                 category_id=category.id) %}
-            <tr>
-              <td>
-                <a href="{{ url_for('.category_edit', category_id=category.id) }}">
-                  {{ category.name.english }}</a>
-              </td>
-              <td>
-                <span class="stripe" style="background: {{ category.color.code }}"></span>
-                <span class="color">{{ category.color }}</span>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-
-      </table>
-
-    </div> {# table-responsive #}
-
-  </div> {# category-container #}
+  {% include "common/_categories.html"  %}
 
   <div class="actions">
     <a href="{{ url_for('.category_edit') }}"

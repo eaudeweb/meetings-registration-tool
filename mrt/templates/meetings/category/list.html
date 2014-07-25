@@ -1,0 +1,52 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import flashed_messages %}
+
+{% block head %}
+
+  <style type="text/css">
+    .form-control {
+      border: none!important;
+      -webkit-box-shadow: none!important;
+      box-shadow: none!important;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  {{ flashed_messages() }}
+
+  <div class="page-header">
+    <h2>Meeting Categories</h2>
+  </div>
+
+
+  <form role="form" method="post" class="meeting-add-category-form">
+
+    <div class="row">
+      <div class="col-sm-12">
+        {{ form.categories(class_="form-control select",
+          **{"data-placeholder": "Select one or more categories from the defaults."}) }}
+        {% if form.errors %}
+          <div class="text-danger">
+            <small>{{ form.categories.errors[0] }}</small></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        Add categories to this meeting</button>
+    </div>
+
+  </form>
+
+  {% include "common/_categories.html"  %}
+
+{% endblock %}

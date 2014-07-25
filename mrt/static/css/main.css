@@ -95,6 +95,13 @@ input[type=file] {
     line-height: 22px;
 }
 
+.meeting-add-category-form {
+    margin-bottom: 15px;
+}
+.meeting-add-category-form .form-actions {
+    margin-top: 15px;
+}
+
 /* Login */
 .login-box {
     -webkit-border-radius: 3px;

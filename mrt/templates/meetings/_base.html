@@ -37,8 +37,9 @@
       <a class="dropdown-toggle" data-toggle="dropdown">
         Settings <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">
-        <li>
-          <a href="">Categories</a>
+        <li class="{{ active('/categories') }}">
+          <a href="{{ url_for('meetings.categories') }}">
+            Categories</a>
         </li>
         <li class="divider"></li>
         <li>

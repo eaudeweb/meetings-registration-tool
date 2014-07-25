@@ -6,7 +6,7 @@ from flask.ext.login import login_required
 from sqlalchemy import desc
 
 from mrt.models import Meeting, db
-from mrt.forms import MeetingEditForm
+from mrt.forms.meetings import MeetingEditForm
 
 
 class Meetings(MethodView):

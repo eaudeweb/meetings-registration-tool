@@ -4,17 +4,17 @@ from flask import request, redirect, url_for
 from flask.views import MethodView
 from flask.ext.login import login_required
 
-from mrt.forms import CategoryEditForm
+from mrt.forms.admin import CategoryEditForm
 from mrt.models import db, CategoryDefault
 from mrt.utils import unlink_uploaded_file
 
 
 class Categories(MethodView):
 
-    decorators = (login_required, )
+    decorators = (login_required,)
 
     def get(self):
-        categories = CategoryDefault.query.all()
+        categories = CategoryDefault.query.order_by(CategoryDefault.sort)
         return render_template('admin/category/list.html',
                                categories=categories)
 

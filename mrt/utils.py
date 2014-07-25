@@ -11,3 +11,12 @@ def unlink_uploaded_file(filename, config_key):
             full_path.unlink()
             return True
     return False
+
+
+def copy_model_fields(model, instance, exclude=[]):
+    cls = model()
+    for col in instance.__table__.columns:
+        if col.name in exclude:
+            continue
+        setattr(cls, col.name, getattr(instance, col.name))
+    return cls

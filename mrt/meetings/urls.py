@@ -1,8 +1,12 @@
 from flask import Blueprint, g
 from flask import current_app as app
+
+from mrt.models import Meeting
+
 from mrt.meetings import Meetings, MeetingEdit
 from mrt.meetings import Participants
-from mrt.models import Meeting
+from mrt.meetings import Categories, CategoryEdit
+
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
 
@@ -16,6 +20,17 @@ meetings.add_url_rule('/<int:meeting_id>/edit', view_func=meeting_edit_func)
 # participants
 meetings.add_url_rule('/<int:meeting_id>/participants',
                       view_func=Participants.as_view('participants'))
+
+# categories
+meetings.add_url_rule('/<int:meeting_id>/settings/categories',
+                      view_func=Categories.as_view('categories'))
+category_edit_func = CategoryEdit.as_view('category_edit')
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/categories/add',
+    view_func=category_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/categories/<int:category_id>/edit',
+    view_func=category_edit_func)
 
 
 @meetings.url_defaults
