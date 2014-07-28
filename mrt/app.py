@@ -5,6 +5,7 @@ from flask.ext.login import LoginManager
 from flask.ext.babel import Babel
 from flask.ext.uploads import configure_uploads, patch_request_class
 
+from raven.contrib.flask import Sentry
 from path import path
 
 from mrt.models import db, User
@@ -42,6 +43,8 @@ def create_app(config={}):
     login_manager.login_view = 'auth.login'
 
     mail.init_app(app)
+
+    Sentry(app)
 
     _configure_uploads(app)
 
