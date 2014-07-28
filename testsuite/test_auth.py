@@ -1,7 +1,7 @@
+from uuid import uuid4
 from flask import url_for
 from pyquery import PyQuery
 
-from mrt.models import User
 from mrt.mail import mail
 from .factories import UserFactory
 
@@ -24,37 +24,30 @@ def test_recover_password(app):
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
-        url = url_for('auth.recover')
-        resp = client.post(url, data=data)
+        resp = client.post(url_for('auth.recover'), data=data)
+        assert resp.status_code == 302
         assert len(outbox) == 1
-
-    assert resp.status_code == 302
-    user = User.query.get(user.id)
-    assert user is not None
 
     data['confirm'] = data['password'] = 'webdeeau'
     with app.test_request_context():
         url = url_for('auth.reset', token=user.recover_token)
         resp = client.post(url, data=data)
+        assert resp.status_code == 302
 
     assert user.check_password('webdeeau')
 
 
 def test_change_password_succesfully(app):
-    user = UserFactory()
-    data = UserFactory.attributes()
-    data['new_password'] = 'webdeeau'
-    data['confirm'] = 'webdeeau'
+    user, data = UserFactory(), UserFactory.attributes()
+    data['new_password'] = data['confirm'] = passwd = str(uuid4())
 
     client = app.test_client()
     with app.test_request_context():
-        url = url_for('auth.login')
-        resp = client.post(url, data=data)
-        url = url_for('auth.change_password')
-        resp = client.post(url, data=data)
+        client.post(url_for('auth.login'), data=data)
+        resp = client.post(url_for('auth.change_password'), data=data)
+        assert resp.status_code == 302
 
-    assert resp.status_code == 302
-    assert user.check_password('webdeeau')
+    assert user.check_password(passwd)
 
 
 def test_change_password_fail(app):
