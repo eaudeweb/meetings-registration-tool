@@ -2,6 +2,7 @@ from datetime import datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 
 from .definitions import COLORS, CATEGORIES
@@ -249,27 +250,38 @@ class Meeting(db.Model):
         return '{}'.format(self.title)
 
 
-class Category(db.Model):
+class CategoryMixin(object):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    name_id = db.Column(
-        db.Integer, db.ForeignKey('translation.id'),
-        nullable=False)
-    name = db.relationship(
-        'Translation',
-        backref=db.backref('categories', lazy='dynamic'))
+    @declared_attr
+    def name_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('translation.id'),
+                         nullable=False)
+
+    @declared_attr
+    def name(cls):
+        return db.relationship('Translation')
 
     color = db.Column(ChoiceType(COLORS), nullable=False,
                       info={'label': 'Color'})
+
     background = db.Column(db.String(32))
+
     type = db.Column(ChoiceType(CATEGORIES), nullable=False,
                      info={'label': 'Category Type'})
+
     sort = db.Column(db.Integer, default=0)
+
+
+class Category(CategoryMixin, db.Model):
+
+    __tablename__ = 'category'
 
     meeting_id = db.Column(
         db.Integer, db.ForeignKey('meeting.id'),
         nullable=False)
+
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('categories', lazy='dynamic'))
@@ -278,21 +290,9 @@ class Category(db.Model):
         return '{} {}'.format(self.meeting.acronym, self.name.english)
 
 
-class CategoryDefault(db.Model):
+class CategoryDefault(CategoryMixin, db.Model):
 
-    id = db.Column(db.Integer, primary_key=True)
-    name_id = db.Column(
-        db.Integer, db.ForeignKey('translation.id'),
-        nullable=False)
-    name = db.relationship(
-        'Translation',
-        backref=db.backref('default_categories', lazy='dynamic'))
-    color = db.Column(ChoiceType(COLORS), nullable=False,
-                      info={'label': 'Color'})
-    background = db.Column(db.String(32))
-    type = db.Column(ChoiceType(CATEGORIES), nullable=False,
-                     info={'label': 'Category Type'})
-    sort = db.Column(db.Integer, default=0)
+    __tablename__ = 'category_default'
 
     def __repr__(self):
         return '{}'.format(self.name.english)
