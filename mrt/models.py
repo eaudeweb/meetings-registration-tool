@@ -43,7 +43,7 @@ class User(db.Model):
         return unicode(self.id)
 
     def token_is_active(self):
-        return (datetime.now() - self.recover_time).seconds < 86400
+        return (datetime.now() - self.recover_time).total_seconds() < 86400
 
 
 class Staff(db.Model):

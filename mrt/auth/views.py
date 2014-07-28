@@ -6,6 +6,8 @@ from mrt.forms import auth
 from mrt.models import db, User
 from mrt.mail import send_reset_mail
 
+from datetime import timedelta
+
 
 class Login(MethodView):
 
@@ -78,13 +80,14 @@ class ResetPassword(MethodView):
     def post(self, token):
         form = auth.ResetPasswordForm(request.form)
         user = User.query.filter_by(recover_token=token).first()
-        if user is None or not user.token_is_active:
+        if user is None or not user.token_is_active():
             flash('Invalid token', 'danger')
             return redirect(url_for('auth.login'))
 
         if form.validate():
             user.set_password(form.password.data)
             user.is_active = True
+            user.recover_time = user.recover_time - timedelta(2)
             db.session.commit()
             flash('Password changed succesfully', 'success')
             return redirect(url_for('auth.login'))
