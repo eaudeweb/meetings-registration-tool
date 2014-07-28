@@ -10,7 +10,8 @@ from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
-from mrt.models import Staff, User, CategoryDefault
+from mrt.models import Staff, User
+from mrt.models import CategoryDefault, Category
 from mrt.utils import unlink_uploaded_file
 
 from .base import BaseForm, TranslationInpuForm
@@ -69,10 +70,7 @@ class StaffEditForm(BaseForm):
         return staff
 
 
-class CategoryEditForm(BaseForm):
-
-    class Meta:
-        model = CategoryDefault
+class CategoryEditBaseForm(BaseForm):
 
     name = ModelFormField(TranslationInpuForm, label='Name')
     background = FileField('Background',
@@ -80,14 +78,15 @@ class CategoryEditForm(BaseForm):
     background_delete = BooleanField()
 
     def save(self):
-        category = self.obj or CategoryDefault()
+        category = self.obj or self.meta.model()
         background = category.background
         self.populate_obj(category)
         category.background = background
 
         if self.background.data:
             unlink_uploaded_file(background, 'backgrounds')
-            category.background = backgrounds.save(self.background.data)
+            category.background = backgrounds.save(self.background.data,
+                                                   str(uuid4()))
         else:
             if self.background_delete.data:
                 unlink_uploaded_file(background, 'backgrounds')
@@ -98,3 +97,15 @@ class CategoryEditForm(BaseForm):
         db.session.commit()
 
         return category
+
+
+class CategoryDefaultEditForm(CategoryEditBaseForm):
+
+    class Meta:
+        model = CategoryDefault
+
+
+class CategoryEditForm(CategoryEditBaseForm):
+
+    class Meta:
+        model = Category

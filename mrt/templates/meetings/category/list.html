@@ -1,6 +1,12 @@
 {% extends "meetings/_base.html" %}
 {% from "_bits.html" import flashed_messages %}
 
+
+{% set title = "Meeting (" ~ g.meeting.acronym ~ ") categories" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
 {% block head %}
 
   <style type="text/css">
@@ -23,7 +29,7 @@
   {{ flashed_messages() }}
 
   <div class="page-header">
-    <h2>Meeting Categories</h2>
+    <h2>Meeting categories</h2>
   </div>
 
 
@@ -47,6 +53,6 @@
 
   </form>
 
-  {% include "common/_categories.html"  %}
+  {% include "common/_category_list.html"  %}
 
 {% endblock %}

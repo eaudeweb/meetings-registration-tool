@@ -4,7 +4,7 @@ from flask import request, redirect, url_for
 from flask.views import MethodView
 from flask.ext.login import login_required
 
-from mrt.forms.admin import CategoryEditForm
+from mrt.forms.admin import CategoryDefaultEditForm
 from mrt.models import db, CategoryDefault
 from mrt.utils import unlink_uploaded_file
 
@@ -24,20 +24,16 @@ class CategoryEdit(MethodView):
     decorators = (login_required, )
 
     def get(self, category_id=None):
-        if category_id:
-            category = CategoryDefault.query.get_or_404(category_id)
-        else:
-            category = None
-        form = CategoryEditForm(obj=category)
+        category = (CategoryDefault.query.get_or_404(category_id)
+                    if category_id else None)
+        form = CategoryDefaultEditForm(obj=category)
         return render_template('admin/category/edit.html',
                                form=form, category=category)
 
     def post(self, category_id=None):
-        if category_id:
-            category = CategoryDefault.query.get_or_404(category_id)
-        else:
-            category = None
-        form = CategoryEditForm(request.form, obj=category)
+        category = (CategoryDefault.query.get_or_404(category_id)
+                    if category_id else None)
+        form = CategoryDefaultEditForm(request.form, obj=category)
         if form.validate():
             form.save()
             if category_id:

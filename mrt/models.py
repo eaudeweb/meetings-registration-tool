@@ -309,6 +309,9 @@ class Translation(db.Model):
     def __repr__(self):
         return '{}'.format(self.english)
 
+    def __init__(self, english=None):
+        self.english = english
+
 
 class Phrase(db.Model):
 

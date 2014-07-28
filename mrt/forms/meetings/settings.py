@@ -39,9 +39,13 @@ class MeetingCategoryAddForm(BaseForm):
         categories_default = CategoryDefault.query.filter(
             CategoryDefault.id.in_(self.categories.data))
         for category_default in categories_default:
-            category = copy_model_fields(Category, category_default,
-                                         exclude=('id', 'name_id'))
-            category.name = category_default.name
+            category = copy_model_fields(
+                Category, category_default,
+                 exclude=('id', 'name_id',))
+            translation = Translation(english=category_default.name.english)
+            db.session.add(translation)
+            db.session.flush()
+            category.name = translation
             category.meeting = g.meeting
             db.session.add(category)
         db.session.commit()
