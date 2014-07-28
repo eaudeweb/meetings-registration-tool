@@ -35,7 +35,7 @@ class RecoverPassword(MethodView):
 
     def get(self):
         form = auth.RecoverForm()
-        return render_template('auth/recover.html', form=form)
+        return render_template('auth/forgot_password.html', form=form)
 
     def post(self):
         form = auth.RecoverForm(request.form)
@@ -44,7 +44,7 @@ class RecoverPassword(MethodView):
             send_reset_mail(user.email, user.recover_token)
             flash('Please check your email', 'success')
             return redirect(url_for('auth.login'))
-        return render_template('auth/recover.html', form=form)
+        return render_template('auth/forgot_password.html', form=form)
 
 
 class ChangePassword(MethodView):
