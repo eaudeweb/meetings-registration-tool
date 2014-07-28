@@ -68,7 +68,7 @@ class Staff(db.Model):
         backref=db.backref('staffs', lazy='dynamic'))
 
     def __repr__(self):
-        return '{}'.format(self.full_name)
+        return self.full_name
 
 
 class Role(db.Model):
@@ -107,7 +107,7 @@ class Participant(db.Model):
         backref=db.backref('participants', lazy='dynamic'))
 
     def __repr__(self):
-        return '{} {}'.format(self.first_name, self.last_name)
+        return '%s %s' % (self.first_name, self.last_name)
 
 
 class CustomField(db.Model):
@@ -124,7 +124,7 @@ class CustomField(db.Model):
     type = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return '{} {}'.format(self.type, self.meeting.acronym)
+        return '%s %s' % (self.type, self.meeting.acronym)
 
 
 class CustomFieldChoice(db.Model):
@@ -146,7 +146,7 @@ class CustomFieldChoice(db.Model):
         backref=db.backref('custom_field_choices', lazy='dynamic'))
 
     def __repr__(self):
-        return '{}'.format(self.value.english)
+        return self.value.english
 
 
 class CustomFieldValue(db.Model):
@@ -177,7 +177,7 @@ class CustomFieldValue(db.Model):
         backref=db.backref('custom_field_values', lazy='dynamic'))
 
     def __repr__(self):
-        return '{}'.format(self.value)
+        return self.value
 
 
 class MediaParticipant(db.Model):
@@ -204,7 +204,7 @@ class MediaParticipant(db.Model):
         backref=db.backref('media_participants', lazy='dynamic'))
 
     def __repr__(self):
-        return '{} {}'.format(self.first_name, self.last_name)
+        return '%s %s' % (self.first_name, self.last_name)
 
 
 class Meeting(db.Model):
@@ -247,7 +247,7 @@ class Meeting(db.Model):
         info={'label': 'Allow Online Registration'})
 
     def __repr__(self):
-        return '{}'.format(self.title)
+        return self.title
 
 
 class CategoryMixin(object):
@@ -287,7 +287,7 @@ class Category(CategoryMixin, db.Model):
         backref=db.backref('categories', lazy='dynamic'))
 
     def __repr__(self):
-        return '{} {}'.format(self.meeting.acronym, self.name.english)
+        return '%s %s' % (self.meeting.acronym, self.name.english)
 
 
 class CategoryDefault(CategoryMixin, db.Model):
@@ -295,7 +295,7 @@ class CategoryDefault(CategoryMixin, db.Model):
     __tablename__ = 'category_default'
 
     def __repr__(self):
-        return '{}'.format(self.name.english)
+        return self.name.english
 
 
 class Translation(db.Model):
@@ -307,7 +307,7 @@ class Translation(db.Model):
     spanish = db.Column(db.Text, info={'label': 'Spanish'})
 
     def __repr__(self):
-        return '{}'.format(self.english)
+        return self.english
 
     def __init__(self, english=None):
         self.english = english
@@ -335,4 +335,4 @@ class Phrase(db.Model):
     sort = db.Column(db.Integer, default=0)
 
     def __repr__(self):
-        return '{}'.format(self.name)
+        return self.name

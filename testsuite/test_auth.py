@@ -78,18 +78,12 @@ def test_change_password_succesfully(app):
 def test_change_password_fail(app):
     UserFactory()
     data = UserFactory.attributes()
-    data['new_password'] = 'webdeeau'
-    data['confirm'] = 'webeau'
+    data['new_password'] = data['confirm'] = 'webdeeau'
 
     client = app.test_client()
     with app.test_request_context():
-        url = url_for('auth.login')
-        resp = client.post(url, data=data)
+        client.post(url_for('auth.login'), data=data)
         data['password'] = 'baddpass'
-        url = url_for('auth.change_password')
-        resp = client.post(url, data=data)
-
-    errors = PyQuery(resp.data)('.alert-danger')
-
-    assert resp.status_code == 200
-    assert len(errors) == 1
+        resp = client.post(url_for('auth.change_password'), data=data)
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('.alert-danger')) == 1

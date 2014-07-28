@@ -22,6 +22,8 @@ backgrounds = UploadSet('backgrounds', IMAGES)
 
 def _staff_user_unique(*args, **kwargs):
     def validate(form, field):
+        if form.obj and form.obj.email == field.data:
+            return True
         try:
             Staff.query.filter(Staff.user.has(email=field.data)).one()
             raise ValidationError(

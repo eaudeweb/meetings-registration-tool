@@ -69,20 +69,16 @@ def test_staff_add_fail_with_existing_staff(app):
 def test_staff_edit(app):
     staff = StaffFactory()
     data = StaffFactory.attributes()
-    data['user-email'] = data['user']
-    title = 'CEO'
-    data['title'] = title
+    data['user-email'] = data.pop('user')
+    data['title'] = title = 'CEO'
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         url = url_for('admin.staff_edit', staff_id=staff.id)
         resp = client.post(url, data=data)
+        assert resp.status_code == 302
         assert len(outbox) == 0
-
-    assert resp.status_code == 302
-    staff = Staff.query.get(staff.id)
-    assert staff is not None
-    assert staff.title == title
+        assert staff.title == title
 
 
 def test_staff_delete(app):
