@@ -4,7 +4,7 @@ from uuid import uuid4
 from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed
 
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
+from sqlalchemy.orm.exc import NoResultFound
 from wtforms import ValidationError, BooleanField
 from wtforms_alchemy import ModelFormField
 
@@ -23,10 +23,11 @@ backgrounds = UploadSet('backgrounds', IMAGES)
 def _staff_user_unique(*args, **kwargs):
     def validate(form, field):
         try:
-            Staff.query.filter(Staff.user.has(email=field.data)).scalar()
-        except MultipleResultsFound:
+            Staff.query.filter(Staff.user.has(email=field.data)).one()
             raise ValidationError(
                 'Another staff with this email already exists')
+        except NoResultFound:
+            pass
     return validate
 
 

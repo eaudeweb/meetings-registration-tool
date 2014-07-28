@@ -42,7 +42,7 @@ class RecoverPassword(MethodView):
         if form.validate():
             user = form.save()
             send_reset_mail(user.email, user.recover_token)
-            flash('Please check your email')
+            flash('Please check your email', 'success')
             return redirect(url_for('auth.login'))
         return render_template('auth/recover.html', form=form)
 
@@ -59,7 +59,7 @@ class ChangePassword(MethodView):
         form = auth.ChangePasswordForm(request.form)
         if form.validate():
             form.save()
-            flash('Password changed succesfully')
+            flash('Password changed succesfully', 'success')
             return redirect(url_for('meetings.home'))
         return render_template('auth/change_password.html', form=form)
 
@@ -70,7 +70,7 @@ class ResetPassword(MethodView):
         form = auth.ResetPasswordForm()
         user = User.query.filter_by(recover_token=token).first()
         if user is None or not user.token_is_active:
-            flash('Invalid token')
+            flash('Invalid token', 'danger')
             return redirect(url_for('auth.login'))
 
         return render_template('auth/reset_password.html', form=form)
@@ -79,13 +79,13 @@ class ResetPassword(MethodView):
         form = auth.ResetPasswordForm(request.form)
         user = User.query.filter_by(recover_token=token).first()
         if user is None or not user.token_is_active:
-            flash('Invalid token')
+            flash('Invalid token', 'danger')
             return redirect(url_for('auth.login'))
 
         if form.validate():
             user.set_password(form.password.data)
             user.is_active = True
             db.session.commit()
-            flash('Password changed succesfully')
+            flash('Password changed succesfully', 'success')
             return redirect(url_for('auth.login'))
         return render_template('auth/reset_password.html', form=form)
