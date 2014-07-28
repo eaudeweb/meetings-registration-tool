@@ -85,8 +85,5 @@ class ChangePasswordForm(Form):
             raise validators.ValidationError('Passwords differ')
 
     def save(self):
-        user = current_user
-        user.set_password(self.new_password.data)
+        current_user.set_password(self.new_password.data)
         db.session.commit()
-
-        return user
