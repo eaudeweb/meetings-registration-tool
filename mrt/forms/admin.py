@@ -85,8 +85,9 @@ class CategoryEditBaseForm(BaseForm):
 
         if self.background.data:
             unlink_uploaded_file(background, 'backgrounds')
-            category.background = backgrounds.save(self.background.data,
-                                                   str(uuid4()))
+            category.background = backgrounds.save(
+                self.background.data,
+                name=str(uuid4()) + '.')
         else:
             if self.background_delete.data:
                 unlink_uploaded_file(background, 'backgrounds')

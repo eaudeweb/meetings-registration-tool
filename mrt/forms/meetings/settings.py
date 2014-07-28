@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired
 from mrt.models import db
 from mrt.models import CategoryDefault, Category
 from mrt.models import Translation
-from mrt.utils import copy_model_fields
+from mrt.utils import copy_model_fields, duplicate_uploaded_file
 
 from mrt.forms.base import BaseForm
 
@@ -41,11 +41,15 @@ class MeetingCategoryAddForm(BaseForm):
         for category_default in categories_default:
             category = copy_model_fields(
                 Category, category_default,
-                 exclude=('id', 'name_id',))
+                exclude=('id', 'name_id', 'background'))
             translation = Translation(english=category_default.name.english)
             db.session.add(translation)
             db.session.flush()
             category.name = translation
             category.meeting = g.meeting
+            filename = duplicate_uploaded_file(category_default.background,
+                                               'backgrounds')
+            if filename:
+                category.background = filename.basename()
             db.session.add(category)
         db.session.commit()

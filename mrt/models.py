@@ -266,7 +266,7 @@ class CategoryMixin(object):
     color = db.Column(ChoiceType(COLORS), nullable=False,
                       info={'label': 'Color'})
 
-    background = db.Column(db.String(32))
+    background = db.Column(db.String(64))
 
     type = db.Column(ChoiceType(CATEGORIES), nullable=False,
                      info={'label': 'Category Type'})
