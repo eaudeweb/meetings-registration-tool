@@ -1,53 +1,78 @@
 {% extends "_layout.html" %}
 {% from "_bits.html" import breadcrumb, form_group, flashed_messages %}
 
+{% set title = phrase.meeting_type.value ~ " Phrases" %}
 
-{% block title %}Default Phrases{% endblock %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.phrases'), 'Default Phrases'),
+      ('', title)]
+  ) }}
+
+{% endblock %}
 
 
 {% block content %}
 
-  {{ breadcrumb( [(url_for('admin.phrases'), 'Default Phrases'),
-                  ('', phrase.meeting_type.value)] ) }}
-
   {{ flashed_messages() }}
 
   <div class="page-header">
-    <h2>Default Phrases</h2>
+    <h2>{{ title }}</h2>
   </div>
 
   <div class="row">
 
-    <div class="col-sm-2">
+    <div class="col-sm-3">
 
       <ul class="nav nav-pills nav-stacked nav-condensed">
+
         {% for group, grouped_phrases in phrases|groupby('group') %}
 
           <li class="nav-header">{{ group }}</li>
-          {% for phrase in grouped_phrases %}
-            {% set phrase_url = url_for('.phrase_edit', meeting_type=phrase.meeting_type.code, phrase_id=phrase.id) %}
 
-            <li class="{{ active(phrase_url + '$') }}">
-              <a href="{{ phrase_url }}">{{ phrase }}</a>
+          {% for phrase in grouped_phrases %}
+
+            {% set url = url_for('.phrase_edit', meeting_type=phrase.meeting_type.code, phrase_id=phrase.id) %}
+
+            <li class="{{ active(url +'$') }}">
+              <a href="{{ url }}">{{ phrase }}</a>
             </li>
 
           {% endfor %}
+
         {% endfor %}
+
       </ul>
 
     </div>
 
-    <div class="col-sm-10">
+    <div class="col-sm-9">
       <form class="form-horizontal" method="POST">
 
-          {{ form_group(form.description.english, input_size="10", class_="autosize") }}
-          <hr>
-          {{ form_group(form.description.french, input_size="10", class_="autosize") }}
-          <hr>
-          {{ form_group(form.description.spanish, input_size="10", class_="autosize") }}
+        <div class="panel panel-default">
+
+          <div class="panel-heading">
+            <b>{{ form.description.label.text }}</b>
+          </div>
+
+          <div class="panel-body">
+            {{ form_group(form.description.english, input_size="10",
+                          class_="autosize") }}
+            {{ form_group(form.description.french, input_size="10",
+                          class_="autosize") }}
+            {{ form_group(form.description.spanish, input_size="10",
+                          class_="autosize") }}
+          </div>
+
+        </div> {# panel #}
 
         <div class="form-actions row">
-          <div class="col-sm-offset-2 col-sm-10">
+          <div class="col-sm-9">
             <button type="submit" class="btn btn-primary">
               Save changes</button>
             <small>or <a href="{{ url_for('.phrases') }}">

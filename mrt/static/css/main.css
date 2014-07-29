@@ -25,6 +25,21 @@ input[type=file] {
     top: 6px;
 }
 
+.nav-pills .nav-header {
+    border-bottom: 1px solid #ddd;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 11px;
+    color: #666;
+}
+.nav-pills .nav-header:first-of-type {
+    margin-top: 0;
+}
+
+
 .form-actions {
     padding-bottom: 20px;
 }
