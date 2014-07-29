@@ -53,6 +53,10 @@
               <a href="{{ url_for('admin.categories') }}">
                 Default Categories</a>
             </li>
+            <li class="{{ active('/admin/phrases') }}">
+              <a href="{{ url_for('admin.phrases') }}">
+                Default Phrases</a>
+            </li>
             <li class="{{ active('/admin/staff') }}">
               <a href="{{ url_for('admin.staff') }}">
                 Staff</a>

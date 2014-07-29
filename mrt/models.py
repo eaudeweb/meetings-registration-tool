@@ -5,7 +5,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 
-from .definitions import COLORS, CATEGORIES
+from .definitions import COLORS, CATEGORIES, MEETING_TYPES
 
 
 db = SQLAlchemy()
@@ -313,16 +313,29 @@ class Translation(db.Model):
         self.english = english
 
 
-class Phrase(db.Model):
+class PhraseMixin(object):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), nullable=False)
-    descpription_translation_id = db.Column(
-        db.Integer, db.ForeignKey('translation.id'),
-        nullable=False)
-    description = db.relationship(
-        'Translation',
-        backref=db.backref('phrases', lazy='dynamic'))
+
+    @declared_attr
+    def description_translation_id(cls):
+        return db.Column(db.Integer, db.ForeignKey('translation.id'))
+
+    @declared_attr
+    def description(cls):
+        return db.relationship('Translation')
+
+    group = db.Column(db.String(32), nullable=True)
+    sort = db.Column(db.Integer, default=0)
+
+    def __repr__(self):
+        return '{}'.format(self.name)
+
+
+class Phrase(PhraseMixin, db.Model):
+
+    __tablename__ = 'phrase'
 
     meeting_id = db.Column(
         db.Integer, db.ForeignKey('meeting.id'),
@@ -331,8 +344,10 @@ class Phrase(db.Model):
         'Meeting',
         backref=db.backref('phrases', lazy='dynamic'))
 
-    group = db.Column(db.String(32), nullable=True)
-    sort = db.Column(db.Integer, default=0)
 
-    def __repr__(self):
-        return self.name
+class PhraseDefault(PhraseMixin, db.Model):
+
+    __tablename__ = 'phrase_default'
+
+    type = db.Column(ChoiceType(MEETING_TYPES), nullable=False,
+                     info={'label': 'Meeting Type'})

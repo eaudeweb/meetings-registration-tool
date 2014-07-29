@@ -34,3 +34,20 @@ class TranslationInpuForm(BaseForm):
                 'widget': widgets.TextInput()
             }
         }
+
+
+class DescriptionInputForm(BaseForm):
+
+    class Meta:
+        model = Translation
+        field_args = {
+            'english': {
+                'widget': widgets.TextArea()
+            },
+            'french': {
+                'widget': widgets.TextArea()
+            },
+            'spanish': {
+                'widget': widgets.TextArea()
+            }
+        }

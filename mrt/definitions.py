@@ -22,3 +22,11 @@ COLORS = (
     ('#559751', 'bottle green'), ('#c1d942', 'lime green'),
     ('#b0b7c0', 'silver'), ('#c9a132', 'gold'), ('#9b6633', 'bronze')
 )
+
+MEETING_TYPES = (
+    ('cop', 'Conference of the Parties'),
+    ('ac', 'Animals Committee'),
+    ('sc', 'Scientific Council'),
+    ('stc', 'Standing Committee'),
+    ('pc', 'Plants Committee'),
+)

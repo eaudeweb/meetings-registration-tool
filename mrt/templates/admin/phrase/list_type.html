@@ -1,0 +1,64 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb, form_group, flashed_messages %}
+
+
+{% block title %}Default Phrases{% endblock %}
+
+
+{% block content %}
+
+  {{ breadcrumb( [(url_for('admin.phrases'), 'Default Phrases'),
+                  ('', phrase.type.value)] ) }}
+
+  {{ flashed_messages() }}
+
+  <div class="page-header">
+    <h2>Default Phrases</h2>
+  </div>
+
+  {% set url = url_for('.phrase_edit', meeting_type=phrase.type.code, phrase_id=phrase.id) %}
+  <div class="row">
+
+    <div class="col-md-2">
+
+      <ul class="nav nav-pills nav-stacked">
+        {% for group, grouped_phrases in phrases|groupby('group') %}
+
+          <li class="nav-header">{{ group }}</li>
+          {% for phrase in grouped_phrases|sort(attribute='sort') %}
+            {% set phrase_url = url_for('.phrase_edit', meeting_type=phrase.type.code, phrase_id=phrase.id) %}
+
+            <li class="{{ active(phrase_url) if phrase_url == url }}">
+              <a href="{{ phrase_url }}">{{ phrase }}</a>
+            </li>
+
+          {% endfor %}
+        {% endfor %}
+      </ul>
+
+    </div>
+
+    <div class="col-md-10">
+      <form class="form-horizontal" method="POST" action="{{ url }}">
+
+          {{ form_group(form.description.english, label_size="2", input_size="10") }}
+          <hr>
+          {{ form_group(form.description.french, label_size="2", input_size="10") }}
+          <hr>
+          {{ form_group(form.description.spanish, label_size="2", input_size="10") }}
+
+        <div class="form-actions row">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-primary">
+              Save changes</button>
+            <small>or <a href="{{ url_for('.phrases') }}">
+              Cancel</a></small>
+          </div>
+        </div> {# form-actions #}
+
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}

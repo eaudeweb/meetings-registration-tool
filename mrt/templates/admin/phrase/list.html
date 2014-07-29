@@ -1,0 +1,51 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
+
+
+{% block title %}Default Phrases{% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#types').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ breadcrumb( [('', 'Default Phrases')] ) }}
+
+  {{ flashed_messages() }}
+
+  <div class="page-header">
+    <h2>Default Phrases</h2>
+  </div>
+
+  <div class="table-responsive">
+    <table id="types" class="table table-bordered table-condensed">
+
+      <thead>
+        <tr>
+          <th>Meeting Type</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for abbr, name in meeting_types %}
+          {% set url = url_for('.phrase_edit', meeting_type=abbr) %}
+          <tr>
+            <td><a href="{{ url }}">{{ name }}</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table> {# table-responsive #}
+
+  </div>
+
+{% endblock %}

@@ -12,9 +12,10 @@ from mrt.mail import send_activation_mail
 from mrt.models import db
 from mrt.models import Staff, User
 from mrt.models import CategoryDefault, Category
+from mrt.models import PhraseDefault
 from mrt.utils import unlink_uploaded_file
 
-from .base import BaseForm, TranslationInpuForm
+from .base import BaseForm, TranslationInpuForm, DescriptionInputForm
 
 
 backgrounds = UploadSet('backgrounds', IMAGES)
@@ -113,3 +114,19 @@ class CategoryEditForm(CategoryEditBaseForm):
 
     class Meta:
         model = Category
+
+
+class PhraseEditForm(BaseForm):
+
+    class Meta:
+        model = PhraseDefault
+        exclude = ('name', 'type', 'group', 'sort')
+
+    description = ModelFormField(DescriptionInputForm, label='Description')
+
+    def save(self):
+        phrase = self.obj or self.meta.model()
+        self.populate_obj(phrase)
+        if phrase.id is None:
+            db.session.add(phrase)
+        db.session.commit()
