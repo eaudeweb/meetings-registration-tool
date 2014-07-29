@@ -15,9 +15,15 @@
 
 {% endblock %}
 
-{% block content %}
 
-  {{ breadcrumb( [('', 'Staff members')] ) }}
+{% block breadcrumb %}
+
+  {{ breadcrumb( [('', 'Staff Members')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
 
   {{ flashed_messages() }}
 

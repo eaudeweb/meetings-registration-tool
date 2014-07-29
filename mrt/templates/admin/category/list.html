@@ -16,9 +16,14 @@
 {% endblock %}
 
 
-{% block content %}
+{% block breadcrumb %}
 
   {{ breadcrumb( [('', 'Default Categories')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
 
   {{ flashed_messages() }}
 

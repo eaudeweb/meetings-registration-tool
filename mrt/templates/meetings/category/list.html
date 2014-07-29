@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import flashed_messages %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
 
 
 {% set title = "Meeting (" ~ g.meeting.acronym ~ ") categories" %}
@@ -22,16 +22,23 @@
 {% endblock %}
 
 
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('meetings.home'), 'Meetings'),
+      ('', 'Categories')
+  ] ) }}
+
+{% endblock %}
+
+
 {% block content %}
 
   {{ super() }}
 
   {{ flashed_messages() }}
 
-  <div class="page-header">
-    <h2>Meeting categories</h2>
-  </div>
-
+  <h3 class="page-title">{{ title }}</h3>
 
   <form role="form" method="post" class="meeting-add-category-form">
 

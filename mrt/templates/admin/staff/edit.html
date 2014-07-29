@@ -8,11 +8,16 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block breadcrumb %}
+
+    {{ breadcrumb( [(url_for('.staff'), 'Staff Members'),
+                    ('', title)] ) }}
+
+{% endblock %}
+
 {% block content %}
 
   <div class="staff=container">
-
-    {{ breadcrumb( [(url_for('.staff'), 'Staff'), ('', title)] ) }}
 
     {{ flashed_messages() }}
 

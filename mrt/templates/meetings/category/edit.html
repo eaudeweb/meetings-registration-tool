@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import flashed_messages %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
 
 
 {% set title = "Edit meeting (" ~ g.meeting.acronym ~ ") category" %}
@@ -8,15 +8,24 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('meetings.home'), 'Meetings'),
+      (url_for('meetings.categories'), 'Categories'),
+      ('', title),
+  ] ) }}
+
+{% endblock %}
+
+
 {% block content %}
 
   {{ super() }}
 
   {{ flashed_messages() }}
 
-  <div class="page-header">
-    <h2>Edit meeting category</h2>
-  </div>
+  <h3 class="page-title">{{ title }}</h3>
 
   <div class="category-container">
     {% include "common/_category_edit.html" %}

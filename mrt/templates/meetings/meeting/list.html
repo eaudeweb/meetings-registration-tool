@@ -16,9 +16,14 @@
 {% endblock %}
 
 
-{% block content %}
+{% block breadcrumb %}
 
   {{ breadcrumb( [('', 'Meetings')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
 
   {{ flashed_messages() }}
 

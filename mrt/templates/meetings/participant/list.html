@@ -1,7 +1,28 @@
 {% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('meetings.home'), 'Meetings'),
+      ('', 'Participants')
+  ] ) }}
+
+{% endblock %}
+
 
 {% block content %}
 
   {{ super() }}
+
+  {{ flashed_messages() }}
+
+  <div class="actions">
+    <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new participant
+    </a>
+  </div>
 
 {% endblock %}

@@ -16,7 +16,9 @@
   </head>
 
   <body>
+
     <nav class="navbar navbar-default" role="navigation">
+
       <div class="container">
         <div class="navbar-header">
           <a class="navbar-brand"
@@ -24,48 +26,53 @@
             {{ config.PRODUCT_TITLE }}</a>
         </div>
 
-      <ul class="nav navbar-nav navbar-right">
-        {% if current_user.is_authenticated() %}
-          <li>
+        <div class="navbar-left">
+          {% block breadcrumb %}{% endblock %}
+        </div>
+
+        <ul class="nav navbar-nav navbar-right">
+          {% if current_user.is_authenticated() %}
+            <li>
+              <a class="dropdown-toggle" data-toggle="dropdown">
+                {{ current_user }} <span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li>
+                  <a href="{{ url_for('auth.change_password') }}">
+                    Change Password</a>
+                </li>
+                <li>
+                  <a href="{{ url_for('auth.logout') }}">Logout</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+          <li class="{{ active('/meetings') }}">
+            <a href="{{ url_for('meetings.home') }}">
+              Meetings</a>
+          </li>
+          <li class="{{ active('/admin') }} dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown">
-              {{ current_user }} <span class="caret"></span></a>
+              Admin <span class="caret"></span>
+            </a>
             <ul class="dropdown-menu" role="menu">
-              <li>
-                <a href="{{ url_for('auth.change_password') }}">
-                  Change Password</a>
+              <li class="{{ active('/admin/categories') }}">
+                <a href="{{ url_for('admin.categories') }}">
+                  Default Categories</a>
               </li>
-              <li>
-                <a href="{{ url_for('auth.logout') }}">Logout</a>
+              <li class="{{ active('/admin/phrases') }}">
+                <a href="{{ url_for('admin.phrases') }}">
+                  Default Phrases</a>
+              </li>
+              <li class="{{ active('/admin/staff') }}">
+                <a href="{{ url_for('admin.staff') }}">
+                  Staff</a>
               </li>
             </ul>
           </li>
-        {% endif %}
-        <li class="{{ active('/meetings') }}">
-          <a href="{{ url_for('meetings.home') }}">
-            Meetings</a>
-        </li>
-        <li class="{{ active('/admin') }} dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown">
-            Admin <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu" role="menu">
-            <li class="{{ active('/admin/categories') }}">
-              <a href="{{ url_for('admin.categories') }}">
-                Default Categories</a>
-            </li>
-            <li class="{{ active('/admin/phrases') }}">
-              <a href="{{ url_for('admin.phrases') }}">
-                Default Phrases</a>
-            </li>
-            <li class="{{ active('/admin/staff') }}">
-              <a href="{{ url_for('admin.staff') }}">
-                Staff</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
+        </ul>
 
-      </div>
+      </div> {# container#}
+
     </nav>
 
     <div class="container">
@@ -75,6 +82,7 @@
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% block scripts %}{% endblock %}
+
   </body>
 
 </html>

@@ -2,10 +2,20 @@
 {% from "_bits.html" import breadcrumb, flashed_messages %}
 
 
-{% set title = 'Edit category' if category else 'Add a new default category' %}
+{% set title = "Edit category" if category else "Add a new default category" %}
 
 
 {% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.categories'), 'Default Categories'),
+      ('', title)]
+  ) }}
+
+{% endblock %}
 
 
 {% block head %}
@@ -21,9 +31,6 @@
 
 
 {% block content %}
-
-  {{ breadcrumb( [ (url_for('.categories'), 'Default Categories'),
-                 ('', title)] ) }}
 
   {{ flashed_messages() }}
 

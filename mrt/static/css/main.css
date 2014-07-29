@@ -16,6 +16,15 @@ input[type=file] {
     margin-bottom: 10px;
 }
 
+.navbar .breadcrumb {
+    background: none;
+    position: relative;
+    margin-bottom: 0;
+    font-weight: 300;
+    font-size: 16px;
+    top: 6px;
+}
+
 .form-actions {
     padding-bottom: 20px;
 }
@@ -36,6 +45,11 @@ input[type=file] {
 
 .page-header {
     margin-top: 0;
+}
+.page-title {
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    font-weight: 300;
 }
 
 .panel label {
