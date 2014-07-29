@@ -157,7 +157,7 @@ input[type=file] {
     padding-bottom: 25px;
 }
 
-.nav.nav-pills.nav-stacked > li > a {
+.nav-condensed.nav.nav-pills.nav-stacked > li > a {
     padding-top: 4px;
     padding-bottom: 4px;
 }

@@ -25,18 +25,18 @@ class PhraseEdit(MethodView):
     def get(self, meeting_type, phrase_id=None):
         phrases = (
             PhraseDefault.query
-            .filter_by(type=meeting_type)
-            .order_by(PhraseDefault.group))
+            .filter_by(meeting_type=meeting_type)
+            .order_by(PhraseDefault.group, PhraseDefault.sort))
         if phrase_id:
             phrase = PhraseDefault.query.get_or_404(phrase_id)
         else:
             phrase = phrases.first_or_404()
             return redirect(url_for('.phrase_edit',
-                                    meeting_type=phrase.type.code,
+                                    meeting_type=phrase.meeting_type.code,
                                     phrase_id=phrase.id))
 
         form = PhraseEditForm(obj=phrase)
-        return render_template('admin/phrase/list_type.html',
+        return render_template('admin/phrase/edit.html',
                                phrases=phrases, phrase=phrase, form=form)
 
     def post(self, meeting_type, phrase_id):
@@ -45,7 +45,9 @@ class PhraseEdit(MethodView):
         if form.validate():
             form.save()
             flash('Default phrase successfully updated', 'success')
-
-        phrases = PhraseDefault.query.filter_by(type=meeting_type)
-        return render_template('admin/phrase/list_type.html',
+        phrases = (
+            PhraseDefault.query
+            .filter_by(meeting_type=meeting_type)
+            .order_by(PhraseDefault.group, PhraseDefault.sort))
+        return render_template('admin/phrase/edit.html',
                                phrases=phrases, phrase=phrase, form=form)

@@ -120,7 +120,7 @@ class PhraseEditForm(BaseForm):
 
     class Meta:
         model = PhraseDefault
-        exclude = ('name', 'type', 'group', 'sort')
+        exclude = ('name', 'meeting_type', 'group', 'sort')
 
     description = ModelFormField(DescriptionInputForm, label='Description')
 

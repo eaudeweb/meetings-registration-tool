@@ -8,7 +8,7 @@
 {% block content %}
 
   {{ breadcrumb( [(url_for('admin.phrases'), 'Default Phrases'),
-                  ('', phrase.type.value)] ) }}
+                  ('', phrase.meeting_type.value)] ) }}
 
   {{ flashed_messages() }}
 
@@ -16,19 +16,18 @@
     <h2>Default Phrases</h2>
   </div>
 
-  {% set url = url_for('.phrase_edit', meeting_type=phrase.type.code, phrase_id=phrase.id) %}
   <div class="row">
 
-    <div class="col-md-2">
+    <div class="col-sm-2">
 
-      <ul class="nav nav-pills nav-stacked">
+      <ul class="nav nav-pills nav-stacked nav-condensed">
         {% for group, grouped_phrases in phrases|groupby('group') %}
 
           <li class="nav-header">{{ group }}</li>
-          {% for phrase in grouped_phrases|sort(attribute='sort') %}
-            {% set phrase_url = url_for('.phrase_edit', meeting_type=phrase.type.code, phrase_id=phrase.id) %}
+          {% for phrase in grouped_phrases %}
+            {% set phrase_url = url_for('.phrase_edit', meeting_type=phrase.meeting_type.code, phrase_id=phrase.id) %}
 
-            <li class="{{ active(phrase_url) if phrase_url == url }}">
+            <li class="{{ active(phrase_url + '$') }}">
               <a href="{{ phrase_url }}">{{ phrase }}</a>
             </li>
 
@@ -38,14 +37,14 @@
 
     </div>
 
-    <div class="col-md-10">
-      <form class="form-horizontal" method="POST" action="{{ url }}">
+    <div class="col-sm-10">
+      <form class="form-horizontal" method="POST">
 
-          {{ form_group(form.description.english, label_size="2", input_size="10") }}
+          {{ form_group(form.description.english, input_size="10", class_="autosize") }}
           <hr>
-          {{ form_group(form.description.french, label_size="2", input_size="10") }}
+          {{ form_group(form.description.french, input_size="10", class_="autosize") }}
           <hr>
-          {{ form_group(form.description.spanish, label_size="2", input_size="10") }}
+          {{ form_group(form.description.spanish, input_size="10", class_="autosize") }}
 
         <div class="form-actions row">
           <div class="col-sm-offset-2 col-sm-10">

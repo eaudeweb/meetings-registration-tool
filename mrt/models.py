@@ -330,7 +330,7 @@ class PhraseMixin(object):
     sort = db.Column(db.Integer, default=0)
 
     def __repr__(self):
-        return '{}'.format(self.name)
+        return self.name
 
 
 class Phrase(PhraseMixin, db.Model):
@@ -349,5 +349,5 @@ class PhraseDefault(PhraseMixin, db.Model):
 
     __tablename__ = 'phrase_default'
 
-    type = db.Column(ChoiceType(MEETING_TYPES), nullable=False,
-                     info={'label': 'Meeting Type'})
+    meeting_type = db.Column(ChoiceType(MEETING_TYPES), nullable=False,
+                             info={'label': 'Meeting Type'})

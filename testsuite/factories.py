@@ -102,6 +102,16 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
     type = Choice(code='member', value='Member')
 
 
+class PhraseDefaultFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.PhraseDefault
+        sqlalchemy_session = models.db.session
+
+    name = 'Credentials'
+    group = 'Acknowledge details'
+    meeting_type = 'cop'
+
+
 def normalize_data(data):
 
     def convert_data(value):
