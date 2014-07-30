@@ -12,7 +12,7 @@ from mrt.mail import send_activation_mail
 from mrt.models import db
 from mrt.models import Staff, User
 from mrt.models import CategoryDefault, Category
-from mrt.models import PhraseDefault
+from mrt.models import PhraseDefault, Phrase
 from mrt.utils import unlink_uploaded_file
 
 from .base import BaseForm, TranslationInpuForm, DescriptionInputForm
@@ -116,11 +116,7 @@ class CategoryEditForm(CategoryEditBaseForm):
         model = Category
 
 
-class PhraseEditForm(BaseForm):
-
-    class Meta:
-        model = PhraseDefault
-        exclude = ('name', 'meeting_type', 'group', 'sort')
+class PhraseEditBaseForm(BaseForm):
 
     description = ModelFormField(DescriptionInputForm, label='Description')
 
@@ -130,3 +126,17 @@ class PhraseEditForm(BaseForm):
         if phrase.id is None:
             db.session.add(phrase)
         db.session.commit()
+
+
+class PhraseDefaultEditForm(PhraseEditBaseForm):
+
+    class Meta:
+        model = PhraseDefault
+        exclude = ('name', 'meeting_type', 'group', 'sort')
+
+
+class PhraseEditForm(PhraseEditBaseForm):
+
+    class Meta:
+        model = Phrase
+        exclude = ('name', 'group', 'sort')

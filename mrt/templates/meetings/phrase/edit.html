@@ -1,0 +1,30 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
+
+{% set title = "Edit meeting (" ~ g.meeting.acronym ~ ") phrase" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Phrases'),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  {{ flashed_messages() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  {% include "common/_phrase_edit.html" %}
+
+
+{% endblock %}

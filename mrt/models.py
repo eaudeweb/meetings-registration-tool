@@ -247,7 +247,7 @@ class Meeting(db.Model):
         info={'label': 'Allow Online Registration'})
 
     def __repr__(self):
-        return self.title
+        return self.title.english
 
 
 class CategoryMixin(object):

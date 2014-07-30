@@ -41,6 +41,10 @@
           <a href="{{ url_for('meetings.categories') }}">
             Categories</a>
         </li>
+        <li class="{{ active('/phrases') }}">
+          <a href="{{ url_for('meetings.phrase_edit') }}">
+            Phrases</a>
+        </li>
         <li class="divider"></li>
         <li>
           <a href="{{ url_for('meetings.edit') }}">

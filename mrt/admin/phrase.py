@@ -6,7 +6,7 @@ from flask.ext.login import login_required
 
 from mrt.models import PhraseDefault
 from mrt.definitions import MEETING_TYPES
-from mrt.forms.admin import PhraseEditForm
+from mrt.forms.admin import PhraseDefaultEditForm
 
 
 class PhrasesTypes(MethodView):
@@ -35,13 +35,13 @@ class PhraseEdit(MethodView):
                                     meeting_type=phrase.meeting_type.code,
                                     phrase_id=phrase.id))
 
-        form = PhraseEditForm(obj=phrase)
+        form = PhraseDefaultEditForm(obj=phrase)
         return render_template('admin/phrase/edit.html',
                                phrases=phrases, phrase=phrase, form=form)
 
     def post(self, meeting_type, phrase_id):
         phrase = PhraseDefault.query.get_or_404(phrase_id)
-        form = PhraseEditForm(request.form, obj=phrase)
+        form = PhraseDefaultEditForm(request.form, obj=phrase)
         if form.validate():
             form.save()
             flash('Default phrase successfully updated', 'success')

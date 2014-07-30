@@ -6,6 +6,7 @@ from mrt.models import Meeting
 from mrt.meetings import Meetings, MeetingEdit
 from mrt.meetings import Participants, ParticipantEdit
 from mrt.meetings import Categories, CategoryEdit
+from mrt.meetings import PhraseEdit
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -35,6 +36,13 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/categories/<int:category_id>/edit',
     view_func=category_edit_func)
+# phrases
+phrase_edit_func = PhraseEdit.as_view('phrase_edit')
+meetings.add_url_rule('/<int:meeting_id>/settings/phrases',
+                      view_func=phrase_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/phrases/<int:phrase_id>/edit',
+    view_func=phrase_edit_func)
 
 
 @meetings.url_defaults
