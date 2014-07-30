@@ -102,6 +102,14 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
     type = Choice(code='member', value='Member')
 
 
+class PhraseDescriptionFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Translation
+        sqlalchemy_session = models.db.session
+
+    english = 'Email body'
+
+
 class PhraseDefaultFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.PhraseDefault
@@ -110,6 +118,7 @@ class PhraseDefaultFactory(SQLAlchemyModelFactory):
     name = 'Credentials'
     group = 'Acknowledge details'
     meeting_type = 'cop'
+    description = SubFactory(PhraseDescriptionFactory)
 
 
 def normalize_data(data):

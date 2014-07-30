@@ -2,8 +2,9 @@ from flask import url_for
 from pyquery import PyQuery
 from py.path import local
 
-from mrt.models import Meeting, Category
-from .factories import MeetingFactory, CategoryDefaultFactory, normalize_data
+from mrt.models import Meeting, Category, Phrase
+from .factories import MeetingFactory, CategoryDefaultFactory
+from .factories import PhraseDefaultFactory, normalize_data
 
 
 def test_meeting_list(app):
@@ -154,3 +155,32 @@ def test_meeting_category_delete(app):
         resp = client.delete(url)
         assert resp.status_code == 200
         assert Category.query.filter_by(meeting_id=meeting.id).count() == 0
+
+
+def test_meeting_add_phrase_edit(app):
+    default_phrase = PhraseDefaultFactory()
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['description-english'] = 'Credentials'
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.edit')
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        meeting = Meeting.query.get(1)
+        assert Phrase.query.filter_by(meeting_id=meeting.id).count() == 1
+        phrase = Phrase.query.get(1)
+
+        url = url_for('meetings.phrase_edit',
+                      meeting_id=meeting.id,
+                      meeting_type=meeting.meeting_type,
+                      phrase_id=phrase.id)
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 200
+        assert default_phrase.description.english != phrase.description.english

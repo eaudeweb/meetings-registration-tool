@@ -3,7 +3,7 @@ from wtforms import fields, widgets
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db, Meeting
-from mrt.models import Phrase, PhraseDefault
+from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.forms.base import BaseForm, TranslationInpuForm
 from mrt.utils import copy_model_fields
 
@@ -47,6 +47,9 @@ class MeetingEditForm(BaseForm):
         for phrase_default in phrases_default:
             phrase = copy_model_fields(Phrase, phrase_default, exclude=(
                 'id', 'description_id', 'meeting_type'))
-            phrase.description = phrase_default.description
+            descr = Translation(english=phrase_default.description.english)
+            db.session.add(descr)
+            db.session.flush()
+            phrase.description = descr
             phrase.meeting = meeting
             db.session.add(phrase)
