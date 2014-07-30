@@ -1,0 +1,39 @@
+{% macro head() %}
+
+  <style type="text/css">
+    .checkbox {
+      margin-top: -10px!important;
+      padding-top: 0!important;
+    }
+  </style>
+
+  {% assets "colorpicker_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
+
+{% endmacro %}
+
+
+{% macro scripts(colors) %}
+
+  {% assets "colorpicker_js" %}
+    <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+  <script>
+    $(function () {
+      $('#color').spectrum({
+        className: "full-spectrum",
+        showInitial: true,
+        showPalette: true,
+        showSelectionPalette: true,
+        maxPaletteSize: 10,
+        preferredFormat: "hex",
+        showInput: true,
+        localStorageKey: "spectrum.categories",
+        palette: {{ colors|safe }}
+      })
+    });
+  </script>
+
+{% endmacro %}

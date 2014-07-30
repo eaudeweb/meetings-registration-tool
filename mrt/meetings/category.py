@@ -8,6 +8,7 @@ from mrt.forms.meetings import MeetingCategoryAddForm
 from mrt.forms.admin import CategoryEditForm
 from mrt.models import db, Category
 from mrt.utils import unlink_uploaded_file
+from mrt.definitions import COLORS
 
 
 class Categories(MethodView):
@@ -16,7 +17,8 @@ class Categories(MethodView):
 
     def get(self):
         categories = (Category.query.filter(Category.meeting == g.meeting)
-                      .order_by(Category.sort))
+                      .order_by(Category.sort)
+                      .order_by(Category.id))
         form = MeetingCategoryAddForm()
         return render_template('meetings/category/list.html',
                                categories=categories,
@@ -44,7 +46,9 @@ class CategoryEdit(MethodView):
             meeting_id=g.meeting.id).first_or_404()
         form = CategoryEditForm(obj=category)
         return render_template('meetings/category/edit.html',
-                               category=category, form=form)
+                               category=category,
+                               form=form,
+                               colors=COLORS)
 
     def post(self, category_id):
         category = Category.query.filter_by(
@@ -58,7 +62,9 @@ class CategoryEdit(MethodView):
         flash('Category was not saved. Please see the errors bellow',
               'danger')
         return render_template('meetings/category/edit.html',
-                               form=form, category=category)
+                               form=form,
+                               category=category,
+                               colors=COLORS)
 
     def delete(self, category_id):
         category = Category.query.filter_by(

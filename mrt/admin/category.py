@@ -1,9 +1,10 @@
 from flask import flash
 from flask import render_template, jsonify
 from flask import request, redirect, url_for
-from flask.views import MethodView
 from flask.ext.login import login_required
+from flask.views import MethodView
 
+from mrt.definitions import COLORS
 from mrt.forms.admin import CategoryDefaultEditForm
 from mrt.models import db, CategoryDefault
 from mrt.utils import unlink_uploaded_file
@@ -14,7 +15,10 @@ class Categories(MethodView):
     decorators = (login_required,)
 
     def get(self):
-        categories = CategoryDefault.query.order_by(CategoryDefault.sort)
+        categories = (
+            CategoryDefault.query.order_by(CategoryDefault.sort)
+            .order_by(CategoryDefault.id)
+        )
         return render_template('admin/category/list.html',
                                categories=categories)
 
@@ -28,7 +32,9 @@ class CategoryEdit(MethodView):
                     if category_id else None)
         form = CategoryDefaultEditForm(obj=category)
         return render_template('admin/category/edit.html',
-                               form=form, category=category)
+                               form=form,
+                               category=category,
+                               colors=COLORS)
 
     def post(self, category_id=None):
         category = (CategoryDefault.query.get_or_404(category_id)
@@ -44,7 +50,9 @@ class CategoryEdit(MethodView):
         flash('Category was not saved. Please see the errors bellow',
               'danger')
         return render_template('admin/category/edit.html',
-                               form=form, category=category)
+                               form=form,
+                               category=category,
+                               colors=COLORS)
 
     def delete(self, category_id):
         category = CategoryDefault.query.get_or_404(category_id)

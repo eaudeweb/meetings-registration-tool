@@ -98,7 +98,7 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = models.db.session
 
     name = SubFactory(CategoryDefaultNameFactory)
-    color = Choice(code='#93284c', value='scarlet red')
+    color = '#93284c'
     type = Choice(code='member', value='Member')
 
 

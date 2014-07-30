@@ -1,6 +1,6 @@
 {% extends "_layout.html" %}
 {% from "_bits.html" import breadcrumb, flashed_messages %}
-
+{% from "common/_category_color.html" import head, scripts %}
 
 {% set title = "Edit category" if category else "Add a new default category" %}
 
@@ -18,16 +18,7 @@
 {% endblock %}
 
 
-{% block head %}
-
-  <style type="text/css">
-    .checkbox {
-      margin-top: -10px!important;
-      padding-top: 0!important;
-    }
-  </style>
-
-{% endblock %}
+{% block head %} {{ head() }} {% endblock %}
 
 
 {% block content %}
@@ -43,3 +34,6 @@
   </div> {# category-container #}
 
 {% endblock %}
+
+
+{% block scripts %} {{ scripts(colors) }} {% endblock %}

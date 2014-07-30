@@ -5,7 +5,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 
-from .definitions import COLORS, CATEGORIES, MEETING_TYPES
+from .definitions import CATEGORIES, MEETING_TYPES
 
 
 db = SQLAlchemy()
@@ -263,8 +263,7 @@ class CategoryMixin(object):
     def name(cls):
         return db.relationship('Translation')
 
-    color = db.Column(ChoiceType(COLORS), nullable=False,
-                      info={'label': 'Color'})
+    color = db.Column(db.String(7), nullable=False, info={'label': 'Color'})
 
     background = db.Column(db.String(64))
 
