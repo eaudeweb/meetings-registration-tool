@@ -37,17 +37,16 @@ class MeetingEditForm(BaseForm):
         self.populate_obj(meeting)
         if meeting.id is None:
             db.session.add(meeting)
-            sync_models(PhraseDefault, Phrase, meeting)
+            self.save_phrases(meeting)
         db.session.commit()
         return meeting
 
-
-def sync_models(default_model, model, meeting):
-    phrases_default = default_model.query.filter(
-        default_model.meeting_type == meeting.meeting_type)
-    for phrase_default in phrases_default:
-        phrase = copy_model_fields(model, phrase_default, exclude=(
-            'id', 'description_translation_id', 'meeting_type'))
-        phrase.description = phrase_default.description
-        phrase.meeting = meeting
-        db.session.add(phrase)
+    def save_phrases(self, meeting):
+        phrases_default = PhraseDefault.query.filter(
+            PhraseDefault.meeting_type == meeting.meeting_type)
+        for phrase_default in phrases_default:
+            phrase = copy_model_fields(Phrase, phrase_default, exclude=(
+                'id', 'description_id', 'meeting_type'))
+            phrase.description = phrase_default.description
+            phrase.meeting = meeting
+            db.session.add(phrase)

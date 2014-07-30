@@ -318,7 +318,7 @@ class PhraseMixin(object):
     name = db.Column(db.String(32), nullable=False)
 
     @declared_attr
-    def description_translation_id(cls):
+    def description_id(cls):
         return db.Column(db.Integer, db.ForeignKey('translation.id'))
 
     @declared_attr
