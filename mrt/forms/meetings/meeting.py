@@ -3,7 +3,9 @@ from wtforms import fields, widgets
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db, Meeting
+from mrt.models import Phrase, PhraseDefault
 from mrt.forms.base import BaseForm, TranslationInpuForm
+from mrt.utils import copy_model_fields
 
 
 class MeetingEditForm(BaseForm):
@@ -35,5 +37,17 @@ class MeetingEditForm(BaseForm):
         self.populate_obj(meeting)
         if meeting.id is None:
             db.session.add(meeting)
+            sync_models(PhraseDefault, Phrase, meeting)
         db.session.commit()
         return meeting
+
+
+def sync_models(default_model, model, meeting):
+    phrases_default = default_model.query.filter(
+        default_model.meeting_type == meeting.meeting_type)
+    for phrase_default in phrases_default:
+        phrase = copy_model_fields(model, phrase_default, exclude=(
+            'id', 'description_translation_id', 'meeting_type'))
+        phrase.description = phrase_default.description
+        phrase.meeting = meeting
+        db.session.add(phrase)
