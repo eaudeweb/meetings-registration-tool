@@ -9,12 +9,19 @@
 
 {% block breadcrumb %}
 
-  {{ breadcrumb( [
-      ('', 'Phrases'),
-  ] ) }}
+  {{ breadcrumb( [('', 'Phrases'),] ) }}
 
 {% endblock %}
 
+{% block head %}
+
+    <style type="text/css">
+    .form-actions small {
+        display: none;
+    }
+    </style>
+
+{% endblock %}
 
 {% block content %}
 
@@ -24,7 +31,8 @@
 
   <h3 class="page-title">{{ title }}</h3>
 
-  {% include "common/_phrase_edit.html" %}
-
+  {% with meeting_type = g.meeting.meeting_type %}
+    {% include "common/_phrase_edit.html" %}
+  {% endwith %}
 
 {% endblock %}

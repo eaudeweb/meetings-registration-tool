@@ -25,8 +25,8 @@
     <h2>{{ title }}</h2>
   </div>
 
-  {% set default_phrase = phrase %}
-
-  {% include "common/_phrase_edit.html" %}
+  {% with meeting_type = phrase.meeting_type.code %}
+    {% include "common/_phrase_edit.html" %}
+  {% endwith %}
 
 {% endblock %}

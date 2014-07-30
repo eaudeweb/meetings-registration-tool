@@ -1,4 +1,4 @@
-from flask import flash, redirect, url_for
+from flask import flash
 from flask import render_template
 from flask import request
 from flask.views import MethodView
@@ -31,23 +31,22 @@ class PhraseEdit(MethodView):
             phrase = PhraseDefault.query.get_or_404(phrase_id)
         else:
             phrase = phrases.first_or_404()
-            return redirect(url_for('.phrase_edit',
-                                    meeting_type=phrase.meeting_type.code,
-                                    phrase_id=phrase.id))
-
         form = PhraseDefaultEditForm(obj=phrase)
         return render_template('admin/phrase/edit.html',
                                phrases=phrases, phrase=phrase, form=form)
 
-    def post(self, meeting_type, phrase_id):
-        phrase = PhraseDefault.query.get_or_404(phrase_id)
-        form = PhraseDefaultEditForm(request.form, obj=phrase)
-        if form.validate():
-            form.save()
-            flash('Default phrase successfully updated', 'success')
+    def post(self, meeting_type, phrase_id=None):
         phrases = (
             PhraseDefault.query
             .filter_by(meeting_type=meeting_type)
             .order_by(PhraseDefault.group, PhraseDefault.sort))
+        if phrase_id:
+            phrase = PhraseDefault.query.get_or_404(phrase_id)
+        else:
+            phrase = phrases.first_or_404()
+        form = PhraseDefaultEditForm(request.form, obj=phrase)
+        if form.validate():
+            form.save()
+            flash('Default phrase successfully updated', 'success')
         return render_template('admin/phrase/edit.html',
                                phrases=phrases, phrase=phrase, form=form)

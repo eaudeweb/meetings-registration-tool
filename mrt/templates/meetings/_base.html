@@ -42,7 +42,7 @@
             Categories</a>
         </li>
         <li class="{{ active('/phrases') }}">
-          <a href="{{ url_for('meetings.phrase_edit') }}">
+          <a href="{{ url_for('meetings.phrase_edit', meeting_type=g.meeting.meeting_type) }}">
             Phrases</a>
         </li>
         <li class="divider"></li>

@@ -12,11 +12,7 @@
 
           {% for phrase in grouped_phrases %}
 
-            {% if default_phrase %}
-                {% set url = url_for('.phrase_edit', meeting_type=phrase.meeting_type.code, phrase_id=phrase.id) %}
-            {% else %}
-                {% set url = url_for('.phrase_edit', phrase_id=phrase.id) %}
-            {% endif %}
+          {% set url = url_for('.phrase_edit', meeting_type=meeting_type, phrase_id=phrase.id) %}
 
             <li class="{{ active(url +'$') }}">
               <a href="{{ url }}">{{ phrase }}</a>
@@ -54,7 +50,7 @@
           <div class="col-sm-9">
             <button type="submit" class="btn btn-primary">
               Save changes</button>
-            <small>or <a href="{{ url_for('.phrases') if default_phrase else url_for('.participants', meeting_id=g.meeting.id )}}">
+            <small>or <a href="{{ url_for('admin.phrases') }}">
               Cancel</a></small>
           </div>
         </div> {# form-actions #}

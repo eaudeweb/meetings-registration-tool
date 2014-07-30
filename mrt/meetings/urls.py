@@ -38,10 +38,11 @@ meetings.add_url_rule(
     view_func=category_edit_func)
 # phrases
 phrase_edit_func = PhraseEdit.as_view('phrase_edit')
-meetings.add_url_rule('/<int:meeting_id>/settings/phrases',
-                      view_func=phrase_edit_func)
 meetings.add_url_rule(
-    '/<int:meeting_id>/settings/phrases/<int:phrase_id>/edit',
+    '/<int:meeting_id>/settings/phrases/<string:meeting_type>',
+    view_func=phrase_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/phrases/<string:meeting_type>/<int:phrase_id>/edit',
     view_func=phrase_edit_func)
 
 
