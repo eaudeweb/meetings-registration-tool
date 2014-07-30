@@ -1,14 +1,9 @@
-from mrt.models import Meeting
 from flask import url_for
-from .factories import MeetingFactory, normalize_data
-
 from pyquery import PyQuery
+from py.path import local
 
-
-def test_model_factory(app):
-    MeetingFactory()
-    count = Meeting.query.count()
-    assert count == 1
+from mrt.models import Meeting, Category
+from .factories import MeetingFactory, CategoryDefaultFactory, normalize_data
 
 
 def test_meeting_list(app):
@@ -67,3 +62,95 @@ def test_meeting_delete(app):
 
     assert resp.status_code == 200
     assert Meeting.query.count() == 0
+
+
+def test_meeting_category_add_list(app):
+    CategoryDefaultFactory.create_batch(5)
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.categories', meeting_id=meeting.id)
+        resp = client.get(url)
+
+        assert resp.status_code == 200
+        categories = PyQuery(resp.data)('option')
+        assert len(categories) == 5
+
+
+def test_meeting_category_add_successfully(app):
+    category = CategoryDefaultFactory()
+    category.background = filename = 'image.jpg'
+    upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
+    upload_dir.ensure(filename)
+    meeting = MeetingFactory()
+    data = {
+        'categories': category.id,
+    }
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.categories', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Category.query.filter_by(meeting_id=meeting.id).count() == 1
+        category = Category.query.filter_by(meeting_id=meeting.id).first()
+        assert upload_dir.join(category.background).check()
+
+
+def test_meeting_category_edit_name(app):
+    category = CategoryDefaultFactory()
+    category.background = filename = 'image.jpg'
+    upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
+    upload_dir.ensure(filename)
+    meeting = MeetingFactory()
+    data = {
+        'categories': category.id,
+    }
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.categories', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+
+        url = url_for('meetings.categories', meeting_id=meeting.id)
+        resp = client.get(url)
+        assert resp.status_code == 200
+        categories = PyQuery(resp.data)('option')
+        assert len(categories) == 0
+        assert Category.query.filter_by(meeting_id=meeting.id).count() == 1
+        category = Category.query.filter_by(meeting_id=meeting.id).first()
+
+        url = url_for('meetings.category_edit', meeting_id=meeting.id,
+                      category_id=category.id)
+        data = normalize_data(CategoryDefaultFactory.attributes())
+        data['name-english'] = 'Media'
+        resp = client.post(url, data=data, follow_redirects=True)
+
+        assert resp.status_code == 200
+        categories = PyQuery(resp.data)('option')
+        assert len(categories) == 1
+
+
+def test_meeting_category_delete(app):
+    category = CategoryDefaultFactory()
+    meeting = MeetingFactory()
+    data = {
+        'categories': category.id,
+    }
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.categories', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert Category.query.filter_by(meeting_id=meeting.id).count() == 1
+        category = Category.query.filter_by(meeting_id=meeting.id).first()
+
+        url = url_for('meetings.category_edit', meeting_id=meeting.id,
+                      category_id=category.id)
+        resp = client.delete(url)
+        assert resp.status_code == 200
+        assert Category.query.filter_by(meeting_id=meeting.id).count() == 0
