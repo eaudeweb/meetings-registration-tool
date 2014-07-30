@@ -13,7 +13,7 @@ from mrt.forms.base import BaseForm
 class MeetingCategoryAddForm(BaseForm):
 
     categories = fields.SelectMultipleField(validators=[DataRequired()],
-                                            coerce=int)
+                                            coerce=int, choices=[])
 
     def __init__(self, *args, **kwargs):
         super(MeetingCategoryAddForm, self).__init__(*args, **kwargs)
@@ -29,11 +29,11 @@ class MeetingCategoryAddForm(BaseForm):
         query = (
             CategoryDefault.query
             .filter(
-                CategoryDefault.name.has(
+                CategoryDefault.title.has(
                     Translation.english.notin_(subquery)))
             .all()
         )
-        self.categories.choices = [(c.id, c.name) for c in query]
+        self.categories.choices = [(c.id, c.title) for c in query]
 
     def save(self):
         categories_default = CategoryDefault.query.filter(
@@ -41,11 +41,11 @@ class MeetingCategoryAddForm(BaseForm):
         for category_default in categories_default:
             category = copy_model_fields(
                 Category, category_default,
-                exclude=('id', 'name_id', 'background'))
-            translation = Translation(english=category_default.name.english)
+                exclude=('id', 'title_id', 'background'))
+            translation = Translation(english=category_default.title.english)
             db.session.add(translation)
             db.session.flush()
-            category.name = translation
+            category.title = translation
             category.meeting = g.meeting
             filename = duplicate_uploaded_file(category_default.background,
                                                'backgrounds')

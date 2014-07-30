@@ -76,7 +76,7 @@ class StaffEditForm(BaseForm):
 
 class CategoryEditBaseForm(BaseForm):
 
-    name = ModelFormField(TranslationInpuForm, label='Name')
+    title = ModelFormField(TranslationInpuForm, label='Title')
     background = FileField('Background',
                            [FileAllowed(backgrounds, 'Image is not valid')])
     background_delete = BooleanField()

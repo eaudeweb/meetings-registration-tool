@@ -78,6 +78,11 @@ class Role(db.Model):
 
 class Participant(db.Model):
 
+    TITLE_CHOICES = (
+        ('Ms', 'Ms'),
+        ('Mr', 'Mr'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
 
     meeting_id = db.Column(
@@ -87,10 +92,14 @@ class Participant(db.Model):
         'Meeting',
         backref=db.backref('participants', lazy='dynamic'))
 
-    title = db.Column(db.String(8), nullable=False)
-    first_name = db.Column(db.String(64), nullable=False)
-    last_name = db.Column(db.String(64), nullable=False)
-    email = db.Column(db.String(64), nullable=False)
+    title = db.Column(ChoiceType(TITLE_CHOICES), nullable=False,
+                      info={'label': 'Title'})
+    first_name = db.Column(db.String(64), nullable=False,
+                           info={'label': 'Given name'})
+    last_name = db.Column(db.String(64), nullable=False,
+                          info={'label': 'Family name'})
+    email = db.Column(db.String(64), nullable=False,
+                      info={'label': 'Email'})
 
     user_id = db.Column(
         db.Integer, db.ForeignKey('user.id'),
@@ -255,12 +264,12 @@ class CategoryMixin(object):
     id = db.Column(db.Integer, primary_key=True)
 
     @declared_attr
-    def name_id(cls):
+    def title_id(cls):
         return db.Column(db.Integer, db.ForeignKey('translation.id'),
                          nullable=False)
 
     @declared_attr
-    def name(cls):
+    def title(cls):
         return db.relationship('Translation')
 
     color = db.Column(db.String(7), nullable=False, info={'label': 'Color'})
@@ -286,7 +295,7 @@ class Category(CategoryMixin, db.Model):
         backref=db.backref('categories', lazy='dynamic'))
 
     def __repr__(self):
-        return '%s %s' % (self.meeting.acronym, self.name.english)
+        return '%s %s' % (self.meeting.acronym, self.title.english)
 
 
 class CategoryDefault(CategoryMixin, db.Model):
@@ -294,7 +303,7 @@ class CategoryDefault(CategoryMixin, db.Model):
     __tablename__ = 'category_default'
 
     def __repr__(self):
-        return self.name.english
+        return self.title.english
 
 
 class Translation(db.Model):

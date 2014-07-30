@@ -127,7 +127,7 @@ def test_meeting_category_edit_name(app):
         url = url_for('meetings.category_edit', meeting_id=meeting.id,
                       category_id=category.id)
         data = normalize_data(CategoryDefaultFactory.attributes())
-        data['name-english'] = 'Media'
+        data['title-english'] = 'Media'
         resp = client.post(url, data=data, follow_redirects=True)
 
         assert resp.status_code == 200

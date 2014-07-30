@@ -1,7 +1,9 @@
-from flask import g
+from flask import g, request
 from flask import render_template
 from flask.views import MethodView
+
 from mrt.models import Participant
+from mrt.forms.meetings import ParticipantEditForm
 
 
 class Participants(MethodView):
@@ -20,10 +22,16 @@ class ParticipantEdit(MethodView):
 
     def get(self, participant_id=None):
         participant = self._get_object()
+        form = ParticipantEditForm(obj=participant)
         return render_template('meetings/participant/edit.html',
+                               form=form,
                                participant=participant)
 
-    def post(self, participant_id):
+    def post(self, participant_id=None):
         participant = self._get_object()
+        form = ParticipantEditForm(request.form, obj=participant)
+        if form.validate():
+          form.save()
         return render_template('meetings/participant/edit.html',
+                               form=form,
                                participant=participant)

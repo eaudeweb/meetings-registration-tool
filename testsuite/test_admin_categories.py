@@ -19,7 +19,7 @@ def test_category_list(app):
 def test_category_add_without_file(app):
     data = CategoryDefaultFactory.attributes()
     data = normalize_data(data)
-    data['name-english'] = data.pop('name')
+    data['title-english'] = data.pop('title')
 
     client = app.test_client()
     with app.test_request_context():
@@ -32,14 +32,14 @@ def test_category_add_without_file(app):
 def test_category_edit_without_file(app):
     category = CategoryDefaultFactory()
     data = normalize_data(CategoryDefaultFactory.attributes())
-    data['name-english'] = 'Comitee'
+    data['title-english'] = 'Comitee'
 
     client = app.test_client()
     with app.test_request_context():
         url = url_for('admin.category_edit', category_id=category.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
-        assert category.name.english == data['name-english']
+        assert category.title.english == data['title-english']
 
 
 def test_category_delete_without_file(app):
@@ -56,7 +56,7 @@ def test_category_delete_without_file(app):
 def test_category_add_with_file(app):
     data = CategoryDefaultFactory.attributes()
     data = normalize_data(data)
-    data['name-english'] = data.pop('name')
+    data['title-english'] = data.pop('title')
     filename = 'image_add.jpg'
     data['background'] = (StringIO('Test image'), filename)
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
@@ -79,7 +79,7 @@ def test_category_edit_file_delete(app):
     upload_dir.ensure(filename)
 
     data = normalize_data(CategoryDefaultFactory.attributes())
-    data['name-english'] = data.pop('name')
+    data['title-english'] = data.pop('title')
     data['background_delete'] = 'y'
 
     client = app.test_client()
@@ -94,7 +94,7 @@ def test_category_edit_file_delete(app):
 def test_category_edit_with_file(app):
     category = CategoryDefaultFactory()
     data = normalize_data(CategoryDefaultFactory.attributes())
-    data['name-english'] = 'Comitee'
+    data['title-english'] = 'Comitee'
     filename = 'image_edit.jpg'
     data['background'] = (StringIO('Test image'), filename)
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])

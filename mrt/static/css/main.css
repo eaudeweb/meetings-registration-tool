@@ -16,6 +16,15 @@ input[type=file] {
     margin-bottom: 10px;
 }
 
+legend {
+    text-transform: uppercase;
+    padding-bottom: 6px;
+    /*font-weight: bold;*/
+    font-size: 12px;
+    /*border: none;*/
+    color: #666;
+}
+
 .navbar .breadcrumb {
     background: none;
     position: relative;
