@@ -1,14 +1,14 @@
 """Changed description name from Phrase
 
 Revision ID: 2d6e0e5bc24e
-Revises: 2d61887c6191
+Revises: 403a9362da34
 Create Date: 2014-07-30 16:13:33.027648
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '2d6e0e5bc24e'
-down_revision = '2d61887c6191'
+down_revision = '403a9362da34'
 
 from alembic import op
 import sqlalchemy as sa

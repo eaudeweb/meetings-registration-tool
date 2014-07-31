@@ -19,7 +19,7 @@ COLORS = [
 MEETING_TYPES = (
     ('cop', 'Conference of the Parties'),
     ('ac', 'Animals Committee'),
-    ('sc', 'Scientific Council'),
-    ('stc', 'Standing Committee'),
+    ('scc', 'Scientific Council'),
+    ('sc', 'Standing Committee'),
     ('pc', 'Plants Committee'),
 )

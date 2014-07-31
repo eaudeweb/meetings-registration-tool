@@ -32,24 +32,25 @@ class MeetingEditForm(BaseForm):
         super(MeetingEditForm, self).__init__(*args, **kwargs)
         self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
 
-    def save(self):
-        meeting = self.obj or Meeting()
-        self.populate_obj(meeting)
-        if meeting.id is None:
-            db.session.add(meeting)
-            self.save_phrases(meeting)
-        db.session.commit()
-        return meeting
-
-    def save_phrases(self, meeting):
+    def _save_phrases(self, meeting):
         phrases_default = PhraseDefault.query.filter(
             PhraseDefault.meeting_type == meeting.meeting_type)
         for phrase_default in phrases_default:
             phrase = copy_model_fields(Phrase, phrase_default, exclude=(
                 'id', 'description_id', 'meeting_type'))
-            descr = Translation(english=phrase_default.description.english)
+            #Change english=phrase_default.translation.description.english
+            descr = Translation(english=phrase_default.name)
             db.session.add(descr)
-            db.session.flush()
             phrase.description = descr
             phrase.meeting = meeting
             db.session.add(phrase)
+            db.session.flush()
+
+    def save(self):
+        meeting = self.obj or Meeting()
+        self.populate_obj(meeting)
+        if meeting.id is None:
+            db.session.add(meeting)
+            self._save_phrases(meeting)
+        db.session.commit()
+        return meeting
