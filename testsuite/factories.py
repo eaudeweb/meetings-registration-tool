@@ -121,6 +121,17 @@ class PhraseDefaultFactory(SQLAlchemyModelFactory):
     description = SubFactory(PhraseDescriptionFactory)
 
 
+class PhraseMeetingFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Phrase
+        sqlalchemy_session = models.db.session
+
+    name = 'Credentials'
+    group = 'Acknowledge details'
+    description = SubFactory(PhraseDescriptionFactory)
+    meeting = SubFactory(MeetingFactory)
+
+
 def normalize_data(data):
 
     def convert_data(value):

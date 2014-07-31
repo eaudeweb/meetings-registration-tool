@@ -5,6 +5,7 @@ from py.path import local
 from mrt.models import Meeting, Category, Phrase
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
+from .factories import PhraseMeetingFactory
 
 
 def test_meeting_list(app):
@@ -85,9 +86,7 @@ def test_meeting_category_add_successfully(app):
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
-    data = {
-        'categories': category.id,
-    }
+    data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
@@ -95,7 +94,7 @@ def test_meeting_category_add_successfully(app):
         resp = client.post(url, data=data)
 
         assert resp.status_code == 302
-        assert Category.query.filter_by(meeting_id=meeting.id).count() == 1
+        assert Category.query.filter_by(meeting_id=meeting.id).scalar()
         category = Category.query.filter_by(meeting_id=meeting.id).first()
         assert upload_dir.join(category.background).check()
 
@@ -106,9 +105,7 @@ def test_meeting_category_edit_name(app):
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
-    data = {
-        'categories': category.id,
-    }
+    data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
@@ -116,38 +113,36 @@ def test_meeting_category_edit_name(app):
         resp = client.post(url, data=data)
         assert resp.status_code == 302
 
-        url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.get(url)
         assert resp.status_code == 200
         categories = PyQuery(resp.data)('option')
         assert len(categories) == 0
-        assert Category.query.filter_by(meeting_id=meeting.id).count() == 1
+        assert Category.query.filter_by(meeting_id=meeting.id).scalar()
         category = Category.query.filter_by(meeting_id=meeting.id).first()
 
         url = url_for('meetings.category_edit', meeting_id=meeting.id,
                       category_id=category.id)
         data = normalize_data(CategoryDefaultFactory.attributes())
-        data['title-english'] = 'Media'
+        data['title-english'] = title = 'Media'
         resp = client.post(url, data=data, follow_redirects=True)
 
         assert resp.status_code == 200
         categories = PyQuery(resp.data)('option')
         assert len(categories) == 1
+        assert category.title.english == title
 
 
 def test_meeting_category_delete(app):
     category = CategoryDefaultFactory()
     meeting = MeetingFactory()
-    data = {
-        'categories': category.id,
-    }
+    data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
-        assert Category.query.filter_by(meeting_id=meeting.id).count() == 1
+        assert Category.query.filter_by(meeting_id=meeting.id).scalar()
         category = Category.query.filter_by(meeting_id=meeting.id).first()
 
         url = url_for('meetings.category_edit', meeting_id=meeting.id,
@@ -157,30 +152,77 @@ def test_meeting_category_delete(app):
         assert Category.query.filter_by(meeting_id=meeting.id).count() == 0
 
 
-def test_meeting_add_phrase_edit(app):
-    default_phrase = PhraseDefaultFactory()
-    data = MeetingFactory.attributes()
-    data = normalize_data(data)
-    data['title-english'] = data.pop('title')
-    data['venue_city-english'] = data.pop('venue_city')
-    data['description-english'] = 'Credentials'
+def test_meeting_phrase_edit_successfully(app):
+    phrase = PhraseMeetingFactory()
+    data = {'description-english': 'Credentials'}
 
     client = app.test_client()
     with app.test_request_context():
-        url = url_for('meetings.edit')
-        resp = client.post(url, data=data)
-
-        assert resp.status_code == 302
-        assert Meeting.query.count() == 1
-        meeting = Meeting.query.get(1)
-        assert Phrase.query.filter_by(meeting_id=meeting.id).count() == 1
-        phrase = Phrase.query.get(1)
-
         url = url_for('meetings.phrase_edit',
-                      meeting_id=meeting.id,
-                      meeting_type=meeting.meeting_type,
+                      meeting_id=phrase.meeting.id,
+                      meeting_type=phrase.meeting.meeting_type,
                       phrase_id=phrase.id)
         resp = client.post(url, data=data)
-
         assert resp.status_code == 200
+        assert phrase.description.english == 'Credentials'
+
+
+def test_meeting_add_phrase_edit(app):
+    default_phrase = PhraseDefaultFactory()
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+
+    client = app.test_client()
+    with app.test_request_context():
+        resp = client.post(url_for('meetings.edit'), data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        assert Phrase.query.filter_by(meeting_id=1).scalar()
+        phrase = Phrase.query.get(1)
+
+        data = {'description-english': 'Credentials'}
+        url = url_for('meetings.phrase_edit',
+                      meeting_id=1, meeting_type='cop', phrase_id=phrase.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 200
+        assert phrase.description.english == 'Credentials'
         assert default_phrase.description.english != phrase.description.english
+
+
+def test_meeting_add_default_phrase_edit(app):
+    default_phrase = PhraseDefaultFactory()
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+
+    client = app.test_client()
+    with app.test_request_context():
+        resp = client.post(url_for('meetings.edit'), data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        assert Phrase.query.filter_by(meeting_id=1).scalar()
+        phrase = Phrase.query.get(1)
+
+        data = {'description-english': 'Footer'}
+        url = url_for('admin.phrase_edit',
+                      meeting_type=default_phrase.meeting_type,
+                      phrase_id=default_phrase.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 200
+        assert default_phrase.description.english == 'Footer'
+        assert default_phrase.description.english != phrase.description.english
+
+
+def test_meeting_add_default_phrase_copies(app):
+    PhraseDefaultFactory.create_batch(10)
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+
+    client = app.test_client()
+    with app.test_request_context():
+        resp = client.post(url_for('meetings.edit'), data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        assert Phrase.query.filter_by(meeting_id=1).count() == 10

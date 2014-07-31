@@ -28,7 +28,7 @@ def test_default_phrase_category_list(app):
 def test_default_phrase_edit_successfully(app):
     phrase = PhraseDefaultFactory()
     data = PhraseDefaultFactory.attributes()
-    data['description-english'] = 'Enter credentials'
+    data['description-english'] = descr = 'Enter credentials'
     client = app.test_client()
     with app.test_request_context():
         url = url_for('admin.phrase_edit', meeting_type=phrase.meeting_type,
@@ -37,12 +37,12 @@ def test_default_phrase_edit_successfully(app):
         assert resp.status_code == 200
         alert = PyQuery(resp.data)('.alert-success')
         assert len(alert) == 1
+        assert phrase.description.english == descr
 
 
 def test_default_phrase_edit_fail(app):
     phrase = PhraseDefaultFactory()
     data = PhraseDefaultFactory.attributes()
-    data['description-english'] = 'Enter credentials'
     client = app.test_client()
     with app.test_request_context():
         url = url_for('admin.phrase_edit', meeting_type=phrase.meeting_type,
@@ -50,4 +50,4 @@ def test_default_phrase_edit_fail(app):
         resp = client.post(url, data=data)
         assert resp.status_code == 200
         alert = PyQuery(resp.data)('.text-danger')
-        assert len(alert) == 1
+        assert len(alert) == 2
