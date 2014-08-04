@@ -69,13 +69,6 @@ class Staff(db.Model):
         'User',
         backref=db.backref('staffs', lazy='dynamic'))
 
-    role_id = db.Column(
-        db.Integer, db.ForeignKey('role.id'),
-        nullable=True)
-    role = db.relationship(
-        'Role',
-        backref=db.backref('staffs', lazy='dynamic'))
-
     def __repr__(self):
         return self.full_name
 

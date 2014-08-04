@@ -5,12 +5,12 @@ from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed
 
 from sqlalchemy.orm.exc import NoResultFound
-from wtforms import ValidationError, BooleanField
+from wtforms import ValidationError, BooleanField, fields
 from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
-from mrt.models import Staff, User
+from mrt.models import Staff, User, Role, RoleUser
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
 from mrt.utils import unlink_uploaded_file
@@ -48,6 +48,14 @@ class StaffEditForm(BaseForm):
         model = Staff
 
     user = ModelFormField(UserForm)
+    role_id = fields.SelectField('Role', coerce=int, default=1)
+
+    def __init__(self, *args, **kwargs):
+        super(StaffEditForm, self).__init__(*args, **kwargs)
+        self.role_id.choices = [(x.id, x) for x in Role.query.all()]
+        if self.obj:
+            self.role_id.data = (
+                RoleUser.query.filter_by(user=self.obj.user).one().role.id)
 
     def save(self):
         staff = self.obj or Staff()
@@ -63,6 +71,13 @@ class StaffEditForm(BaseForm):
                                   recover_token=str(uuid4()),
                                   recover_time=datetime.now(),
                                   is_active=False)
+
+            role_user = RoleUser(role=Role.query.get_or_404(self.role_id.data),
+                                 user=staff.user)
+            db.session.add(role_user)
+        else:
+            role_user = RoleUser.query.filter_by(user=staff.user).one()
+            role_user.role = Role.query.get_or_404(self.role_id.data)
 
             if not staff.user.password:
                 send_activation_mail(
