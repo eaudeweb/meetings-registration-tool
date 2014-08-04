@@ -33,3 +33,10 @@ def copy_model_fields(model, instance, exclude=[]):
             continue
         setattr(cls, col.name, getattr(instance, col.name))
     return cls
+
+
+def check_permissions(role_perms, user_perms):
+    for user_perm in user_perms:
+        if user_perm not in role_perms:
+            return False
+    return True

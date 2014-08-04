@@ -7,6 +7,7 @@ from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy.dialects.postgresql import JSON
 
 from .definitions import CATEGORIES, MEETING_TYPES
+from .utils import check_permissions
 
 
 db = SQLAlchemy()
@@ -45,6 +46,13 @@ class User(db.Model):
 
     def token_is_active(self):
         return (datetime.now() - self.recover_time).total_seconds() < 86400
+
+    def has_perms(self, perms, meeting_id=None):
+        user_roles = RoleUser.query.filter_by(user_id=self.id, meeting_id=None)
+        for user_role in user_roles:
+            if check_permissions(user_role.role.permissions, perms):
+                return True
+        return False
 
 
 class Staff(db.Model):
