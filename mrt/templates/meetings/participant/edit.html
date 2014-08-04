@@ -10,10 +10,18 @@
 
 {% block breadcrumb %}
 
-  {{ breadcrumb( [
-      (url_for('meetings.participants'), 'Participants'),
-      ('', title)
-  ] ) }}
+  {% if participant %}
+    {{ breadcrumb( [
+        (url_for('meetings.participants'), 'Participants'),
+        (url_for('meetings.participant_detail', participant_id=participant.id), participant),
+        ('', 'Edit')
+    ] ) }}
+  {% else %}
+   {{ breadcrumb( [
+        (url_for('meetings.participants'), 'Participants'),
+        ('', title)
+    ] ) }}
+  {% endif %}
 
 {% endblock %}
 
@@ -47,7 +55,10 @@
               {{ form_group(form.email, label_size="3",
                             input_size="9") }}
 
-              {{ form_group(form.category, label_size="3",
+              {{ form_group(form.category_id, label_size="3",
+                            input_size="9") }}
+
+              {{ form_group(form.country, label_size="3",
                             input_size="9") }}
             </div>
           </div> {# panel #}

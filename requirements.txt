@@ -13,11 +13,11 @@ Mako==1.0.0
 MarkupSafe==0.23
 path.py==5.2
 psycopg2==2.5.3
+querystring-parser==1.2.0
 raven==5.0.0
 SQLAlchemy==0.9.6
 webassets==0.10.1
 Werkzeug==0.9.6
-
 
 # flask mail
 blinker==1.3

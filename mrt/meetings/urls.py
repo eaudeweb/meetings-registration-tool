@@ -4,7 +4,8 @@ from flask import current_app as app
 from mrt.models import Meeting
 
 from mrt.meetings import Meetings, MeetingEdit
-from mrt.meetings import Participants, ParticipantEdit
+from mrt.meetings import Participants, ParticipantsFilter
+from mrt.meetings import ParticipantEdit, ParticipantDetail
 from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
 
@@ -21,11 +22,19 @@ meetings.add_url_rule('/<int:meeting_id>/edit', view_func=meeting_edit_func)
 # participants
 meetings.add_url_rule('/<int:meeting_id>/participants',
                       view_func=Participants.as_view('participants'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/filter',
+    view_func=ParticipantsFilter.as_view('participants_filter'))
 participant_edit_func = ParticipantEdit.as_view('participant_edit')
 meetings.add_url_rule('/<int:meeting_id>/participants/add',
                       view_func=participant_edit_func)
-meetings.add_url_rule('/<int:meeting_id>/participants/<int:participant_id>/edit',
-                      view_func=participant_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/<int:participant_id>/edit',
+    view_func=participant_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/<int:participant_id>/detail',
+    view_func=ParticipantDetail.as_view('participant_detail'))
+
 # categories
 meetings.add_url_rule('/<int:meeting_id>/settings/categories',
                       view_func=Categories.as_view('categories'))

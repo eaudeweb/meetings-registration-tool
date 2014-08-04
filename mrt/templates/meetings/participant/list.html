@@ -11,6 +11,28 @@
 {% endblock %}
 
 
+{% block scripts %}
+
+  <script>
+    $(function () {
+      var participants =  $("#participants");
+      participants.dataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": participants.data("ajax"),
+        "columns": [
+            { "data": "id", "className": "text-center" },
+            { "data": "last_name" },
+            { "data": "category_id" }
+        ]
+      });
+    });
+  </script>
+
+{% endblock %}
+
+
+
 {% block content %}
 
   {{ super() }}
@@ -23,5 +45,22 @@
       Add a new participant
     </a>
   </div>
+
+  <div class="table-responsive">
+
+    <table id="participants"
+           class="table table-bordered table-condensed table-striped"
+           data-ajax="{{ url_for('.participants_filter') }}">
+      <thead>
+        <tr>
+          <th style="width: 60px;" class="text-center">ID</th>
+          <th>Name</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+  </div> {# table-responsive #}
 
 {% endblock %}

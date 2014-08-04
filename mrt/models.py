@@ -149,8 +149,16 @@ class Participant(db.Model):
         'Category',
         backref=db.backref('participants', lazy='dynamic'))
 
+    country = db.Column(CountryType, nullable=False,
+                        info={'label': 'Country'})
+
     def __repr__(self):
-        return '%s %s' % (self.first_name, self.last_name)
+        return self.name
+
+    @property
+    def name(self):
+        return '%s %s %s' % (self.title.value, self.first_name,
+                             self.last_name)
 
 
 class CustomField(db.Model):
@@ -329,7 +337,7 @@ class Category(CategoryMixin, db.Model):
         backref=db.backref('categories', lazy='dynamic'))
 
     def __repr__(self):
-        return '%s %s' % (self.meeting.acronym, self.title.english)
+        return self.title.english
 
 
 class CategoryDefault(CategoryMixin, db.Model):
