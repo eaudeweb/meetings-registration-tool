@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
+from sqlalchemy.dialects.postgresql import JSON
 
 from .definitions import CATEGORIES, MEETING_TYPES
 
@@ -74,6 +75,38 @@ class Staff(db.Model):
 class Role(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), nullable=False)
+    permissions = db.Column(JSON, nullable=False)
+
+    def __repr__(self):
+        return self.name
+
+
+class RoleUser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=True)
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('role_users', lazy='dynamic'))
+
+    role_id = db.Column(
+        db.Integer, db.ForeignKey('role.id'),
+        nullable=False)
+    role = db.relationship(
+        'Role',
+        backref=db.backref('role_users', lazy='dynamic'))
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'),
+        nullable=False)
+    user = db.relationship(
+        'User',
+        backref=db.backref('role_users', lazy='dynamic'))
+
+    def __repr__(self):
+        return '%s %s' % (self.user, self.role)
 
 
 class Participant(db.Model):
