@@ -48,7 +48,7 @@ class StaffEditForm(BaseForm):
         model = Staff
 
     user = ModelFormField(UserForm)
-    role_id = fields.SelectField('Role', coerce=int, default=1)
+    role_id = fields.SelectField('Role', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(StaffEditForm, self).__init__(*args, **kwargs)
