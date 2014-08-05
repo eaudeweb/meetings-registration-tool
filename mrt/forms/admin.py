@@ -51,11 +51,11 @@ class StaffEditForm(BaseForm):
     role_id = fields.SelectField('Role', coerce=int)
 
     def __init__(self, *args, **kwargs):
+        if 'obj' in kwargs:
+            kwargs.setdefault('role_id', RoleUser.query.filter_by(
+                user=kwargs['obj'].user, meeting=None).first().role.id)
         super(StaffEditForm, self).__init__(*args, **kwargs)
         self.role_id.choices = [(x.id, x) for x in Role.query.all()]
-        if self.obj:
-            self.role_id.data = (
-                RoleUser.query.filter_by(user=self.obj.user).one().role.id)
 
     def save(self):
         staff = self.obj or Staff()
@@ -76,7 +76,8 @@ class StaffEditForm(BaseForm):
                                  user=staff.user)
             db.session.add(role_user)
         else:
-            role_user = RoleUser.query.filter_by(user=staff.user).one()
+            role_user = RoleUser.query.filter_by(user=staff.user,
+                                                 meeting=None).first()
             role_user.role = Role.query.get_or_404(self.role_id.data)
 
             if not staff.user.password:

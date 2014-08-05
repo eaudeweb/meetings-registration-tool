@@ -1,15 +1,30 @@
+import json
 from datetime import datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.types import TypeDecorator, String
 
 from .definitions import CATEGORIES, MEETING_TYPES
 
 
 db = SQLAlchemy()
+
+
+class JSONEncodedDict(TypeDecorator):
+    impl = String
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = json.dumps(value)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value
 
 
 class User(db.Model):
@@ -77,7 +92,7 @@ class Role(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), nullable=False)
-    permissions = db.Column(JSON, nullable=False)
+    permissions = db.Column(JSONEncodedDict, nullable=False)
 
     def __repr__(self):
         return self.name
