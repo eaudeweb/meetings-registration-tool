@@ -54,7 +54,6 @@ class StaffEditForm(BaseForm):
         super(StaffEditForm, self).__init__(*args, **kwargs)
         self.role_id.choices = [(x.id, x) for x in Role.query.all()]
         if self.obj:
-            self.role_id._data = self.role_id.data
             self.role_id.data = (
                 RoleUser.query.filter_by(user=self.obj.user).one().role.id)
 
@@ -73,12 +72,12 @@ class StaffEditForm(BaseForm):
                                   recover_time=datetime.now(),
                                   is_active=False)
 
-            role_user = RoleUser(role=Role.query.get_or_404(self.role_id._data),
+            role_user = RoleUser(role=Role.query.get_or_404(self.role_id.data),
                                  user=staff.user)
             db.session.add(role_user)
         else:
             role_user = RoleUser.query.filter_by(user=staff.user).one()
-            role_user.role = Role.query.get_or_404(self.role_id._data)
+            role_user.role = Role.query.get_or_404(self.role_id.data)
 
             if not staff.user.password:
                 send_activation_mail(
