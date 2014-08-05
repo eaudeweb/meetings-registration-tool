@@ -1,0 +1,54 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
+
+
+{% set title = "Custom Fields" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [ ('', title) ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  {{ flashed_messages() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="actions">
+    {% set url = url_for('.custom_field_edit') %}
+    <a href="{{ url }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-pencil"></span> &nbsp;
+      Add custom field</a>
+  </div>
+
+  <table class="table table-bordered table-condensed">
+
+    <thead>
+      <th>Label</th>
+      <th>Type</th>
+    </thead>
+
+    <tbody>
+      {% for field in custom_fields %}
+        {% set url = url_for('.custom_field_edit',
+                             custom_field_id=field.id)%}
+        <tr>
+          <td>
+            <a href="{{ url }}">{{ field.label }}</a>
+          </td>
+          <td>{{ field.type.value }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+
+{% endblock %}

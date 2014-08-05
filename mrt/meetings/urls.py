@@ -8,6 +8,7 @@ from mrt.meetings import Participants, ParticipantsFilter
 from mrt.meetings import ParticipantEdit, ParticipantDetail
 from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
+from mrt.meetings import CustomFields, CustomFieldEdit
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -45,6 +46,7 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/categories/<int:category_id>/edit',
     view_func=category_edit_func)
+
 # phrases
 phrase_edit_func = PhraseEdit.as_view('phrase_edit')
 meetings.add_url_rule(
@@ -53,6 +55,17 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/phrases/<string:meeting_type>/<int:phrase_id>/edit',
     view_func=phrase_edit_func)
+
+# custom fields
+custom_field_edit_func = CustomFieldEdit.as_view('custom_field_edit')
+meetings.add_url_rule('/<int:meeting_id>/settings/custom/fields',
+                      view_func=CustomFields.as_view('custom_fields'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/custom/fields/add',
+    view_func=custom_field_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/custom/fields/<int:custom_field_id>/edit',
+    view_func=custom_field_edit_func)
 
 
 @meetings.url_defaults

@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired
 
 from mrt.models import db
 from mrt.models import CategoryDefault, Category
+from mrt.models import CustomField
 from mrt.models import Translation
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
 
@@ -52,4 +53,18 @@ class MeetingCategoryAddForm(BaseForm):
             if filename:
                 category.background = filename.basename()
             db.session.add(category)
+        db.session.commit()
+
+
+class CustomFieldEditForm(BaseForm):
+
+    class Meta:
+        model = CustomField
+
+    def save(self):
+        custom_field = self.obj or CustomField()
+        self.populate_obj(custom_field)
+        custom_field.meeting = g.meeting
+        if not custom_field.id:
+            db.session.add(custom_field)
         db.session.commit()

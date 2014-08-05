@@ -23,3 +23,9 @@ MEETING_TYPES = (
     ('sc', 'Standing Committee'),
     ('pc', 'Plants Committee'),
 )
+
+
+CUSTOM_FIELDS = (
+    ('text', 'Text'),
+    ('image', 'Image'),
+)

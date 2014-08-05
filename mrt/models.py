@@ -7,7 +7,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy.types import TypeDecorator, String
 
-from .definitions import CATEGORIES, MEETING_TYPES
+from .definitions import CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS
 
 
 db = SQLAlchemy()
@@ -190,7 +190,11 @@ class CustomField(db.Model):
         'Meeting',
         backref=db.backref('custom_fields', lazy='dynamic'))
 
-    type = db.Column(db.Integer, nullable=False)
+    label = db.Column(db.String(32), nullable=False,
+                      info={'label': 'Field label'})
+
+    type = db.Column(ChoiceType(CUSTOM_FIELDS), nullable=False,
+                     info={'label': 'Field type'})
 
     def __repr__(self):
         return '%s %s' % (self.type, self.meeting.acronym)

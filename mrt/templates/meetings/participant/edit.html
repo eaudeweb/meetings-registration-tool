@@ -34,39 +34,37 @@
 
   <form class="form-horizontal" method="post">
 
-    <fieldset>
+    <div class="row">
 
-      <div class="row">
-        <div class="col-sm-8">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <b>Personal information</b></div>
+      <div class="col-sm-8">
 
-            <div class="panel-body">
-              {{ form_group(form.title, label_size="3", input_size="4") }}
+        <div class="panel panel-default">
+          <div class="panel-heading"><b>Personal information</b></div>
 
-              {{ form_group(form.first_name, label_size="3",
-                            input_size="9",
-                            options={"autofocus": ""}) }}
+          <div class="panel-body">
+            {{ form_group(form.title, label_size="3", input_size="4") }}
 
-              {{ form_group(form.last_name, label_size="3",
-                            input_size="9") }}
+            {{ form_group(form.first_name, label_size="3",
+                          input_size="9",
+                          options={"autofocus": ""}) }}
 
-              {{ form_group(form.email, label_size="3",
-                            input_size="9") }}
+            {{ form_group(form.last_name, label_size="3",
+                          input_size="9") }}
 
-              {{ form_group(form.category_id, label_size="3",
-                            input_size="9") }}
+            {{ form_group(form.email, label_size="3",
+                          input_size="9") }}
 
-              {{ form_group(form.country, label_size="3",
-                            input_size="9") }}
-            </div>
-          </div> {# panel #}
-        </div> {# col-sm-8 #}
+            {{ form_group(form.category_id, label_size="3",
+                          input_size="9") }}
 
-      </div> {# row #}
+            {{ form_group(form.country, label_size="3",
+                          input_size="9") }}
+          </div>
+        </div> {# panel #}
 
-    </fieldset>
+      </div> {# col-sm-8 #}
+
+    </div> {# row #}
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">

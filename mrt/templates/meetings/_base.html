@@ -24,7 +24,7 @@
 
   <ul class="nav nav-tabs meeting-navs" role="tablist">
     <li class="{{ active('/participants') }}">
-      <a href="{{ url_for('meetings.participants') }}">
+      <a href="{{ url_for('.participants') }}">
         Participants</a>
     </li>
     <li>
@@ -38,16 +38,21 @@
         Settings <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">
         <li class="{{ active('/categories') }}">
-          <a href="{{ url_for('meetings.categories') }}">
+          <a href="{{ url_for('.categories') }}">
             Categories</a>
         </li>
         <li class="{{ active('/phrases') }}">
-          <a href="{{ url_for('meetings.phrase_edit', meeting_type=g.meeting.meeting_type) }}">
+          <a href="{{ url_for('.phrase_edit', meeting_type=g.meeting.meeting_type) }}">
             Phrases</a>
         </li>
+        <li class="{{ active('/custom') }}">
+          <a href="{{ url_for('.custom_fields') }}">
+            Custom Fields</a>
+        </li>
+
         <li class="divider"></li>
         <li>
-          <a href="{{ url_for('meetings.edit') }}">
+          <a href="{{ url_for('.edit') }}">
             Edit this meeting</a>
         </li>
       </ul>
