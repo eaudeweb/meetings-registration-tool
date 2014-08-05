@@ -1,14 +1,14 @@
-"""Insert DefaultPhrases
+"""DefaultPhrase insert
 
-Revision ID: 4190aa8fe060
-Revises: 116cbf4cb82
-Create Date: 2014-07-29 16:26:55.047831
+Revision ID: b0cdfe3c472
+Revises: 45acac6b32fd
+Create Date: 2014-08-05 18:20:28.646833
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '4190aa8fe060'
-down_revision = '116cbf4cb82'
+revision = 'b0cdfe3c472'
+down_revision = '45acac6b32fd'
 
 from alembic import op
 from mrt.models import PhraseDefault
