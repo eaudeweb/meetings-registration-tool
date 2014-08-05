@@ -1,14 +1,14 @@
 """country field to participant
 
-Revision ID: b34bd8c9b63
-Revises: 4e077fb52d62
+Revision ID: 40a901b1b87a
+Revises: b34bd8c9b63
 Create Date: 2014-08-04 12:20:14.934650
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'b34bd8c9b63'
-down_revision = '4e077fb52d62'
+revision = '40a901b1b87a'
+down_revision = 'b34bd8c9b63'
 
 from alembic import op
 import sqlalchemy as sa

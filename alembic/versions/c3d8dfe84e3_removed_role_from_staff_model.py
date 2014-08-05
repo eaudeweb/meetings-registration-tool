@@ -1,14 +1,14 @@
 """Removed role from Staff model
 
 Revision ID: c3d8dfe84e3
-Revises: b34bd8c9b63
+Revises: 40a901b1b87a
 Create Date: 2014-08-04 16:37:08.647845
 
 """
 
 # revision identifiers, used by Alembic.
 revision = 'c3d8dfe84e3'
-down_revision = 'b34bd8c9b63'
+down_revision = '40a901b1b87a'
 
 from alembic import op
 import sqlalchemy as sa
