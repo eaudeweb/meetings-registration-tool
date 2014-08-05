@@ -132,6 +132,24 @@ class PhraseMeetingFactory(SQLAlchemyModelFactory):
     meeting = SubFactory(MeetingFactory)
 
 
+class RoleFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Role
+        sqlalchemy_session = models.db.session
+
+    name = 'MeetingsAdmin'
+    permissions = ('add_meeting', 'edit_meeting', 'delete_meeting')
+
+
+class RoleUserFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.RoleUser
+        sqlalchemy_session = models.db.session
+
+    role = SubFactory(RoleFactory)
+    user = SubFactory(UserFactory)
+
+
 def normalize_data(data):
 
     def convert_data(value):

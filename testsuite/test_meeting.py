@@ -5,7 +5,7 @@ from py.path import local
 from mrt.models import Meeting, Category, Phrase
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
-from .factories import PhraseMeetingFactory
+from .factories import PhraseMeetingFactory, RoleUserFactory
 
 
 def test_meeting_list(app):
@@ -24,6 +24,7 @@ def test_meeting_list(app):
 
 
 def test_meeting_add(app):
+    role_user = RoleUserFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
@@ -31,6 +32,8 @@ def test_meeting_add(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.edit')
         resp = client.post(url, data=data)
 
@@ -39,6 +42,7 @@ def test_meeting_add(app):
 
 
 def test_meeting_edit(app):
+    role_user = RoleUserFactory()
     meeting = MeetingFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
@@ -46,6 +50,8 @@ def test_meeting_edit(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
@@ -55,10 +61,13 @@ def test_meeting_edit(app):
 
 
 def test_meeting_delete(app):
+    role_user = RoleUserFactory()
     meeting = MeetingFactory()
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.delete(url)
 
@@ -168,6 +177,7 @@ def test_meeting_phrase_edit_successfully(app):
 
 
 def test_meeting_add_phrase_edit(app):
+    role_user = RoleUserFactory()
     default_phrase = PhraseDefaultFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
@@ -175,6 +185,8 @@ def test_meeting_add_phrase_edit(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
@@ -191,6 +203,7 @@ def test_meeting_add_phrase_edit(app):
 
 
 def test_meeting_add_default_phrase_edit(app):
+    role_user = RoleUserFactory()
     default_phrase = PhraseDefaultFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
@@ -198,6 +211,8 @@ def test_meeting_add_default_phrase_edit(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
@@ -215,6 +230,7 @@ def test_meeting_add_default_phrase_edit(app):
 
 
 def test_meeting_add_default_phrase_copies(app):
+    role_user = RoleUserFactory()
     PhraseDefaultFactory.create_batch(10)
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
@@ -222,6 +238,8 @@ def test_meeting_add_default_phrase_copies(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
