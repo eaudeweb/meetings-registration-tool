@@ -10,7 +10,8 @@ from mrt.models import Participant, Category
 
 class ParticipantEditForm(BaseForm):
 
-    category_id = fields.SelectField(validators=(DataRequired(),),
+    category_id = fields.SelectField('Category',
+                                     validators=[DataRequired()],
                                      coerce=int, choices=[])
 
     class Meta:

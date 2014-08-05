@@ -53,8 +53,10 @@ class ParticipantDetail(MethodView):
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
+        form = ParticipantEditForm(obj=participant)
         return render_template('meetings/participant/detail.html',
-                               participant=participant)
+                               participant=participant,
+                               form=form)
 
 
 class ParticipantEdit(MethodView):

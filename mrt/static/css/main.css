@@ -16,13 +16,19 @@ input[type=file] {
     margin-bottom: 10px;
 }
 
-legend {
+h5 {
     text-transform: uppercase;
     padding-bottom: 6px;
-    /*font-weight: bold;*/
     font-size: 12px;
-    /*border: none;*/
+/*    border-bottom: 1px solid #ddd;*/
     color: #666;
+}
+
+.table-detail {
+    margin-top: 15px;
+}
+.table-detail thead {
+    border: none;
 }
 
 .navbar .breadcrumb {
@@ -97,6 +103,8 @@ legend {
 
 .actions {
     margin-bottom: 20px;
+    /*padding: 5px 10px;*/
+    /*background: #eee;*/
 }
 .actions .glyphicon {
     font-size: 10px;

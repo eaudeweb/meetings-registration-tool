@@ -72,7 +72,13 @@
       <button type="submit" class="btn btn-primary">
         Save changes</button>
       <small>or
-        <a href="{{ url_for('.participants') }}">Cancel</a></small>
+        {% if participant %}
+          {% set url = url_for('.participant_detail',
+                               participant_id=participant.id) %}
+        {% else %}
+          {% set url = url_for('.participants') %}
+        {% endif %}
+        <a href="{{ url }}">Cancel</a></small>
     </div>
 
   </form>
