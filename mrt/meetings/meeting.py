@@ -15,8 +15,7 @@ class PermissionRequiredMixin(object):
 
     def get_permission_required(self):
         if self.permission_required is None:
-            #raise exception
-            abort(403)
+            raise RuntimeError('permission_required was not set')
         return self.permission_required
 
     def check_permissions(self):
