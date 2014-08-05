@@ -128,10 +128,13 @@ class Participant(db.Model):
 
     title = db.Column(ChoiceType(TITLE_CHOICES), nullable=False,
                       info={'label': 'Title'})
+
     first_name = db.Column(db.String(64), nullable=False,
                            info={'label': 'Given name'})
+
     last_name = db.Column(db.String(64), nullable=False,
                           info={'label': 'Family name'})
+
     email = db.Column(db.String(64), nullable=False,
                       info={'label': 'Email'})
 

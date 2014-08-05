@@ -25,20 +25,25 @@ class ParticipantsFilter(MethodView, FilterView):
     def process_category_id(self, participant, val):
         return str(participant.category)
 
-    def get_queryset(self, **options):
+    def get_queryset(self, **opt):
         participants = Participant.query.filter_by(meeting_id=g.meeting.id)
+        total = participants.count()
 
-        if 'count' in options:
-            return participants.count()
+        for item in opt['order']:
+            participants = participants.order_by(
+                '%s %s' % (item['column'], item['dir']))
 
-        if 'order' in options:
-            for item in options['order']:
-                participants = participants.order_by(
-                    '%s %s' % (item['column'], item['dir']))
+        if opt['search']:
+            participants = (
+                participants.filter(
+                    Participant.first_name.contains(opt['search']) |
+                    Participant.last_name.contains(opt['search']) |
+                    Participant.email.contains(opt['search'])
+                )
+            )
 
-        participants = (participants.limit(options['limit'])
-                                    .offset(options['start']))
-        return participants, participants.count()
+        participants = participants.limit(opt['limit']).offset(opt['start'])
+        return participants, total
 
 
 class ParticipantDetail(MethodView):

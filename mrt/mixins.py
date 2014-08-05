@@ -7,14 +7,15 @@ class FilterView(object):
 
     def get(self):
         args = parser.parse(request.query_string)
-        columns = []
-        for i in range(len(args['columns'])):
-            columns.append(args['columns'][i])
-
         options = {
             'start': args.get('start', 0),
             'limit': args.get('length', 10),
+            'search': args.get('search', {}).get('value'),
         }
+
+        columns = []
+        for i in range(len(args['columns'])):
+            columns.append(args['columns'][i])
 
         order = []
         for i in range(len(args['order'])):
@@ -25,9 +26,7 @@ class FilterView(object):
             })
         options['order'] = order
 
-        total = self.get_queryset(count=True)
-        rows, filtered = self.get_queryset(**options)
-
+        rows, total = self.get_queryset(**options)
         data = []
         for row in rows:
             row_data = {}
@@ -39,5 +38,5 @@ class FilterView(object):
             data.append(row_data)
 
         return jsonify(recordsTotal=total,
-                       recordsFiltered=filtered,
+                       recordsFiltered=len(data),
                        data=data)
