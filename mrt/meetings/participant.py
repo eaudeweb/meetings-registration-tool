@@ -1,4 +1,4 @@
-from flask import g, request, redirect, url_for
+from flask import g, request, redirect, url_for, jsonify
 from flask import render_template, flash
 from flask.views import MethodView
 
@@ -6,7 +6,7 @@ from werkzeug.utils import HTMLBuilder
 
 from mrt.forms.meetings import ParticipantEditForm
 from mrt.mixins import FilterView
-from mrt.models import Participant
+from mrt.models import db, Participant
 
 
 class Participants(MethodView):
@@ -84,3 +84,10 @@ class ParticipantEdit(MethodView):
         return render_template('meetings/participant/edit.html',
                                form=form,
                                participant=participant)
+
+    def delete(self, participant_id):
+        participant = self._get_object(participant_id)
+        db.session.delete(participant)
+        db.session.commit()
+        flash('Participant successfully deleted', 'warning')
+        return jsonify(status="success", url=url_for('.participants'))

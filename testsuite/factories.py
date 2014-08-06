@@ -1,5 +1,5 @@
 from factory.alchemy import SQLAlchemyModelFactory as BaseModelFactory
-from factory import SubFactory
+from factory import SubFactory, SelfAttribute
 from sqlalchemy_utils import CountryType, Choice
 from werkzeug.security import generate_password_hash
 
@@ -102,6 +102,17 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
     type = Choice(code='member', value='Member')
 
 
+class MeetingCategoryFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Category
+        sqlalchemy_session = models.db.session
+
+    title = SubFactory(CategoryDefaultNameFactory)
+    color = '#93284c'
+    type = Choice(code='member', value='Member')
+    meeting = SubFactory(MeetingFactory)
+
+
 class PhraseDescriptionFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Translation
@@ -148,6 +159,20 @@ class RoleUserFactory(SQLAlchemyModelFactory):
 
     role = SubFactory(RoleFactory)
     user = SubFactory(UserFactory)
+
+
+class ParticipantFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Participant
+        sqlalchemy_session = models.db.session
+
+    category = SubFactory(MeetingCategoryFactory)
+    meeting = SelfAttribute('category.meeting')
+    title = 'Mr'
+    first_name = 'John'
+    last_name = 'Doe'
+    email = 'john@doe.com'
+    country = 'FR'
 
 
 def normalize_data(data):
