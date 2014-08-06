@@ -19,7 +19,7 @@ class LoginForm(Form):
         if user is None:
             raise validators.ValidationError('Invalid user')
 
-        if not user.is_active:
+        if not user.is_active():
             raise validators.ValidationError('Inactive user')
 
     def validate_password(self, field):

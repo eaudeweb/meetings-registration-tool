@@ -35,7 +35,6 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=True)
     recover_token = db.Column(db.String(64))
     recover_time = db.Column(db.DateTime)
-    is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
         return '%s' % self.email
@@ -50,7 +49,7 @@ class User(db.Model):
         return True
 
     def is_active(self):
-        return self.is_active
+        return True if self.password else False
 
     def is_anonymous(self):
         return False

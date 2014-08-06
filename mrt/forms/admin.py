@@ -69,8 +69,7 @@ class StaffEditForm(BaseForm):
             except NoResultFound:
                 staff.user = User(email=self.user.email.data,
                                   recover_token=str(uuid4()),
-                                  recover_time=datetime.now(),
-                                  is_active=False)
+                                  recover_time=datetime.now())
 
             role_user = RoleUser(role=Role.query.get_or_404(self.role_id.data),
                                  user=staff.user)

@@ -71,7 +71,7 @@ class ResetPassword(MethodView):
     def get(self, token):
         form = auth.ResetPasswordForm()
         user = User.query.filter_by(recover_token=token).first()
-        if user is None or not user.token_is_active:
+        if user is None or not user.token_is_active():
             flash('Invalid token', 'danger')
             return redirect(url_for('auth.login'))
 
@@ -86,7 +86,6 @@ class ResetPassword(MethodView):
 
         if form.validate():
             user.set_password(form.password.data)
-            user.is_active = True
             user.recover_time = user.recover_time - timedelta(2)
             db.session.commit()
             flash('Password changed succesfully', 'success')
