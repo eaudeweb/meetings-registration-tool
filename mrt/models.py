@@ -90,7 +90,8 @@ class Staff(db.Model):
 class Role(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(32), nullable=False)
+    name = db.Column(db.String(32), nullable=False,
+                     info={'label': 'Name'})
     permissions = db.Column(JSONEncodedDict, nullable=False)
 
     def __repr__(self):

@@ -15,6 +15,9 @@ $(function () {
                     if(resp.status == "success") {
                         window.location.replace(resp.url);
                     }
+                    else if(resp.status == "error") {
+                        alert(resp.message);
+                    }
                 }
             });
         }

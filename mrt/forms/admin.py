@@ -6,6 +6,7 @@ from flask_wtf.file import FileField, FileAllowed
 
 from sqlalchemy.orm.exc import NoResultFound
 from wtforms import ValidationError, BooleanField, fields
+from wtforms.validators import DataRequired
 from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
@@ -14,6 +15,7 @@ from mrt.models import Staff, User, Role, RoleUser
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
 from mrt.utils import unlink_uploaded_file
+from mrt.definitions import PERMISSIONS
 
 from .base import BaseForm, TranslationInpuForm, DescriptionInputForm
 
@@ -154,3 +156,23 @@ class PhraseEditForm(PhraseEditBaseForm):
     class Meta:
         model = Phrase
         exclude = ('name', 'group', 'sort')
+
+
+class RoleEditForm(BaseForm):
+
+    class Meta:
+        model = Role
+
+    permissions = fields.SelectMultipleField('Permissions',
+                                             validators=[DataRequired()])
+
+    def __init__(self, *args, **kwargs):
+        super(RoleEditForm, self).__init__(*args, **kwargs)
+        self.permissions.choices = PERMISSIONS
+
+    def save(self):
+        role = self.obj or self.meta.model()
+        self.populate_obj(role)
+        if role.id is None:
+            db.session.add(role)
+        db.session.commit()

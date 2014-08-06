@@ -1,0 +1,70 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
+
+
+{% block title %}Roles{% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#roles').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [('', 'Roles')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ flashed_messages() }}
+
+  <div class="page-header">
+    <h1>Roles</h1>
+  </div>
+
+  <div class="actions">
+    <a href="{{ url_for('.role_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new role</a>
+  </div>
+
+  <div class="table-responsive">
+    <table id="roles" class="table table-bordered table-condensed">
+
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Permissions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for role in roles %}
+          {% set url = url_for('.role_edit', role_id=role.id) %}
+          <tr>
+            <td><a href="{{ url }}">{{ role.name }}</a></td>
+            <td>{{ role.permissions }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table> {# table-responsive #}
+
+  </div>
+
+  <div class="actions">
+    <a href="{{ url_for('.role_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new role</a>
+  </div>
+
+{% endblock %}
