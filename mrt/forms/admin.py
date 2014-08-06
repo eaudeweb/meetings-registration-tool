@@ -51,7 +51,7 @@ class StaffEditForm(BaseForm):
     role_id = fields.SelectField('Role', coerce=int)
 
     def __init__(self, *args, **kwargs):
-        if 'obj' in kwargs:
+        if kwargs['obj']:
             kwargs.setdefault('role_id', RoleUser.query.filter_by(
                 user=kwargs['obj'].user, meeting=None).first().role.id)
         super(StaffEditForm, self).__init__(*args, **kwargs)
@@ -79,10 +79,9 @@ class StaffEditForm(BaseForm):
             role_user = RoleUser.query.filter_by(user=staff.user,
                                                  meeting=None).first()
             role_user.role = Role.query.get_or_404(self.role_id.data)
-
-            if not staff.user.password:
-                send_activation_mail(
-                    staff.user.email, staff.user.recover_token)
+        if not staff.user.password:
+            send_activation_mail(
+                staff.user.email, staff.user.recover_token)
 
         if staff.id is None:
             db.session.add(staff)

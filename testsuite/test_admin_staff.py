@@ -3,12 +3,12 @@ from pyquery import PyQuery
 
 from mrt.models import Staff
 from mrt.mail import mail
-from .factories import StaffFactory, UserFactory
+from .factories import StaffFactory, UserFactory, RoleFactory, RoleUserFactory
 
 
 def test_staff_list(app):
     StaffFactory()
-    StaffFactory(user__email='jeandoe@eaudeweb.ro')
+    StaffFactory(user__email='random@gmail.ro')
 
     client = app.test_client()
     with app.test_request_context():
@@ -23,51 +23,55 @@ def test_staff_list(app):
 
 
 def test_staff_add(app):
+    RoleFactory()
     data = StaffFactory.attributes()
     data['user-email'] = data['user']
+    data['role_id'] = 1
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         url = url_for('admin.staff_edit')
         resp = client.post(url, data=data)
         assert len(outbox) == 1
-
-    assert resp.status_code == 302
-    assert Staff.query.count() == 1
+        assert resp.status_code == 302
+        assert Staff.query.count() == 1
 
 
 def test_staff_add_with_existing_user(app):
+    RoleFactory()
     user = UserFactory()
     data = StaffFactory.attributes()
     data['user-email'] = user.email
+    data['role_id'] = 1
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         url = url_for('admin.staff_edit')
         resp = client.post(url, data=data)
         assert len(outbox) == 0
-
-    assert resp.status_code == 302
-    assert Staff.query.count() == 1
+        assert resp.status_code == 302
+        assert Staff.query.count() == 1
 
 
 def test_staff_add_fail_with_existing_staff(app):
+    RoleFactory()
     staff = StaffFactory()
     data = StaffFactory.attributes()
     data['user-email'] = staff.user.email
+    data['role_id'] = 1
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         url = url_for('admin.staff_edit')
         resp = client.post(url, data=data)
         assert len(outbox) == 0
-
-    assert resp.status_code == 200
-    assert Staff.query.count() == 1
+        assert resp.status_code == 200
+        assert Staff.query.count() == 1
 
 
 def test_staff_edit(app):
     staff = StaffFactory()
+    RoleUserFactory(user=staff.user)
     data = StaffFactory.attributes()
     data['user-email'] = data.pop('user')
     data['title'] = title = 'CEO'
@@ -83,6 +87,7 @@ def test_staff_edit(app):
 
 def test_staff_delete(app):
     staff = StaffFactory()
+    RoleUserFactory(user=staff.user)
 
     client = app.test_client()
     with app.test_request_context():

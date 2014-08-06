@@ -3,7 +3,7 @@ from flask import render_template, flash
 from flask.views import MethodView
 from flask.ext.login import login_required
 
-from mrt.models import db, Staff
+from mrt.models import db, Staff, RoleUser
 from mrt.forms.admin import StaffEditForm
 
 
@@ -47,7 +47,10 @@ class StaffEdit(MethodView):
 
     def delete(self, staff_id):
         staff = Staff.query.get_or_404(staff_id)
+        role_user = RoleUser.query.filter_by(user=staff.user,
+                                             meeting=None).first()
         db.session.delete(staff)
+        db.session.delete(role_user)
         db.session.commit()
         flash('Staff successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.staff'))
