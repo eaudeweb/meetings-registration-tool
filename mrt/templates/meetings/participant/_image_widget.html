@@ -1,0 +1,28 @@
+<h5>Photo Files</h5>
+
+<div class="thumbnail">
+
+  {% if field.data %}
+    {{ field.data }}
+  {% endif %}
+
+  <div class="caption text-center">
+
+    <div class="btn-group">
+      <button class="btn btn-primary btn-sm">
+        <span class="glyphicon glyphicon-picture"></span> &nbsp;
+        Change photo</button>
+      <button class="btn btn-danger btn-sm">
+        <span class="glyphicon glyphicon-remove"></span> &nbsp;
+        Remove</button>
+      <button class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </button>
+      <button class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-resize-full"></span>
+      </button>
+    </div> {# btn-group #}
+
+  </div> {# caption #}
+
+</div> {# thumbnail #}

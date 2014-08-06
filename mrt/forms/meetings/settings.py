@@ -1,6 +1,7 @@
 from flask import g
 from wtforms import fields
 from wtforms.validators import DataRequired
+from wtforms_alchemy import ModelFormField
 
 from mrt.models import db
 from mrt.models import CategoryDefault, Category
@@ -8,7 +9,7 @@ from mrt.models import CustomField
 from mrt.models import Translation
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
 
-from mrt.forms.base import BaseForm
+from mrt.forms.base import BaseForm, TranslationInpuForm
 
 
 class MeetingCategoryAddForm(BaseForm):
@@ -58,6 +59,8 @@ class MeetingCategoryAddForm(BaseForm):
 
 class CustomFieldEditForm(BaseForm):
 
+    label = ModelFormField(TranslationInpuForm, label='Field label')
+
     class Meta:
         model = CustomField
 
@@ -65,6 +68,32 @@ class CustomFieldEditForm(BaseForm):
         custom_field = self.obj or CustomField()
         self.populate_obj(custom_field)
         custom_field.meeting = g.meeting
-        if not custom_field.id:
+        if not custom_field.slug:
             db.session.add(custom_field)
         db.session.commit()
+
+
+class CustomFieldMagicForm(BaseForm):
+
+    MAP = {
+        'text': fields.StringField,
+        'image': fields.FileField,
+    }
+
+    def save(self):
+        pass
+
+
+def custom_form_factory(field_type=None, form=CustomFieldMagicForm):
+    custom_fields = CustomField.query.filter_by(meeting_id=g.meeting.id)
+    if field_type:
+        custom_fields = custom_fields.filter_by(field_type=field_type)
+
+    form_attrs = {}
+    for f in custom_fields:
+        field_attrs = {'label': f.label, 'validators': []}
+        if f.required:
+            field_attrs['validators'].append(DataRequired())
+        form_attrs[f.slug] = form.MAP[f.field_type.code](*field_attrs)
+
+    return type(form)(form.__name__, (form,), form_attrs)

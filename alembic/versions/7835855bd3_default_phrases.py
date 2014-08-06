@@ -1,14 +1,18 @@
-"""DefaultPhrase insert
+"""default phrases
 
-Revision ID: b0cdfe3c472
-Revises: 45acac6b32fd
-Create Date: 2014-08-05 18:20:28.646833
+Revision ID: 7835855bd3
+Revises: 23e81d8fc954
+Create Date: 2014-08-06 16:19:48.678544
 
 """
 
 # revision identifiers, used by Alembic.
-revision = 'b0cdfe3c472'
-down_revision = '45acac6b32fd'
+revision = '7835855bd3'
+down_revision = '23e81d8fc954'
+
+from alembic import op
+import sqlalchemy as sa
+
 
 from alembic import op
 from mrt.models import PhraseDefault

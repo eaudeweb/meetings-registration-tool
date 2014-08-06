@@ -39,12 +39,12 @@
     <tbody>
       {% for field in custom_fields %}
         {% set url = url_for('.custom_field_edit',
-                             custom_field_id=field.id)%}
+                             custom_field_slug=field.slug)%}
         <tr>
           <td>
             <a href="{{ url }}">{{ field.label }}</a>
           </td>
-          <td>{{ field.type.value }}</td>
+          <td>{{ field.field_type.value }}</td>
         </tr>
       {% endfor %}
     </tbody>

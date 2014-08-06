@@ -39,47 +39,13 @@
   <div class="row">
 
     <div class="col-sm-8">
+      {% include "meetings/participant/_detail_personal.html" %}
+    </div> {# cols-#}
 
-      <h5>Personal information</h5>
-
-      <div class="table-responsive">
-
-        <table class="table table-bordered table-condensed table-striped">
-
-          <tbody>
-            <tr>
-              <th class="col-sm-3">{{ form.title.label.text }}</th>
-              <td>{{ participant.title }}</td>
-            </tr>
-            <tr>
-              <th>{{ form.first_name.label.text }}</th>
-              <td>{{ participant.first_name }}</td>
-            </tr>
-            <tr>
-              <th>{{ form.last_name.label.text }}</th>
-              <td>{{ participant.last_name }}</td>
-            </tr>
-            <tr>
-              <th>{{ form.email.label.text }}</th>
-              <td>
-                <a href="{{ participant.email }}">
-                  {{ participant.email }}</a>
-              </td>
-            </tr>
-            <tr>
-              <th>{{ form.category_id.label.text }}</th>
-              <td>{{ participant.category }}</td>
-            </tr>
-            <tr>
-              <th>{{ form.country.label.text }}</th>
-              <td>{{ participant.country }}</td>
-            </tr>
-          </tbody>
-
-        </table>
-
-      </div> {# table-responsive #}
-
+    <div class="col-sm-4">
+      {% for field in custom_form_images %}
+        {% include "meetings/participant/_image_widget.html" %}
+      {% endfor %}
     </div>
 
   </div>

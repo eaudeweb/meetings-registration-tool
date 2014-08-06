@@ -1,6 +1,8 @@
-from uuid import uuid4
+import re
 from flask import current_app as app
 from path import path
+from unicodedata import normalize
+from uuid import uuid4
 
 
 def unlink_uploaded_file(filename, config_key):
@@ -33,3 +35,16 @@ def copy_model_fields(model, instance, exclude=[]):
             continue
         setattr(cls, col.name, getattr(instance, col.name))
     return cls
+
+
+_SLUG_RE = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+
+
+def slugify(text, delim=u'-'):
+    """Generates an slightly worse ASCII-only slug."""
+    result = []
+    for word in _SLUG_RE.split(text.lower()):
+        word = normalize('NFKD', word).encode('ascii', 'ignore')
+        if word:
+            result.append(word)
+    return unicode(delim.join(result))

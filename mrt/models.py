@@ -3,10 +3,13 @@ from datetime import datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy
+
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
+from sqlalchemy_utils import generates
 from sqlalchemy.types import TypeDecorator, String
 
+from mrt.utils import slugify
 from .definitions import CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS
 from mrt.definitions import PERMISSIONS
 
@@ -186,7 +189,7 @@ class Participant(db.Model):
 
 class CustomField(db.Model):
 
-    id = db.Column(db.Integer, primary_key=True)
+    slug = db.Column(db.String(255), primary_key=True)
 
     meeting_id = db.Column(
         db.Integer, db.ForeignKey('meeting.id'),
@@ -195,14 +198,23 @@ class CustomField(db.Model):
         'Meeting',
         backref=db.backref('custom_fields', lazy='dynamic'))
 
-    label = db.Column(db.String(32), nullable=False,
-                      info={'label': 'Field label'})
+    label_id = db.Column(
+        db.Integer, db.ForeignKey('translation.id'),
+        nullable=False)
 
-    type = db.Column(ChoiceType(CUSTOM_FIELDS), nullable=False,
-                     info={'label': 'Field type'})
+    label = db.relationship('Translation')
+
+    field_type = db.Column(ChoiceType(CUSTOM_FIELDS), nullable=False,
+                           info={'label': 'Field type'})
+
+    required = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return '%s %s' % (self.type, self.meeting.acronym)
+        return self.label.english
+
+    @generates('slug')
+    def _create_slug(self):
+        return slugify(self.label.english)
 
 
 class CustomFieldChoice(db.Model):
@@ -210,7 +222,7 @@ class CustomFieldChoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     custom_field_id = db.Column(
-        db.Integer, db.ForeignKey('custom_field.id'),
+        db.String(255), db.ForeignKey('custom_field.slug'),
         nullable=False)
     custom_field = db.relationship(
         'CustomField',
@@ -232,7 +244,7 @@ class CustomFieldValue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     custom_field_id = db.Column(
-        db.Integer, db.ForeignKey('custom_field.id'),
+        db.String(255), db.ForeignKey('custom_field.slug'),
         nullable=False)
     custom_field = db.relationship(
         'CustomField',

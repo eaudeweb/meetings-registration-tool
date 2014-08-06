@@ -1,6 +1,6 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, form_group,
-                            flashed_messages %}
+{% from "_bits.html" import breadcrumb, form_group, flashed_messages,
+                            form_group_with_list_inputs %}
 
 
 {% set title = 'Edit meeting (%s)'|format(g.meeting.acronym)
@@ -23,29 +23,6 @@
   </script>
 
 {% endblock %}
-
-
-{% macro list_inputs(inputs) %}
-
-  <ul class="list-unstyled row">
-    {% for input in inputs %}
-      <li class="col-sm-4">
-        {{ input.label }}
-        {% if input.flags.required %}
-          <span class="text-danger">*</span>
-        {% endif %}
-        {{ input(class_="form-control",
-                 placeholder=input.label.text) }}
-        {% if input.flags.required %}
-          <div class="text-danger">
-            <small>{{ input.errors[0] }}</small>
-          </div>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-
-{% endmacro %}
 
 
 {% block breadcrumb %}
@@ -93,19 +70,7 @@
 
         {{ form_group(form.venue_country) }}
 
-        <div class="form-group">
-          {{ form.venue_city.label(class_="col-sm-2 control-label") }}
-          <div class="col-sm-8">
-            <div class="panel panel-default">
-              <div class="panel-body">
-                {{ list_inputs([form.venue_city.english,
-                               form.venue_city.french,
-                               form.venue_city.spanish]) }}
-              </div>
-            </div>
-          </div>
-        </div> {# form-group #}
-
+        {{ form_group_with_list_inputs(form.venue_city) }}
 
       </div> {# panel-body #}
 

@@ -17,20 +17,20 @@ class CustomFields(MethodView):
 
 class CustomFieldEdit(MethodView):
 
-    def _get_object(self, custom_field_id=None):
+    def _get_object(self, custom_field_slug=None):
         return (CustomField.query
-                .filter_by(meeting_id=g.meeting.id, id=custom_field_id)
+                .filter_by(meeting_id=g.meeting.id, slug=custom_field_slug)
                 .first_or_404()
-                if custom_field_id else None)
+                if custom_field_slug else None)
 
-    def get(self, custom_field_id=None):
-        custom_field = self._get_object(custom_field_id)
+    def get(self, custom_field_slug=None):
+        custom_field = self._get_object(custom_field_slug)
         form = CustomFieldEditForm(obj=custom_field)
         return render_template('meetings/custom_field/edit.html',
                                form=form)
 
-    def post(self, custom_field_id=None):
-        custom_field = self._get_object(custom_field_id)
+    def post(self, custom_field_slug=None):
+        custom_field = self._get_object(custom_field_slug)
         form = CustomFieldEditForm(request.form, obj=custom_field)
         if form.validate():
             form.save()

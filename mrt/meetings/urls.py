@@ -64,7 +64,7 @@ meetings.add_url_rule(
     '/<int:meeting_id>/settings/custom/fields/add',
     view_func=custom_field_edit_func)
 meetings.add_url_rule(
-    '/<int:meeting_id>/settings/custom/fields/<int:custom_field_id>/edit',
+    '/<int:meeting_id>/settings/custom/fields/<string:custom_field_slug>/edit',
     view_func=custom_field_edit_func)
 
 

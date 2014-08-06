@@ -4,6 +4,7 @@ from flask.views import MethodView
 
 from werkzeug.utils import HTMLBuilder
 
+from mrt.forms.meetings import custom_form_factory
 from mrt.forms.meetings import ParticipantEditForm
 from mrt.mixins import FilterView
 from mrt.models import db, Participant
@@ -54,8 +55,10 @@ class ParticipantDetail(MethodView):
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
+        custom_form_images = custom_form_factory('image')()
         return render_template('meetings/participant/detail.html',
                                participant=participant,
+                               custom_form_images=custom_form_images,
                                form=form)
 
 
