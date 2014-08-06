@@ -52,7 +52,7 @@
           {% set url = url_for('.role_edit', role_id=role.id) %}
           <tr>
             <td><a href="{{ url }}">{{ role.name }}</a></td>
-            <td>{{ role.permissions }}</td>
+            <td>{{ role.permissions_details }}</td>
           </tr>
         {% endfor %}
       </tbody>

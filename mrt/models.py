@@ -8,6 +8,7 @@ from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy.types import TypeDecorator, String
 
 from .definitions import CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS
+from mrt.definitions import PERMISSIONS
 
 
 db = SQLAlchemy()
@@ -93,6 +94,10 @@ class Role(db.Model):
     name = db.Column(db.String(32), nullable=False,
                      info={'label': 'Name'})
     permissions = db.Column(JSONEncodedDict, nullable=False)
+
+    @property
+    def permissions_details(self):
+        return ', '.join(dict(PERMISSIONS).get(k, k) for k in self.permissions)
 
     def __repr__(self):
         return self.name
