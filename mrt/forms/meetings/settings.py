@@ -104,13 +104,29 @@ class CustomFieldMagicForm(BaseForm):
         db.session.commit()
 
 
+class CustomFieldMagic(object):
+    pass
+
+
+def custom_object_factory(participant, field_type=None, obj=CustomFieldMagic):
+    object_attrs = {}
+    custom_field_values = CustomFieldValue.query.filter_by(
+        participant=participant)
+    if field_type:
+        custom_field_values = custom_field_values.filter(
+            CustomFieldValue.custom_field.has(field_type=field_type))
+    for val in custom_field_values:
+        object_attrs[val.custom_field.slug] = str(val.value)
+    return type(obj)(obj.__name__, (obj,), object_attrs)
+
+
 def custom_form_factory(participant, slug=None, field_type=None,
                         form=CustomFieldMagicForm):
     custom_fields = CustomField.query.filter_by(meeting_id=g.meeting.id)
-    if slug:
-        custom_fields = [custom_fields.filter_by(slug=slug).first_or_404()]
     if field_type:
         custom_fields = custom_fields.filter_by(field_type=field_type)
+    if slug:
+        custom_fields = [custom_fields.filter_by(slug=slug).first_or_404()]
 
     custom_fields_dict = OrderedMultiDict({c.slug: c for c in custom_fields})
     form_attrs = {

@@ -56,7 +56,8 @@ class ParticipantDetail(MethodView):
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
         CustomFormImages = custom_form_factory(participant, field_type='image')
-        custom_form_images = CustomFormImages()
+        participant = set_participant(participant)
+        custom_form_images = CustomFormImages(obj=participant)
         return render_template('meetings/participant/detail.html',
                                participant=participant,
                                custom_form_images=custom_form_images,
