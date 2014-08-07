@@ -51,6 +51,7 @@ settings.example for an settings example file::
 
 
 5. Set up the PostgreSQL database::
+
     # Replace [your username] and [password] with your MySQL credentials:
     root # su - postgres
     postgres $ psql
