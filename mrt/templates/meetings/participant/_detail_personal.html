@@ -19,9 +19,13 @@
         <td>{{ participant.last_name }}</td>
       </tr>
       <tr>
+        <th>{{ form.language.label.text }}</th>
+        <td>{{ participant.language }}</td>
+      </tr>
+      <tr>
         <th>{{ form.email.label.text }}</th>
         <td>
-          <a href="{{ participant.email }}">
+          <a href="mailto:{{ participant.email }}">
             {{ participant.email }}</a>
         </td>
       </tr>
