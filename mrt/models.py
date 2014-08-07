@@ -118,7 +118,7 @@ class RoleUser(db.Model):
         nullable=True)
     meeting = db.relationship(
         'Meeting',
-        backref=db.backref('role_users', lazy='dynamic'))
+        backref=db.backref('role_users', lazy='dynamic', cascade="delete"))
 
     role_id = db.Column(
         db.Integer, db.ForeignKey('role.id'),
@@ -161,7 +161,7 @@ class Participant(db.Model):
         nullable=False)
     meeting = db.relationship(
         'Meeting',
-        backref=db.backref('participants', lazy='dynamic'))
+        backref=db.backref('participants', lazy='dynamic', cascade="delete"))
 
     title = db.Column(ChoiceType(TITLE_CHOICES), nullable=False,
                       info={'label': 'Title'})
@@ -214,7 +214,7 @@ class CustomField(db.Model):
         nullable=False)
     meeting = db.relationship(
         'Meeting',
-        backref=db.backref('custom_fields', lazy='dynamic'))
+        backref=db.backref('custom_fields', lazy='dynamic', cascade="delete"))
 
     label_id = db.Column(
         db.Integer, db.ForeignKey('translation.id'),
@@ -297,7 +297,8 @@ class MediaParticipant(db.Model):
         nullable=False)
     meeting = db.relationship(
         'Meeting',
-        backref=db.backref('media_participants', lazy='dynamic'))
+        backref=db.backref('media_participants', lazy='dynamic',
+                           cascade="delete"))
 
     title = db.Column(db.String(8), nullable=False)
     first_name = db.Column(db.String(64), nullable=False)
@@ -391,7 +392,7 @@ class Category(CategoryMixin, db.Model):
 
     meeting = db.relationship(
         'Meeting',
-        backref=db.backref('categories', lazy='dynamic'))
+        backref=db.backref('categories', lazy='dynamic', cascade="delete"))
 
     def __repr__(self):
         return self.title.english
@@ -449,7 +450,7 @@ class Phrase(PhraseMixin, db.Model):
         nullable=False)
     meeting = db.relationship(
         'Meeting',
-        backref=db.backref('phrases', lazy='dynamic'))
+        backref=db.backref('phrases', lazy='dynamic', cascade="delete"))
 
 
 class PhraseDefault(PhraseMixin, db.Model):
