@@ -1,4 +1,4 @@
-from flask import current_app as app, request
+from flask import current_app as app, request, flash
 from flask.ext.mail import Mail, Message
 
 
@@ -25,3 +25,19 @@ def send_activation_mail(email, token):
     msg = Message(subject=subject, body=body, sender=sender,
                   recipients=[email, ])
     mail.send(msg)
+
+
+def send_bulk_message(recipients, subject, message):
+    sender = app.config['DEFAULT_MAIL_SENDER']
+
+    sent = 0
+    for participant in recipients:
+        email = participant.email
+        if not email:
+            flash('No email for {0}'.format(participant), 'error')
+            continue
+        msg = Message(subject=subject, body=message, sender=sender,
+                      recipients=[email])
+        mail.send(msg)
+        sent += 1
+    return sent

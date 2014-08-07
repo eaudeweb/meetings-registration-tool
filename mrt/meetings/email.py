@@ -2,6 +2,7 @@ from flask import render_template, request, flash, redirect, url_for, jsonify
 from flask.views import MethodView
 
 from mrt.forms.meetings.email import BulkEmailForm
+from mrt.mail import send_bulk_message
 from mrt.models import Participant
 
 
@@ -26,8 +27,13 @@ class BulkEmail(MethodView):
         form = BulkEmailForm(request.form)
 
         if form.validate():
-            print form.data
-            flash('Bulk messages sent', 'success')
+            recipients = get_recipients(form.language.data,
+                                        form.categories.data)
+            if recipients:
+                sent = send_bulk_message(recipients, subject=form.subject.data,
+                                  message=form.message.data)
+                if sent > 0:
+                    flash('Bulk messages sent', 'success')
             return redirect(url_for('.bulkemail'))
         return render_template(self.template_name, form=form)
 
