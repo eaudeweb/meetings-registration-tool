@@ -8,6 +8,17 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block scripts %}
+
+  {% assets "upload" %}
+     <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+  </script>
+
+{% endblock %}
+
+
 {% block breadcrumb %}
 
   {{ breadcrumb( [

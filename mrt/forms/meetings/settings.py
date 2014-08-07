@@ -85,8 +85,10 @@ class CustomFieldMagicForm(BaseForm):
         pass
 
 
-def custom_form_factory(field_type=None, form=CustomFieldMagicForm):
+def custom_form_factory(field_id=None, field_type=None, form=CustomFieldMagicForm):
     custom_fields = CustomField.query.filter_by(meeting_id=g.meeting.id)
+    if field_id:
+        custom_fields = custom_fields.filter_by(id=field_id).first_or_404()
     if field_type:
         custom_fields = custom_fields.filter_by(field_type=field_type)
 
@@ -95,7 +97,7 @@ def custom_form_factory(field_type=None, form=CustomFieldMagicForm):
         field_attrs = {'label': f.label, 'validators': []}
         if f.required:
             field_attrs['validators'].append(DataRequired())
-        form_attrs[f.slug] = form.MAP[f.field_type.code](*field_attrs)
+        form_attrs[f.slug] = form.MAP[f.field_type.code](**field_attrs)
 
     return type(form)(form.__name__, (form,), form_attrs)
 

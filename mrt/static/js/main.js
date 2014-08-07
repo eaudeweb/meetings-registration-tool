@@ -23,4 +23,21 @@ $(function () {
         }
     });
 
+    var image_widget = $('.image-widget');
+
+    image_widget.find('.image-upload').fileupload({
+        dataType: 'json',
+        add: function (e, data) {
+            image_widget.find('.loading').removeClass('hide');
+            data.submit();
+        },
+        always: function (e, data) {
+            image_widget.find('.loading').addClass('hide');
+        }
+    });
+
+    image_widget.on('click', '.change-photo', function () {
+        image_widget.find('.fileinput').toggleClass('hide');
+    });
+
 });

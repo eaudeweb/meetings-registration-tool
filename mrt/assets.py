@@ -37,10 +37,18 @@ _BUNDLE_DATEPICKER = (
 )
 
 
+_BUNDLE_UPLOAD = (
+    'js/lib/jquery_file_upload/jquery.ui.widget.js',
+    'js/lib/jquery_file_upload/jquery.iframe-transport.js',
+    'js/lib/jquery_file_upload/jquery.fileupload.js',
+)
+
+
 css = Bundle(*_BUNDLE_CSS, filters='cssmin', output='gen/static.css')
 js = Bundle(*_BUNDLE_JS, filters='jsmin', output='gen/static.js')
 datepicker = Bundle(*_BUNDLE_DATEPICKER,
                     output='gen/bootstrap-datetimepicker.min.js')
+upload = Bundle(*_BUNDLE_UPLOAD, output='gen/jquery.file.upload.min.js')
 colorpicker_js = Bundle(*_BUNDLE_COLORPICKER_JS,
                         output='gen/spectrum.min.js')
 colorpicker_css = Bundle(*_BUNDLE_COLORPICKER_CSS,
@@ -51,6 +59,7 @@ assets_env = Environment()
 assets_env.register('css', css)
 assets_env.register('js', js)
 assets_env.register('datepicker', datepicker)
+assets_env.register('upload', upload)
 
 assets_env.register('colorpicker_js', colorpicker_js)
 assets_env.register('colorpicker_css', colorpicker_css)

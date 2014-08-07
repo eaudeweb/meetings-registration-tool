@@ -17,20 +17,20 @@ class CustomFields(MethodView):
 
 class CustomFieldEdit(MethodView):
 
-    def _get_object(self, custom_field_slug=None):
+    def _get_object(self, custom_field_id=None):
         return (CustomField.query
-                .filter_by(meeting_id=g.meeting.id, slug=custom_field_slug)
+                .filter_by(meeting_id=g.meeting.id, id=custom_field_id)
                 .first_or_404()
-                if custom_field_slug else None)
+                if custom_field_id else None)
 
-    def get(self, custom_field_slug=None):
-        custom_field = self._get_object(custom_field_slug)
+    def get(self, custom_field_id=None):
+        custom_field = self._get_object(custom_field_id)
         form = CustomFieldEditForm(obj=custom_field)
         return render_template('meetings/custom_field/edit.html',
                                form=form)
 
-    def post(self, custom_field_slug=None):
-        custom_field = self._get_object(custom_field_slug)
+    def post(self, custom_field_id=None):
+        custom_field = self._get_object(custom_field_id)
         form = CustomFieldEditForm(request.form, obj=custom_field)
         if form.validate():
             form.save()
@@ -38,3 +38,11 @@ class CustomFieldEdit(MethodView):
             return redirect(url_for('.custom_fields'))
         return render_template('meetings/custom_field/edit.html',
                                form=form)
+
+
+
+class CustomFieldUpload(MethodView):
+
+    def post(self, participant_id, custom_field_id):
+        custom_form_images = custom_form_factory(id=custom_field_id)()
+        pass

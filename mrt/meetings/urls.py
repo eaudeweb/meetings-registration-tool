@@ -8,7 +8,7 @@ from mrt.meetings import Participants, ParticipantsFilter
 from mrt.meetings import ParticipantEdit, ParticipantDetail
 from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
-from mrt.meetings import CustomFields, CustomFieldEdit
+from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import Roles, RoleUserEdit
 from mrt.meetings import BulkEmail
 
@@ -65,8 +65,12 @@ meetings.add_url_rule(
     '/<int:meeting_id>/settings/custom/fields/add',
     view_func=custom_field_edit_func)
 meetings.add_url_rule(
-    '/<int:meeting_id>/settings/custom/fields/<string:custom_field_slug>/edit',
+    '/<int:meeting_id>/settings/custom/fields/<int:custom_field_id>/edit',
     view_func=custom_field_edit_func)
+
+meetings.add_url_rule(
+    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<int:custom_field_id>/upload',
+    view_func=CustomFieldUpload.as_view('custom_field_upload'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',

@@ -1,28 +1,42 @@
-<h5>Photo Files</h5>
+<div class="image-widget">
+  <h5>Photo Files</h5>
 
-<div class="thumbnail">
+  <div class="thumbnail">
 
-  {% if field.data %}
-    {{ field.data }}
-  {% endif %}
+    <h4 class="text-center">{{ field.label.text }}</h4>
 
-  <div class="caption text-center">
+    {% if field.data %}
+      {{ field.data }}
+    {% endif %}
 
-    <div class="btn-group">
-      <button class="btn btn-primary btn-sm">
-        <span class="glyphicon glyphicon-picture"></span> &nbsp;
-        Change photo</button>
-      <button class="btn btn-danger btn-sm">
-        <span class="glyphicon glyphicon-remove"></span> &nbsp;
-        Remove</button>
-      <button class="btn btn-default btn-sm">
-        <span class="glyphicon glyphicon-refresh"></span>
-      </button>
-      <button class="btn btn-default btn-sm">
-        <span class="glyphicon glyphicon-resize-full"></span>
-      </button>
-    </div> {# btn-group #}
+    <div class="caption text-center">
 
-  </div> {# caption #}
+      <div class="btn-group">
+        <button class="btn btn-primary btn-sm change-photo">
+          <span class="glyphicon glyphicon-picture"></span> &nbsp;
+          Change photo</button>
+        <button class="btn btn-danger btn-sm">
+          <span class="glyphicon glyphicon-remove"></span> &nbsp;
+          Remove</button>
+        <button class="btn btn-default btn-sm">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </button>
+        <button class="btn btn-default btn-sm">
+          <span class="glyphicon glyphicon-resize-full"></span>
+        </button>
+      </div> {# btn-group #}
 
-</div> {# thumbnail #}
+      <div class="fileinput text-center hide">
+        <div class="loading hide">
+          <img src="/static/images/ajax.gif" width="24" height="24"
+               alt="loading">
+        </div>
+        <form action="" method="post" enctype="multipart/form-data">
+          {{ field(class_="image-upload") }}
+        </form>
+      </div> {# fileinput #}
+
+    </div> {# caption #}
+
+  </div> {# thumbnail #}
+</div>
