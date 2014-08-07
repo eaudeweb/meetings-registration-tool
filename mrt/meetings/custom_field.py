@@ -1,9 +1,9 @@
 from flask import g
-from flask import request, redirect, url_for
+from flask import request, redirect, url_for, jsonify
 from flask import render_template, flash
 from flask.views import MethodView
 
-from mrt.models import CustomField
+from mrt.models import db, CustomField
 from mrt.forms.meetings import CustomFieldEditForm
 
 
@@ -27,7 +27,8 @@ class CustomFieldEdit(MethodView):
         custom_field = self._get_object(custom_field_id)
         form = CustomFieldEditForm(obj=custom_field)
         return render_template('meetings/custom_field/edit.html',
-                               form=form)
+                               form=form,
+                               custom_field=custom_field)
 
     def post(self, custom_field_id=None):
         custom_field = self._get_object(custom_field_id)
@@ -37,8 +38,15 @@ class CustomFieldEdit(MethodView):
             flash('Custom field information saved', 'success')
             return redirect(url_for('.custom_fields'))
         return render_template('meetings/custom_field/edit.html',
-                               form=form)
+                               form=form,
+                               custom_field=custom_field)
 
+    def delete(self, custom_field_slug):
+        custom_field = self._get_object(custom_field_slug)
+        db.session.delete(custom_field)
+        db.session.commit()
+        flash('Custom field successfully deleted', 'warning')
+        return jsonify(status="success", url=url_for('.custom_fields'))
 
 
 class CustomFieldUpload(MethodView):
