@@ -101,8 +101,6 @@ class CustomFieldMagicForm(BaseForm):
             custom_field_value.custom_field = self._custom_fields[field_name]
             custom_field_value.participant = self._participant
 
-        if custom_field_value.id:
-            db.session.add(custom_field_value)
         db.session.commit()
 
 
