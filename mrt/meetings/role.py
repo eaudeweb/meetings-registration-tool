@@ -1,9 +1,9 @@
-from flask import g, request, redirect
+from flask import g, request, redirect, jsonify
 from flask import render_template, url_for, flash
 from flask.ext.login import login_required
 from flask.views import MethodView
 
-from mrt.models import RoleUser
+from mrt.models import db, RoleUser
 from mrt.forms.meetings import RoleUserEditForm
 
 
@@ -42,3 +42,10 @@ class RoleUserEdit(MethodView):
         return render_template('admin/role/edit.html',
                                form=form,
                                role_user=role_user)
+
+    def delete(self, role_user_id):
+        role_user = RoleUser.query.get_or_404(role_user_id)
+        db.session.delete(role_user)
+        db.session.commit()
+        flash('Role User successfully deleted', 'warning')
+        return jsonify(status="success", url=url_for('.roles'))

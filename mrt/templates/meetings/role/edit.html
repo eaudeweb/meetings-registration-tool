@@ -45,7 +45,7 @@
         <button type="submit" class="btn btn-primary">Save</button>
         <small>or <a href="{{ url_for('.roles') }}">Cancel</a></small>
       </div>
-      {% if role %}
+      {% if role_user %}
         <div class="col-sm-6 text-right">
           <a class="delete" data-toggle="delete"
              data-href="{{ url_for('.role_user_edit', role_user_id=role_user.id) }}"

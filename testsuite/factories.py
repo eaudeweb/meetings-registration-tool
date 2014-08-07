@@ -74,6 +74,15 @@ class MeetingFactory(SQLAlchemyModelFactory):
     online_registration = False
 
 
+class RoleFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Role
+        sqlalchemy_session = models.db.session
+
+    name = 'MeetingsAdmin'
+    permissions = ('add_meeting', 'edit_meeting', 'delete_meeting')
+
+
 class StaffFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Staff
@@ -143,15 +152,6 @@ class PhraseMeetingFactory(SQLAlchemyModelFactory):
     meeting = SubFactory(MeetingFactory)
 
 
-class RoleFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = models.Role
-        sqlalchemy_session = models.db.session
-
-    name = 'MeetingsAdmin'
-    permissions = ('add_meeting', 'edit_meeting', 'delete_meeting')
-
-
 class RoleUserFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.RoleUser
@@ -159,6 +159,16 @@ class RoleUserFactory(SQLAlchemyModelFactory):
 
     role = SubFactory(RoleFactory)
     user = SubFactory(UserFactory)
+
+
+class RoleUserMeetingFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.RoleUser
+        sqlalchemy_session = models.db.session
+
+    role = SubFactory(RoleFactory)
+    user = SubFactory(UserFactory)
+    meeting = SubFactory(MeetingFactory)
 
 
 class ParticipantFactory(SQLAlchemyModelFactory):
