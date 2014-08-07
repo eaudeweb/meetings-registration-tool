@@ -50,10 +50,10 @@
       {% if custom_field %}
         <div class="col-sm-6 text-right">
           <a class="delete" data-toggle="delete"
-             data-href="{{ url_for('.custom_field_edit', custom_field_slug=custom_field.slug) }}"
+             data-href="{{ url_for('.custom_field_edit', custom_field_id=custom_field.id) }}"
              data-message="Are you sure you want to delete this custom field?">
             <span class="glyphicon glyphicon-remove"></span>
-            Delete this role</a>
+            Delete this custom field</a>
         </div>
       {% endif %}
     </div>

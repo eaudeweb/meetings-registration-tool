@@ -41,8 +41,8 @@ class CustomFieldEdit(MethodView):
                                form=form,
                                custom_field=custom_field)
 
-    def delete(self, custom_field_slug):
-        custom_field = self._get_object(custom_field_slug)
+    def delete(self, custom_field_id):
+        custom_field = self._get_object(custom_field_id)
         db.session.delete(custom_field)
         db.session.commit()
         flash('Custom field successfully deleted', 'warning')
