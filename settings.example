@@ -19,3 +19,5 @@ MEETING_TYPES = (
 DEFAULT_MAIL_SENDER = ''
 # Supress sendding mails on localhost
 MAIL_SUPPRESS_SEND = True
+# Disable assets compilation
+ASSETS_DEBUG = True
