@@ -10,8 +10,9 @@ from sqlalchemy_utils import generates
 from sqlalchemy.types import TypeDecorator, String
 
 from mrt.utils import slugify
-from .definitions import CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS
-from mrt.definitions import PERMISSIONS
+from mrt.definitions import (
+    CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS,
+)
 
 
 db = SQLAlchemy()

@@ -31,10 +31,15 @@ class BulkEmail(MethodView):
             recipients = get_recipients(form.language.data,
                                         form.categories.data)
             if recipients:
-                sent = send_bulk_message(recipients, subject=form.subject.data,
-                                  message=form.message.data)
+                sent = send_bulk_message(
+                    recipients,
+                    subject=form.subject.data,
+                    message=form.message.data,
+                )
                 if sent > 0:
                     flash('Bulk messages sent', 'success')
+            else:
+                flash('No recipients.', 'error')
             return redirect(url_for('.bulkemail'))
         return render_template(self.template_name, form=form)
 
