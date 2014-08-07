@@ -1,13 +1,13 @@
 """initial
 
-Revision ID: 23e81d8fc954
+Revision ID: aacbf9fb66e
 Revises: None
-Create Date: 2014-08-06 16:13:21.752217
+Create Date: 2014-08-07 12:11:12.020530
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '23e81d8fc954'
+revision = 'aacbf9fb66e'
 down_revision = None
 
 from alembic import op
@@ -83,6 +83,16 @@ def upgrade():
     sa.ForeignKeyConstraint(['venue_city_id'], ['translation.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('role_user',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('meeting_id', sa.Integer(), nullable=True),
+    sa.Column('role_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
+    sa.ForeignKeyConstraint(['role_id'], ['role.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('category',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('color', sa.String(length=7), nullable=False),
@@ -95,14 +105,15 @@ def upgrade():
     sa.ForeignKeyConstraint(['title_id'], ['translation.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('role_user',
+    op.create_table('custom_field',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('meeting_id', sa.Integer(), nullable=True),
-    sa.Column('role_id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('slug', sa.String(length=255), nullable=True),
+    sa.Column('meeting_id', sa.Integer(), nullable=False),
+    sa.Column('label_id', sa.Integer(), nullable=False),
+    sa.Column('field_type', sa.String(length=255), nullable=False),
+    sa.Column('required', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['label_id'], ['translation.id'], ),
     sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
-    sa.ForeignKeyConstraint(['role_id'], ['role.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('phrase',
@@ -114,39 +125,6 @@ def upgrade():
     sa.Column('description_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['description_id'], ['translation.id'], ),
     sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('custom_field',
-    sa.Column('slug', sa.String(length=255), nullable=False),
-    sa.Column('meeting_id', sa.Integer(), nullable=False),
-    sa.Column('label_id', sa.Integer(), nullable=False),
-    sa.Column('field_type', sa.String(length=255), nullable=False),
-    sa.Column('required', sa.Boolean(), nullable=True),
-    sa.ForeignKeyConstraint(['label_id'], ['translation.id'], ),
-    sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
-    sa.PrimaryKeyConstraint('slug')
-    )
-    op.create_table('custom_field_choice',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('custom_field_id', sa.String(255), nullable=False),
-    sa.Column('value_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['custom_field_id'], ['custom_field.slug'], ),
-    sa.ForeignKeyConstraint(['value_id'], ['translation.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('participant',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('meeting_id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=255), nullable=False),
-    sa.Column('first_name', sa.String(length=64), nullable=False),
-    sa.Column('last_name', sa.String(length=64), nullable=False),
-    sa.Column('email', sa.String(length=64), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('category_id', sa.Integer(), nullable=False),
-    sa.Column('country', sa.String(length=2), nullable=False),
-    sa.ForeignKeyConstraint(['category_id'], ['category.id'], ),
-    sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('media_participant',
@@ -161,14 +139,38 @@ def upgrade():
     sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('participant',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('meeting_id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.String(length=255), nullable=False),
+    sa.Column('first_name', sa.String(length=64), nullable=False),
+    sa.Column('last_name', sa.String(length=64), nullable=False),
+    sa.Column('email', sa.String(length=64), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('category_id', sa.Integer(), nullable=False),
+    sa.Column('language', sa.String(length=255), nullable=False),
+    sa.Column('country', sa.String(length=2), nullable=False),
+    sa.ForeignKeyConstraint(['category_id'], ['category.id'], ),
+    sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('custom_field_choice',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('custom_field_id', sa.Integer(), nullable=False),
+    sa.Column('value_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['custom_field_id'], ['custom_field.id'], ),
+    sa.ForeignKeyConstraint(['value_id'], ['translation.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('custom_field_value',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('custom_field_id', sa.String(255), nullable=False),
+    sa.Column('custom_field_id', sa.Integer(), nullable=False),
     sa.Column('participant_id', sa.Integer(), nullable=False),
     sa.Column('value', sa.String(length=64), nullable=False),
     sa.Column('choice_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['choice_id'], ['custom_field_choice.id'], ),
-    sa.ForeignKeyConstraint(['custom_field_id'], ['custom_field.slug'], ),
+    sa.ForeignKeyConstraint(['custom_field_id'], ['custom_field.id'], ),
     sa.ForeignKeyConstraint(['participant_id'], ['participant.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -178,13 +180,13 @@ def upgrade():
 def downgrade():
     ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('custom_field_value')
-    op.drop_table('media_participant')
-    op.drop_table('participant')
     op.drop_table('custom_field_choice')
-    op.drop_table('custom_field')
+    op.drop_table('participant')
+    op.drop_table('media_participant')
     op.drop_table('phrase')
-    op.drop_table('role_user')
+    op.drop_table('custom_field')
     op.drop_table('category')
+    op.drop_table('role_user')
     op.drop_table('meeting')
     op.drop_table('staff')
     op.drop_table('category_default')

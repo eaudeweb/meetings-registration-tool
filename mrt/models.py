@@ -200,7 +200,9 @@ class Participant(db.Model):
 
 class CustomField(db.Model):
 
-    slug = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+
+    slug = db.Column(db.String(255))
 
     meeting_id = db.Column(
         db.Integer, db.ForeignKey('meeting.id'),
@@ -233,7 +235,7 @@ class CustomFieldChoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     custom_field_id = db.Column(
-        db.String(255), db.ForeignKey('custom_field.slug'),
+        db.Integer(), db.ForeignKey('custom_field.id'),
         nullable=False)
     custom_field = db.relationship(
         'CustomField',
@@ -255,7 +257,7 @@ class CustomFieldValue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     custom_field_id = db.Column(
-        db.String(255), db.ForeignKey('custom_field.slug'),
+        db.Integer, db.ForeignKey('custom_field.id'),
         nullable=False)
     custom_field = db.relationship(
         'CustomField',
