@@ -33,7 +33,10 @@
     <li>
       <a href="#">Printouts</a>
     </li>
-    <li class="dropdown {{ active('/settings') }}">
+    <li class="{{ active('/email') }}">
+      <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>
+    </li>
+    <li class="dropdown {{ active('/settings') }} pull-right">
       <a class="dropdown-toggle" data-toggle="dropdown">
         Settings <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">

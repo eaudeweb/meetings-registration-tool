@@ -10,7 +10,7 @@ from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
 from mrt.meetings import CustomFields, CustomFieldEdit
 from mrt.meetings import Roles, RoleUserEdit
-
+from mrt.meetings import BulkEmail
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
 
@@ -76,6 +76,10 @@ meetings.add_url_rule('/<int:meeting_id>/settings/roles/add',
                       view_func=role_user_edit_func)
 meetings.add_url_rule('/<int:meeting_id>/settings/roles/<int:role_user_id>',
                       view_func=role_user_edit_func)
+
+# emails
+meetings.add_url_rule('/<int:meeting_id>/email/bulk',
+                      view_func=BulkEmail.as_view('bulkemail'))
 
 
 @meetings.url_defaults

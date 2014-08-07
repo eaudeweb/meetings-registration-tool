@@ -1,0 +1,76 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages, form_group %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Bulk emails')
+  ] ) }}
+
+{% endblock %}
+
+{% block head %}
+
+  <style type="text/css">
+    .form-control.select {
+      border: none!important;
+      -webkit-box-shadow: none!important;
+      box-shadow: none!important;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  {{ flashed_messages() }}
+
+  <h3 class="page-title">Send bulk emails</h3>
+
+  <form class="form-horizontal" method="post">
+
+    <div class="row">
+
+      <div class="col-sm-12">
+
+        <div class="panel panel-default">
+
+          <div class="panel-heading"><b>Recipients</b></div>
+
+          <div class="panel-body">
+            {{ form_group(form.language, label_size="2", input_size="3") }}
+            {{ form_group(form.categories, label_size="2", input_size="6",
+                          options={"class": "form-control select"}) }}
+          </div>
+
+          <div class="panel-heading"><b>Message</b></div>
+
+          <div class="panel-body">
+            {{ form_group(form.subject, label_size="2", input_size="6",
+                          options={"autofocus": ""}) }}
+            {{ form_group(form.message, label_size="2", input_size="6",
+                          options={"rows": "10"}) }}
+          </div>
+        </div> {# panel #}
+
+      </div> {# col-sm-12 #}
+
+    </div> {# row #}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        Send emails</button>
+      <small>or
+        {% set url = url_for('.bulkemail') %}
+        <a href="{{ url }}">Cancel</a></small>
+    </div>
+
+  </form>
+
+{% endblock %}
