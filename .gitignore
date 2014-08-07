@@ -53,3 +53,7 @@ docs/_build/
 # Fab file
 *env.ini
 
+# Others
+instance/
+mrt/static/.webassets-cache/
+mrt/static/gen/
