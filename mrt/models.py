@@ -315,6 +315,11 @@ class MediaParticipant(db.Model):
     def __repr__(self):
         return '%s %s' % (self.first_name, self.last_name)
 
+    @property
+    def name(self):
+        return '%s %s %s' % (self.title, self.first_name,
+                             self.last_name)
+
 
 class Meeting(db.Model):
 

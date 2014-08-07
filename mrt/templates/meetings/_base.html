@@ -28,8 +28,9 @@
       <a href="{{ url_for('.participants') }}">
         Participants</a>
     </li>
-    <li>
-      <a href="#">Media Participants</a>
+    <li class="{{ active('/media_participants') }}">
+      <a href="{{ url_for('.media_participants') }}">
+        Media Participants</a>
     </li>
     <li>
       <a href="#">Printouts</a>

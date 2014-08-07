@@ -6,6 +6,8 @@ from mrt.models import Meeting
 from mrt.meetings import Meetings, MeetingEdit, RecipientsCount, AckEmail
 from mrt.meetings import Participants, ParticipantsFilter
 from mrt.meetings import ParticipantEdit, ParticipantDetail
+from mrt.meetings import MediaParticipants, MediaParticipantsFilter
+from mrt.meetings import MediaParticipantDetail
 from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
 from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
@@ -36,6 +38,17 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/detail',
     view_func=ParticipantDetail.as_view('participant_detail'))
+
+# media participants
+meetings.add_url_rule(
+    '/<int:meeting_id>/media_participants',
+    view_func=MediaParticipants.as_view('media_participants'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/media_participants/filter',
+    view_func=MediaParticipantsFilter.as_view('media_participants_filter'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/media_participants/<int:media_participant_id>/detail',
+    view_func=MediaParticipantDetail.as_view('media_participant_detail'))
 
 # categories
 meetings.add_url_rule('/<int:meeting_id>/settings/categories',
