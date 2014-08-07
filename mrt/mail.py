@@ -30,7 +30,7 @@ def send_activation_mail(email, token):
 def send_bulk_message(recipients, subject, message):
     sent = 0
 
-    sender = g.meeting.owner.email if g.meeting.owner else None
+    sender = g.meeting.owner.user.email if g.meeting.owner else None
     if not sender:
         flash('No email for sender.', 'error')
         return sent

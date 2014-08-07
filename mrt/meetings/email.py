@@ -1,4 +1,4 @@
-from flask import render_template, request, flash, redirect, url_for, jsonify
+from flask import render_template, request, flash, redirect, url_for, g
 from flask.views import MethodView
 
 from mrt.forms.meetings.email import BulkEmailForm
@@ -9,7 +9,8 @@ from mrt.models import Participant
 def get_recipients(language, categories=None):
     """ Return a queryset of participants filtered by language and categories
     """
-    queryset = Participant.query.filter_by(language=language)
+    queryset = Participant.query.filter_by(meeting=g.meeting,
+                                           language=language)
     if categories:
         queryset = queryset.filter(Participant.category_id.in_(categories))
     return queryset

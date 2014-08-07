@@ -31,9 +31,8 @@
 
   {{ super() }}
 
-  <p>The owner of this meeting is: {{ g.meeting.owner }}</p>
-
   <h3 class="page-title">{{ title }}</h3>
+  <p>The owner of this meeting is: {{ g.meeting.owner }}</p>
 
   <div class="actions">
     <a href="{{ url_for('.role_user_edit') }}" class="btn btn-primary btn-sm">

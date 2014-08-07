@@ -1,4 +1,5 @@
 from flask import current_app as app
+from flask.ext.login import current_user
 from wtforms import fields, widgets
 from wtforms_alchemy import ModelFormField
 
@@ -50,6 +51,7 @@ class MeetingEditForm(BaseForm):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
         if meeting.id is None:
+            meeting.owner = current_user.staff
             db.session.add(meeting)
             self._save_phrases(meeting)
         db.session.commit()

@@ -1,4 +1,4 @@
-from .models import User, db
+from .models import User, db, Staff
 
 import click
 import code
@@ -47,6 +47,8 @@ def create_user(ctx):
             user = User(email=email)
             user.set_password(password)
             db.session.add(user)
+            staff = Staff(user=user, full_name='')
+            db.session.add(staff)
             db.session.commit()
             click.echo('User has been created')
     else:

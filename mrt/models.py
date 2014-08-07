@@ -85,14 +85,14 @@ class Staff(db.Model):
         nullable=False)
     user = db.relationship(
         'User',
-        backref=db.backref('staff', lazy='dynamic'))
+        backref=db.backref('staff', uselist=False))
 
     @property
     def user_role(self):
         return RoleUser.query.filter_by(user=self.user, meeting=None).first()
 
     def __repr__(self):
-        return self.full_name
+        return self.full_name or self.user.email
 
 
 class Role(db.Model):
@@ -135,7 +135,7 @@ class RoleUser(db.Model):
 
     @property
     def staff(self):
-        return self.user.staff.first()
+        return self.user.staff
 
     def __repr__(self):
         return '%s %s' % (self.user, self.role)
