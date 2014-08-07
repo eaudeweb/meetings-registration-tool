@@ -1,0 +1,79 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages %}
+
+
+{% set title = "Meeting (" ~ g.meeting.acronym ~ ") roles" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#roles').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Roles')
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  {{ flashed_messages() }}
+
+  <p>The owner of this meeting is: {{ g.meeting.owner }}</p>
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="actions">
+    <a href="{{ url_for('.role_user_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new role</a>
+  </div>
+
+  <div class="table-responsive">
+    <table id="roles" class="table table-bordered table-condensed">
+
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for role_user in role_users %}
+          {% set url = url_for('.role_user_edit', role_user_id=role_user.id) %}
+          <tr>
+            <td><a href="{{ url }}">{{ role_user.staff.full_name }}</a></td>
+            <td>{{ role_user.user.email }}</td>
+            <td>{{ role_user.role.name }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table> {# table-responsive #}
+
+  </div>
+
+  <div class="actions">
+    <a href="{{ url_for('.role_user_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new role</a>
+  </div>
+
+
+{% endblock %}

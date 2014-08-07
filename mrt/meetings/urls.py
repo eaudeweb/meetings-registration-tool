@@ -9,6 +9,7 @@ from mrt.meetings import ParticipantEdit, ParticipantDetail
 from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
 from mrt.meetings import CustomFields, CustomFieldEdit
+from mrt.meetings import Roles, RoleUserEdit
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -66,6 +67,15 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/custom/fields/<string:custom_field_slug>/edit',
     view_func=custom_field_edit_func)
+
+# roles
+meetings.add_url_rule('/<int:meeting_id>/settings/roles',
+                      view_func=Roles.as_view('roles'))
+role_user_edit_func = RoleUserEdit.as_view('role_user_edit')
+meetings.add_url_rule('/<int:meeting_id>/settings/roles/add',
+                      view_func=role_user_edit_func)
+meetings.add_url_rule('/<int:meeting_id>/settings/roles/<int:role_user_id>',
+                      view_func=role_user_edit_func)
 
 
 @meetings.url_defaults

@@ -85,7 +85,7 @@ class Staff(db.Model):
         nullable=False)
     user = db.relationship(
         'User',
-        backref=db.backref('staffs', lazy='dynamic'))
+        backref=db.backref('staff', lazy='dynamic'))
 
     def __repr__(self):
         return self.full_name
@@ -128,6 +128,10 @@ class RoleUser(db.Model):
     user = db.relationship(
         'User',
         backref=db.backref('role_users', lazy='dynamic'))
+
+    @property
+    def staff(self):
+        return self.user.staff.first()
 
     def __repr__(self):
         return '%s %s' % (self.user, self.role)

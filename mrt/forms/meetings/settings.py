@@ -5,6 +5,7 @@ from wtforms_alchemy import ModelFormField
 
 from mrt.models import db
 from mrt.models import CategoryDefault, Category
+from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import CustomField
 from mrt.models import Translation
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
@@ -97,3 +98,34 @@ def custom_form_factory(field_type=None, form=CustomFieldMagicForm):
         form_attrs[f.slug] = form.MAP[f.field_type.code](*field_attrs)
 
     return type(form)(form.__name__, (form,), form_attrs)
+
+
+class RoleUserEditForm(BaseForm):
+
+    class Meta:
+        model = RoleUser
+
+    user_id = fields.SelectField('User',
+                                 validators=[DataRequired()],
+                                 coerce=int)
+    role_id = fields.SelectField('Role',
+                                 validators=[DataRequired()],
+                                 coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs['obj']:
+            kwargs.setdefault('user_id', kwargs['obj'].user.id)
+            kwargs.setdefault('role_id', kwargs['obj'].role.id)
+        super(RoleUserEditForm, self).__init__(*args, **kwargs)
+        self.user_id.choices = [(
+            x.user.id, x.user.email) for x in Staff.query.all()]
+        self.role_id.choices = [(x.id, x.name) for x in Role.query.all()]
+
+    def save(self):
+        user_role = self.obj or self.meta.model()
+        user_role.user = User.query.get_or_404(self.user_id.data)
+        user_role.role = Role.query.get_or_404(self.role_id.data)
+        user_role.meeting = g.meeting
+        if user_role.id is None:
+            db.session.add(user_role)
+        db.session.commit()

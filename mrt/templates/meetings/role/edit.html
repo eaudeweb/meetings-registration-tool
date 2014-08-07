@@ -1,0 +1,61 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, flashed_messages, form_group %}
+
+
+{% set title = "Edit meeting (" ~ g.meeting.acronym ~ ") role" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('meetings.roles'), 'Roles'),
+      ('', title),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  {{ flashed_messages() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <form class="form-horizontal" role="form" method="POST">
+    {{ form.csrf_token }}
+
+    <div class="panel panel-default">
+
+    <div class="panel-heading">
+      <b>Role details</b>
+    </div>
+
+      <div class="panel-body">
+        {{ form_group(form.user_id) }}
+        {{ form_group(form.role_id) }}
+      </div>
+    </div>
+
+    <div class="form-actions row">
+      <div class="col-sm-6">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <small>or <a href="{{ url_for('.roles') }}">Cancel</a></small>
+      </div>
+      {% if role %}
+        <div class="col-sm-6 text-right">
+          <a class="delete" data-toggle="delete"
+             data-href="{{ url_for('.role_user_edit', role_user_id=role_user.id) }}"
+             data-message="Are you sure you want to delete this role user?">
+            <span class="glyphicon glyphicon-remove"></span>
+            Delete this role</a>
+        </div>
+      {% endif %}
+    </div>
+
+  </form>
+
+{% endblock %}
