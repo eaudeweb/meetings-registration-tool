@@ -3,7 +3,7 @@ from flask import current_app as app
 
 from mrt.models import Meeting
 
-from mrt.meetings import Meetings, MeetingEdit
+from mrt.meetings import Meetings, MeetingEdit, RecipientsCount
 from mrt.meetings import Participants, ParticipantsFilter
 from mrt.meetings import ParticipantEdit, ParticipantDetail
 from mrt.meetings import Categories, CategoryEdit
@@ -80,6 +80,8 @@ meetings.add_url_rule('/<int:meeting_id>/settings/roles/<int:role_user_id>',
 # emails
 meetings.add_url_rule('/<int:meeting_id>/email/bulk',
                       view_func=BulkEmail.as_view('bulkemail'))
+meetings.add_url_rule('/<int:meeting_id>/email/recipients-count',
+                      view_func=RecipientsCount.as_view('recipients_count'))
 
 
 @meetings.url_defaults

@@ -1,6 +1,6 @@
 from flask import g
 from wtforms import fields
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Optional
 from wtforms.widgets import TextArea
 
 from mrt.models import Participant, Category
@@ -18,7 +18,7 @@ class BulkEmailForm(BaseForm):
         'To', validators=[DataRequired()], choices=LANGUAGE_CHOICES,
     )
 
-    categories = fields.SelectMultipleField(validators=[DataRequired()],
+    categories = fields.SelectMultipleField(validators=[Optional()],
                                             coerce=int, choices=[])
     subject = fields.StringField(validators=[DataRequired()])
     message = fields.StringField(validators=[DataRequired()],
