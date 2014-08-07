@@ -143,6 +143,11 @@ class Participant(db.Model):
         ('Ms', 'Ms'),
         ('Mr', 'Mr'),
     )
+    LANGUAGE_CHOICES = (
+        ('en', 'English'),
+        ('es', 'Spanish'),
+        ('fr', 'French'),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -179,6 +184,8 @@ class Participant(db.Model):
         'Category',
         backref=db.backref('participants', lazy='dynamic'))
 
+    language = db.Column(ChoiceType(LANGUAGE_CHOICES), nullable=False,
+                         info={'label': 'Working language'}, default=u'en')
     country = db.Column(CountryType, nullable=False,
                         info={'label': 'Country'})
 
