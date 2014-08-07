@@ -1,6 +1,6 @@
 from flask import g
 from wtforms import fields
-from wtforms.validators import DataRequired, Optional
+from wtforms.validators import DataRequired, Optional, Email
 from wtforms.widgets import TextArea
 
 from mrt.models import Participant, Category
@@ -13,19 +13,29 @@ LANGUAGE_CHOICES = [
 ]
 
 
-class BulkEmailForm(BaseForm):
+class BaseEmailForm(BaseForm):
+
+    subject = fields.StringField(validators=[DataRequired()])
+    message = fields.StringField(validators=[DataRequired()],
+                                 widget=TextArea())
+
+
+class BulkEmailForm(BaseEmailForm):
+
     language = fields.SelectField(
         'To', validators=[DataRequired()], choices=LANGUAGE_CHOICES,
     )
 
     categories = fields.SelectMultipleField(validators=[Optional()],
                                             coerce=int, choices=[])
-    subject = fields.StringField(validators=[DataRequired()])
-    message = fields.StringField(validators=[DataRequired()],
-                                 widget=TextArea())
 
     def __init__(self, *args, **kwargs):
         super(BulkEmailForm, self).__init__(*args, **kwargs)
 
         query = Category.query.filter(Category.meeting == g.meeting)
         self.categories.choices = [(c.id, c.title) for c in query]
+
+
+class AckEmailForm(BaseEmailForm):
+
+    to = fields.StringField(validators=[DataRequired(), Email()])

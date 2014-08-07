@@ -1,8 +1,8 @@
-from flask import render_template, request, flash, redirect, url_for, g
+from flask import render_template, request, flash, redirect, url_for, g, abort
 from flask.views import MethodView
 
-from mrt.forms.meetings.email import BulkEmailForm
-from mrt.mail import send_bulk_message
+from mrt.forms.meetings.email import BulkEmailForm, AckEmailForm
+from mrt.mail import send_bulk_message, send_single_message
 from mrt.models import Participant
 
 
@@ -51,3 +51,37 @@ class RecipientsCount(MethodView):
         categories = request.args.get('categories[]')
         qs = get_recipients(language, categories)
         return '{0}'.format(qs.count())
+
+
+class AckEmail(MethodView):
+
+    template_name = 'meetings/email/ack.html'
+
+    def get_participant(self, participant_id):
+        return (
+            Participant.query
+            .filter_by(meeting=g.meeting, id=participant_id)
+            .first()
+        ) or abort(404)
+
+    def get(self, participant_id):
+        participant = self.get_participant(participant_id)
+        form = AckEmailForm(to=participant.email)
+        return render_template(self.template_name, participant=participant,
+                               form=form)
+
+    def post(self, participant_id):
+        participant = self.get_participant(participant_id)
+        form = AckEmailForm(request.form)
+        if form.validate():
+            if send_single_message(form.to.data, form.subject.data,
+                                   form.message.data):
+                flash('Message successfully sent', 'success')
+                return redirect(
+                    url_for('participant_detail', id=participant.id)
+                )
+            else:
+                flash('Message failed do send', 'error')
+
+        return render_template(self.template_name, participant=participant,
+                               form=form)

@@ -1,0 +1,53 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+{% set participant_url = url_for('meetings.participant_detail', participant_id=participant.id) %}
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('meetings.participants'), 'Participants'),
+      (participant_url, participant.name),
+      ('', 'Acknowledge email')
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">Send acknowledge email to: {{ participant.name }}</h3>
+
+  <form class="form-horizontal" method="post">
+
+    <div class="row">
+
+      <div class="col-sm-12">
+
+        <div class="panel panel-default">
+
+          <div class="panel-body">
+            {{ form_group(form.to, label_size="2", input_size="6") }}
+            {{ form_group(form.subject, label_size="2", input_size="6",
+                          options={"autofocus": ""}) }}
+            {{ form_group(form.message, label_size="2", input_size="6",
+                          options={"rows": "10"}) }}
+          </div>
+        </div> {# panel #}
+
+      </div> {# col-sm-12 #}
+
+    </div> {# row #}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        Send email</button>
+      <small>or
+        <a href="{{ participant_url }}">Cancel</a></small>
+    </div>
+
+  </form>
+
+{% endblock %}
