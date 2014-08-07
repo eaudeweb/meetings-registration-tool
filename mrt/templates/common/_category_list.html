@@ -9,6 +9,7 @@
       <thead>
         <tr>
           <th>Name</th>
+          <th>Type</th>
           <th>Badge color</th>
         </tr>
       </thead>
@@ -22,6 +23,7 @@
               <a href="{{ url_for('.category_edit', category_id=category.id) }}">
                 {{ category.title.english }}</a>
             </td>
+            <td>{{ category.type }}</td>
             <td>
               <span class="stripe" style="background: {{ category.color }}"></span>
               <span class="color">{{ category.color }}</span>
