@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages %}
+{% from "_bits.html" import breadcrumb %}
 {% from "common/_category_color.html" import head, scripts %}
 
 {% set title = "Edit category" if category else "Add a new default category" %}
@@ -22,8 +22,6 @@
 
 
 {% block content %}
-
-  {{ flashed_messages() }}
 
   <div class="page-header">
     <h2>{{ title }}</h2>

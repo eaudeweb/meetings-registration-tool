@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages %}
+{% from "_bits.html" import breadcrumb %}
 
 
 {% block title %}Staff{% endblock %}
@@ -25,8 +25,6 @@
 
 {% block content %}
 
-  {{ flashed_messages() }}
-
   <div class="page-header">
     <h1>Staff</h1>
   </div>
@@ -44,6 +42,7 @@
         <tr>
           <th>Name</th>
           <th>Email</th>
+          <th>Role</th>
         </tr>
       </thead>
 
@@ -53,6 +52,7 @@
           <tr>
             <td><a href="{{ url }}">{{ member.full_name }}</a></td>
             <td>{{ member.user.email }}</td>
+            <td>{{ member.user_role.role }}</td>
           </tr>
         {% endfor %}
       </tbody>

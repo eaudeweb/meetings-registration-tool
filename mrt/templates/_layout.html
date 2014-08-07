@@ -1,3 +1,4 @@
+{% from "_bits.html" import flashed_messages %}
 <!DOCTYPE html>
 <html>
 
@@ -80,6 +81,7 @@
     </nav>
 
     <div class="container">
+      {% block messages %}{{ flashed_messages() }}{% endblock %}
       {% block content %}{% endblock %}
     </div>
     {% assets "js" %}

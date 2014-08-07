@@ -1,6 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, form_group,
-                            flashed_messages %}
+{% from "_bits.html" import breadcrumb, form_group %}
 
 {% set title = 'Edit staff' if staff else 'Add a new staff' %}
 
@@ -18,8 +17,6 @@
 {% block content %}
 
   <div class="staff-container">
-
-    {{ flashed_messages() }}
 
     <div class="page-header">
       <h2>{{ title }}</h2>

@@ -87,6 +87,10 @@ class Staff(db.Model):
         'User',
         backref=db.backref('staff', lazy='dynamic'))
 
+    @property
+    def user_role(self):
+        return RoleUser.query.filter_by(user=self.user, meeting=None).first()
+
     def __repr__(self):
         return self.full_name
 

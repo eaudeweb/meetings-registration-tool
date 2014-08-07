@@ -1,5 +1,6 @@
 {% extends "_layout.html" %}
 
+{% block messages %}{%endblock%}
 
 {% block content %}
 
@@ -65,5 +66,7 @@
       </ul>
     </li>
   </ul>
+
+  {{ flashed_messages() }}
 
 {% endblock %}

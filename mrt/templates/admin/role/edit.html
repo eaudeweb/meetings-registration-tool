@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages, form_group %}
+{% from "_bits.html" import breadcrumb, form_group %}
 
 {% set title = 'Edit role' if role else 'Add a new role' %}
 
@@ -17,8 +17,6 @@
 {% block content %}
 
   <div class="role-container">
-
-    {{ flashed_messages() }}
 
     <div class="page-header">
       <h2>{{ title }}</h2>

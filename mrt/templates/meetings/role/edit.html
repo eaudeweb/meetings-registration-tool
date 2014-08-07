@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages, form_group %}
+{% from "_bits.html" import breadcrumb, form_group %}
 
 
 {% set title = "Edit meeting (" ~ g.meeting.acronym ~ ") role" %}
@@ -20,8 +20,6 @@
 {% block content %}
 
   {{ super() }}
-
-  {{ flashed_messages() }}
 
   <h3 class="page-title">{{ title }}</h3>
 

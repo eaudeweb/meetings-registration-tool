@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages %}
+{% from "_bits.html" import breadcrumb %}
 
 
 {% set title = "Meeting (" ~ g.meeting.acronym ~ ") roles" %}
@@ -30,8 +30,6 @@
 {% block content %}
 
   {{ super() }}
-
-  {{ flashed_messages() }}
 
   <p>The owner of this meeting is: {{ g.meeting.owner }}</p>
 

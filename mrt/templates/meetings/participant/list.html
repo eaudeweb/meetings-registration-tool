@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages %}
+{% from "_bits.html" import breadcrumb %}
 
 
 {% block breadcrumb %}
@@ -36,8 +36,6 @@
 {% block content %}
 
   {{ super() }}
-
-  {{ flashed_messages() }}
 
   <div class="actions">
     <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm">

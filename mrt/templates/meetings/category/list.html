@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages %}
+{% from "_bits.html" import breadcrumb %}
 
 
 {% set title = "Meeting (" ~ g.meeting.acronym ~ ") categories" %}
@@ -34,8 +34,6 @@
 {% block content %}
 
   {{ super() }}
-
-  {{ flashed_messages() }}
 
   <h3 class="page-title">{{ title }}</h3>
 

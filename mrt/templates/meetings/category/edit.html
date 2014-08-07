@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb, flashed_messages %}
+{% from "_bits.html" import breadcrumb %}
 {% from "common/_category_color.html" import head, scripts %}
 
 
@@ -26,8 +26,6 @@
 {% block content %}
 
   {{ super() }}
-
-  {{ flashed_messages() }}
 
   <h3 class="page-title">{{ title }}</h3>
 
