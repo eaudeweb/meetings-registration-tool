@@ -185,6 +185,24 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     country = 'FR'
 
 
+class CustomFieldLabelFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Translation
+        sqlalchemy_session = models.db.session
+
+    english = 'Require fee'
+
+
+class CustomFieldFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.CustomField
+        sqlalchemy_session = models.db.session
+
+    label = SubFactory(CustomFieldLabelFactory)
+    meeting = SubFactory(MeetingFactory)
+    field_type = 'text'
+
+
 def normalize_data(data):
 
     def convert_data(value):
