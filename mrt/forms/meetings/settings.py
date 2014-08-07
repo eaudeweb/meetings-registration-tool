@@ -1,4 +1,10 @@
+from uuid import uuid4
+
 from flask import g
+from werkzeug import FileStorage, OrderedMultiDict
+
+from flask.ext.uploads import UploadSet, IMAGES, TEXT, DOCUMENTS
+
 from wtforms import fields
 from wtforms.validators import DataRequired
 from wtforms_alchemy import ModelFormField
@@ -6,11 +12,14 @@ from wtforms_alchemy import ModelFormField
 from mrt.models import db
 from mrt.models import CategoryDefault, Category
 from mrt.models import RoleUser, Role, Staff, User
-from mrt.models import CustomField
+from mrt.models import CustomField, CustomFieldValue
 from mrt.models import Translation
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
 
 from mrt.forms.base import BaseForm, TranslationInpuForm
+
+
+custom_upload = UploadSet('custom', TEXT + DOCUMENTS + IMAGES)
 
 
 class MeetingCategoryAddForm(BaseForm):
@@ -82,17 +91,34 @@ class CustomFieldMagicForm(BaseForm):
     }
 
     def save(self):
-        pass
+        for field_name, field in self._fields.items():
+            custom_field_value = CustomFieldValue()
+            if isinstance(field.data, FileStorage):
+                custom_field_value.value = custom_upload.save(
+                    field.data, name=str(uuid4()) + '.')
+            else:
+                custom_field_value.value = field.data
+            custom_field_value.custom_field = self._custom_fields[field_name]
+            custom_field_value.participant = self._participant
+
+        if custom_field_value.id:
+            db.session.add(custom_field_value)
+        db.session.commit()
 
 
-def custom_form_factory(field_id=None, field_type=None, form=CustomFieldMagicForm):
+def custom_form_factory(participant, slug=None, field_type=None,
+                        form=CustomFieldMagicForm):
     custom_fields = CustomField.query.filter_by(meeting_id=g.meeting.id)
-    if field_id:
-        custom_fields = custom_fields.filter_by(id=field_id).first_or_404()
+    if slug:
+        custom_fields = [custom_fields.filter_by(slug=slug).first_or_404()]
     if field_type:
         custom_fields = custom_fields.filter_by(field_type=field_type)
 
-    form_attrs = {}
+    custom_fields_dict = OrderedMultiDict({c.slug: c for c in custom_fields})
+    form_attrs = {
+        '_custom_fields': custom_fields_dict,
+        '_participant': participant,
+    }
     for f in custom_fields:
         field_attrs = {'label': f.label, 'validators': []}
         if f.required:

@@ -55,7 +55,8 @@ class ParticipantDetail(MethodView):
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
-        custom_form_images = custom_form_factory(field_type='image')()
+        CustomFormImages = custom_form_factory(participant, field_type='image')
+        custom_form_images = CustomFormImages()
         return render_template('meetings/participant/detail.html',
                                participant=participant,
                                custom_form_images=custom_form_images,

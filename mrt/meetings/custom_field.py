@@ -3,8 +3,10 @@ from flask import request, redirect, url_for, jsonify
 from flask import render_template, flash
 from flask.views import MethodView
 
-from mrt.models import db, CustomField
+from mrt.models import db
+from mrt.models import Participant, CustomField
 from mrt.forms.meetings import CustomFieldEditForm
+from mrt.forms.meetings import custom_form_factory
 
 
 class CustomFields(MethodView):
@@ -51,6 +53,12 @@ class CustomFieldEdit(MethodView):
 
 class CustomFieldUpload(MethodView):
 
-    def post(self, participant_id, custom_field_id):
-        custom_form_images = custom_form_factory(id=custom_field_id)()
-        pass
+    def post(self, participant_id, custom_field_slug):
+        participant = (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .first_or_404())
+        form = custom_form_factory(participant, slug=custom_field_slug)()
+        if form.validate():
+            form.save()
+        return jsonify()

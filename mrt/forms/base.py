@@ -1,6 +1,9 @@
 from flask import request
+from werkzeug import MultiDict
+
 from wtforms_alchemy import ModelForm
 from wtforms import widgets
+
 from mrt.models import db, Translation
 
 
@@ -11,10 +14,9 @@ class BaseForm(ModelForm):
         return db.session
 
     def __init__(self, formdata=None, obj=None, **kwargs):
-        if formdata:
-            formdata = formdata.copy()
-            if request.files:
-                formdata.update(request.files)
+        formdata = formdata.copy() if formdata else MultiDict()
+        if request.files:
+            formdata.update(request.files)
         super(BaseForm, self).__init__(formdata=formdata, obj=obj, **kwargs)
         self.obj = obj
 

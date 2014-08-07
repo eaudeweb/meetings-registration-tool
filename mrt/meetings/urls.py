@@ -69,7 +69,7 @@ meetings.add_url_rule(
     view_func=custom_field_edit_func)
 
 meetings.add_url_rule(
-    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<int:custom_field_id>/upload',
+    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:custom_field_slug>/upload',
     view_func=CustomFieldUpload.as_view('custom_field_upload'))
 
 # roles

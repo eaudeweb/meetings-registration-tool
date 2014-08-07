@@ -18,6 +18,7 @@ from mrt.mail import mail
 
 from mrt.template import nl2br, active, date_processor
 from mrt.forms.admin import backgrounds
+from mrt.forms.meetings import custom_upload
 
 
 def create_app(config={}):
@@ -61,10 +62,11 @@ def create_app(config={}):
 
 def _configure_uploads(app):
     files_path = path(app.instance_path) / 'files'
-
     if 'UPLOADED_BACKGROUNDS_DEST' not in app.config:
         app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / 'backgrounds'
-    configure_uploads(app, (backgrounds,))
+    if 'UPLOADED_CUSTOM_DEST' not in app.config:
+        app.config['UPLOADED_CUSTOM_DEST'] = files_path / 'custom_upload'
+    configure_uploads(app, (backgrounds, custom_upload))
     patch_request_class(app, 1 * 1024 * 1024)  # limit upload size to 1MB
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)

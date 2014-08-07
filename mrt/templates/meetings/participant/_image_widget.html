@@ -31,7 +31,9 @@
           <img src="/static/images/ajax.gif" width="24" height="24"
                alt="loading">
         </div>
-        <form action="" method="post" enctype="multipart/form-data">
+        {% set url = url_for('.custom_field_upload', participant_id=participant.id, custom_field_slug=field.name) %}
+        <form action="{{ url }}" method="post"
+              enctype="multipart/form-data">
           {{ field(class_="image-upload") }}
         </form>
       </div> {# fileinput #}
