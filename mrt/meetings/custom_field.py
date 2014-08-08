@@ -4,9 +4,10 @@ from flask import render_template, flash
 from flask.views import MethodView
 
 from mrt.models import db
-from mrt.models import Participant, CustomField
+from mrt.models import Participant, CustomField, CustomFieldValue
 from mrt.forms.meetings import CustomFieldEditForm
-from mrt.forms.meetings import custom_form_factory
+from mrt.forms.meetings import custom_form_factory, custom_object_factory
+from mrt.utils import unlink_uploaded_file
 
 
 class CustomFields(MethodView):
@@ -53,12 +54,33 @@ class CustomFieldEdit(MethodView):
 
 class CustomFieldUpload(MethodView):
 
-    def post(self, participant_id, custom_field_slug):
-        participant = (
+    def _get_object(self, participant_id):
+        return (
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
-        form = custom_form_factory(participant, slug=custom_field_slug)()
+
+    def post(self, participant_id, custom_field_slug):
+        participant = self._get_object(participant_id)
+        Obj = custom_object_factory(participant, field_type='image')
+        obj = Obj()
+        Form = custom_form_factory(participant, slug=custom_field_slug)
+        form = Form(obj=obj)
         if form.validate():
             form.save()
+        return jsonify()
+
+    def delete(self, participant_id, custom_field_slug):
+        participant = self._get_object(participant_id)
+        custom_field = (
+            CustomFieldValue.query
+            .filter(CustomFieldValue.participant == participant)
+            .filter(CustomFieldValue.custom_field.has(slug=custom_field_slug))
+            .first_or_404()
+        )
+        filename = custom_field.value
+        db.session.delete(custom_field)
+        db.session.commit()
+        unlink_uploaded_file(filename, 'custom')
+        # TODO delete thumbnail
         return jsonify()

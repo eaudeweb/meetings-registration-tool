@@ -40,6 +40,21 @@ $(function () {
         image_widget.on('click', '.change-photo', function () {
             image_widget.find('.fileinput').toggleClass('hide');
         });
+
+        image_widget.on('click', '.remove-photo', function () {
+            var msg = $(this).data('message');
+            var url = $(this).data('url');
+            if(confirm(msg)) {
+                $.ajax({ url: url, type: 'DELETE' }).done(function (resp) {
+                    // window.location.replace(redirect_url);
+                });
+            }
+        });
     }
+
+    $('a[rel=fancybox]').fancybox({
+        openEffect  : 'elastic',
+        closeEffect : 'elastic'
+    });
 
 });

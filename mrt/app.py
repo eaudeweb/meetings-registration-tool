@@ -1,8 +1,9 @@
 from werkzeug import SharedDataMiddleware
 
 from flask import Flask, redirect, url_for
-from flask.ext.login import LoginManager
 from flask.ext.babel import Babel
+from flask.ext.login import LoginManager
+from flask.ext.thumbnails import Thumbnail
 from flask.ext.uploads import configure_uploads, patch_request_class
 
 from raven.contrib.flask import Sentry
@@ -62,14 +63,24 @@ def create_app(config={}):
 
 def _configure_uploads(app):
     files_path = path(app.instance_path) / 'files'
+
     if 'UPLOADED_BACKGROUNDS_DEST' not in app.config:
         app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / 'backgrounds'
     if 'UPLOADED_CUSTOM_DEST' not in app.config:
-        app.config['UPLOADED_CUSTOM_DEST'] = files_path / 'custom_upload'
-    configure_uploads(app, (backgrounds, custom_upload))
-    patch_request_class(app, 1 * 1024 * 1024)  # limit upload size to 1MB
+        app.config['UPLOADED_CUSTOM_DEST'] = files_path / 'custom_uploads'
+
+    if 'MEDIA_FOLDER' not in app.config:
+        app.config['MEDIA_FOLDER'] = files_path / 'custom_uploads'
+    if 'MEDIA_THUMBNAIL_FOLDER' not in app.config:
+        app.config['MEDIA_THUMBNAIL_FOLDER'] = files_path / 'thumbnails'
+    if 'MEDIA_THUMBNAIL_URL' not in app.config:
+        app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
     app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
         '/static/files': files_path
     })
+
+    patch_request_class(app, 1 * 1024 * 1024)  # limit upload size to 1MB
+    configure_uploads(app, (backgrounds, custom_upload))
+    Thumbnail(app)

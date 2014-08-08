@@ -15,6 +15,7 @@ from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import CustomField, CustomFieldValue
 from mrt.models import Translation
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
+from mrt.utils import unlink_uploaded_file
 
 from mrt.forms.base import BaseForm, TranslationInpuForm
 
@@ -92,10 +93,17 @@ class CustomFieldMagicForm(BaseForm):
 
     def save(self):
         for field_name, field in self._fields.items():
-            custom_field_value = CustomFieldValue()
+            custom_field_value = (
+                CustomFieldValue.query
+                .filter(CustomFieldValue.custom_field.has(slug=field_name))
+                .filter(CustomFieldValue.participant == self._participant)
+                .scalar())
+            custom_field_value = custom_field_value or CustomFieldValue()
             if isinstance(field.data, FileStorage):
+                current_filename = custom_field_value.value
                 custom_field_value.value = custom_upload.save(
                     field.data, name=str(uuid4()) + '.')
+                unlink_uploaded_file(current_filename, 'custom')
             else:
                 custom_field_value.value = field.data
             custom_field_value.custom_field = self._custom_fields[field_name]

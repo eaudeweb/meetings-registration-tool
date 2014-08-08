@@ -8,9 +8,18 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block head %}
+
+  {% assets "upload_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
+
+{% endblock %}
+
+
 {% block scripts %}
 
-  {% assets "upload" %}
+  {% assets "upload_js" %}
      <script src="{{ ASSET_URL }}"></script>
   {% endassets %}
 
