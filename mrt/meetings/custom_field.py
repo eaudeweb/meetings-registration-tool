@@ -88,3 +88,18 @@ class CustomFieldUpload(MethodView):
         unlink_uploaded_file(filename, 'custom')
         # TODO delete thumbnail
         return jsonify()
+
+
+class CustomFieldRotateUpload(MethodView):
+
+    def _get_object(self, participant_id):
+        return (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .first_or_404())
+
+    def post(self, participant_id, custom_field_slug):
+        participant = self._get_object(participant_id)
+        custom_field = CustomField.query.filter_by(
+            slug=custom_field_slug, field_type='image').first_or_404()
+
