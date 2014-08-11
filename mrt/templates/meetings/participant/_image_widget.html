@@ -32,9 +32,12 @@
                 data-url="{{ rotate_url }}">
           <span class="glyphicon glyphicon-refresh"></span>
         </button>
-        <button class="btn btn-default btn-sm">
+        {% set crop_url = url_for('.custom_field_crop',
+                                  participant_id=participant.id,
+                                  custom_field_slug=field.name) %}
+        <a href="{{ crop_url }}" class="btn btn-default btn-sm">
           <span class="glyphicon glyphicon-resize-full"></span>
-        </button>
+        </a>
       </div> {# btn-group #}
 
       <div class="fileinput text-center hide">

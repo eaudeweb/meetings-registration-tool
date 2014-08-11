@@ -209,5 +209,11 @@ h5 {
 
 .image-widget .fileinput {
     margin-top: 15px;
+}
 
+.crop-container form {
+    padding: 20px 0;
+}
+.crop-container .jcrop-holder {
+    margin: auto;
 }

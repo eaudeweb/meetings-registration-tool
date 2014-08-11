@@ -1,0 +1,93 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% set title = "Crop" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block head %}
+
+  {% assets "upload_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+  {% assets "upload_js" %}
+     <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+  <script>
+    $(function() {
+
+      var updateCoords = function (c) {
+        $('input[name=x1]').val(c.x);
+        $('input[name=y1]').val(c.y);
+        $('input[name=x2]').val(c.x2);
+        $('input[name=y2]').val(c.y2);
+        $('input[name=w]').val(c.w);
+        $('input[name=h]').val(c.h);
+      };
+
+      $("#photo").Jcrop({
+        aspectRatio: 64 / 77,
+        onChange: updateCoords,
+        onSelect: updateCoords,
+        boxWidth: 400
+      });
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('meetings.participants'), 'Participants'),
+      (url_for('.participant_detail', participant_id=participant.id), participant.name),
+      ('', title)
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title" style="margin: 0">{{ title }}</h3>
+
+  {% set photo_url = url_for('files',
+                             filename='custom_uploads/' ~ data) %}
+  {% set participant_url = url_for('meetings.participant_detail',
+                                   participant_id=participant.id) %}
+
+  <div class="well">
+    <p>Left-click and drag to select the area that you want to remain. Remember the area you are selecting is the part of the photo that will be kept, the rest will be removed. To complete the crop, use the `Save photo` button. The original photos are saved so you can restore them if needed.</p>
+  </div>
+
+
+  <div class="crop-container text-center">
+    <img id="photo" src="{{ photo_url }}" alt="">
+
+    <form method="POST">
+      <input type="hidden" name="x1">
+      <input type="hidden" name="y1">
+      <input type="hidden" name="x2">
+      <input type="hidden" name="y2">
+      <input type="hidden" name="w">
+      <input type="hidden" name="h">
+      <button type="submit" class="btn btn-primary">
+        Save changes</button>
+        <small>or <a href="{{ participant_url }}">Cancel</a></small>
+    </form>
+  </div> {# crop-container #}
+
+{% endblock %}

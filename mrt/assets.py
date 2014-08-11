@@ -43,8 +43,10 @@ _BUNDLE_UPLOAD_JS = (
     'js/lib/jquery_file_upload/jquery.ui.widget.js',
     'js/lib/jquery_file_upload/jquery.iframe-transport.js',
     'js/lib/jquery_file_upload/jquery.fileupload.js',
+    'js/lib/jquery.Jcrop.js'
 )
 _BUNDLE_UPLOAD_CSS = (
+    'css/jcrop/jquery.Jcrop.css',
 )
 
 

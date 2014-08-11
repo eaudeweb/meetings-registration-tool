@@ -52,16 +52,17 @@ class CustomFieldEdit(MethodView):
         return jsonify(status="success", url=url_for('.custom_fields'))
 
 
+def _get_participant(participant_id):
+    return (
+        Participant.query
+        .filter_by(meeting_id=g.meeting.id, id=participant_id)
+        .first_or_404())
+
+
 class CustomFieldUpload(MethodView):
 
-    def _get_object(self, participant_id):
-        return (
-            Participant.query
-            .filter_by(meeting_id=g.meeting.id, id=participant_id)
-            .first_or_404())
-
     def post(self, participant_id, custom_field_slug):
-        participant = self._get_object(participant_id)
+        participant = _get_participant(participant_id)
         Obj = custom_object_factory(participant, field_type='image')
         Form = custom_form_factory(participant, slug=custom_field_slug)
         form = Form(obj=Obj())
@@ -75,7 +76,7 @@ class CustomFieldUpload(MethodView):
         return jsonify(html=html)
 
     def delete(self, participant_id, custom_field_slug):
-        participant = self._get_object(participant_id)
+        participant = _get_participant(participant_id)
         custom_field = (
             CustomFieldValue.query
             .filter(CustomFieldValue.participant == participant)
@@ -92,17 +93,10 @@ class CustomFieldUpload(MethodView):
 
 class CustomFieldRotate(MethodView):
 
-    def _get_object(self, participant_id):
-        return (
-            Participant.query
-            .filter_by(meeting_id=g.meeting.id, id=participant_id)
-            .first_or_404())
-
     def post(self, participant_id, custom_field_slug):
-        participant = self._get_object(participant_id)
+        participant = _get_participant(participant_id)
         custom_field = CustomField.query.filter_by(
             slug=custom_field_slug, field_type='image').first_or_404()
-
         custom_field_value = CustomFieldValue.query.filter_by(
             participant=participant, custom_field=custom_field
         ).first_or_404()
@@ -117,4 +111,36 @@ class CustomFieldRotate(MethodView):
         html = render_template('meetings/custom_field/_image_widget.html',
                                data=custom_field_value.value)
         return jsonify(html=html)
+
+
+class CustomFieldCropUpload(MethodView):
+
+    def get(self, participant_id, custom_field_slug):
+        participant = _get_participant(participant_id)
+        custom_field = CustomField.query.filter_by(
+            slug=custom_field_slug, field_type='image').first_or_404()
+        custom_field_value = CustomFieldValue.query.filter_by(
+            participant=participant, custom_field=custom_field
+        ).first_or_404()
+        return render_template('meetings/custom_field/crop.html',
+                               participant=participant,
+                               data=custom_field_value.value)
+
+    def post(self, participant_id, custom_field_slug):
+        participant = _get_participant(participant_id)
+        custom_field = CustomField.query.filter_by(
+            slug=custom_field_slug, field_type='image').first_or_404()
+        custom_field_value = CustomFieldValue.query.filter_by(
+            participant=participant, custom_field=custom_field
+        ).first_or_404()
+
+        form = flask.request.form
+        x1 = Decimal(form['x1'] or 0) + Decimal(0.1)
+        y1 = Decimal(form['y1'] or 0) + Decimal(0.1)
+        x2 = Decimal(form['x2'] or 0) + Decimal(0.1)
+        y2 = Decimal(form['y2'] or 0) + Decimal(0.1)
+        valid_crop = (x2 > Decimal(0.1) and y2 > Decimal(0.1))
+
+        # if valid_crop:
+
 
