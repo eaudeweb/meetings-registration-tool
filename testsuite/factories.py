@@ -185,6 +185,19 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     country = 'FR'
 
 
+class MediaParticipantFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.MediaParticipant
+        sqlalchemy_session = models.db.session
+
+    category = SubFactory(MeetingCategoryFactory)
+    meeting = SelfAttribute('category.meeting')
+    title = 'Ms'
+    first_name = 'Jane'
+    last_name = 'Doe'
+    email = 'jane@doe.com'
+
+
 class CustomFieldLabelFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Translation
