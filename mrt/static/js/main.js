@@ -26,40 +26,60 @@ $(function () {
     var image_widget = $('.image-widget');
 
     if(image_widget.length > 0){
+
         image_widget.find('.image-upload').fileupload({
+
             dataType: 'json',
-            add: function (e, data) {
-                image_widget.find('.loading').removeClass('hide');
-                data.submit();
+
+            add: function (e, resp) {
+                var parent = $(resp.form).parents('.image-widget');
+                parent.find('.loading').removeClass('hide');
+                resp.submit();
             },
-            done: function (e, data) {
-                image_widget.find('.image-container').html(data.result.html);
-                image_widget.find('.text-danger').text('');
+
+            done: function (e, resp) {
+                var parent = $(resp.form).parents('.image-widget');
+                parent.find('.image-container').html(resp.result.html);
+                parent.find('.text-danger').text('');
             },
-            fail: function (e, data) {
-                var data = data.jqXHR.responseJSON;
-                $.each(data, function (k, v) {
-                    $('#' + k).next('.text-danger').text(v[0]);
-                });
+
+            fail: function (e, resp) {
+                var parent = $(resp.form).parents('.image-widget');
+                if(resp.jqXHR.status == 413) {
+                    parent.find('.text-danger').text(
+                        'File too large. Please upload files smaller than 1MB');
+                } else {
+                    var data = resp.jqXHR.responseJSON;
+                    $.each(data, function (k, v) {
+                        parent.find('.text-danger').text(v[0]);
+                    });
+                }
+
             },
-            always: function (e, data) {
-                image_widget.find('.loading').addClass('hide');
+
+            always: function (e, resp) {
+                var parent = $(resp.form).parents('.image-widget');
+                parent.find('.loading').addClass('hide');
             }
+
         });
 
         image_widget.on('click', '.change-photo', function () {
-            image_widget.find('.fileinput').toggleClass('hide');
+            var parent = $(this).parents('.image-widget');
+            parent.find('.fileinput').toggleClass('hide');
         });
 
         image_widget.on('click', '.remove-photo', function () {
+            var parent = $(this).parents('.image-widget');
             var msg = $(this).data('message');
             var url = $(this).data('url');
             if(confirm(msg)) {
                 $.ajax({ url: url, type: 'DELETE' }).done(function (resp) {
-                    image_widget.find('.image-container').fadeOut('fast');
+                    parent.find('.image-container').fadeOut('fast');
                 });
             }
         });
+
     }
 
     $('a[rel=fancybox]').fancybox({
