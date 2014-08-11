@@ -290,6 +290,11 @@ class CustomFieldValue(db.Model):
 
 class MediaParticipant(db.Model):
 
+    TITLE_CHOICES = (
+        ('Ms', 'Ms'),
+        ('Mr', 'Mr'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
 
     meeting_id = db.Column(
@@ -300,10 +305,14 @@ class MediaParticipant(db.Model):
         backref=db.backref('media_participants', lazy='dynamic',
                            cascade="delete"))
 
-    title = db.Column(db.String(8), nullable=False)
-    first_name = db.Column(db.String(64), nullable=False)
-    last_name = db.Column(db.String(64), nullable=False)
-    email = db.Column(db.String(64), nullable=False)
+    title = db.Column(ChoiceType(TITLE_CHOICES), nullable=False,
+                      info={'label': 'Title'})
+    first_name = db.Column(db.String(64), nullable=False,
+                           info={'label': 'Given name'})
+    last_name = db.Column(db.String(64), nullable=False,
+                          info={'label': 'Family name'})
+    email = db.Column(db.String(64), nullable=False,
+                      info={'label': 'Email'})
 
     category_id = db.Column(
         db.Integer, db.ForeignKey('category.id'),
@@ -317,7 +326,7 @@ class MediaParticipant(db.Model):
 
     @property
     def name(self):
-        return '%s %s %s' % (self.title, self.first_name,
+        return '%s %s %s' % (self.title.value, self.first_name,
                              self.last_name)
 
 

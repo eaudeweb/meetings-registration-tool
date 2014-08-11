@@ -1,11 +1,12 @@
-from flask import g, url_for
-from flask import render_template
+from flask import g, url_for, flash, jsonify
+from flask import render_template, request, redirect
 from flask.views import MethodView
 
 from werkzeug.utils import HTMLBuilder
 
+from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.mixins import FilterView
-from mrt.models import MediaParticipant
+from mrt.models import db, MediaParticipant
 
 
 class MediaParticipants(MethodView):
@@ -55,5 +56,41 @@ class MediaParticipantDetail(MethodView):
             MediaParticipant.query
             .filter_by(meeting_id=g.meeting.id, id=media_participant_id)
             .first_or_404())
+        form = MediaParticipantEditForm(obj=media_participant)
         return render_template('meetings/media_participant/detail.html',
+                               media_participant=media_participant,
+                               form=form)
+
+
+class MediaParticipantEdit(MethodView):
+
+    def _get_object(self, media_participant_id=None):
+        return (MediaParticipant.query
+                .filter_by(meeting_id=g.meeting.id, id=media_participant_id)
+                .first_or_404()
+                if media_participant_id else None)
+
+    def get(self, media_participant_id=None):
+        media_participant = self._get_object(media_participant_id)
+        form = MediaParticipantEditForm(obj=media_participant)
+        return render_template('meetings/media_participant/edit.html',
+                               form=form,
                                media_participant=media_participant)
+
+    def post(self, media_participant_id=None):
+        media_participant = self._get_object(media_participant_id)
+        form = MediaParticipantEditForm(request.form, obj=media_participant)
+        if form.validate():
+            form.save()
+            flash('MediaParticipant information saved', 'success')
+            return redirect(url_for('.media_participants'))
+        return render_template('meetings/media_participant/edit.html',
+                               form=form,
+                               media_participant=media_participant)
+
+    def delete(self, media_participant_id):
+        media_participant = self._get_object(media_participant_id)
+        db.session.delete(media_participant)
+        db.session.commit()
+        flash('Media participant successfully deleted', 'warning')
+        return jsonify(status="success", url=url_for('.media_participants'))

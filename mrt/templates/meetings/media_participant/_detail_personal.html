@@ -1,0 +1,36 @@
+
+<h5>Personal information</h5>
+
+<div class="table-responsive">
+
+  <table class="table table-bordered table-condensed table-striped">
+
+    <tbody>
+      <tr>
+        <th class="col-sm-3">{{ form.title.label.text }}</th>
+        <td>{{ media_participant.title }}</td>
+      </tr>
+      <tr>
+        <th>{{ form.first_name.label.text }}</th>
+        <td>{{ media_participant.first_name }}</td>
+      </tr>
+      <tr>
+        <th>{{ form.last_name.label.text }}</th>
+        <td>{{ media_participant.last_name }}</td>
+      </tr>
+      <tr>
+        <th>{{ form.email.label.text }}</th>
+        <td>
+          <a href="mailto:{{ media_participant.email }}">
+            {{ media_participant.email }}</a>
+        </td>
+      </tr>
+      <tr>
+        <th>{{ form.category_id.label.text }}</th>
+        <td>{{ media_participant.category }}</td>
+      </tr>
+    </tbody>
+
+  </table>
+
+</div> {# table-responsive #}
