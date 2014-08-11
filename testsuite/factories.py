@@ -182,6 +182,7 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     first_name = 'John'
     last_name = 'Doe'
     email = 'john@doe.com'
+    language = 'en'
     country = 'FR'
 
 

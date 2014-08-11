@@ -1,9 +1,8 @@
-import json
 from StringIO import StringIO
 from flask import url_for
-from pyquery import PyQuery
 from py.path import local
 
+from mrt.models import CustomFieldValue
 from .factories import CustomFieldFactory, ParticipantFactory
 from .factories import ProfilePictureFactory
 
@@ -21,10 +20,27 @@ def test_participant_picture_add(app):
                                    participant_id=participant.id,
                                    custom_field_slug='picture'), data=data)
         assert resp.status_code == 200
+        picture = CustomFieldValue.query.filter_by(custom_field=field).first()
+        assert picture is not None
+        assert upload_dir.join(picture.value).check()
 
-        html = PyQuery(json.loads(resp.data)['html'])('a')
-        filename = html.attr('href').split('/')[-1]
-        assert upload_dir.join(filename).check()
+
+def test_participant_picture_edit(app):
+    pic = ProfilePictureFactory()
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    filename = pic.value
+    upload_dir.ensure(pic.value)
+
+    data = {'picture': (StringIO('Test'), 'test_edit.png')}
+    client = app.test_client()
+    with app.test_request_context():
+        resp = client.post(url_for('meetings.custom_field_upload',
+                                   meeting_id=pic.custom_field.meeting.id,
+                                   participant_id=pic.participant.id,
+                                   custom_field_slug='picture'), data=data)
+        assert resp.status_code == 200
+        assert CustomFieldValue.query.scalar()
+        assert filename != pic.value
 
 
 def test_participant_picture_remove(app):
