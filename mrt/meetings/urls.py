@@ -10,7 +10,9 @@ from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
 from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
-from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
+from mrt.meetings import (
+    CustomFields, CustomFieldEdit, CustomFieldUpload, CustomFieldRotate,
+)
 from mrt.meetings import Roles, RoleUserEdit
 from mrt.meetings import BulkEmail
 
@@ -92,6 +94,10 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:custom_field_slug>/upload',
     view_func=CustomFieldUpload.as_view('custom_field_upload'))
+
+meetings.add_url_rule(
+    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:custom_field_slug>/rotate',
+    view_func=CustomFieldRotate.as_view('custom_field_rotate'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',

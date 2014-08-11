@@ -3,6 +3,7 @@ from flask import current_app as app
 from path import path
 from unicodedata import normalize
 from uuid import uuid4
+from PIL import Image
 
 
 def unlink_uploaded_file(filename, config_key):
@@ -48,3 +49,23 @@ def slugify(text, delim=u'-'):
         if word:
             result.append(word)
     return unicode(delim.join(result))
+
+
+def rotate_file(filename, config_key):
+    """Rotates an image file, deletes the old one and returns the new filename
+    """
+    newfilename = str(uuid4()) + ".png"
+
+    path_from_config = path(
+        app.config['UPLOADED_%s_DEST' % config_key.upper()]
+    )
+
+    try:
+        img = Image.open(path_from_config / filename)
+        img = img.rotate(-90)
+        img.save(path_from_config / newfilename, "PNG")
+    except IOError:
+        return filename
+
+    unlink_uploaded_file(filename, config_key)
+    return newfilename

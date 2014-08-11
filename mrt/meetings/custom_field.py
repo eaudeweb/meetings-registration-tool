@@ -7,7 +7,7 @@ from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue
-from mrt.utils import unlink_uploaded_file
+from mrt.utils import unlink_uploaded_file, rotate_file
 
 
 class CustomFields(MethodView):
@@ -90,7 +90,7 @@ class CustomFieldUpload(MethodView):
         return jsonify()
 
 
-class CustomFieldRotateUpload(MethodView):
+class CustomFieldRotate(MethodView):
 
     def _get_object(self, participant_id):
         return (
@@ -102,4 +102,19 @@ class CustomFieldRotateUpload(MethodView):
         participant = self._get_object(participant_id)
         custom_field = CustomField.query.filter_by(
             slug=custom_field_slug, field_type='image').first_or_404()
+
+        custom_field_value = CustomFieldValue.query.filter_by(
+            participant=participant, custom_field=custom_field
+        ).first_or_404()
+
+        newfile = rotate_file(custom_field_value.value, 'custom')
+        if newfile == custom_field_value.value:
+            return make_response(jsonify(), 400)
+
+        custom_field_value.value = newfile
+        db.session.commit()
+
+        html = render_template('meetings/custom_field/_image_widget.html',
+                               data=custom_field_value.value)
+        return jsonify(html=html)
 

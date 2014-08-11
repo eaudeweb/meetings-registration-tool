@@ -80,6 +80,18 @@ $(function () {
             }
         });
 
+        image_widget.on('click', '.rotate-photo', function () {
+            var url = $(this).data('url');
+            $.ajax({
+                url: url, type: 'POST', dataType: 'json'
+            }).done(function (data) {
+                image_widget.find('.image-container').html(data.html);
+                image_widget.find('.text-danger').text('');
+            }).fail(function (data) {
+                alert('Rotate failed.');
+            });
+        });
+
     }
 
     $('a[rel=fancybox]').fancybox({
