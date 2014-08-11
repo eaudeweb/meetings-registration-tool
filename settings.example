@@ -5,6 +5,7 @@ SECRET_KEY = 'secret'
 PRODUCT_NAME = ''
 PRODUCT_TITLE = ''
 
+UPLOAD_SIZE = 1 * 1024 * 1024
 
 MEETING_TYPES = (
     ('cop', 'Conference of the Parties'),

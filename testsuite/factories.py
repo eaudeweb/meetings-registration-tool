@@ -203,7 +203,7 @@ class CustomFieldLabelFactory(SQLAlchemyModelFactory):
         model = models.Translation
         sqlalchemy_session = models.db.session
 
-    english = 'Require fee'
+    english = 'Picture'
 
 
 class CustomFieldFactory(SQLAlchemyModelFactory):
@@ -213,7 +213,17 @@ class CustomFieldFactory(SQLAlchemyModelFactory):
 
     label = SubFactory(CustomFieldLabelFactory)
     meeting = SubFactory(MeetingFactory)
-    field_type = 'text'
+    field_type = 'image'
+
+
+class ProfilePictureFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.CustomFieldValue
+        sqlalchemy_session = models.db.session
+    participant = SubFactory(ParticipantFactory)
+    custom_field = SubFactory(CustomFieldFactory,
+                              meeting=SelfAttribute('..participant.meeting'))
+    value = 'image.png'
 
 
 def normalize_data(data):

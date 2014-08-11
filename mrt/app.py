@@ -81,6 +81,7 @@ def _configure_uploads(app):
         '/static/files': files_path
     })
 
-    patch_request_class(app, 1 * 1024 * 1024)  # limit upload size to 1MB
+    # limit upload size to 1MB
+    patch_request_class(app, app.config.get('UPLOAD_SIZE', 1 * 1024 * 1024))
     configure_uploads(app, (backgrounds, custom_upload))
     Thumbnail(app)
