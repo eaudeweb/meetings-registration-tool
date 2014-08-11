@@ -6,6 +6,7 @@ _BUNDLE_CSS = (
     'css/bootstrap-theme.min.css',
     'css/bootstrap-datetimepicker.min.css',
     'css/dataTables.bootstrap.css',
+    'css/fancybox/jquery.fancybox.css',
     'css/select2.css',
     'css/main.css',
 )
@@ -19,6 +20,7 @@ _BUNDLE_JS = (
     'js/lib/dataTables.bootstrap.js',
     'js/lib/jquery.autosize.min.js',
     'js/lib/select2.min.js',
+    'js/lib/jquery.fancybox.js',
 
     'js/main.js',
 )
@@ -41,11 +43,10 @@ _BUNDLE_UPLOAD_JS = (
     'js/lib/jquery_file_upload/jquery.ui.widget.js',
     'js/lib/jquery_file_upload/jquery.iframe-transport.js',
     'js/lib/jquery_file_upload/jquery.fileupload.js',
-    'js/lib/jquery.fancybox.js',
 )
 _BUNDLE_UPLOAD_CSS = (
-    'css/fancybox/jquery.fancybox.css',
 )
+
 
 css = Bundle(*_BUNDLE_CSS, filters='cssmin', output='gen/static.css')
 js = Bundle(*_BUNDLE_JS, filters='jsmin', output='gen/static.js')
