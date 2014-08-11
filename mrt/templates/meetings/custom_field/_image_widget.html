@@ -1,0 +1,7 @@
+{% if data %}
+  {% set url = url_for('files', filename='custom_uploads/' ~ data) %}
+  <a href="{{ url }}" rel="fancybox">
+    <img src="{{ data|thumbnail('200x200') }}" alt=""
+         width="200" height="200">
+  </a>
+{% endif %}

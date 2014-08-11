@@ -4,6 +4,7 @@ from flask import g
 from werkzeug import FileStorage, OrderedMultiDict
 
 from flask.ext.uploads import UploadSet, IMAGES, TEXT, DOCUMENTS
+from flask_wtf.file import FileField, FileAllowed
 
 from wtforms import fields
 from wtforms.validators import DataRequired
@@ -87,11 +88,12 @@ class CustomFieldEditForm(BaseForm):
 class CustomFieldMagicForm(BaseForm):
 
     MAP = {
-        'text': fields.StringField,
-        'image': fields.FileField,
+        'text': {'field': fields.StringField},
+        'image': {'field': FileField, 'validators': [FileAllowed(IMAGES)]}
     }
 
     def save(self):
+        items = []
         for field_name, field in self._fields.items():
             custom_field_value = (
                 CustomFieldValue.query
@@ -108,8 +110,9 @@ class CustomFieldMagicForm(BaseForm):
                 custom_field_value.value = field.data
             custom_field_value.custom_field = self._custom_fields[field_name]
             custom_field_value.participant = self._participant
-
+            items.append(custom_field_value)
         db.session.commit()
+        return items
 
 
 class CustomFieldMagic(object):
@@ -145,7 +148,12 @@ def custom_form_factory(participant, slug=None, field_type=None,
         field_attrs = {'label': f.label, 'validators': []}
         if f.required:
             field_attrs['validators'].append(DataRequired())
-        form_attrs[f.slug] = form.MAP[f.field_type.code](**field_attrs)
+        validators = form.MAP[f.field_type.code].get('validators', [])
+        for validator in validators:
+            field_attrs['validators'].append(validator)
+
+        FormField = form.MAP[f.field_type.code]['field']
+        form_attrs[f.slug] = FormField(**field_attrs)
 
     return type(form)(form.__name__, (form,), form_attrs)
 

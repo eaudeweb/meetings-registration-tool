@@ -32,6 +32,16 @@ $(function () {
                 image_widget.find('.loading').removeClass('hide');
                 data.submit();
             },
+            done: function (e, data) {
+                image_widget.find('.image-container').html(data.result.html);
+                image_widget.find('.text-danger').text('');
+            },
+            fail: function (e, data) {
+                var data = data.jqXHR.responseJSON;
+                $.each(data, function (k, v) {
+                    $('#' + k).next('.text-danger').text(v[0]);
+                });
+            },
             always: function (e, data) {
                 image_widget.find('.loading').addClass('hide');
             }
@@ -46,7 +56,7 @@ $(function () {
             var url = $(this).data('url');
             if(confirm(msg)) {
                 $.ajax({ url: url, type: 'DELETE' }).done(function (resp) {
-                    // window.location.replace(redirect_url);
+                    image_widget.find('.image-container').fadeOut('fast');
                 });
             }
         });

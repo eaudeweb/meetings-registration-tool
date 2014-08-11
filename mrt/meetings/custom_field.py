@@ -1,12 +1,12 @@
 from flask import g
-from flask import request, redirect, url_for, jsonify
-from flask import render_template, flash
+from flask import render_template, flash, make_response, jsonify
+from flask import request, redirect, url_for
 from flask.views import MethodView
 
+from mrt.forms.meetings import custom_form_factory, custom_object_factory
+from mrt.forms.meetings import CustomFieldEditForm
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue
-from mrt.forms.meetings import CustomFieldEditForm
-from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.utils import unlink_uploaded_file
 
 
@@ -63,12 +63,16 @@ class CustomFieldUpload(MethodView):
     def post(self, participant_id, custom_field_slug):
         participant = self._get_object(participant_id)
         Obj = custom_object_factory(participant, field_type='image')
-        obj = Obj()
         Form = custom_form_factory(participant, slug=custom_field_slug)
-        form = Form(obj=obj)
+        form = Form(obj=Obj())
         if form.validate():
-            form.save()
-        return jsonify()
+            custom_field_value = form.save()[0]
+        else:
+            return make_response(jsonify(form.errors), 400)
+
+        html = render_template('meetings/custom_field/_image_widget.html',
+                               data=custom_field_value.value)
+        return jsonify(html=html)
 
     def delete(self, participant_id, custom_field_slug):
         participant = self._get_object(participant_id)

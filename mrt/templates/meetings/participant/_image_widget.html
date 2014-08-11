@@ -9,14 +9,11 @@
 
     <h4 class="text-center">{{ field.label.text }}</h4>
 
-    {% if field.data %}
-      {% set url = url_for('files',
-                           filename='custom_uploads/' ~ field.data) %}
-      <a href="{{ url }}" rel="fancybox">
-        <img src="{{ field.data|thumbnail('200x200') }}" alt=""
-             width="200" height="200">
-      </a>
-    {% endif %}
+    <div class="image-container">
+      {% with data=field.data %}
+        {% include "meetings/custom_field/_image_widget.html" %}
+      {% endwith %}
+    </div>
 
     <div class="caption text-center">
 
@@ -46,6 +43,7 @@
         <form action="{{ edit_url }}" method="post"
               enctype="multipart/form-data">
           {{ field(class_="image-upload") }}
+          <div class="text-danger"></div>
         </form>
       </div> {# fileinput #}
 
