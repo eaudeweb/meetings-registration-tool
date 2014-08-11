@@ -244,7 +244,8 @@ class CustomFieldChoice(db.Model):
         nullable=False)
     custom_field = db.relationship(
         'CustomField',
-        backref=db.backref('custom_field_choices', lazy='dynamic'))
+        backref=db.backref('custom_field_choices', lazy='dynamic',
+                           cascade='delete'))
 
     value_id = db.Column(
         db.Integer, db.ForeignKey('translation.id'),
@@ -266,7 +267,8 @@ class CustomFieldValue(db.Model):
         nullable=False)
     custom_field = db.relationship(
         'CustomField',
-        backref=db.backref('custom_field_values', lazy='dynamic'))
+        backref=db.backref('custom_field_values', lazy='dynamic',
+                           cascade="delete"))
 
     participant_id = db.Column(
         db.Integer, db.ForeignKey('participant.id'),
