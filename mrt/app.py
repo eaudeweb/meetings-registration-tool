@@ -72,7 +72,8 @@ def _configure_uploads(app):
     if 'MEDIA_FOLDER' not in app.config:
         app.config['MEDIA_FOLDER'] = files_path / 'custom_uploads'
     if 'MEDIA_THUMBNAIL_FOLDER' not in app.config:
-        app.config['MEDIA_THUMBNAIL_FOLDER'] = files_path / 'thumbnails'
+        app.config['MEDIA_THUMBNAIL_FOLDER'] = \
+            app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / 'thumbnails'
     if 'MEDIA_THUMBNAIL_URL' not in app.config:
         app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 

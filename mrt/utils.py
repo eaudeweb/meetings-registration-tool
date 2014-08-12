@@ -1,3 +1,4 @@
+import os
 import re
 from flask import current_app as app
 from path import path
@@ -14,6 +15,21 @@ def unlink_uploaded_file(filename, config_key):
         if full_path.isfile():
             full_path.unlink()
             return True
+    return False
+
+
+def unlink_thumbnail_file(filename, config_key):
+    if filename:
+        name, ext = os.path.splitext(filename)
+        pattern = '^%s_(\d+)x(\d+)_(\d+).png' % (name,)
+        path_from_config = path(
+            app.config['UPLOADED_%s_DEST' % config_key.upper()])
+        for f in os.listdir(path_from_config):
+            if re.search(pattern, f):
+                full_path = path_from_config / f
+                if full_path.isfile():
+                    full_path.unlink()
+        return True
     return False
 
 

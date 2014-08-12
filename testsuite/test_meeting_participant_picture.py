@@ -1,5 +1,7 @@
+import os
 from StringIO import StringIO
 from flask import url_for
+from flask.ext.thumbnails import Thumbnail
 from py.path import local
 from PIL import Image
 
@@ -78,3 +80,33 @@ def test_participant_picture_rotate(app):
         assert filename != pic.value
         assert not upload_dir.join(filename).check()
         assert upload_dir.join(pic.value).check()
+
+
+def test_participant_picture_remove_thumbnail(app):
+    pic = ProfilePictureFactory()
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    th_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'])
+
+    image = Image.new('RGB', (250, 250), 'red')
+    image.save(str(upload_dir.join(pic.value)))
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.custom_field_rotate',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id,
+                      custom_field_slug=pic.custom_field.label.english)
+
+        resp = client.post(url)
+        assert resp.status_code == 200
+        th_name, th_fm = os.path.splitext(pic.value)
+        th_full_name = Thumbnail._get_name(th_name, th_fm, '200x200', 85)
+        assert th_dir.join(th_full_name).check()
+
+        url = url_for('meetings.custom_field_upload',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id,
+                      custom_field_slug=pic.custom_field.label.english)
+        resp = client.delete(url)
+        assert resp.status_code == 200
+        assert not th_dir.join(th_full_name).check()
