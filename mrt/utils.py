@@ -84,3 +84,14 @@ def rotate_file(filename, config_key):
 
     unlink_uploaded_file(filename, config_key)
     return newfilename
+
+
+def crop_file(filename, config_key, data):
+    path_from_config = path(
+        app.config['UPLOADED_%s_DEST' % config_key.upper()])
+    img = Image.open(path_from_config / filename)
+    img = img.crop(data)
+    crop_path = (app.config['UPLOADED_CROP_DEST'] /
+                 app.config['PATH_CUSTOM_KEY'])
+    crop_path.makedirs_p()
+    img.save(crop_path / filename)

@@ -1,8 +1,10 @@
 import re
 
-from babel.dates import format_date
+from flask import current_app as app
 from flask import request
+from path import path
 from jinja2 import evalcontextfilter, Markup, escape
+from babel.dates import format_date
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
@@ -54,3 +56,10 @@ def date_processor(date_start, date_end, in_format='%Y-%m-%d',
                 else:
                     # same date
                     return format_date(date_start, out_format, locale=locale)
+
+
+def crop(filename):
+    file_path = path(app.config['UPLOADED_CROP_DEST']) / filename
+    if file_path.exists() and file_path.isfile():
+        return path(app.config['PATH_CROP_KEY']) / filename
+    return filename

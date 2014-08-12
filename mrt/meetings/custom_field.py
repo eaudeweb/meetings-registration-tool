@@ -7,7 +7,9 @@ from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue
+
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
+from mrt.utils import crop_file
 
 
 class CustomFields(MethodView):
@@ -135,13 +137,15 @@ class CustomFieldCropUpload(MethodView):
             participant=participant, custom_field=custom_field
         ).first_or_404()
 
-        form = flask.request.form
-        x1 = Decimal(form['x1'] or 0) + Decimal(0.1)
-        y1 = Decimal(form['y1'] or 0) + Decimal(0.1)
-        x2 = Decimal(form['x2'] or 0) + Decimal(0.1)
-        y2 = Decimal(form['y2'] or 0) + Decimal(0.1)
-        valid_crop = (x2 > Decimal(0.1) and y2 > Decimal(0.1))
+        form = request.form
+        x1 = int(form.get('x1', 0, type=float))
+        y1 = int(form.get('y1', 0, type=float))
+        x2 = int(form.get('x2', 0, type=float))
+        y2 = int(form.get('y2', 0, type=float))
 
-        # if valid_crop:
+        valid_crop = x2 > 0 and y2 > 0
+        if valid_crop:
+            crop_file(custom_field_value.value, 'custom', (x1, y1, x2, y2))
 
-
+        url = url_for('.participant_detail', participant_id=participant_id)
+        return redirect(url)

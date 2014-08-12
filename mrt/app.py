@@ -6,20 +6,19 @@ from flask.ext.login import LoginManager
 from flask.ext.thumbnails import Thumbnail
 from flask.ext.uploads import configure_uploads, patch_request_class
 
-from raven.contrib.flask import Sentry
 from path import path
+from raven.contrib.flask import Sentry
 
-from mrt.models import db, User
-from mrt.assets import assets_env
-
-from mrt.meetings.urls import meetings
 from mrt.admin.urls import admin
+from mrt.assets import assets_env
 from mrt.auth.urls import auth
 from mrt.mail import mail
+from mrt.meetings.urls import meetings
+from mrt.models import db, User
 
-from mrt.template import nl2br, active, date_processor, countries
 from mrt.forms.admin import backgrounds
 from mrt.forms.meetings import custom_upload
+from mrt.template import nl2br, active, date_processor, countries, crop
 
 
 def create_app(config={}):
@@ -40,6 +39,7 @@ def create_app(config={}):
     app.add_template_filter(countries)
     app.add_template_global(active)
     app.add_template_global(date_processor)
+    app.add_template_filter(crop)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -65,18 +65,19 @@ def create_app(config={}):
 def _configure_uploads(app):
     files_path = path(app.instance_path) / 'files'
 
-    if 'UPLOADED_BACKGROUNDS_DEST' not in app.config:
-        app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / 'backgrounds'
-    if 'UPLOADED_CUSTOM_DEST' not in app.config:
-        app.config['UPLOADED_CUSTOM_DEST'] = files_path / 'custom_uploads'
+    app.config['PATH_BACKGROUNDS_KEY'] = path_backgrounds_key = 'backgrounds'
+    app.config['PATH_CUSTOM_KEY'] = path_custom_key = 'custom_uploads'
+    app.config['PATH_CROP_KEY'] = path_crop_key = 'crops'
+    app.config['PATH_THUMB_KEY'] = path_thumb_key = 'thumbnails'
 
-    if 'MEDIA_FOLDER' not in app.config:
-        app.config['MEDIA_FOLDER'] = files_path / 'custom_uploads'
-    if 'MEDIA_THUMBNAIL_FOLDER' not in app.config:
-        app.config['MEDIA_THUMBNAIL_FOLDER'] = \
-            app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / 'thumbnails'
-    if 'MEDIA_THUMBNAIL_URL' not in app.config:
-        app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
+    app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / path_backgrounds_key
+    app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
+    app.config['UPLOADED_CROP_DEST'] = files_path / path_crop_key
+
+    app.config['MEDIA_FOLDER'] = files_path
+    app.config['MEDIA_THUMBNAIL_FOLDER'] = \
+        app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
+    app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
     app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
