@@ -1,6 +1,7 @@
 from StringIO import StringIO
 from flask import url_for
 from py.path import local
+from PIL import Image
 
 from mrt.models import CustomFieldValue
 from .factories import CustomFieldFactory, ParticipantFactory
@@ -56,3 +57,24 @@ def test_participant_picture_remove(app):
                                      custom_field_slug='picture'))
         assert resp.status_code == 200
         assert not upload_dir.join(pic.value).check()
+
+
+def test_participant_picture_rotate(app):
+    pic = ProfilePictureFactory()
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    filename = pic.value
+    image = Image.new('RGB', (250, 250), 'red')
+    image.save(str(upload_dir.join(filename)))
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.custom_field_rotate',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id,
+                      custom_field_slug=pic.custom_field.label.english)
+
+        resp = client.post(url)
+        assert resp.status_code == 200
+        assert filename != pic.value
+        assert not upload_dir.join(filename).check()
+        assert upload_dir.join(pic.value).check()
