@@ -85,7 +85,7 @@ def test_participant_picture_rotate(app):
 def test_participant_picture_remove_thumbnail(app):
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
-    th_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'])
+    thumb_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'])
 
     image = Image.new('RGB', (250, 250), 'red')
     image.save(str(upload_dir.join(pic.value)))
@@ -99,9 +99,10 @@ def test_participant_picture_remove_thumbnail(app):
 
         resp = client.post(url)
         assert resp.status_code == 200
-        th_name, th_fm = os.path.splitext(pic.value)
-        th_full_name = Thumbnail._get_name(th_name, th_fm, '200x200', 85)
-        assert th_dir.join(th_full_name).check()
+        thumb_name, thumb_fm = os.path.splitext(pic.value)
+        thumb_full_name = Thumbnail._get_name(thumb_name, thumb_fm,
+                                              '200x200', 85)
+        assert thumb_dir.join(thumb_full_name).check()
 
         url = url_for('meetings.custom_field_upload',
                       meeting_id=pic.custom_field.meeting.id,
@@ -109,4 +110,4 @@ def test_participant_picture_remove_thumbnail(app):
                       custom_field_slug=pic.custom_field.label.english)
         resp = client.delete(url)
         assert resp.status_code == 200
-        assert not th_dir.join(th_full_name).check()
+        assert not thumb_dir.join(thumb_full_name).check()

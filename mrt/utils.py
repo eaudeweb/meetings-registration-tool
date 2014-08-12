@@ -21,11 +21,10 @@ def unlink_uploaded_file(filename, config_key):
 def unlink_thumbnail_file(filename, config_key):
     if filename:
         name, ext = os.path.splitext(filename)
-        pattern = '^%s_(\d+)x(\d+)_(\d+).png' % (name,)
         path_from_config = path(
             app.config['UPLOADED_%s_DEST' % config_key.upper()])
         for f in os.listdir(path_from_config):
-            if re.search(pattern, f):
+            if f.startswith(name):
                 full_path = path_from_config / f
                 if full_path.isfile():
                     full_path.unlink()
