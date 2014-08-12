@@ -204,7 +204,7 @@ class CustomFieldLabelFactory(SQLAlchemyModelFactory):
         model = models.Translation
         sqlalchemy_session = models.db.session
 
-    english = 'Picture'
+    english = 'picture'
 
 
 class CustomFieldFactory(SQLAlchemyModelFactory):
