@@ -1,9 +1,13 @@
-  {% set edit_url = url_for('.custom_field_upload',
+{% set edit_url = url_for('.custom_field_upload',
                           participant_id=participant.id,
                           custom_field_slug=field.name) %}
 {% set rotate_url = url_for('.custom_field_rotate',
                             participant_id=participant.id,
                             custom_field_slug=field.name) %}
+{% set crop_url = url_for('.custom_field_crop',
+                          participant_id=participant.id,
+                          custom_field_slug=field.name) %}
+
 <div class="image-widget">
 
   <div class="thumbnail">
@@ -23,21 +27,35 @@
           <span class="glyphicon glyphicon-picture"></span> &nbsp;
           Change photo</button>
 
-        <button class="btn btn-danger btn-sm remove-photo"
-                data-url="{{ edit_url }}"
-                data-message="Are you sure you want to delete this photo?">
-          <span class="glyphicon glyphicon-remove"></span> &nbsp;
-          Remove</button>
-        <button class="btn btn-default btn-sm rotate-photo"
-                data-url="{{ rotate_url }}">
-          <span class="glyphicon glyphicon-refresh"></span>
-        </button>
-        {% set crop_url = url_for('.custom_field_crop',
-                                  participant_id=participant.id,
-                                  custom_field_slug=field.name) %}
-        <a href="{{ crop_url }}" class="btn btn-default btn-sm">
-          <span class="glyphicon glyphicon-resize-full"></span>
-        </a>
+        {% if field.data %}
+          <button class="btn btn-danger btn-sm remove-photo"
+              data-url="{{ edit_url }}"
+              data-message="Are you sure you want to delete this photo?">
+            <span class="glyphicon glyphicon-remove"></span> &nbsp;
+            Remove</button>
+
+          <button class="btn btn-default btn-sm rotate-photo"
+              data-url="{{ rotate_url }}">
+            <span class="glyphicon glyphicon-refresh"></span>
+          </button>
+
+          <a href="{{ crop_url }}" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-resize-full"></span>
+          </a>
+        {% else %}
+          <button class="btn btn-danger btn-sm disabled">
+            <span class="glyphicon glyphicon-remove"></span> &nbsp;
+            Remove</button>
+
+          <button class="btn btn-default btn-sm disabled">
+            <span class="glyphicon glyphicon-refresh"></span>
+          </button>
+
+          <button class="btn btn-default btn-sm disabled">
+            <span class="glyphicon glyphicon-resize-full"></span>
+          </button>
+        {% endif %}
+
       </div> {# btn-group #}
 
       <div class="fileinput text-center hide">

@@ -1,15 +1,18 @@
+from flask import current_app as app
 from flask import g
 from flask import render_template, flash, make_response, jsonify
 from flask import request, redirect, url_for
 from flask.views import MethodView
+
+from path import path
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue
 
-from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
 from mrt.utils import crop_file
+from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
 
 
 class CustomFields(MethodView):
@@ -89,8 +92,10 @@ class CustomFieldUpload(MethodView):
         db.session.delete(custom_field)
         db.session.commit()
         unlink_uploaded_file(filename, 'custom')
-        # TODO delete thumbnail
-        unlink_thumbnail_file(filename, 'thumbnail')
+        unlink_uploaded_file(filename, 'crop',
+                             dir_name=app.config['PATH_CUSTOM_KEY'])
+        unlink_thumbnail_file(filename, dir_name='custom_uploads')
+        unlink_thumbnail_file(filename, dir_name='crops')
         return jsonify()
 
 
@@ -142,6 +147,10 @@ class CustomFieldCropUpload(MethodView):
         y1 = int(form.get('y1', 0, type=float))
         x2 = int(form.get('x2', 0, type=float))
         y2 = int(form.get('y2', 0, type=float))
+
+        unlink_uploaded_file(custom_field_value.value, 'crop',
+                             dir_name=app.config['PATH_CUSTOM_KEY'])
+        unlink_thumbnail_file(custom_field_value.value, dir_name='crops')
 
         valid_crop = x2 > 0 and y2 > 0
         if valid_crop:

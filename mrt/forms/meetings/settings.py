@@ -106,6 +106,7 @@ class CustomFieldMagicForm(BaseForm):
                 custom_field_value.value = custom_upload.save(
                     field.data, name=str(uuid4()) + '.')
                 unlink_uploaded_file(current_filename, 'custom')
+                # TODO delete also thumbnails and crops + tests
             else:
                 custom_field_value.value = field.data
             custom_field_value.custom_field = self._custom_fields[field_name]

@@ -1,41 +1,42 @@
-import os
 import re
-from flask import current_app as app
-from path import path
+from PIL import Image
 from unicodedata import normalize
 from uuid import uuid4
-from PIL import Image
+
+from flask import current_app as app
+from path import path
 
 
-def unlink_uploaded_file(filename, config_key):
+def unlink_uploaded_file(filename, config_key, dir_name=None):
     if filename:
-        path_from_config = path(
-            app.config['UPLOADED_%s_DEST' % config_key.upper()])
-        full_path = path_from_config / filename
+        dir_path = app.config['UPLOADED_%s_DEST' % config_key.upper()]
+        if dir_name:
+            dir_path = dir_path / dir_name
+        full_path = dir_path / filename
         if full_path.isfile():
             full_path.unlink()
-            return True
-    return False
 
 
-def unlink_thumbnail_file(filename, config_key):
+def unlink_thumbnail_file(filename, dir_name=None):
     if filename:
-        name, ext = os.path.splitext(filename)
-        path_from_config = path(
-            app.config['UPLOADED_%s_DEST' % config_key.upper()])
-        for f in os.listdir(path_from_config):
-            if f.startswith(name):
-                full_path = path_from_config / f
-                if full_path.isfile():
-                    full_path.unlink()
-        return True
-    return False
+        name, ext = path(filename).splitext()
+        thumb_path = app.config['UPLOADED_THUMBNAIL_DEST']
+        if dir_name:
+            thumb_path = thumb_path / dir_name
+        if not thumb_path.exists():
+            return
+        for f in thumb_path.listdir():
+            if f.basename().startswith(name):
+                f.unlink()
+        for dir_path in thumb_path.walkdirs():
+            for f in dir_path.listdir():
+                if f.basename().startswith(name):
+                    f.unlink()
 
 
 def duplicate_uploaded_file(filename, config_key):
     if filename:
-        path_from_config = path(
-            app.config['UPLOADED_%s_DEST' % config_key.upper()])
+        path_from_config = app.config['UPLOADED_%s_DEST' % config_key.upper()]
         full_path = path_from_config / filename
         if full_path.isfile():
             new_path = path_from_config / str(uuid4()) + full_path.ext
