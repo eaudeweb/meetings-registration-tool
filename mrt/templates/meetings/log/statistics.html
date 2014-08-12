@@ -1,0 +1,75 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+
+{% set title = "Database statistics" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', title)
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="row">
+    <div class="col-sm-5">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="row">
+            <th class="col-sm-6">Categories</th>
+            <th class="col-sm-4">Data type</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+
+        {% for category, persons in participants|groupby('category.title.english') %}
+          <tr class="row">
+            <th rowspan="2" class="col-sm-6">{{ category }}</th>
+            <td class="col-sm-4">Countries</td>
+            <td>{{ persons|countries|length }}</td>
+          </tr>
+
+          <tr class="row">
+            <td class="col-sm-4">Delegates</td>
+            <td>{{ persons|length }}</td>
+          </tr>
+        {% endfor %}
+
+      </table>
+    </div>
+
+    <div class="col-sm-4 col-sm-offset-1">
+      <table class="table table-bordered">
+        <thead>
+          <tr class="row">
+            <th class="col-sm-8">Media categories</th>
+            <th class="col-sm-4">Total</th>
+          </tr>
+        </thead>
+
+        {% for category, persons in media_participants|groupby('category.title.english') %}
+
+        <tr class="row">
+          <td class="col-sm-8">{{ category }}</td>
+          <td class="col-sm-4">{{ persons|length }}</td>
+        </tr>
+
+        {% endfor %}
+
+      </table>
+    </div>
+  </div>
+
+{% endblock %}

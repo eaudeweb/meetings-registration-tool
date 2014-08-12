@@ -17,7 +17,7 @@ from mrt.admin.urls import admin
 from mrt.auth.urls import auth
 from mrt.mail import mail
 
-from mrt.template import nl2br, active, date_processor
+from mrt.template import nl2br, active, date_processor, countries
 from mrt.forms.admin import backgrounds
 from mrt.forms.meetings import custom_upload
 
@@ -37,6 +37,7 @@ def create_app(config={}):
     app.register_blueprint(admin)
 
     app.add_template_filter(nl2br)
+    app.add_template_filter(countries)
     app.add_template_global(active)
     app.add_template_global(date_processor)
 

@@ -21,6 +21,13 @@ def active(pattern):
     return 'active' if re.search(pattern, request.path) else ''
 
 
+def countries(persons):
+    countries = set()
+    for person in persons:
+        countries.add(person.country.name)
+    return countries
+
+
 def date_processor(date_start, date_end, in_format='%Y-%m-%d',
                    out_format='d MMMM yyyy', locale='en_US'):
 
