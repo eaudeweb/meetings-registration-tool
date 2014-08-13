@@ -7,6 +7,14 @@ from flask import current_app as app
 from path import path
 
 
+def unlink_participant_photo(filename):
+    unlink_uploaded_file(filename, 'custom')
+    unlink_uploaded_file(filename, 'crop',
+                         dir_name=app.config['PATH_CUSTOM_KEY'])
+    unlink_thumbnail_file(filename, dir_name='custom_uploads')
+    unlink_thumbnail_file(filename, dir_name='crops')
+
+
 def unlink_uploaded_file(filename, config_key, dir_name=None):
     if filename:
         dir_path = app.config['UPLOADED_%s_DEST' % config_key.upper()]

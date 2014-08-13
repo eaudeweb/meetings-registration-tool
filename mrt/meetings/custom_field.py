@@ -11,7 +11,7 @@ from mrt.forms.meetings import CustomFieldEditForm
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue
 
-from mrt.utils import crop_file
+from mrt.utils import crop_file, unlink_participant_photo
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
 
 
@@ -91,11 +91,7 @@ class CustomFieldUpload(MethodView):
         filename = custom_field.value
         db.session.delete(custom_field)
         db.session.commit()
-        unlink_uploaded_file(filename, 'custom')
-        unlink_uploaded_file(filename, 'crop',
-                             dir_name=app.config['PATH_CUSTOM_KEY'])
-        unlink_thumbnail_file(filename, dir_name='custom_uploads')
-        unlink_thumbnail_file(filename, dir_name='crops')
+        unlink_participant_photo(filename)
         return jsonify()
 
 
