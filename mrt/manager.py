@@ -1,4 +1,4 @@
-from .models import User, db, Staff
+from .models import User, db, Staff, Role, RoleUser
 
 import click
 import code
@@ -47,6 +47,10 @@ def create_user(ctx):
             user = User(email=email)
             user.set_password(password)
             db.session.add(user)
+            role = Role(name='Admin', permissions='all')
+            db.session.add(role)
+            role_user = RoleUser(role=role, user=user)
+            db.session.add(role_user)
             staff = Staff(user=user, full_name='')
             db.session.add(staff)
             db.session.commit()
