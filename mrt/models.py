@@ -503,3 +503,28 @@ class MailLog(db.Model):
 
     def __repr__(self):
         return self.to.email
+
+
+class ActivityLog(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    participant_id = db.Column(
+        db.Integer, db.ForeignKey('participant.id'),
+        nullable=False)
+    participant = db.relationship(
+        'Participant',
+        backref=db.backref('activities', lazy='dynamic', cascade='delete'))
+
+    staff_id = db.Column(
+        db.Integer, db.ForeignKey('staff.id'),
+        nullable=False)
+    staff = db.relationship(
+        'Staff',
+        backref=db.backref('activities', lazy='dynamic', cascade='delete'))
+
+    date = db.Column(db.DateTime, nullable=False)
+    action = db.Column(db.String(64), nullable=False)
+
+    def __repr__(self):
+        return '%s %s' % (self.staff.full_name, self.action)

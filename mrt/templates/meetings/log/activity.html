@@ -1,0 +1,63 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% set title = "Meeting (" ~ g.meeting.acronym ~ ") database activity" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#activity').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Database activity')
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="table-responsive">
+    <table id="activity" class="table table-bordered table-condensed">
+
+      <thead>
+        <tr>
+          <th>Staff member</th>
+          <th>Participant</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for activity in activities %}
+          {% set url = url_for('.participant_detail', participant_id=activity.participant.id) %}
+          <tr>
+            <td>{{ activity.staff }}</td>
+            <td><a href="{{ url }}">{{ activity.participant }}</a></td>
+            <td>{{ activity.date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ activity.action }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+{% endblock %}

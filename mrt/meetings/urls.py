@@ -14,7 +14,7 @@ from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
 from mrt.meetings import CustomFieldUpdatePosition
 from mrt.meetings import Roles, RoleUserEdit
-from mrt.meetings import BulkEmail
+from mrt.meetings import BulkEmail, ActivityLogs
 from mrt.meetings import Statistics, MailLogs, MailLogDetail
 
 
@@ -132,6 +132,8 @@ meetings.add_url_rule('/<int:meeting_id>/logs/mails',
                       view_func=MailLogs.as_view('mail_logs'))
 meetings.add_url_rule('/<int:meeting_id>/logs/mails/<int:mail_id>/detail',
                       view_func=MailLogDetail.as_view('mail_detail'))
+meetings.add_url_rule('/<int:meeting_id>/logs/activity',
+                      view_func=ActivityLogs.as_view('activity'))
 
 
 @meetings.url_defaults

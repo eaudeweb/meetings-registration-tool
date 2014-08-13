@@ -2,7 +2,8 @@ from flask import g, render_template
 from flask import jsonify, flash, url_for
 from flask.views import MethodView
 
-from mrt.models import db, Participant, MediaParticipant, MailLog
+from mrt.models import db, Participant, MediaParticipant
+from mrt.models import ActivityLog, MailLog
 
 
 class Statistics(MethodView):
@@ -37,3 +38,12 @@ class MailLogDetail(MethodView):
         db.session.commit()
         flash('Email log successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.mail_logs'))
+
+
+class ActivityLogs(MethodView):
+
+    def get(self):
+        activities = ActivityLog.query.filter(
+            ActivityLog.participant.has(meeting=g.meeting))
+        return render_template('meetings/log/activity.html',
+                               activities=activities)
