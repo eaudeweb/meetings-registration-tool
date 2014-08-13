@@ -19,6 +19,7 @@ from mrt.models import db, User
 from mrt.forms.admin import backgrounds
 from mrt.forms.meetings import custom_upload
 from mrt.template import nl2br, active, date_processor, countries, crop
+from mrt.template import no_image_cache
 
 
 def create_app(config={}):
@@ -40,6 +41,7 @@ def create_app(config={}):
     app.add_template_global(active)
     app.add_template_global(date_processor)
     app.add_template_filter(crop)
+    app.add_template_filter(no_image_cache)
 
     login_manager = LoginManager()
     login_manager.init_app(app)

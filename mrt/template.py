@@ -1,4 +1,5 @@
 import re
+import time
 
 from flask import current_app as app
 from flask import request
@@ -63,3 +64,7 @@ def crop(filename):
     if file_path.exists() and file_path.isfile():
         return path(app.config['PATH_CROP_KEY']) / filename
     return filename
+
+
+def no_image_cache(url):
+    return url + '?' + str(int(time.time()))

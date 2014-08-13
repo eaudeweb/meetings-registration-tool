@@ -2,7 +2,7 @@
   {% set url = url_for('files', filename='custom_uploads/' ~ data) %}
   <a href="{{ url }}" rel="fancybox">
     {% set file_path = 'custom_uploads' ~ '/' ~ data %}
-    <img src="{{ file_path|crop|thumbnail('200x200') }}" alt=""
-         width="200" height="200">
+    <img src="{{ file_path|crop|thumbnail('200x200')|no_image_cache }}"
+         alt="" width="200" height="200">
   </a>
 {% endif %}

@@ -27,35 +27,21 @@
           <span class="glyphicon glyphicon-picture"></span> &nbsp;
           Change photo</button>
 
-        {% if field.data %}
-          <button class="btn btn-danger btn-sm remove-photo"
-              data-url="{{ edit_url }}"
-              data-message="Are you sure you want to delete this photo?">
-            <span class="glyphicon glyphicon-remove"></span> &nbsp;
-            Remove</button>
+        <button class="btn btn-danger btn-sm remove-photo {% if not field.data %}disabled{% endif %}"
+            data-url="{{ edit_url }}"
+            data-message="Are you sure you want to delete this photo?">
+          <span class="glyphicon glyphicon-remove"></span> &nbsp;
+          Remove</button>
 
-          <button class="btn btn-default btn-sm rotate-photo"
-              data-url="{{ rotate_url }}">
-            <span class="glyphicon glyphicon-refresh"></span>
-          </button>
+        <button class="btn btn-default btn-sm rotate-photo {% if not field.data %}disabled{% endif %}"
+            data-url="{{ rotate_url }}">
+          <span class="glyphicon glyphicon-refresh"></span>
+        </button>
 
-          <a href="{{ crop_url }}" class="btn btn-default btn-sm">
-            <span class="glyphicon glyphicon-resize-full"></span>
-          </a>
-        {% else %}
-          <button class="btn btn-danger btn-sm disabled">
-            <span class="glyphicon glyphicon-remove"></span> &nbsp;
-            Remove</button>
-
-          <button class="btn btn-default btn-sm disabled">
-            <span class="glyphicon glyphicon-refresh"></span>
-          </button>
-
-          <button class="btn btn-default btn-sm disabled">
-            <span class="glyphicon glyphicon-resize-full"></span>
-          </button>
-        {% endif %}
-
+        <button class="btn btn-default btn-sm crop-photo {% if not field.data %}disabled{% endif %}"
+                data-url="{{ crop_url }}">
+          <span class="glyphicon glyphicon-resize-full"></span>
+        </button>
       </div> {# btn-group #}
 
       <div class="fileinput text-center hide">

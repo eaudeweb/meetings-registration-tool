@@ -40,7 +40,9 @@ $(function () {
             done: function (e, resp) {
                 var parent = $(resp.form).parents('.image-widget');
                 parent.find('.image-container').html(resp.result.html);
+                parent.find('.image-container').fadeIn('fast');
                 parent.find('.text-danger').text('');
+                parent.find('button').removeClass('disabled')
             },
 
             fail: function (e, resp) {
@@ -76,6 +78,7 @@ $(function () {
             if(confirm(msg)) {
                 $.ajax({ url: url, type: 'DELETE' }).done(function (resp) {
                     parent.find('.image-container').fadeOut('fast');
+                    parent.find('button').not('.change-photo').addClass('disabled');
                 });
             }
         });
@@ -91,6 +94,10 @@ $(function () {
             }).fail(function (data) {
                 alert('Rotate failed.');
             });
+        });
+
+        image_widget.on('click', '.crop-photo', function () {
+            window.location.href = $(this).data('url');
         });
 
     }
