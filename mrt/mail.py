@@ -1,6 +1,10 @@
 from flask import current_app as app, request, flash, g
 from flask.ext.mail import Mail, Message
 
+from datetime import datetime
+
+from mrt.models import db, Participant, MailLog
+
 
 mail = Mail()
 
@@ -16,6 +20,14 @@ def send_single_message(to, subject, message, sender=None):
     msg = Message(subject=subject, body=message, sender=sender,
                   recipients=[to])
     mail.send(msg)
+    if g.get('meeting'):
+        participant = Participant.query.filter_by(email=to).first()
+        mail_log = MailLog(meeting=g.meeting, to=participant,
+                           subject=subject, message=message,
+                           date_sent=datetime.now())
+        db.session.add(mail_log)
+        db.session.commit()
+    return True
 
 
 def send_reset_mail(email, token):

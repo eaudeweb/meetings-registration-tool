@@ -1,0 +1,61 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% set title = "Meeting (" ~ g.meeting.acronym ~ ") email" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.mail_logs'), 'Mails sent'),
+      ('', mail.to.email)
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ mail.to.email }}</h3>
+
+  <div class="mail-container well">
+    <div class="control-group">
+      <label class="control-label">To</label>
+      <div class="controls">{{ mail.to.email }}</div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Subject</label>
+      <div class="controls">{{ mail.subject }}</div>
+    </div>
+
+    <div class="control-group">
+      <label class="control-label">Message</label>
+      <div class="controls">
+        <textarea readonly="">{{ mail.message }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="mail-container row">
+    <div class="col-sm-6">
+      <button class="btn btn-primary">Resend</button>
+      <small>or <a href="{{ url_for('.mail_logs', meeting_id=g.meeting.id) }}">Cancel</a></small>
+    </div>
+    {% if mail %}
+      <div class="col-sm-6 text-right">
+        <a class="delete" data-toggle="delete"
+           data-href="{{ url_for('.mail_detail', mail_id=mail.id) }}"
+           data-message="Are you sure you want to delete this mail log?">
+          <span class="glyphicon glyphicon-remove"></span>
+          Delete this mail</a>
+      </div>
+    {% endif %}
+  </div>
+
+{% endblock %}

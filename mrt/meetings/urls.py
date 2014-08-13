@@ -14,7 +14,7 @@ from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
 from mrt.meetings import Roles, RoleUserEdit
 from mrt.meetings import BulkEmail
-from mrt.meetings import Statistics
+from mrt.meetings import Statistics, MailLogs, MailLogDetail
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -124,6 +124,10 @@ meetings.add_url_rule('/<int:meeting_id>/participants/<int:participant_id>/ack',
 # logs
 meetings.add_url_rule('/<int:meeting_id>/logs/statistics',
                       view_func=Statistics.as_view('statistics'))
+meetings.add_url_rule('/<int:meeting_id>/logs/mails',
+                      view_func=MailLogs.as_view('mail_logs'))
+meetings.add_url_rule('/<int:meeting_id>/logs/mails/<int:mail_id>/detail',
+                      view_func=MailLogDetail.as_view('mail_detail'))
 
 
 @meetings.url_defaults

@@ -78,7 +78,8 @@ class AckEmail(MethodView):
                                    form.message.data):
                 flash('Message successfully sent', 'success')
                 return redirect(
-                    url_for('participant_detail', id=participant.id)
+                    url_for('.participant_detail',
+                            participant_id=participant.id)
                 )
             else:
                 flash('Message failed do send', 'error')

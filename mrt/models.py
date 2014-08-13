@@ -475,3 +475,29 @@ class PhraseDefault(PhraseMixin, db.Model):
 
     meeting_type = db.Column(ChoiceType(MEETING_TYPES), nullable=False,
                              info={'label': 'Meeting Type'})
+
+
+class MailLog(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('mails', lazy='dynamic', cascade='delete'))
+
+    to_id = db.Column(
+        db.Integer, db.ForeignKey('participant.id'),
+        nullable=False)
+    to = db.relationship(
+        'Participant',
+        backref=db.backref('mails', lazy='dynamic', cascade='delete'))
+
+    subject = db.Column(db.String(128), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    date_sent = db.Column(db.DateTime)
+
+    def __repr__(self):
+        return self.to.email

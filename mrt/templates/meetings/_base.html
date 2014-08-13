@@ -46,8 +46,8 @@
           <a href="#">
             Database activity</a>
         </li>
-        <li class="#">
-          <a href="#">
+        <li class="{{ active('/mails') }}">
+          <a href="{{ url_for('.mail_logs') }}">
             Emails sent</a>
         </li>
         <li class="{{ active('/statistics') }}">
