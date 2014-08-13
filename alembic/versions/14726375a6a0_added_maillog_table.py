@@ -1,14 +1,14 @@
 """Added MailLog table
 
 Revision ID: 14726375a6a0
-Revises: 2498ffa3ad9d
+Revises: 30d68ffd9442
 Create Date: 2014-08-13 15:18:49.761320
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '14726375a6a0'
-down_revision = '2498ffa3ad9d'
+down_revision = '30d68ffd9442'
 
 from alembic import op
 import sqlalchemy as sa
