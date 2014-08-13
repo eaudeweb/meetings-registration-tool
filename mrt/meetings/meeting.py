@@ -43,7 +43,7 @@ class Meetings(MethodView):
 class MeetingEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
-    permission_required = ('add_meeting', 'delete_meeting', 'edit_meeting')
+    permission_required = ('manage_meeting',)
 
     def get(self):
         form = MeetingEditForm(obj=g.meeting)
