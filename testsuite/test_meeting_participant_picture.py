@@ -85,8 +85,8 @@ def test_participant_picture_rotate(app):
 def test_participant_picture_remove_thumbnail(app):
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
-    thumb_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'])
-
+    thumb_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'] /
+                      app.config['PATH_CUSTOM_KEY'])
     image = Image.new('RGB', (250, 250), 'red')
     image.save(str(upload_dir.join(pic.value)))
 
@@ -111,3 +111,48 @@ def test_participant_picture_remove_thumbnail(app):
         resp = client.delete(url)
         assert resp.status_code == 200
         assert not thumb_dir.join(thumb_full_name).check()
+
+
+def test_participant_picture_remove_crop(app):
+    pic = ProfilePictureFactory()
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    crop_dir = local(app.config['UPLOADED_CROP_DEST'] /
+                     app.config['PATH_CUSTOM_KEY'])
+    thumb_crop_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'] /
+                           app.config['PATH_CROP_KEY'] /
+                           app.config['PATH_CUSTOM_KEY'])
+    image = Image.new('RGB', (300, 300), 'green')
+    image.save(str(upload_dir.join(pic.value)))
+    data = {
+        'y1': 0, 'y2': 150,
+        'x1': 0, 'x2': 150,
+        'w': 150, 'h': 150,
+    }
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.custom_field_crop',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id,
+                      custom_field_slug=pic.custom_field.label.english)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert crop_dir.join(pic.value).check()
+
+        url = url_for('meetings.participant_detail',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id)
+        resp = client.get(url)
+        thumb_name, thumb_fm = os.path.splitext(pic.value)
+        thumb_full_name = Thumbnail._get_name(thumb_name, thumb_fm,
+                                              '200x200', 85)
+        assert thumb_crop_dir.join(thumb_full_name).check()
+
+        url = url_for('meetings.custom_field_upload',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id,
+                      custom_field_slug=pic.custom_field.label.english)
+        resp = client.delete(url)
+        assert resp.status_code == 200
+        assert not crop_dir.join(pic.value).check()
+        assert not thumb_crop_dir.join(thumb_full_name).check()
