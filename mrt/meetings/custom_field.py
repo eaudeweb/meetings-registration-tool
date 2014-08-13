@@ -4,8 +4,6 @@ from flask import render_template, flash, make_response, jsonify
 from flask import request, redirect, url_for
 from flask.views import MethodView
 
-from path import path
-
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.models import db
@@ -18,7 +16,8 @@ from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
 class CustomFields(MethodView):
 
     def get(self):
-        custom_fields = CustomField.query.filter_by(meeting_id=g.meeting.id)
+        custom_fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
+                         .order_by(CustomField.sort))
         return render_template('meetings/custom_field/list.html',
                                custom_fields=custom_fields)
 
@@ -155,3 +154,16 @@ class CustomFieldCropUpload(MethodView):
 
         url = url_for('.participant_detail', participant_id=participant_id)
         return redirect(url)
+
+
+class CustomFieldUpdatePosition(MethodView):
+
+    def post(self):
+        items = request.form.getlist('items[]')
+        for i, item in enumerate(items):
+            custom_field = (
+                CustomField.query.filter_by(id=item, meeting_id=g.meeting.id)
+                .first_or_404())
+            custom_field.sort = i
+        db.session.commit()
+        return jsonify()

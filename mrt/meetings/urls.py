@@ -12,6 +12,7 @@ from mrt.meetings import Categories, CategoryEdit
 from mrt.meetings import PhraseEdit
 from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
+from mrt.meetings import CustomFieldUpdatePosition
 from mrt.meetings import Roles, RoleUserEdit
 from mrt.meetings import BulkEmail
 from mrt.meetings import Statistics, MailLogs, MailLogDetail
@@ -91,6 +92,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/custom/fields/<int:custom_field_id>/edit',
     view_func=custom_field_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/custom/fields/update/position',
+    view_func=CustomFieldUpdatePosition.as_view('custom_field_update_position'))
 
 meetings.add_url_rule(
     '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:custom_field_slug>/upload',

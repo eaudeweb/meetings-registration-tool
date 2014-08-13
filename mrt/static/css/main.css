@@ -237,3 +237,17 @@ h5 {
     height: 300px;
     width: 100%;
 }
+
+.table .handler {
+    border-right: none;
+    text-align: center;
+    width: 35px;
+    color: #ccc;
+}
+.table .handler span {
+    cursor: pointer;
+}
+
+.table .ui-state-highlight {
+    background: #fdfde4;
+}

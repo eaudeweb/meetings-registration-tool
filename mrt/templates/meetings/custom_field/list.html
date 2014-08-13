@@ -27,9 +27,11 @@
       Add custom field</a>
   </div>
 
-  <table class="table table-bordered table-condensed">
+  <table class="table table-bordered table-condensed sortable"
+         data-url="{{ url_for('.custom_field_update_position') }}">
 
     <thead>
+      <th class="handler"></th>
       <th>Label</th>
       <th>Type</th>
     </thead>
@@ -38,7 +40,10 @@
       {% for field in custom_fields %}
         {% set url = url_for('.custom_field_edit',
                              custom_field_id=field.id)%}
-        <tr>
+        <tr id="items-{{ field.id }}">
+          <td class="handler">
+            <span class="glyphicon glyphicon-align-justify"></span>
+          </td>
           <td>
             <a href="{{ url }}">{{ field.label }}</a>
           </td>

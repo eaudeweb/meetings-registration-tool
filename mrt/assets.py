@@ -21,7 +21,7 @@ _BUNDLE_JS = (
     'js/lib/jquery.autosize.min.js',
     'js/lib/select2.min.js',
     'js/lib/jquery.fancybox.js',
-
+    'js/lib/jquery.sortable.js',
     'js/main.js',
 )
 

@@ -227,6 +227,8 @@ class CustomField(db.Model):
 
     required = db.Column(db.Boolean, default=False)
 
+    sort = db.Column(db.Integer, default=0)
+
     def __repr__(self):
         return self.label.english
 
