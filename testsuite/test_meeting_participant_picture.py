@@ -220,3 +220,38 @@ def test_participant_picture_change_deletes_all_old_files(app):
         assert not crop_dir.join(filename).check()
         assert not thumb_crop_dir.join(thumb_full_name).check()
         assert not thumb_dir.join(thumb_full_name).check()
+
+
+def test_participant_picture_rotate_deletes_all_old_files(app):
+    pic = ProfilePictureFactory()
+    filename = pic.value
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    crop_dir = local(app.config['UPLOADED_CROP_DEST'] /
+                     app.config['PATH_CUSTOM_KEY'])
+    thumb_crop_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'] /
+                           app.config['PATH_CROP_KEY'] /
+                           app.config['PATH_CUSTOM_KEY'])
+    thumb_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'] /
+                      app.config['PATH_CUSTOM_KEY'])
+    image = Image.new('RGB', (250, 250), 'red')
+    image.save(str(upload_dir.join(filename)))
+    crop_dir.ensure(filename)
+    thumb_name, thumb_fm = os.path.splitext(filename)
+    thumb_full_name = Thumbnail._get_name(thumb_name, thumb_fm,
+                                          '200x200', 85)
+    thumb_crop_dir.ensure(thumb_full_name)
+    thumb_dir.ensure(thumb_full_name)
+
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('meetings.custom_field_rotate',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id,
+                      custom_field_slug=pic.custom_field.label.english)
+
+        resp = client.post(url)
+        assert resp.status_code == 200
+        assert not upload_dir.join(filename).check()
+        assert not crop_dir.join(filename).check()
+        assert not thumb_crop_dir.join(thumb_full_name).check()
+        assert not thumb_dir.join(thumb_full_name).check()
