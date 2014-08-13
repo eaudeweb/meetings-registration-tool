@@ -19,8 +19,12 @@ class PermissionRequiredMixin(object):
         return self.permission_required
 
     def check_permissions(self):
-        return True
         perms = self.get_permission_required()
+        if g.meeting:
+            return (
+                current_user.has_perms(perms) or
+                current_user.has_perms(perms, meeting_id=g.meeting.id)
+            )
         return current_user.has_perms(perms)
 
     def dispatch_request(self, *args, **kwargs):

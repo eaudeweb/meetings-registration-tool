@@ -6,17 +6,22 @@ from werkzeug.utils import HTMLBuilder
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantEditForm
+from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant
 
 
-class Participants(MethodView):
+class Participants(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self):
         return render_template('meetings/participant/list.html')
 
 
 class ParticipantsFilter(MethodView, FilterView):
+
+    permission_required = ('view_participant', )
 
     def process_last_name(self, participant, val):
         html = HTMLBuilder('html')
@@ -47,7 +52,9 @@ class ParticipantsFilter(MethodView, FilterView):
         return participants, total
 
 
-class ParticipantDetail(MethodView):
+class ParticipantDetail(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self, participant_id):
         participant = (
@@ -66,7 +73,9 @@ class ParticipantDetail(MethodView):
                                form=form)
 
 
-class ParticipantEdit(MethodView):
+class ParticipantEdit(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_participant', )
 
     def _get_object(self, participant_id=None):
         return (Participant.query

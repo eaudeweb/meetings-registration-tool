@@ -5,17 +5,22 @@ from flask.views import MethodView
 from werkzeug.utils import HTMLBuilder
 
 from mrt.forms.meetings import MediaParticipantEditForm
+from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, MediaParticipant
 
 
-class MediaParticipants(MethodView):
+class MediaParticipants(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_media_participant',)
 
     def get(self):
         return render_template('meetings/media_participant/list.html')
 
 
-class MediaParticipantsFilter(MethodView, FilterView):
+class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
+
+    permission_required = ('view_media_participant',)
 
     def process_last_name(self, media_participant, val):
         html = HTMLBuilder('html')
@@ -49,7 +54,9 @@ class MediaParticipantsFilter(MethodView, FilterView):
         return media_participants, total
 
 
-class MediaParticipantDetail(MethodView):
+class MediaParticipantDetail(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_media_participant', )
 
     def get(self, media_participant_id):
         media_participant = (
@@ -62,7 +69,9 @@ class MediaParticipantDetail(MethodView):
                                form=form)
 
 
-class MediaParticipantEdit(MethodView):
+class MediaParticipantEdit(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_media_participant', )
 
     def _get_object(self, media_participant_id=None):
         return (MediaParticipant.query
