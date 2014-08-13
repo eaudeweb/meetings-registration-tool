@@ -109,6 +109,7 @@ class CustomFieldRotate(MethodView):
         if newfile == custom_field_value.value:
             return make_response(jsonify(), 400)
 
+        unlink_participant_photo(custom_field_value.value)
         custom_field_value.value = newfile
         db.session.commit()
 

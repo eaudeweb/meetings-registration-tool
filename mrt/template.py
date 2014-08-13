@@ -67,4 +67,6 @@ def crop(filename):
 
 
 def no_image_cache(url):
+    if app.config['TESTING']:
+        return url
     return url + '?' + str(int(time.time()))
