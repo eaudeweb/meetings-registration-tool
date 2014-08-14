@@ -225,7 +225,8 @@ class CustomField(db.Model):
     field_type = db.Column(ChoiceType(CUSTOM_FIELDS), nullable=False,
                            info={'label': 'Field type'})
 
-    required = db.Column(db.Boolean, default=False)
+    required = db.Column(db.Boolean, default=False,
+                         info={'label': 'Required'})
 
     sort = db.Column(db.Integer, default=0)
 

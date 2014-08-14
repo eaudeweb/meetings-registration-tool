@@ -48,6 +48,10 @@ h5 {
 }
 
 
+.form-group input[type=checkbox] {
+    position: relative;
+    top: 5px;
+}
 .form-actions {
     padding-bottom: 20px;
 }
