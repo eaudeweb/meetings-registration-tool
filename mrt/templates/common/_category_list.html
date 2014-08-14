@@ -4,10 +4,12 @@
   <div class="table-responsive">
 
     <table id="categories"
-           class="table table-bordered table-condensed">
+           class="table table-bordered table-condensed sortable"
+           data-url="{{ url_for('.category_update_position') }}">
 
       <thead>
         <tr>
+          <th class="handler"></th>
           <th>Name</th>
           <th>Type</th>
           <th>Badge color</th>
@@ -18,7 +20,10 @@
         {% for category in categories %}
           {% set url = url_for('.category_edit',
                                category_id=category.id) %}
-          <tr>
+          <tr id="items-{{ category.id }}">
+            <td class="handler">
+              <span class="glyphicon glyphicon-align-justify"></span>
+            </td>
             <td>
               <a href="{{ url_for('.category_edit', category_id=category.id) }}">
                 {{ category.title.english }}</a>

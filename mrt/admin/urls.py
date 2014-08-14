@@ -1,6 +1,6 @@
 from flask import Blueprint
 from mrt.admin import StaffList, StaffEdit
-from mrt.admin import Categories, CategoryEdit
+from mrt.admin import Categories, CategoryEdit, CategoryUpdatePosition
 from mrt.admin import PhrasesTypes, PhraseEdit
 from mrt.admin import Roles, RoleEdit
 
@@ -21,6 +21,9 @@ category_edit_func = CategoryEdit.as_view('category_edit')
 admin.add_url_rule('/categories/add', view_func=category_edit_func)
 admin.add_url_rule('/categories/<int:category_id>/edit',
                    view_func=category_edit_func)
+admin.add_url_rule(
+    '/categories/update/position',
+    view_func=CategoryUpdatePosition.as_view('category_update_position'))
 
 # Phrases
 admin.add_url_rule('/phrases', view_func=PhrasesTypes.as_view('phrases'))

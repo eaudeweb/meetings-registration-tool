@@ -8,7 +8,7 @@ from mrt.meetings import Participants, ParticipantsFilter
 from mrt.meetings import ParticipantEdit, ParticipantDetail
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
-from mrt.meetings import Categories, CategoryEdit
+from mrt.meetings import Categories, CategoryEdit, CategoryUpdatePosition
 from mrt.meetings import PhraseEdit
 from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
@@ -72,6 +72,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/categories/<int:category_id>/edit',
     view_func=category_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/categories/update/position',
+    view_func=CategoryUpdatePosition.as_view('category_update_position'))
 
 # phrases
 phrase_edit_func = PhraseEdit.as_view('phrase_edit')

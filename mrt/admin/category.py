@@ -61,3 +61,16 @@ class CategoryEdit(MethodView):
         unlink_uploaded_file(category.background, 'backgrounds')
         flash('Category successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.categories'))
+
+
+class CategoryUpdatePosition(MethodView):
+
+    def post(self):
+        items = request.form.getlist('items[]')
+        for i, item in enumerate(items):
+            category = (
+                CategoryDefault.query.filter_by(id=item)
+                .first_or_404())
+            category.sort = i
+        db.session.commit()
+        return jsonify()
