@@ -54,6 +54,15 @@
 
 {% endmacro %}
 
+{% macro activity_url(activity) %}
+  {% if activity.action == 'delete' %}
+    <span class="err">deleted</span>
+  {% else %}
+    {% set url = url_for('.participant_detail', participant_id=activity.participant_id) %}
+    <a href="{{ url }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
+  {% endif %}
+{% endmacro %}
+
 
 {% macro flashed_messages() -%}
 

@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, activity_url %}
 
 
 {% set title = "Meeting (" ~ g.meeting.acronym ~ ") database activity" %}
@@ -42,17 +42,18 @@
           <th>Participant</th>
           <th>Date</th>
           <th>Action</th>
+          <th>URL</th>
         </tr>
       </thead>
 
       <tbody>
         {% for activity in activities %}
-          {% set url = url_for('.participant_detail', participant_id=activity.participant.id) %}
-          <tr>
+          <tr style="text-align: center;">
             <td>{{ activity.staff }}</td>
-            <td><a href="{{ url }}">{{ activity.participant }}</a></td>
-            <td>{{ activity.date.strftime('%Y-%m-%d') }}</td>
-            <td>{{ activity.action }}</td>
+            <td>{{ activity.participant_name }}</td>
+            <td>{{ activity.date.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ activity.action|activity_map }}</td>
+            <td>{{ activity_url(activity) }}</td>
           </tr>
         {% endfor %}
       </tbody>

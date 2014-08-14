@@ -6,7 +6,6 @@ from wtforms.validators import DataRequired
 from mrt.forms.base import BaseForm
 from mrt.models import db
 from mrt.models import Participant, Category, MediaParticipant
-from mrt.signals import activity_signal
 
 
 class ParticipantEditForm(BaseForm):
@@ -29,8 +28,6 @@ class ParticipantEditForm(BaseForm):
         participant.meeting_id = g.meeting.id
         if participant.id is None:
             db.session.add(participant)
-            activity_signal.send(self, participant=participant,
-                                 action='add-participant')
         db.session.commit()
         return participant
 

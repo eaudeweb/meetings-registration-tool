@@ -44,3 +44,9 @@ PERMISSIONS = (
     ('manage_phrases', 'Manage Phrases'),
     ('manage_default', 'Manage Default Values'),
 )
+
+ACTIVITY_ACTIONS = {
+    'add': 'add-participant',
+    'edit': 'edit-participant',
+    'delete': 'delete-participant',
+}

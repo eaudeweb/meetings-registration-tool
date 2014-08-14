@@ -9,6 +9,7 @@ from mrt.forms.meetings import ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant
+from mrt.signals import activity_signal
 
 
 class Participants(PermissionRequiredMixin, MethodView):
@@ -94,8 +95,14 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         participant = self._get_object(participant_id)
         form = ParticipantEditForm(request.form, obj=participant)
         if form.validate():
-            form.save()
+            participant = form.save()
             flash('Person information saved', 'success')
+            if participant_id:
+                activity_signal.send(self, participant=participant,
+                                     action='add')
+            else:
+                activity_signal.send(self, participant=participant,
+                                     action='edit')
             return redirect(url_for('.participants'))
         return render_template('meetings/participant/edit.html',
                                form=form,
@@ -104,6 +111,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     def delete(self, participant_id):
         participant = self._get_object(participant_id)
         db.session.delete(participant)
+        activity_signal.send(self, participant=participant,
+                             action='delete')
         db.session.commit()
         flash('Participant successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.participants'))

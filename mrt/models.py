@@ -509,13 +509,6 @@ class ActivityLog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    participant_id = db.Column(
-        db.Integer, db.ForeignKey('participant.id'),
-        nullable=False)
-    participant = db.relationship(
-        'Participant',
-        backref=db.backref('activities', lazy='dynamic', cascade='delete'))
-
     staff_id = db.Column(
         db.Integer, db.ForeignKey('staff.id'),
         nullable=False)
@@ -523,6 +516,15 @@ class ActivityLog(db.Model):
         'Staff',
         backref=db.backref('activities', lazy='dynamic', cascade='delete'))
 
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('activities', lazy='dynamic', cascade='delete'))
+
+    participant_name = db.Column(db.String(64), nullable=False)
+    participant_id = db.Column(db.Integer)
     date = db.Column(db.DateTime, nullable=False)
     action = db.Column(db.String(64), nullable=False)
 

@@ -7,6 +7,8 @@ from path import path
 from jinja2 import evalcontextfilter, Markup, escape
 from babel.dates import format_date
 
+from mrt.definitions import ACTIVITY_ACTIONS
+
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 
@@ -70,3 +72,7 @@ def no_image_cache(url):
     if app.config['TESTING']:
         return url
     return url + '?' + str(int(time.time()))
+
+
+def activity_map(action):
+    return ACTIVITY_ACTIONS.get(action, action)

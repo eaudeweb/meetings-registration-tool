@@ -1,9 +1,26 @@
 from flask import g, render_template
 from flask import jsonify, flash, url_for
 from flask.views import MethodView
+from flask.ext.login import current_user as user
+
+from blinker import ANY
+from datetime import datetime
 
 from mrt.models import db, Participant, MediaParticipant
-from mrt.models import ActivityLog, MailLog
+from mrt.models import ActivityLog, MailLog, Staff
+from mrt.signals import activity_signal
+
+
+@activity_signal.connect_via(ANY)
+def activity_listener(sender, participant, action):
+    staff = Staff.query.filter_by(user=user).first()
+    activity = ActivityLog(participant_name=participant.first_name,
+                           participant_id=participant.id,
+                           meeting=participant.meeting,
+                           staff=staff, action=action,
+                           date=datetime.now())
+    db.session.add(activity)
+    db.session.commit()
 
 
 class Statistics(MethodView):
@@ -43,7 +60,6 @@ class MailLogDetail(MethodView):
 class ActivityLogs(MethodView):
 
     def get(self):
-        activities = ActivityLog.query.filter(
-            ActivityLog.participant.has(meeting=g.meeting))
+        activities = ActivityLog.query.filter_by(meeting=g.meeting)
         return render_template('meetings/log/activity.html',
                                activities=activities)
