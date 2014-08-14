@@ -30,9 +30,46 @@
 {% block content %}
 
   {{ super() }}
+  {% set staff_id = request.args.get('staff_id', None)|int %}
+  {% set time = request.args.get('time')|int %}
 
   <h3 class="page-title">{{ title }}</h3>
 
+  <div class="row">
+    <div class="col-sm-2">
+      <ul class="nav nav-pills nav-stacked nav-condensed">
+
+        <li class="nav-header">Filter by staff</li>
+        <li class="{% if not staff_id %}active {% endif %}">
+          <a href="{{ url_for('.activity') }}">All</a>
+        </li>
+        {% for staff in staffs %}
+          {% set url = url_for('.activity', staff_id=staff.staff.id) %}
+          <li {% if staff_id == staff.staff.id %}class="active"{% endif %}>
+            <a href="{{ url }}">{{ staff.staff }}</a>
+          </li>
+        {% endfor %}
+
+        <li class="nav-header">Filter by time span</li>
+        <li class="{% if not time %}active {% endif %}">
+          <a href="{{ url_for('.activity') }}">Anytime</a>
+        </li>
+        <li class="{% if time == 86400 %}active {% endif %}">
+          <a href="{{ url_for('.activity', time=86400, staff_id=staff_id) }}">Last 24 hours</a>
+        </li>
+        <li class="{% if time == 259200 %}active {% endif %}">
+          <a href="{{ url_for('.activity', time=259200, staff_id=staff_id) }}">Last 3 days</a>
+        </li>
+        <li class="{% if time == 604800 %}active {% endif %}">
+          <a href="{{ url_for('.activity', time=604800, staff_id=staff_id) }}">Last 7 days</a>
+        </li>
+        <li class="{% if time == 2592000 %}active {% endif %}">
+          <a href="{{ url_for('.activity', time=2592000, staff_id=staff_id) }}">Last month</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-sm-10">
   <div class="table-responsive">
     <table id="activity" class="table table-bordered table-condensed">
 
@@ -50,7 +87,7 @@
         {% for activity in activities %}
           <tr style="text-align: center;">
             <td>{{ activity.staff }}</td>
-            <td>{{ activity.participant_name }}</td>
+            <td><a href="{{ url_for('.activity', name=activity.participant_name) }}">{{ activity.participant_name }}</a></td>
             <td>{{ activity.date.strftime('%Y-%m-%d %H:%M') }}</td>
             <td>{{ activity.action|activity_map }}</td>
             <td>{{ activity_url(activity) }}</td>
@@ -59,6 +96,8 @@
       </tbody>
     </table>
   </div>
+  </div>
+</div>
 
 
 {% endblock %}
