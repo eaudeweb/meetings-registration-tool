@@ -530,3 +530,11 @@ class ActivityLog(db.Model):
 
     def __repr__(self):
         return '%s %s' % (self.staff.full_name, self.action)
+
+
+def get_or_create_role(name):
+    role = Role.query.filter_by(name=name).first()
+    if not role:
+        role = Role(name=name, permissions=[p[0] for p in PERMISSIONS])
+        db.session.add(role)
+    return role

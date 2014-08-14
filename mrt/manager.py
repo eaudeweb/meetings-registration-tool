@@ -1,8 +1,10 @@
-from .models import User, db, Staff, Role, RoleUser
+from .models import User, db, Staff, RoleUser
 
 import click
 import code
 from alembic.config import CommandLine
+
+from mrt.models import get_or_create_role
 
 
 @click.group()
@@ -47,8 +49,7 @@ def create_user(ctx):
             user = User(email=email)
             user.set_password(password)
             db.session.add(user)
-            role = Role(name='Admin', permissions='all')
-            db.session.add(role)
+            role = get_or_create_role('Admin')
             role_user = RoleUser(role=role, user=user)
             db.session.add(role_user)
             staff = Staff(user=user, full_name='')
