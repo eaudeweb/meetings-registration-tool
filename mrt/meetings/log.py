@@ -14,12 +14,16 @@ from mrt.signals import activity_signal
 @activity_signal.connect_via(ANY)
 def activity_listener(sender, participant, action):
     staff = Staff.query.filter_by(user=user).first()
-    activity = ActivityLog(participant_name=participant.first_name,
+    activity = ActivityLog(participant_name=participant.name,
                            participant_id=participant.id,
                            meeting=participant.meeting,
                            staff=staff, action=action,
                            date=datetime.now())
     db.session.add(activity)
+    if action == 'delete':
+        activity.participant_id = None
+        query = ActivityLog.query.filter_by(participant_id=participant.id)
+        query.update({ActivityLog.participant_id: None})
     db.session.commit()
 
 

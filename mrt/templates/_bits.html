@@ -55,11 +55,11 @@
 {% endmacro %}
 
 {% macro activity_url(activity) %}
-  {% if activity.action == 'delete' %}
-    <span class="delete">deleted</span>
-  {% else %}
+  {% if activity.participant_id %}
     {% set url = url_for('.participant_detail', participant_id=activity.participant_id) %}
     <a href="{{ url }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
+  {% else %}
+    <span class="delete">deleted</span>
   {% endif %}
 {% endmacro %}
 

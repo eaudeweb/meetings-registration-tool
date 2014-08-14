@@ -46,7 +46,7 @@ PERMISSIONS = (
 )
 
 ACTIVITY_ACTIONS = {
-    'add': 'add-participant',
-    'edit': 'edit-participant',
-    'delete': 'delete-participant',
+    'add': 'Add participant',
+    'edit': 'Edit participant',
+    'delete': 'Delete participant',
 }
