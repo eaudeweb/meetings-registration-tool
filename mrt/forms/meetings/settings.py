@@ -95,6 +95,8 @@ class CustomFieldMagicForm(BaseForm):
     def save(self):
         items = []
         for field_name, field in self._fields.items():
+            if not field.data:
+                continue
             custom_field_value = (
                 CustomFieldValue.query
                 .filter(CustomFieldValue.custom_field.has(slug=field_name))
@@ -107,6 +109,7 @@ class CustomFieldMagicForm(BaseForm):
                     field.data, name=str(uuid4()) + '.')
                 unlink_participant_photo(current_filename)
             else:
+                print "am intrat aici "
                 custom_field_value.value = field.data
             custom_field_value.custom_field = self._custom_fields[field_name]
             custom_field_value.participant = self._participant
@@ -134,8 +137,10 @@ def custom_object_factory(participant, field_type=None, obj=CustomFieldMagic):
 def custom_form_factory(participant, slug=None, field_type=None,
                         form=CustomFieldMagicForm):
     custom_fields = CustomField.query.filter_by(meeting_id=g.meeting.id)
+    custom_fields = custom_fields.order_by(CustomField.sort)
     if field_type:
         custom_fields = custom_fields.filter_by(field_type=field_type)
+
     if slug:
         custom_fields = [custom_fields.filter_by(slug=slug).first_or_404()]
 

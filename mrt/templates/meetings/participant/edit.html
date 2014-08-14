@@ -65,6 +65,15 @@
           </div>
         </div> {# panel #}
 
+        <div class="panel panel-default">
+          <div class="panel-heading"><b>Custom information</b></div>
+           <div class="panel-body">
+              {% for field in custom_form_text %}
+                 {{ form_group(field, label_size="3", input_size="9") }}
+              {% endfor %}
+           </div>
+        </div> {# panel #}
+
       </div> {# col-sm-8 #}
 
     </div> {# row #}

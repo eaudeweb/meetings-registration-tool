@@ -63,14 +63,21 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
+
         CustomFormImages = custom_form_factory(participant, field_type='image')
         CustomObjectImages = custom_object_factory(participant,
                                                    field_type='image')
-        custom_object_images = CustomObjectImages()
-        custom_form_images = CustomFormImages(obj=custom_object_images)
+        custom_form_images = CustomFormImages(obj=CustomObjectImages())
+
+        CustomFormText = custom_form_factory(participant, field_type='text')
+        CustomObjectText = custom_object_factory(participant,
+                                                 field_type='text')
+        custom_form_text = CustomFormText(obj=CustomObjectText())
+
         return render_template('meetings/participant/detail.html',
                                participant=participant,
                                custom_form_images=custom_form_images,
+                               custom_form_text=custom_form_text,
                                form=form)
 
 
@@ -87,15 +94,25 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     def get(self, participant_id=None):
         participant = self._get_object(participant_id)
         form = ParticipantEditForm(obj=participant)
+        CustomFormText = custom_form_factory(participant, field_type='text')
+        CustomObjectText = custom_object_factory(participant,
+                                                 field_type='text')
+        custom_form_text = CustomFormText(obj=CustomObjectText())
         return render_template('meetings/participant/edit.html',
                                form=form,
+                               custom_form_text=custom_form_text,
                                participant=participant)
 
     def post(self, participant_id=None):
         participant = self._get_object(participant_id)
         form = ParticipantEditForm(request.form, obj=participant)
-        if form.validate():
+        CustomFormText = custom_form_factory(participant, field_type='text')
+        CustomObjectText = custom_object_factory(participant,
+                                                 field_type='text')
+        custom_form_text = CustomFormText(obj=CustomObjectText())
+        if form.validate() and custom_form_text.validate():
             participant = form.save()
+            custom_form_text.save()
             flash('Person information saved', 'success')
             if participant_id:
                 activity_signal.send(self, participant=participant,
@@ -106,6 +123,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
             return redirect(url_for('.participants'))
         return render_template('meetings/participant/edit.html',
                                form=form,
+                               custom_form_text=custom_form_text,
                                participant=participant)
 
     def delete(self, participant_id):
