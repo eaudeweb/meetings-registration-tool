@@ -22,6 +22,7 @@ _BUNDLE_JS = (
     'js/lib/select2.min.js',
     'js/lib/jquery.fancybox.js',
     'js/lib/jquery.sortable.js',
+    'js/lib/jquery.typeahead.js',
     'js/main.js',
 )
 

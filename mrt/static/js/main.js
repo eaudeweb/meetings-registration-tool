@@ -128,4 +128,29 @@ $(function () {
         helper: fixHelper
     });
 
+    var search_participant = $('#search-participant');
+    var search_participant_empty_template = [
+        '<div class="tt-suggestion">',
+        '<small><em>No participants found</em></small>',
+        '</div>'
+    ].join('\n');
+    var searchSelected = function (e, suggestion, name) {
+        if(suggestion && suggestion.url) {
+            window.location.href = suggestion.url;
+        }
+    }
+    var search = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: search_participant.attr('action') + '?search=%QUERY'
+    });
+    search.initialize();
+    search_participant.find('input').typeahead(null, {
+        name: 'search',
+        displayKey: 'value',
+        source: search.ttAdapter(),
+        templates: {
+            empty: search_participant_empty_template
+        }
+    }).on('typeahead:selected', searchSelected);
 });

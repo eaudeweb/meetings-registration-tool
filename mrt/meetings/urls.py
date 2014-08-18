@@ -4,7 +4,7 @@ from flask import current_app as app
 from mrt.models import Meeting
 
 from mrt.meetings import Meetings, MeetingEdit, RecipientsCount, AckEmail
-from mrt.meetings import Participants, ParticipantsFilter
+from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
@@ -42,6 +42,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/detail',
     view_func=ParticipantDetail.as_view('participant_detail'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/search',
+    view_func=ParticipantSearch.as_view('participant_search'))
 
 # media participants
 meetings.add_url_rule(

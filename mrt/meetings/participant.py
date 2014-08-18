@@ -1,4 +1,4 @@
-from flask import g, request, redirect, url_for, jsonify
+from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash
 from flask.views import MethodView
 
@@ -8,7 +8,7 @@ from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
-from mrt.models import db, Participant
+from mrt.models import db, Participant, search_for_participant
 from mrt.signals import activity_signal
 
 
@@ -41,16 +41,23 @@ class ParticipantsFilter(MethodView, FilterView):
                 '%s %s' % (item['column'], item['dir']))
 
         if opt['search']:
-            participants = (
-                participants.filter(
-                    Participant.first_name.contains(opt['search']) |
-                    Participant.last_name.contains(opt['search']) |
-                    Participant.email.contains(opt['search'])
-                )
-            )
+            participants = search_for_participant(opt['search'], participants)
 
         participants = participants.limit(opt['limit']).offset(opt['start'])
         return participants, total
+
+
+class ParticipantSearch(MethodView):
+
+    def get(self):
+        participants = search_for_participant(request.args['search'])
+        results = []
+        for p in participants:
+            results.append({
+                'value': p.name,
+                'url': url_for('.participant_detail', participant_id=p.id)
+            })
+        return json.dumps(results)
 
 
 class ParticipantDetail(PermissionRequiredMixin, MethodView):

@@ -539,3 +539,12 @@ def get_or_create_role(name):
         role = Role(name=name, permissions=[p[0] for p in PERMISSIONS])
         db.session.add(role)
     return role
+
+
+def search_for_participant(search, queryset=None):
+    queryset = queryset or Participant.query
+    return queryset.filter(
+        Participant.first_name.contains(search) |
+        Participant.last_name.contains(search) |
+        Participant.email.contains(search)
+    )
