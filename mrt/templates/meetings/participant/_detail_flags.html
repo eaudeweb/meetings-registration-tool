@@ -1,0 +1,26 @@
+<h5>Flags</h5>
+
+<div class="table-responsive">
+
+  <table class="table table-bordered table-condensed table-striped">
+
+    <tbody>
+
+      {% for field in custom_form_checkbox %}
+        <tr>
+          <th class="col-sm-5">{{ field.label.text }}</th>
+          <td>
+            {% if field.data %}
+              <span class="glyphicon glyphicon-ok"></span>
+            {% else %}
+              <span class="glyphicon glyphicon-minus"></span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+
+    </tbody>
+
+  </table>
+
+</div>

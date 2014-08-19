@@ -28,6 +28,7 @@ MEETING_TYPES = (
 CUSTOM_FIELDS = (
     ('text', 'Text'),
     ('image', 'Image'),
+    ('checkbox', 'Checkbox'),
 )
 
 

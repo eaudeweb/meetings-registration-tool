@@ -81,10 +81,17 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
                                                  field_type='text')
         custom_form_text = CustomFormText(obj=CustomObjectText())
 
+        CustomFormCheckbox = custom_form_factory(participant,
+                                                 field_type='checkbox')
+        CustomObjectCheckbox = custom_object_factory(participant,
+                                                     field_type='checkbox')
+        custom_form_checkbox = CustomFormCheckbox(obj=CustomObjectCheckbox())
+
         return render_template('meetings/participant/detail.html',
                                participant=participant,
                                custom_form_images=custom_form_images,
                                custom_form_text=custom_form_text,
+                               custom_form_checkbox=custom_form_checkbox,
                                form=form)
 
 
@@ -105,9 +112,17 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         CustomObjectText = custom_object_factory(participant,
                                                  field_type='text')
         custom_form_text = CustomFormText(obj=CustomObjectText())
+
+        CustomFormCheckbox = custom_form_factory(participant,
+                                                 field_type='checkbox')
+        CustomObjectCheckbox = custom_object_factory(participant,
+                                                     field_type='checkbox')
+        custom_form_checkbox = CustomFormCheckbox(obj=CustomObjectCheckbox())
+
         return render_template('meetings/participant/edit.html',
                                form=form,
                                custom_form_text=custom_form_text,
+                               custom_form_checkbox=custom_form_checkbox,
                                participant=participant)
 
     def post(self, participant_id=None):
@@ -117,9 +132,19 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         CustomObjectText = custom_object_factory(participant,
                                                  field_type='text')
         custom_form_text = CustomFormText(obj=CustomObjectText())
-        if form.validate() and custom_form_text.validate():
+
+        CustomFormCheckbox = custom_form_factory(participant,
+                                                 field_type='checkbox')
+        CustomObjectCheckbox = custom_object_factory(participant,
+                                                     field_type='checkbox')
+        custom_form_checkbox = CustomFormCheckbox(obj=CustomObjectCheckbox())
+
+
+        if (form.validate() and custom_form_text.validate() and
+            custom_form_checkbox.validate()):
             participant = form.save()
             custom_form_text.save()
+            custom_form_checkbox.save()
             flash('Person information saved', 'success')
             if participant_id:
                 activity_signal.send(self, participant=participant,
@@ -127,7 +152,12 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
             else:
                 activity_signal.send(self, participant=participant,
                                      action='edit')
-            return redirect(url_for('.participants'))
+            if participant:
+                url = url_for('.participant_detail',
+                              participant_id=participant.id)
+            else:
+                url = url_for('.participants')
+            return redirect(url)
         return render_template('meetings/participant/edit.html',
                                form=form,
                                custom_form_text=custom_form_text,

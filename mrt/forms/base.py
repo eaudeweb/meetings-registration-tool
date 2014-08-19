@@ -2,7 +2,7 @@ from flask import request
 from werkzeug import MultiDict
 
 from wtforms_alchemy import ModelForm
-from wtforms import widgets
+from wtforms import widgets, fields
 
 from mrt.models import db, Translation
 
@@ -55,3 +55,9 @@ class DescriptionInputForm(BaseForm):
                 'widget': widgets.TextArea()
             }
         }
+
+
+class BooleanField(fields.BooleanField):
+
+    def process_data(self, data):
+        self.data = True if data == 'true' else False

@@ -19,6 +19,7 @@ from mrt.utils import copy_model_fields, duplicate_uploaded_file
 from mrt.utils import unlink_participant_photo
 
 from mrt.forms.base import BaseForm, TranslationInpuForm
+from mrt.forms.base import BooleanField
 
 
 custom_upload = UploadSet('custom', TEXT + DOCUMENTS + IMAGES)
@@ -89,14 +90,13 @@ class CustomFieldMagicForm(BaseForm):
 
     MAP = {
         'text': {'field': fields.StringField},
+        'checkbox': {'field': BooleanField},
         'image': {'field': FileField, 'validators': [FileAllowed(IMAGES)]}
     }
 
     def save(self):
         items = []
         for field_name, field in self._fields.items():
-            if not field.data:
-                continue
             custom_field_value = (
                 CustomFieldValue.query
                 .filter(CustomFieldValue.custom_field.has(slug=field_name))
@@ -109,7 +109,6 @@ class CustomFieldMagicForm(BaseForm):
                     field.data, name=str(uuid4()) + '.')
                 unlink_participant_photo(current_filename)
             else:
-                print "am intrat aici "
                 custom_field_value.value = field.data
             custom_field_value.custom_field = self._custom_fields[field_name]
             custom_field_value.participant = self._participant
