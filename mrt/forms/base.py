@@ -15,7 +15,7 @@ class BaseForm(ModelForm):
 
     def __init__(self, formdata=None, obj=None, **kwargs):
         formdata = formdata.copy() if formdata else MultiDict()
-        if request.form:
+        if request.form and not len(formdata):
             formdata.update(request.form)
         if request.files:
             formdata.update(request.files)
