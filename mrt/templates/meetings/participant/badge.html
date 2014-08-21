@@ -1,0 +1,38 @@
+{% extends "_layout_pdf.html" %}
+
+
+{% block head %}
+
+  <style type="text/css">
+    {{ inject_static_file('css/badge.css') }}
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="container">
+
+    <div class="stripe"
+         style="background: {{ participant.category.color }}">
+      {# TODO badge_header in person.language #}
+      <h1>{{ g.meeting.badge_header }}</h1>
+      <img class="logo-left" alt="">
+      <img class="logo-right" alt="">
+    </div> {# stripe #}
+
+    <div class="content">
+      <img class="photo">
+      <div class="description">
+        <h2>
+          Dragos Catarahia
+          <small>person-representing</small>
+        </h2>
+      </div> {# description #}
+
+    </div> {# content #}
+
+  </div> {# container #}
+
+{% endblock %}

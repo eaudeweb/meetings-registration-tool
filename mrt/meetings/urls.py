@@ -4,15 +4,21 @@ from flask import current_app as app
 from mrt.models import Meeting
 
 from mrt.meetings import Meetings, MeetingEdit, RecipientsCount, AckEmail
+
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
-from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantRestore
+from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
+from mrt.meetings import ParticipantRestore
+
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
+
 from mrt.meetings import Categories, CategoryEdit, CategoryUpdatePosition
 from mrt.meetings import PhraseEdit
+
 from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
 from mrt.meetings import CustomFieldUpdatePosition
+
 from mrt.meetings import Roles, RoleUserEdit
 from mrt.meetings import BulkEmail, ActivityLogs
 from mrt.meetings import Statistics, MailLogs, MailLogDetail
@@ -42,6 +48,10 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/detail',
     view_func=ParticipantDetail.as_view('participant_detail'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/<int:participant_id>/badge',
+    view_func=ParticipantBadge.as_view('participant_badge'))
+
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/search',
     view_func=ParticipantSearch.as_view('participant_search'))

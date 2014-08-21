@@ -10,6 +10,7 @@ from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant, search_for_participant
 from mrt.signals import activity_signal
+from mrt.pdf import render_pdf
 
 
 class Participants(PermissionRequiredMixin, MethodView):
@@ -143,7 +144,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         custom_form_checkbox = CustomFormCheckbox(obj=CustomObjectCheckbox())
 
         if (form.validate() and custom_form_text.validate() and
-            custom_form_checkbox.validate()):
+           custom_form_checkbox.validate()):
             participant = form.save()
             custom_form_text.save()
             custom_form_checkbox.save()
@@ -192,3 +193,13 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
         flash('Participant successfully restored', 'success')
         return jsonify(status="success", url=url_for('.participant_detail',
                        participant_id=participant.id))
+
+
+class ParticipantBadge(MethodView):
+
+    def get(self, participant_id):
+        participant = Participant.query.filter_by(
+            meeting_id=g.meeting.id, id=participant_id).first_or_404()
+
+        return render_template('meetings/participant/badge.html',
+                               participant=participant)

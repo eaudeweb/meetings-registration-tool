@@ -26,6 +26,7 @@ class MeetingEditForm(BaseForm):
         }
 
     title = ModelFormField(TranslationInpuForm, label='Description')
+    badge_header = ModelFormField(TranslationInpuForm, label='Badge header')
     venue_city = ModelFormField(TranslationInpuForm, label='City')
     meeting_type = fields.SelectField('Meeting Type')
 

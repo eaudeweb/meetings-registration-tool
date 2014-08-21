@@ -61,8 +61,7 @@ upload_css = Bundle(*_BUNDLE_UPLOAD_CSS,
 colorpicker_js = Bundle(*_BUNDLE_COLORPICKER_JS,
                         output='gen/spectrum.min.js')
 colorpicker_css = Bundle(*_BUNDLE_COLORPICKER_CSS,
-                         output='gen/spectrum..min.css')
-
+                         output='gen/spectrum.min.css')
 
 assets_env = Environment()
 assets_env.register('css', css)

@@ -104,3 +104,13 @@ def crop_file(filename, config_key, data):
                  app.config['PATH_CUSTOM_KEY'])
     crop_path.makedirs_p()
     img.save(crop_path / filename)
+
+
+def read_file(f):
+    while True:
+        data = f.read(131072)
+        if data:
+            yield data
+        else:
+            break
+    f.close()

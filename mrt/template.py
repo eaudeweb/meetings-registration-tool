@@ -76,3 +76,10 @@ def no_image_cache(url):
 
 def activity_map(action):
     return ACTIVITY_ACTIONS.get(action, action)
+
+
+def inject_static_file(filepath):
+    data = None
+    with open(path(app.static_folder) / filepath, 'r') as f:
+        data = f.read()
+    return Markup(data)

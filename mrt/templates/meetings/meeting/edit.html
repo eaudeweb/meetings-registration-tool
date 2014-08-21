@@ -59,6 +59,20 @@
     <div class="panel panel-default">
 
       <div class="panel-heading">
+        <b>{{ form.badge_header.label.text }}</b>
+      </div>
+
+      <div class="panel-body">
+        {{ form_group(form.badge_header.english) }}
+        {{ form_group(form.badge_header.french) }}
+        {{ form_group(form.badge_header.spanish) }}
+      </div> {# panel-body #}
+
+    </div> {# panel #}
+
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
         <b>Venue</b>
       </div>
 
