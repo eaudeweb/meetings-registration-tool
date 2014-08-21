@@ -5,6 +5,8 @@ from pytest import fixture
 from mrt.app import create_app
 from mrt.models import db
 
+from .factories import RoleUserFactory, StaffFactory
+
 
 @fixture
 def app(request, tmpdir):
@@ -30,9 +32,19 @@ def app(request, tmpdir):
 
     db.create_all()
 
+    app.client = app.test_client()
+
     @request.addfinalizer
     def fin():
         app_context.pop()
         tmpdir.remove(rec=1)
 
     return app
+
+
+@fixture
+def user():
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+
+    return role_user.user

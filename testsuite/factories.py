@@ -80,7 +80,8 @@ class RoleFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = models.db.session
 
     name = 'MeetingsAdmin'
-    permissions = ('manage_meeting',)
+    permissions = ('manage_meeting', 'manage_participant',
+                   'manage_media_participant', 'view_participant')
 
 
 class StaffFactory(SQLAlchemyModelFactory):

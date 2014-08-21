@@ -113,7 +113,7 @@ def test_participant_picture_remove_thumbnail(app):
         assert not thumb_dir.join(thumb_full_name).check()
 
 
-def test_participant_picture_remove_crop(app):
+def test_participant_picture_remove_crop(app, user):
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     crop_dir = local(app.config['UPLOADED_CROP_DEST'] /
@@ -131,18 +131,20 @@ def test_participant_picture_remove_crop(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with app.client.session_transaction() as sess:
+            sess['user_id'] = user.id
         url = url_for('meetings.custom_field_crop',
                       meeting_id=pic.custom_field.meeting.id,
                       participant_id=pic.participant.id,
                       custom_field_slug=pic.custom_field.label.english)
-        resp = client.post(url, data=data)
+        resp = app.client.post(url, data=data)
         assert resp.status_code == 302
         assert crop_dir.join(pic.value).check()
 
         url = url_for('meetings.participant_detail',
                       meeting_id=pic.custom_field.meeting.id,
                       participant_id=pic.participant.id)
-        resp = client.get(url)
+        resp = app.client.get(url)
         thumb_name, thumb_fm = os.path.splitext(pic.value)
         thumb_full_name = Thumbnail._get_name(thumb_name, thumb_fm,
                                               '200x200', 85)
