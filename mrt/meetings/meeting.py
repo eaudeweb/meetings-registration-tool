@@ -1,5 +1,6 @@
 from flask import request, redirect, render_template, jsonify
 from flask import g, url_for, flash, abort
+from flask import current_app as app
 from flask.views import MethodView
 from flask.ext.login import login_required, current_user
 
@@ -28,6 +29,8 @@ class PermissionRequiredMixin(object):
         return current_user.has_perms(perms)
 
     def dispatch_request(self, *args, **kwargs):
+        if not current_user.is_authenticated():
+            return app.login_manager.unauthorized()
         if not self.check_permissions():
             abort(403)
         return super(PermissionRequiredMixin, self).dispatch_request(
