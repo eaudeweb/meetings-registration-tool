@@ -14,23 +14,19 @@ from mrt.signals import activity_signal
 @activity_signal.connect_via(ANY)
 def activity_listener(sender, participant, action):
     staff = Staff.query.filter_by(user=user).first()
-    activity = ActivityLog(participant_name=participant.name,
-                           participant_id=participant.id,
+    activity = ActivityLog(participant=participant,
                            meeting=participant.meeting,
                            staff=staff, action=action,
                            date=datetime.now())
     db.session.add(activity)
-    if action == 'delete':
-        activity.participant_id = None
-        query = ActivityLog.query.filter_by(participant_id=participant.id)
-        query.update({ActivityLog.participant_id: None})
     db.session.commit()
 
 
 class Statistics(MethodView):
 
     def get(self):
-        participants = Participant.query.filter_by(meeting_id=g.meeting.id)
+        participants = Participant.query.filter_by(meeting_id=g.meeting.id,
+                                                   deleted=False)
         media_participants = (
             MediaParticipant.query.filter_by(meeting_id=g.meeting.id))
         return render_template('meetings/log/statistics.html',
@@ -69,7 +65,7 @@ class ActivityLogs(MethodView):
 
         staff_id = request.args.get('staff_id', 0)
         seconds = request.args.get('time', 0)
-        name = request.args.get('name', 0)
+        part_id = request.args.get('part_id', None)
 
         if staff_id:
             activities = activities.filter_by(staff_id=int(staff_id))
@@ -78,8 +74,8 @@ class ActivityLogs(MethodView):
             relative_date = datetime.now() - timedelta(seconds=int(seconds))
             activities = activities.filter(ActivityLog.date > relative_date)
 
-        if name:
-            activities = activities.filter_by(participant_name=name)
+        if part_id:
+            activities = activities.filter_by(participant_id=part_id)
 
         return render_template('meetings/log/activity.html',
                                activities=activities,

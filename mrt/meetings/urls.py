@@ -5,7 +5,7 @@ from mrt.models import Meeting
 
 from mrt.meetings import Meetings, MeetingEdit, RecipientsCount, AckEmail
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
-from mrt.meetings import ParticipantEdit, ParticipantDetail
+from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantRestore
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
 from mrt.meetings import Categories, CategoryEdit, CategoryUpdatePosition
@@ -45,6 +45,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/search',
     view_func=ParticipantSearch.as_view('participant_search'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/<int:participant_id>/restore',
+    view_func=ParticipantRestore.as_view('participant_restore'))
 
 # media participants
 meetings.add_url_rule(

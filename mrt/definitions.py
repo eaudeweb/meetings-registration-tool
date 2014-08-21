@@ -50,4 +50,5 @@ ACTIVITY_ACTIONS = {
     'add': 'Add participant',
     'edit': 'Edit participant',
     'delete': 'Delete participant',
+    'restore': 'Restore participant'
 }

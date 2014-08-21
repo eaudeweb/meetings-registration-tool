@@ -10,7 +10,8 @@ def get_recipients(language, categories=None):
     """ Return a queryset of participants filtered by language and categories
     """
     queryset = Participant.query.filter_by(meeting=g.meeting,
-                                           language=language)
+                                           language=language,
+                                           deleted=False)
     if categories:
         queryset = queryset.filter(Participant.category_id.in_(categories))
     return queryset
@@ -60,7 +61,7 @@ class AckEmail(MethodView):
     def get_participant(self, participant_id):
         return (
             Participant.query
-            .filter_by(meeting=g.meeting, id=participant_id)
+            .filter_by(meeting=g.meeting, id=participant_id, deleted=False)
             .first()
         ) or abort(404)
 

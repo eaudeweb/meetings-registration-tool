@@ -33,7 +33,8 @@ class ParticipantsFilter(MethodView, FilterView):
         return str(participant.category)
 
     def get_queryset(self, **opt):
-        participants = Participant.query.filter_by(meeting_id=g.meeting.id)
+        participants = Participant.query.filter_by(meeting_id=g.meeting.id,
+                                                   deleted=False)
         total = participants.count()
 
         for item in opt['order']:
@@ -67,7 +68,8 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
     def get(self, participant_id):
         participant = (
             Participant.query
-            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .filter_by(meeting_id=g.meeting.id, id=participant_id,
+                       deleted=False)
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
 
@@ -101,7 +103,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def _get_object(self, participant_id=None):
         return (Participant.query
-                .filter_by(meeting_id=g.meeting.id, id=participant_id)
+                .filter_by(meeting_id=g.meeting.id, id=participant_id,
+                           deleted=False)
                 .first_or_404()
                 if participant_id else None)
 
@@ -139,7 +142,6 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                                                      field_type='checkbox')
         custom_form_checkbox = CustomFormCheckbox(obj=CustomObjectCheckbox())
 
-
         if (form.validate() and custom_form_text.validate() and
             custom_form_checkbox.validate()):
             participant = form.save()
@@ -148,10 +150,10 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
             flash('Person information saved', 'success')
             if participant_id:
                 activity_signal.send(self, participant=participant,
-                                     action='add')
+                                     action='edit')
             else:
                 activity_signal.send(self, participant=participant,
-                                     action='edit')
+                                     action='add')
             if participant:
                 url = url_for('.participant_detail',
                               participant_id=participant.id)
@@ -165,9 +167,28 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def delete(self, participant_id):
         participant = self._get_object(participant_id)
-        db.session.delete(participant)
+        participant.deleted = True
         activity_signal.send(self, participant=participant,
                              action='delete')
         db.session.commit()
         flash('Participant successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.participants'))
+
+
+class ParticipantRestore(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_participant',)
+
+    def post(self, participant_id):
+        participant = (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id,
+                       deleted=True)
+            .first_or_404())
+        participant.deleted = False
+        activity_signal.send(self, participant=participant,
+                             action='restore')
+        db.session.commit()
+        flash('Participant successfully restored', 'success')
+        return jsonify(status="success", url=url_for('.participant_detail',
+                       participant_id=participant.id))

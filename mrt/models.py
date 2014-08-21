@@ -194,6 +194,8 @@ class Participant(db.Model):
     country = db.Column(CountryType, nullable=False,
                         info={'label': 'Country'})
 
+    deleted = db.Column(db.Boolean, default=False, nullable=False)
+
     def __repr__(self):
         return self.name
 
@@ -278,7 +280,8 @@ class CustomFieldValue(db.Model):
         nullable=False)
     participant = db.relationship(
         'Participant',
-        backref=db.backref('custom_field_values', lazy='dynamic'))
+        backref=db.backref('custom_field_values', lazy='dynamic',
+                           cascade="delete"))
 
     value = db.Column(db.String(64), nullable=False)
 
@@ -524,8 +527,13 @@ class ActivityLog(db.Model):
         'Meeting',
         backref=db.backref('activities', lazy='dynamic', cascade='delete'))
 
-    participant_name = db.Column(db.String(64), nullable=False)
-    participant_id = db.Column(db.Integer)
+    participant_id = db.Column(
+        db.Integer, db.ForeignKey('participant.id'),
+        nullable=False)
+    participant = db.relationship(
+        'Participant',
+        backref=db.backref('activities', lazy='dynamic'))
+
     date = db.Column(db.DateTime, nullable=False)
     action = db.Column(db.String(64), nullable=False)
 
@@ -546,5 +554,6 @@ def search_for_participant(search, queryset=None):
     return queryset.filter(
         Participant.first_name.contains(search) |
         Participant.last_name.contains(search) |
-        Participant.email.contains(search)
+        Participant.email.contains(search),
+        Participant.deleted==False
     )

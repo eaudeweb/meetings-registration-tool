@@ -87,7 +87,7 @@
         {% for activity in activities %}
           <tr style="text-align: center;">
             <td>{{ activity.staff }}</td>
-            <td><a href="{{ url_for('.activity', name=activity.participant_name) }}">{{ activity.participant_name }}</a></td>
+            <td><a href="{{ url_for('.activity', part_id=activity.participant.id) }}">{{ activity.participant.name }}</a></td>
             <td>{{ activity.date.strftime('%Y-%m-%d %H:%M') }}</td>
             <td>{{ activity.action|activity_map }}</td>
             <td>{{ activity_url(activity) }}</td>
