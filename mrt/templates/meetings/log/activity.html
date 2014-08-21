@@ -30,7 +30,6 @@
 {% block content %}
 
   {{ super() }}
-  {% set staff_id = request.args.get('staff_id', None)|int %}
   {% set time = request.args.get('time')|int %}
 
   <h3 class="page-title">{{ title }}</h3>
@@ -44,15 +43,15 @@
           <a href="{{ url_for('.activity') }}">All</a>
         </li>
         {% for staff in staffs %}
-          {% set url = url_for('.activity', staff_id=staff.staff.id) %}
-          <li {% if staff_id == staff.staff.id %}class="active"{% endif %}>
+          {% set url = url_for('.activity', staff_id=staff.staff.id, time=seconds) %}
+          <li {% if staff_id|int == staff.staff.id %}class="active"{% endif %}>
             <a href="{{ url }}">{{ staff.staff }}</a>
           </li>
         {% endfor %}
 
         <li class="nav-header">Filter by time span</li>
         <li class="{% if not time %}active {% endif %}">
-          <a href="{{ url_for('.activity') }}">Anytime</a>
+          <a href="{{ url_for('.activity', staff_id=staff_id) }}">Anytime</a>
         </li>
         <li class="{% if time == 86400 %}active {% endif %}">
           <a href="{{ url_for('.activity', time=86400, staff_id=staff_id) }}">Last 24 hours</a>

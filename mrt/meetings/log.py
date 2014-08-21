@@ -63,8 +63,8 @@ class ActivityLogs(MethodView):
         staffs = RoleUser.query.filter_by(meeting=g.meeting)
         activities = ActivityLog.query.filter_by(meeting=g.meeting)
 
-        staff_id = request.args.get('staff_id', 0)
-        seconds = request.args.get('time', 0)
+        staff_id = request.args.get('staff_id', None)
+        seconds = request.args.get('time', None)
         part_id = request.args.get('part_id', None)
 
         if staff_id:
@@ -79,4 +79,7 @@ class ActivityLogs(MethodView):
 
         return render_template('meetings/log/activity.html',
                                activities=activities,
-                               staffs=staffs)
+                               staffs=staffs,
+                               staff_id=staff_id,
+                               seconds=seconds,
+                               part_id=part_id)
