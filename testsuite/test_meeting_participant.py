@@ -16,4 +16,4 @@ def test_meeting_participant_delete(app):
                                      meeting_id=part.meeting.id,
                                      participant_id=part.id))
         assert resp.status_code == 200
-        assert part.meeting.participants.count() == 0
+        assert part.meeting.participants.filter_by(deleted=False).count() == 0
