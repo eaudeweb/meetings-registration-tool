@@ -3,6 +3,10 @@
 
   <head>
     <title>{% block title %}{% endblock %}</title>
+    <style type="text/css">
+      {{ inject_static_file('css/reset.css') }}
+    </style>
+
     {% block head %}{% endblock %}
   </head>
 

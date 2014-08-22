@@ -199,6 +199,5 @@ class ParticipantBadge(MethodView):
     def get(self, participant_id):
         participant = Participant.query.active().filter_by(
             meeting_id=g.meeting.id, id=participant_id).first_or_404()
-
-        return render_template('meetings/participant/badge.html',
+        return render_pdf('meetings/participant/badge.html',
                                participant=participant)

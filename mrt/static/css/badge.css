@@ -1,9 +1,19 @@
 body {
-    font-family: sans-serif;
+    font-family: Arial, sans-serif;
+}
+
+h1, h2 {
+    font-weight: normal;
 }
 
 h1 {
     font-family: "Arial Narrow";
+    position: relative;
+    top: 0.2500in;
+    font-size: 7pt;
+}
+h2 {
+    font-size: 11pt;
 }
 
 .container {
@@ -12,6 +22,42 @@ h1 {
 
 .stripe {
     text-align: center;
+    height: 0.6694in;
     font-size: 8pt;
     color: #fff;
+}
+.stripe .logo {
+    position: absolute;
+    width: 0.3097in;
+    top: 0.1300in;
+    left: 0.2025in;
+}
+.stripe .side-logo {
+    position: absolute;
+    width: 0.3097in;
+    top: 0.1300in;
+    right: 0.2025in;
+}
+
+.content {
+    position: relative;
+}
+.content .photo {
+    max-height: 1.1813in;
+    max-width: 0.9847in;
+    position: absolute;
+    left: 0.0785in;
+    top: 0.0785in;
+}
+.content .description {
+    line-height: 18px;
+    position: absolute;
+    top: 0.1667in;
+    left: 1.1417in;
+}
+
+.content .description small {
+    padding: 0.0208in;
+    display: block;
+    font-size: 9pt;
 }

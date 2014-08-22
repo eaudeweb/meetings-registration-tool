@@ -3,6 +3,7 @@ from datetime import datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
+from flask import g
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
@@ -199,6 +200,7 @@ class Participant(db.Model):
 
     language = db.Column(ChoiceType(LANGUAGE_CHOICES), nullable=False,
                          info={'label': 'Working language'}, default=u'en')
+
     country = db.Column(CountryType, nullable=False,
                         info={'label': 'Country'})
 
@@ -211,6 +213,22 @@ class Participant(db.Model):
     def name(self):
         return '%s %s %s' % (self.title.value, self.first_name,
                              self.last_name)
+
+    @property
+    def lang_trans(self):
+        return self.language.value.lower()
+
+    @property
+    def photo(self):
+        field = (
+            CustomField.query
+            .filter_by(meeting=g.meeting, field_type=u'image')
+            .first()
+        )
+        if field:
+            photo = field.custom_field_values.first()
+            return photo.value if photo else None
+        return None
 
 
 class CustomField(db.Model):
@@ -248,30 +266,10 @@ class CustomField(db.Model):
         return slugify(self.label.english)
 
 
-class CustomFieldChoice(db.Model):
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    custom_field_id = db.Column(
-        db.Integer(), db.ForeignKey('custom_field.id'),
-        nullable=False)
-    custom_field = db.relationship(
-        'CustomField',
-        backref=db.backref('custom_field_choices', lazy='dynamic',
-                           cascade='delete'))
-
-    value_id = db.Column(
-        db.Integer, db.ForeignKey('translation.id'),
-        nullable=False)
-    value = db.relationship(
-        'Translation',
-        backref=db.backref('custom_field_choices', lazy='dynamic'))
-
-    def __repr__(self):
-        return self.value.english
-
-
 class CustomFieldValue(db.Model):
+
+    __table_args__ = (
+        db.UniqueConstraint('custom_field_id', 'participant_id'),)
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -302,6 +300,29 @@ class CustomFieldValue(db.Model):
 
     def __repr__(self):
         return self.value
+
+
+class CustomFieldChoice(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    custom_field_id = db.Column(
+        db.Integer(), db.ForeignKey('custom_field.id'),
+        nullable=False)
+    custom_field = db.relationship(
+        'CustomField',
+        backref=db.backref('custom_field_choices', lazy='dynamic',
+                           cascade='delete'))
+
+    value_id = db.Column(
+        db.Integer, db.ForeignKey('translation.id'),
+        nullable=False)
+    value = db.relationship(
+        'Translation',
+        backref=db.backref('custom_field_choices', lazy='dynamic'))
+
+    def __repr__(self):
+        return self.value.english
 
 
 class MediaParticipant(db.Model):
