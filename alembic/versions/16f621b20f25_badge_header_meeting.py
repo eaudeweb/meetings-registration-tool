@@ -1,14 +1,14 @@
 """badge header meeting
 
 Revision ID: 16f621b20f25
-Revises: 3cbf4b74f3ad
+Revises: 2f4220e008ea
 Create Date: 2014-08-21 17:52:14.665931
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '16f621b20f25'
-down_revision = '3cbf4b74f3ad'
+down_revision = '2f4220e008ea'
 
 from alembic import op
 import sqlalchemy as sa
