@@ -180,8 +180,10 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 
     def post(self, participant_id):
         participant = (
-            Participant.query.active()
-            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id,
+                       id=participant_id,
+                       deleted=True)
             .first_or_404())
         participant.deleted = False
         activity_signal.send(self, participant=participant,
