@@ -59,12 +59,21 @@ class CountryTypeFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = models.db.session
 
 
+class BadgeHaderFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Translation
+        sqlalchemy_session = models.db.session
+
+    english = 'Meeting Badge Header'
+
+
 class MeetingFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Meeting
         sqlalchemy_session = models.db.session
 
     title = SubFactory(MeetingTitleFactory)
+    badge_header = SubFactory(BadgeHaderFactory)
     acronym = 'MOTPC'
     meeting_type = 'cop'
     date_start = date.today()

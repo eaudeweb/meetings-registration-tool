@@ -29,6 +29,7 @@ def test_meeting_add(app):
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
 
     client = app.test_client()
     with app.test_request_context():
@@ -47,6 +48,7 @@ def test_meeting_edit(app):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
+    data['badge_header-english'] = data.pop('badge_header')
 
     client = app.test_client()
     with app.test_request_context():
@@ -182,6 +184,7 @@ def test_meeting_add_phrase_edit(app):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
 
     client = app.test_client()
     with app.test_request_context():
@@ -208,6 +211,7 @@ def test_meeting_add_default_phrase_edit(app):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
 
     client = app.test_client()
     with app.test_request_context():
@@ -235,6 +239,7 @@ def test_meeting_add_default_phrase_copies(app):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
 
     client = app.test_client()
     with app.test_request_context():

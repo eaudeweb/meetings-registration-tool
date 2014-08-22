@@ -26,7 +26,7 @@ class Statistics(MethodView):
 
     def get(self):
         participants = (
-            Participant.active_query.filter_by(meeting_id=g.meeting.id))
+            Participant.query.filter_by(meeting_id=g.meeting.id).active())
         media_participants = (
             MediaParticipant.query.filter_by(meeting_id=g.meeting.id))
         return render_template('meetings/log/statistics.html',

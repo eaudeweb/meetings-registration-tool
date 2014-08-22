@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
@@ -18,12 +18,10 @@ from mrt.definitions import (
 db = SQLAlchemy()
 
 
-class classproperty(object):
-    def __init__(self, getter):
-        self.getter = getter
+class ParticipantQuery(BaseQuery):
 
-    def __get__(self, instance, owner):
-        return self.getter(owner)
+    def active(self):
+        return self.filter(Participant.deleted == False)
 
 
 class JSONEncodedDict(TypeDecorator):
@@ -152,6 +150,8 @@ class RoleUser(db.Model):
 
 class Participant(db.Model):
 
+    query_class = ParticipantQuery
+
     TITLE_CHOICES = (
         ('Ms', 'Ms'),
         ('Mr', 'Mr'),
@@ -211,10 +211,6 @@ class Participant(db.Model):
     def name(self):
         return '%s %s %s' % (self.title.value, self.first_name,
                              self.last_name)
-
-    @classproperty
-    def active_query(cls):
-        return cls.query.filter_by(deleted=False)
 
 
 class CustomField(db.Model):
@@ -566,7 +562,7 @@ def get_or_create_role(name):
 
 
 def search_for_participant(search, queryset=None):
-    queryset = queryset or Participant.active_query
+    queryset = queryset or Participant.query.active()
     return queryset.filter(
         Participant.first_name.contains(search) |
         Participant.last_name.contains(search) |

@@ -34,8 +34,8 @@ class ParticipantsFilter(MethodView, FilterView):
         return str(participant.category)
 
     def get_queryset(self, **opt):
-        participants = Participant.active_query.filter_by(
-            meeting_id=g.meeting.id)
+        participants = Participant.query.filter_by(
+            meeting_id=g.meeting.id).active()
         total = participants.count()
 
         for item in opt['order']:
@@ -68,7 +68,7 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id):
         participant = (
-            Participant.active_query
+            Participant.query.active()
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
@@ -102,7 +102,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_participant', )
 
     def _get_object(self, participant_id=None):
-        return (Participant.active_query
+        return (Participant.query.active()
                 .filter_by(meeting_id=g.meeting.id, id=participant_id)
                 .first_or_404()
                 if participant_id else None)
@@ -180,7 +180,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 
     def post(self, participant_id):
         participant = (
-            Participant.active_query
+            Participant.query.active()
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
         participant.deleted = False
@@ -195,7 +195,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 class ParticipantBadge(MethodView):
 
     def get(self, participant_id):
-        participant = Participant.query.filter_by(
+        participant = Participant.query.active().filter_by(
             meeting_id=g.meeting.id, id=participant_id).first_or_404()
 
         return render_template('meetings/participant/badge.html',

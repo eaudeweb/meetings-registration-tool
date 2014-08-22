@@ -58,7 +58,7 @@ class CustomFieldEdit(MethodView):
 
 def _get_participant(participant_id):
     return (
-        Participant.query
+        Participant.query.active()
         .filter_by(meeting_id=g.meeting.id, id=participant_id)
         .first_or_404())
 
