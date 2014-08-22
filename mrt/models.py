@@ -18,6 +18,14 @@ from mrt.definitions import (
 db = SQLAlchemy()
 
 
+class classproperty(object):
+    def __init__(self, getter):
+        self.getter = getter
+
+    def __get__(self, instance, owner):
+        return self.getter(owner)
+
+
 class JSONEncodedDict(TypeDecorator):
     impl = String
 
@@ -203,6 +211,10 @@ class Participant(db.Model):
     def name(self):
         return '%s %s %s' % (self.title.value, self.first_name,
                              self.last_name)
+
+    @classproperty
+    def active_query(cls):
+        return cls.query.filter_by(deleted=False)
 
 
 class CustomField(db.Model):
@@ -554,10 +566,9 @@ def get_or_create_role(name):
 
 
 def search_for_participant(search, queryset=None):
-    queryset = queryset or Participant.query
+    queryset = queryset or Participant.active_query
     return queryset.filter(
         Participant.first_name.contains(search) |
         Participant.last_name.contains(search) |
-        Participant.email.contains(search),
-        Participant.deleted==False
+        Participant.email.contains(search)
     )

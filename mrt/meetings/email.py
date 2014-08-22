@@ -9,9 +9,8 @@ from mrt.models import Participant
 def get_recipients(language, categories=None):
     """ Return a queryset of participants filtered by language and categories
     """
-    queryset = Participant.query.filter_by(meeting=g.meeting,
-                                           language=language,
-                                           deleted=False)
+    queryset = Participant.active_query.filter_by(meeting=g.meeting,
+                                                  language=language)
     if categories:
         queryset = queryset.filter(Participant.category_id.in_(categories))
     return queryset
@@ -60,8 +59,8 @@ class AckEmail(MethodView):
 
     def get_participant(self, participant_id):
         return (
-            Participant.query
-            .filter_by(meeting=g.meeting, id=participant_id, deleted=False)
+            Participant.active_query
+            .filter_by(meeting=g.meeting, id=participant_id)
             .first()
         ) or abort(404)
 

@@ -25,8 +25,8 @@ def activity_listener(sender, participant, action):
 class Statistics(MethodView):
 
     def get(self):
-        participants = Participant.query.filter_by(meeting_id=g.meeting.id,
-                                                   deleted=False)
+        participants = (
+            Participant.active_query.filter_by(meeting_id=g.meeting.id))
         media_participants = (
             MediaParticipant.query.filter_by(meeting_id=g.meeting.id))
         return render_template('meetings/log/statistics.html',
