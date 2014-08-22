@@ -28,5 +28,5 @@ def downgrade():
     op.alter_column('activity_log', 'participant_id',
                existing_type=sa.INTEGER(),
                nullable=True)
-    op.add_column('activity_log', sa.Column('participant_name', sa.VARCHAR(length=64), autoincrement=False, nullable=False))
+    op.add_column('activity_log', sa.Column('participant_name', sa.VARCHAR(length=64), autoincrement=False))
     ### end Alembic commands ###

@@ -194,7 +194,7 @@ class Participant(db.Model):
     country = db.Column(CountryType, nullable=False,
                         info={'label': 'Country'})
 
-    deleted = db.Column(db.Boolean, default=False, nullable=False)
+    deleted = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return self.name
