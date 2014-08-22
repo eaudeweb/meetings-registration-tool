@@ -38,33 +38,52 @@
     <div class="col-sm-2">
       <ul class="nav nav-pills nav-stacked nav-condensed">
 
-        <li class="nav-header">Filter by staff</li>
-        <li class="{% if not staff_id %}active {% endif %}">
-          <a href="{{ url_for('.activity') }}">All</a>
-        </li>
-        {% for staff in staffs %}
-          {% set url = url_for('.activity', staff_id=staff.staff.id, time=seconds) %}
-          <li {% if staff_id|int == staff.staff.id %}class="active"{% endif %}>
-            <a href="{{ url }}">{{ staff.staff }}</a>
+        {% if part_id %}
+        <li class="nav-header">Filter by user</li>
+        <li>
+          <li class="active">
+            <a>{{ activities.first().participant }}</a>
           </li>
-        {% endfor %}
+        </li>
+        <br>
+        <li>
+          <a href="{{ url_for('.activity') }}">
+            <small style="position:relative; left: -2px;">
+              <span class="glyphicon glyphicon-backward"></span>
+            </small>
+            Back to filters
+          </a>
+        </li>
 
-        <li class="nav-header">Filter by time span</li>
-        <li class="{% if not time %}active {% endif %}">
-          <a href="{{ url_for('.activity', staff_id=staff_id) }}">Anytime</a>
-        </li>
-        <li class="{% if time == 86400 %}active {% endif %}">
-          <a href="{{ url_for('.activity', time=86400, staff_id=staff_id) }}">Last 24 hours</a>
-        </li>
-        <li class="{% if time == 259200 %}active {% endif %}">
-          <a href="{{ url_for('.activity', time=259200, staff_id=staff_id) }}">Last 3 days</a>
-        </li>
-        <li class="{% if time == 604800 %}active {% endif %}">
-          <a href="{{ url_for('.activity', time=604800, staff_id=staff_id) }}">Last 7 days</a>
-        </li>
-        <li class="{% if time == 2592000 %}active {% endif %}">
-          <a href="{{ url_for('.activity', time=2592000, staff_id=staff_id) }}">Last month</a>
-        </li>
+        {% else %}
+          <li class="nav-header">Filter by staff</li>
+          <li class="{% if not staff_id %}active {% endif %}">
+            <a href="{{ url_for('.activity') }}">All</a>
+          </li>
+          {% for staff in staffs %}
+            {% set url = url_for('.activity', staff_id=staff.staff.id, time=seconds) %}
+            <li {% if staff_id|int == staff.staff.id %}class="active"{% endif %}>
+              <a href="{{ url }}">{{ staff.staff }}</a>
+            </li>
+          {% endfor %}
+
+          <li class="nav-header">Filter by time span</li>
+          <li class="{% if not time %}active {% endif %}">
+            <a href="{{ url_for('.activity', staff_id=staff_id) }}">Anytime</a>
+          </li>
+          <li class="{% if time == 86400 %}active {% endif %}">
+            <a href="{{ url_for('.activity', time=86400, staff_id=staff_id) }}">Last 24 hours</a>
+          </li>
+          <li class="{% if time == 259200 %}active {% endif %}">
+            <a href="{{ url_for('.activity', time=259200, staff_id=staff_id) }}">Last 3 days</a>
+          </li>
+          <li class="{% if time == 604800 %}active {% endif %}">
+            <a href="{{ url_for('.activity', time=604800, staff_id=staff_id) }}">Last 7 days</a>
+          </li>
+          <li class="{% if time == 2592000 %}active {% endif %}">
+            <a href="{{ url_for('.activity', time=2592000, staff_id=staff_id) }}">Last month</a>
+          </li>
+        {% endif %}
       </ul>
     </div>
 
