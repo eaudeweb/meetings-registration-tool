@@ -10,12 +10,8 @@
 {% endblock %}
 
 
-{% set product_logo = config['PRODUCT_LOGO'] %}
-{% set product_side_logo = config['PRODUCT_SIDE_LOGO'] %}
-
-
 {% block content %}
-  {{ app}}
+
   <div class="container">
 
     <div class="stripe"
@@ -23,14 +19,12 @@
       <h1>
         {{ g.meeting.badge_header[participant.lang_trans] }}
       </h1>
-      <img src="{{ url_for('static', filename=product_logo) }}"
-           class="logo" alt="" >
-      <img src="{{ url_for('static', filename=product_side_logo) }}"
-           class="side-logo" alt="">
+      <img src="{{ product_logo }}" class="logo" alt="" >
+      <img src="{{ product_side_logo }}" class="side-logo" alt="">
     </div> {# stripe #}
 
     <div class="content">
-      <img src="{{ url_for('files', filename='custom_uploads/' ~ participant.photo) }}" alt="" class="photo">
+      <img src="{{ participant_photo }}" alt="" class="photo">
       <div class="description">
         <h2>
          {{ participant.first_name }}

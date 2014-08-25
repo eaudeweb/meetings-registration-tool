@@ -3,7 +3,7 @@ import tempfile
 import uuid
 
 from flask import current_app as app
-from flask import Response
+from flask import Response, g
 from path import path
 
 from mrt.utils import read_file
@@ -18,6 +18,7 @@ def stream_template(template_name, **context):
 
 
 def render_pdf(template_name, **context):
+    g.is_rendered_as_pdf = True
     tmp_folder = path(tempfile.mkdtemp())
     template_path = tmp_folder / (str(uuid.uuid4()) + '.html')
     pdf_path = tmp_folder / (str(uuid.uuid4()) + '.pdf')

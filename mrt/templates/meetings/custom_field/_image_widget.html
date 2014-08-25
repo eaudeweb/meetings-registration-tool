@@ -1,7 +1,8 @@
 {% if data %}
-  {% set url = url_for('files', filename='custom_uploads/' ~ data) %}
+  {% set url = url_for(
+      'files', filename=config['PATH_CUSTOM_KEY'] ~ '/' ~ data) %}
   <a href="{{ url }}" rel="fancybox">
-    {% set file_path = 'custom_uploads' ~ '/' ~ data %}
+    {% set file_path = config['PATH_CUSTOM_KEY'] ~ '/' ~ data %}
     <img src="{{ file_path|crop|thumbnail('200x200')|no_image_cache }}"
          alt="" width="200" height="200">
   </a>

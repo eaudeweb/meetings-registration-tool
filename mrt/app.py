@@ -67,21 +67,23 @@ def create_app(config={}):
 
 
 def _configure_uploads(app):
-    files_path = path(app.instance_path) / 'files'
-
+    app.config['FILES_PATH'] = files_path = path(app.instance_path) / 'files'
     app.config['PATH_BACKGROUNDS_KEY'] = path_backgrounds_key = 'backgrounds'
     app.config['PATH_CUSTOM_KEY'] = path_custom_key = 'custom_uploads'
     app.config['PATH_CROP_KEY'] = path_crop_key = 'crops'
     app.config['PATH_THUMB_KEY'] = path_thumb_key = 'thumbnails'
+    app.config['PATH_LOGOS_KEY'] = path_logos_key = 'logos'
 
     app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / path_backgrounds_key
     app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
     app.config['UPLOADED_CROP_DEST'] = files_path / path_crop_key
+    app.config['UPLOADED_LOGOS_DEST'] = files_path / path_logos_key
 
     app.config['MEDIA_FOLDER'] = files_path
     app.config['MEDIA_THUMBNAIL_FOLDER'] = \
         app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
+
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
     app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {

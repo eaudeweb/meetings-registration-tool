@@ -1,8 +1,10 @@
+from werkzeug.utils import HTMLBuilder
 from flask import g, request, redirect, url_for, jsonify, json
+from flask import current_app as app
 from flask import render_template, flash
 from flask.views import MethodView
 
-from werkzeug.utils import HTMLBuilder
+from path import path
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantEditForm
@@ -11,6 +13,7 @@ from mrt.mixins import FilterView
 from mrt.models import db, Participant, search_for_participant
 from mrt.signals import activity_signal
 from mrt.pdf import render_pdf
+from mrt.template import crop
 
 
 class Participants(PermissionRequiredMixin, MethodView):
@@ -34,8 +37,8 @@ class ParticipantsFilter(MethodView, FilterView):
         return str(participant.category)
 
     def get_queryset(self, **opt):
-        participants = Participant.query.filter_by(
-            meeting_id=g.meeting.id).active()
+        participants = Participant.query.filter_by(meeting_id=g.meeting.id,
+                                                   deleted=False)
         total = participants.count()
 
         for item in opt['order']:
@@ -68,8 +71,9 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id):
         participant = (
-            Participant.query.active()
-            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id,
+                       deleted=False)
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
 
@@ -102,8 +106,9 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_participant', )
 
     def _get_object(self, participant_id=None):
-        return (Participant.query.active()
-                .filter_by(meeting_id=g.meeting.id, id=participant_id)
+        return (Participant.query
+                .filter_by(meeting_id=g.meeting.id, id=participant_id,
+                           deleted=False)
                 .first_or_404()
                 if participant_id else None)
 
@@ -181,8 +186,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
     def post(self, participant_id):
         participant = (
             Participant.query
-            .filter_by(meeting_id=g.meeting.id,
-                       id=participant_id,
+            .filter_by(meeting_id=g.meeting.id, id=participant_id,
                        deleted=True)
             .first_or_404())
         participant.deleted = False
@@ -197,7 +201,18 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 class ParticipantBadge(MethodView):
 
     def get(self, participant_id):
-        participant = Participant.query.active().filter_by(
+        participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).first_or_404()
+        participant_photo = (
+            app.config['FILES_PATH'] /
+            crop(path(app.config['PATH_CUSTOM_KEY']) / participant.photo)
+        )
+        product_logo = (app.config['UPLOADED_LOGOS_DEST'] /
+                        app.config['PRODUCT_LOGO'])
+        product_side_logo = (app.config['UPLOADED_LOGOS_DEST'] /
+                             app.config['PRODUCT_SIDE_LOGO'])
         return render_pdf('meetings/participant/badge.html',
-                               participant=participant)
+                          participant=participant,
+                          participant_photo=participant_photo,
+                          product_logo=product_logo,
+                          product_side_logo=product_side_logo)
