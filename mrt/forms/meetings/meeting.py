@@ -3,7 +3,7 @@ from flask.ext.login import current_user
 from wtforms import fields, widgets
 from wtforms_alchemy import ModelFormField
 
-from mrt.models import db, Meeting
+from mrt.models import db, Meeting, Staff
 from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.forms.base import BaseForm, TranslationInpuForm
 from mrt.utils import copy_model_fields
@@ -29,10 +29,15 @@ class MeetingEditForm(BaseForm):
     badge_header = ModelFormField(TranslationInpuForm, label='Badge header')
     venue_city = ModelFormField(TranslationInpuForm, label='City')
     meeting_type = fields.SelectField('Meeting Type')
+    owner_id = fields.SelectField('Owner', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(MeetingEditForm, self).__init__(*args, **kwargs)
         self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
+        self.owner_id.choices = [
+            (x.id, x.full_name) for x in Staff.query.all()]
+        if not self.owner_id.data:
+            self.owner_id.data = current_user.staff.id
 
     def _save_phrases(self, meeting):
         phrases_default = PhraseDefault.query.filter(
@@ -52,7 +57,6 @@ class MeetingEditForm(BaseForm):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
         if meeting.id is None:
-            meeting.owner = current_user.staff
             db.session.add(meeting)
             self._save_phrases(meeting)
         db.session.commit()
