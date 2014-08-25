@@ -61,3 +61,8 @@ h2 {
     display: block;
     font-size: 7pt;
 }
+
+.nostripe {
+    background: #fff!important;
+    color: #000;
+}

@@ -14,7 +14,7 @@
 
   <div class="container">
 
-    <div class="stripe"
+    <div class="stripe {% if nostripe %}nostripe{% endif %}"
          style="background: {{ participant.category.color }}">
       <h1>
         {{ g.meeting.badge_header[participant.lang_trans] }}

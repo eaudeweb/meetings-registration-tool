@@ -211,8 +211,10 @@ class ParticipantBadge(MethodView):
                         app.config['PRODUCT_LOGO'])
         product_side_logo = (app.config['UPLOADED_LOGOS_DEST'] /
                              app.config['PRODUCT_SIDE_LOGO'])
+        nostripe = request.args.get('nostripe')
         return render_pdf('meetings/participant/badge.html',
                           participant=participant,
                           participant_photo=participant_photo,
                           product_logo=product_logo,
-                          product_side_logo=product_side_logo)
+                          product_side_logo=product_side_logo,
+                          nostripe=nostripe)

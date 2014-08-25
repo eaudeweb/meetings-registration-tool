@@ -58,7 +58,12 @@
                                participant_id=participant.id) }}">
             Badge</a>
         </li>
-        <li><a href="#">Badge (no stripe)</a></li>
+        <li>
+          <a href="{{ url_for('.participant_badge',
+                               participant_id=participant.id,
+                               nostripe=1) }}">
+            Badge (no stripe)</a>
+        </li>
         <li><a href="#">Label</a></li>
         <li><a href="#">Envelope</a></li>
       </ul>
