@@ -33,6 +33,13 @@
         </h2>
       </div> {# description #}
 
+      {% if background_path %}
+        <div class="background">
+          <img src="{{ background_path }}" alt="" />
+        </div>
+      {% endif %}
+
+
     </div> {# content #}
 
   </div> {# container #}

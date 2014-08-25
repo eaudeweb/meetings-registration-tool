@@ -54,6 +54,7 @@ h2 {
     position: absolute;
     top: 0.1667in;
     left: 1.1417in;
+    z-index: 9999;
 }
 
 .content .description small {
@@ -66,3 +67,14 @@ h2 {
     background: #fff!important;
     color: #000;
 }
+
+.background {
+    position: absolute;
+    width: 1.3229in;
+    height: 1.2000in;
+    top: 0.0521in;
+    left: 1.5729in;
+    padding: 0.0208in;
+    margin-left: -40px;
+}
+

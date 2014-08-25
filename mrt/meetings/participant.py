@@ -212,9 +212,13 @@ class ParticipantBadge(MethodView):
         product_side_logo = (app.config['UPLOADED_LOGOS_DEST'] /
                              app.config['PRODUCT_SIDE_LOGO'])
         nostripe = request.args.get('nostripe')
+        background = participant.category.background
+        background_path = (app.config['UPLOADED_BACKGROUNDS_DEST'] /
+                           background) if background else None
         return render_pdf('meetings/participant/badge.html',
                           participant=participant,
                           participant_photo=participant_photo,
                           product_logo=product_logo,
                           product_side_logo=product_side_logo,
+                          background_path=background_path,
                           nostripe=nostripe)
