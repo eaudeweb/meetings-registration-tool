@@ -21,7 +21,7 @@ from mrt.meetings import CustomFieldUpdatePosition
 
 from mrt.meetings import Roles, RoleUserEdit
 from mrt.meetings import BulkEmail, ActivityLogs
-from mrt.meetings import Statistics, MailLogs, MailLogDetail
+from mrt.meetings import Statistics, MailLogs, MailLogDetail, ResendEmail
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -151,6 +151,8 @@ meetings.add_url_rule('/<int:meeting_id>/logs/mails',
                       view_func=MailLogs.as_view('mail_logs'))
 meetings.add_url_rule('/<int:meeting_id>/logs/mails/<int:mail_id>/detail',
                       view_func=MailLogDetail.as_view('mail_detail'))
+meetings.add_url_rule('/<int:meeting_id>/logs/mails/<int:mail_id>/resend',
+                      view_func=ResendEmail.as_view('mail_resend'))
 meetings.add_url_rule('/<int:meeting_id>/logs/activity',
                       view_func=ActivityLogs.as_view('activity'))
 

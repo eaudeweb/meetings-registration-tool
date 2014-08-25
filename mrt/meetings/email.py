@@ -3,7 +3,7 @@ from flask.views import MethodView
 
 from mrt.forms.meetings.email import BulkEmailForm, AckEmailForm
 from mrt.mail import send_bulk_message, send_single_message
-from mrt.models import Participant
+from mrt.models import Participant, MailLog
 
 
 def get_recipients(language, categories=None):
@@ -82,7 +82,20 @@ class AckEmail(MethodView):
                             participant_id=participant.id)
                 )
             else:
-                flash('Message failed do send', 'error')
+                flash('Message failed to send', 'error')
 
         return render_template(self.template_name, participant=participant,
                                form=form)
+
+
+class ResendEmail(MethodView):
+
+    def post(self, mail_id):
+        mail = MailLog.query.get_or_404(mail_id)
+        if send_single_message(mail.to.email, mail.subject, mail.message):
+            flash('Message successfully resent', 'success')
+        else:
+            flash('Message failed to send', 'error')
+
+        return redirect(url_for('.mail_detail',
+                                mail_id=mail.id))

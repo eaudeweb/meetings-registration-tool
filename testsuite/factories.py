@@ -196,6 +196,17 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     country = 'FR'
 
 
+class MailLogFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.MailLog
+        sqlalchemy_session = models.db.session
+
+    to = SubFactory(ParticipantFactory)
+    meeting = SelfAttribute('to.meeting')
+    subject = 'Test subject'
+    message = 'Test message'
+
+
 class MediaParticipantFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.MediaParticipant

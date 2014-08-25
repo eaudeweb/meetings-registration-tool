@@ -44,8 +44,10 @@
 
   <div class="mail-container row">
     <div class="col-sm-6">
-      <button class="btn btn-primary">Resend</button>
-      <small>or <a href="{{ url_for('.mail_logs', meeting_id=g.meeting.id) }}">Cancel</a></small>
+      <form action="{{ url_for('.mail_resend', mail_id=mail.id) }}" method="post">
+        <button type="submit" class="btn btn-primary">Resend</button>
+        <small>or <a href="{{ url_for('.mail_logs', meeting_id=g.meeting.id) }}">Cancel</a></small>
+      </form>
     </div>
     {% if mail %}
       <div class="col-sm-6 text-right">
