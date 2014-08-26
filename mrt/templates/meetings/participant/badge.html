@@ -24,7 +24,9 @@
     </div> {# stripe #}
 
     <div class="content">
-      <img src="{{ participant_photo }}" alt="" class="photo">
+      {% if participant_photo %}
+        <img src="{{ participant_photo }}" alt="" class="photo">
+      {% endif %}
       <div class="description">
         <h2>
          {{ participant.first_name }}

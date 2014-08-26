@@ -226,7 +226,9 @@ class Participant(db.Model):
             .first()
         )
         if field:
-            photo = field.custom_field_values.first()
+            photo = (
+                field.custom_field_values
+                .filter_by(participant_id=self.id).first())
             return photo.value if photo else None
         return None
 

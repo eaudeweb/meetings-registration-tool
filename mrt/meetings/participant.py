@@ -206,7 +206,7 @@ class ParticipantBadge(MethodView):
         participant_photo = (
             app.config['FILES_PATH'] /
             crop(path(app.config['PATH_CUSTOM_KEY']) / participant.photo)
-        )
+        ) if participant.photo else None
         product_logo = (app.config['UPLOADED_LOGOS_DEST'] /
                         app.config['PRODUCT_LOGO'])
         product_side_logo = (app.config['UPLOADED_LOGOS_DEST'] /
