@@ -32,6 +32,7 @@ def render_pdf(template_name, width=None, height=None,
             command = [
                 'wkhtmltopdf',
                 '-q',
+                "--encoding", "utf-8",
                 "--page-height", height,
                 "--page-width", width,
                 "--margin-bottom", "0",

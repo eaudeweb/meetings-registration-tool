@@ -237,3 +237,21 @@ class ParticipantLabel(MethodView):
                           width="11.7in",
                           orientation="landscape",
                           participant=participant)
+
+
+class ParticipantEnvelope(MethodView):
+
+    def get(self, participant_id):
+        participant = Participant.query.active().filter_by(
+            meeting_id=g.meeting.id, id=participant_id).first_or_404()
+        product_logo = (app.config['UPLOADED_LOGOS_DEST'] /
+                        app.config['PRODUCT_LOGO'])
+        product_side_logo = (app.config['UPLOADED_LOGOS_DEST'] /
+                             app.config['PRODUCT_SIDE_LOGO'])
+        return render_pdf('meetings/participant/envelope.html',
+                          product_logo=product_logo,
+                          product_side_logo=product_side_logo,
+                          height='6.4in',
+                          width='9.0in',
+                          orientation="portrait",
+                          participant=participant)

@@ -1,0 +1,44 @@
+{% extends "_layout_pdf.html" %}
+
+
+{% block head %}
+
+  <style type="text/css">
+    {{ inject_static_file('css/envelope.css') }}
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="envelope-container">
+
+    <div class="participant-container">
+      <ul>
+        <li>{{ participant.name }}</li>
+        <li>person representing</li>
+        <li>person address</li>
+        <li>PERSON PLACE</li>
+        {# TODO country in multiple languages / #}
+        <li>{{ participant.country }}</li>
+      </ul>
+    </div>
+
+    <div class="secretariat-container">
+      <img src="{{ product_logo }}" class="logo" alt="" >
+      <img src="{{ product_side_logo }}" class="side-logo" alt="">
+      {# # TODO GET SECRETARIAT INFO / #}
+      <address>
+        Conference Service <br/>
+        SECRETARIAT/SECRETARIA <br/>
+        Maison internationale de l'environnement <br/>
+        Chemin des Anémones<br/>
+        CH-1219 CHATELAINE/Genève<br/>
+        (Switzerland/Suiza/Suisse)<br/>
+      </address>
+    </div>
+
+  </div>
+
+{% endblock %}

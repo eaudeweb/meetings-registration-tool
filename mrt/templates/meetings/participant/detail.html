@@ -69,7 +69,11 @@
                                 participant_id=participant.id) }}">
             Label</a>
         </li>
-        <li><a href="#">Envelope</a></li>
+        <li>
+          <a href="{{ url_for('.participant_envelope',
+                                participant_id=participant.id) }}">
+            Envelope</a>
+        </li>
       </ul>
     </span>
 
