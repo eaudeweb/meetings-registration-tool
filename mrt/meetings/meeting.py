@@ -60,12 +60,12 @@ class MeetingEdit(PermissionRequiredMixin, MethodView):
     def post(self):
         form = MeetingEditForm(request.form, obj=g.meeting)
         if form.validate():
-            form.save()
+            meeting = form.save()
             if g.meeting:
                 flash('Meeting successfully updated', 'success')
             else:
                 flash('Meeting successfully added', 'success')
-            return redirect(url_for('.home'))
+            return redirect(url_for('.participants', meeting_id=meeting.id))
         flash('Meeting was not saved. Please see the errors bellow', 'danger')
         return render_template('meetings/meeting/edit.html', form=form)
 
