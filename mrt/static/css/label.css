@@ -3,21 +3,16 @@ body {
 }
 
 .label-container {
-    position: relative;
-    display: block;
-    page-break-after: always;
-    margin: 0;
-    padding: 0;
-    line-height: 18px;
-}
-
-.label-content {
-    top: 0.4in;
-    left: 3in;
-    font-size: 12pt;
-    position: relative;
+    position: absolute;
+    font-size: 9pt;
     height: 5.2cm;
+    top: 0.25in;
+    left: 2.362in;
+    right: 1.181in;
     width: 8cm;
+}
+.label-container ul li {
+    padding-bottom: 0.070in;
 }
 
 
