@@ -8,3 +8,4 @@ from .role import *
 from .email import *
 from .log import *
 from .notification import *
+from .printouts import *

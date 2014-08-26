@@ -12,12 +12,12 @@ from raven.contrib.flask import Sentry
 from mrt.admin.urls import admin
 from mrt.assets import assets_env
 from mrt.auth.urls import auth
+from mrt.forms.admin import backgrounds
+from mrt.forms.meetings import custom_upload
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
 from mrt.models import db, User
-
-from mrt.forms.admin import backgrounds
-from mrt.forms.meetings import custom_upload
+from mrt.template import country_in
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 
@@ -32,19 +32,21 @@ def create_app(config={}):
     assets_env.init_app(app)
     db.init_app(app)
 
-    app.register_blueprint(meetings)
-    app.register_blueprint(auth)
     app.register_blueprint(admin)
+    app.register_blueprint(auth)
+    app.register_blueprint(meetings)
 
-    app.add_template_filter(nl2br)
+    app.add_template_filter(activity_map)
     app.add_template_filter(countries)
+    app.add_template_filter(country_in)
+    app.add_template_filter(crop)
+    app.add_template_filter(nl2br)
+    app.add_template_filter(no_image_cache)
+    app.add_template_global(active)
     app.add_template_global(active)
     app.add_template_global(date_processor)
     app.add_template_global(inject_static_file)
-    app.add_template_filter(crop)
-    app.add_template_filter(no_image_cache)
-    app.add_template_filter(activity_map)
-    app.add_template_global(active)
+
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -69,21 +71,20 @@ def create_app(config={}):
 def _configure_uploads(app):
     app.config['FILES_PATH'] = files_path = path(app.instance_path) / 'files'
     app.config['PATH_BACKGROUNDS_KEY'] = path_backgrounds_key = 'backgrounds'
-    app.config['PATH_CUSTOM_KEY'] = path_custom_key = 'custom_uploads'
     app.config['PATH_CROP_KEY'] = path_crop_key = 'crops'
-    app.config['PATH_THUMB_KEY'] = path_thumb_key = 'thumbnails'
+    app.config['PATH_CUSTOM_KEY'] = path_custom_key = 'custom_uploads'
     app.config['PATH_LOGOS_KEY'] = path_logos_key = 'logos'
+    app.config['PATH_THUMB_KEY'] = path_thumb_key = 'thumbnails'
 
     app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / path_backgrounds_key
-    app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
     app.config['UPLOADED_CROP_DEST'] = files_path / path_crop_key
+    app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
     app.config['UPLOADED_LOGOS_DEST'] = files_path / path_logos_key
 
     app.config['MEDIA_FOLDER'] = files_path
     app.config['MEDIA_THUMBNAIL_FOLDER'] = \
         app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
-
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
     app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {

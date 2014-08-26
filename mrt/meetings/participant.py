@@ -149,8 +149,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         if (form.validate() and custom_form_text.validate() and
            custom_form_checkbox.validate()):
             participant = form.save()
-            custom_form_text.save()
-            custom_form_checkbox.save()
+            custom_form_text.save(participant)
+            custom_form_checkbox.save(participant)
             flash('Person information saved', 'success')
             if participant_id:
                 activity_signal.send(self, participant=participant,

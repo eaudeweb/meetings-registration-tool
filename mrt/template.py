@@ -3,9 +3,11 @@ import time
 
 from flask import current_app as app
 from flask import request
-from path import path
-from jinja2 import evalcontextfilter, Markup, escape
+
+from babel import Locale
 from babel.dates import format_date
+from jinja2 import evalcontextfilter, Markup, escape
+from path import path
 
 from mrt.definitions import ACTIVITY_ACTIONS
 
@@ -83,3 +85,7 @@ def inject_static_file(filepath):
     with open(path(app.static_folder) / filepath, 'r') as f:
         data = f.read()
     return Markup(data)
+
+
+def country_in(country, lang_code='en'):
+    return Locale(lang_code).territories.get(country.code)

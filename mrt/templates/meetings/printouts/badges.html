@@ -1,0 +1,59 @@
+{% from "_bits.html" import render_pagination %}
+{% extends "meetings/_base.html" %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <div class="printout-badge-header row">
+    <div class="col-sm-6">
+      <p>A number of <b>{{ participants.total }} badges</b> will be printed.</p>
+    </div>
+    <div class="col-sm-6 text-right">
+      <button class="btn btn-danger btn-sm btn-download">
+        <span class="glyphicon glyphicon-download"></span>
+        Download as pdf</button>
+    </div>
+  </div> {# row #}
+
+  <table class="table table-bordered table-hover printout-badge-table">
+    <thead>
+      <tr>
+        <th class="photo"></th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Representing</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for participant in participants.items %}
+        <tr>
+          <td class="text-center photo">
+            {% if participant.photo %}
+              {% set file_path = config['PATH_CUSTOM_KEY'] ~ '/' ~
+                                 participant.photo %}
+              <a href="{{ url }}" class="photo">
+                <img src="{{ file_path|crop|thumbnail('200x200')|no_image_cache }}" alt="{{ participant.name }}" width="25" height="25">
+              </a>
+            {% endif %}
+          </td>
+          <td>
+            {% set url = url_for('.participant_detail',
+                                 participant_id=participant.id) %}
+            <a href="{{ url }}">{{ participant.name }}</a>
+          </td>
+          <td>{{ participant.category }}</td>
+          <td>printout representing</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+
+  {{ render_pagination(participants,
+                       '.printouts_participant_badges',
+                       extra={'categories': category_ids}) }}
+
+{% endblock %}

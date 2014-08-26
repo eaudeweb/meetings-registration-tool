@@ -134,3 +134,46 @@
   </div> {# form-group #}
 
 {% endmacro %}
+
+
+{% macro render_pagination(pagination, endpoint, extra={}) %}
+
+  <ul class="pagination">
+
+    {% if pagination.has_prev %}
+      <li><a href="{{ url_for(endpoint,
+                              page=pagination.prev().page,
+                              **extra) }}">&laquo;</a></li>
+    {% else %}
+      <li class="disabled"><a>&laquo;</a></li>
+    {% endif %}
+
+    {%- for page in pagination.iter_pages() %}
+      {% if page %}
+        {% if page != pagination.page %}
+          <li>
+            <a href="{{ url_for(endpoint, page=page, **extra) }}">
+              {{ page }}</a>
+          </li>
+        {% else %}
+          <li class="active"><a>{{ page }}</a></li>
+        {% endif %}
+      {% else %}
+        <li class="disabled">
+          <span class="ellipsis">…</span>
+        </li>
+      {% endif %}
+
+    {%- endfor %}
+
+    {% if pagination.has_next %}
+      <li><a href="{{ url_for(endpoint,
+                              page=pagination.next().page,
+                              **extra) }}">&raquo;</a></li>
+    {% else %}
+      <li class="disabled"><a>&raquo;</a></li>
+    {% endif %}
+
+  </ul>
+
+{% endmacro %}

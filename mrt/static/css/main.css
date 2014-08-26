@@ -310,3 +310,22 @@ h5 {
     outline: 0;
     text-decoration: none;
 }
+
+.printout-badge-header {
+    margin-bottom: 15px;
+}
+.printout-badge-header p {
+    position: relative;
+    top: 4px;
+}
+.printout-badge-table .photo {
+    border-right: none;
+    width: 25px;
+}
+
+.btn-download .glyphicon {
+    position: relative;
+    padding-right: 5px;
+    top: 2px;
+
+}

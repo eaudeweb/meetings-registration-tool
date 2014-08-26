@@ -18,8 +18,11 @@
       <li>person representing</li>
       <li>person address</li>
       <li>PERSON PLACE</li>
-      {# TODO country in multiple languages / #}
-      <li>{{ participant.country }}</li>
+      <li>
+        {{ participant.country|country_in('en') }} /
+        {{ participant.country|country_in('fr') }} /
+        {{ participant.country|country_in('es') }}
+      </li>
     </ul>
 
   </div>
