@@ -16,6 +16,8 @@ from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
 from mrt.meetings import Categories, CategoryEdit, CategoryUpdatePosition
 from mrt.meetings import PhraseEdit
 
+from mrt.meetings import Notifications, NotificationEdit
+
 from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
 from mrt.meetings import CustomFieldUpdatePosition
@@ -162,6 +164,17 @@ meetings.add_url_rule('/<int:meeting_id>/logs/mails/<int:mail_id>/resend',
                       view_func=ResendEmail.as_view('mail_resend'))
 meetings.add_url_rule('/<int:meeting_id>/logs/activity',
                       view_func=ActivityLogs.as_view('activity'))
+
+# notifications
+meetings.add_url_rule('/<int:meeting_id>/settings/notifications',
+                      view_func=Notifications.as_view('notifications'))
+notification_edit = NotificationEdit.as_view('notification_edit')
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/notifications/add',
+    view_func=notification_edit)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/notifications/<int:notification_id>/edit',
+    view_func=notification_edit)
 
 
 @meetings.url_defaults

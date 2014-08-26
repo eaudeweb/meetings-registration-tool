@@ -1,0 +1,73 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% set title = "Meeting (" ~ g.meeting.acronym ~ ") notifications" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#notifications').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Notifications')
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="actions">
+    <a href="{{ url_for('.notification_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new notification</a>
+  </div>
+
+  <div class="table-responsive">
+    <table id="notifications" class="table table-bordered table-condensed">
+
+      <thead>
+        <tr>
+          <th>Staff</th>
+          <th>Notification type</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for notification in notifications %}
+          <tr>
+            <td><a href="{{ url_for('.notification_edit', notification_id=notification.id) }}">
+              {{ notification.user }}</a></td>
+            <td>{{ notification.type_detail }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table> {# table-responsive #}
+
+  </div>
+
+  <div class="actions">
+    <a href="#" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new notification</a>
+  </div>
+
+
+{% endblock %}

@@ -52,3 +52,8 @@ ACTIVITY_ACTIONS = {
     'delete': 'Delete participant',
     'restore': 'Restore participant'
 }
+
+NOTIFICATION_TYPES = (
+    ('notifiy_participant', 'Notify participant register'),
+    ('notifiy_media_participant', 'Notify media participant register'),
+)

@@ -7,3 +7,4 @@ from .custom_field import *
 from .role import *
 from .email import *
 from .log import *
+from .notification import *

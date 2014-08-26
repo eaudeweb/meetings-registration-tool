@@ -14,9 +14,10 @@ from mrt.models import db
 from mrt.models import CategoryDefault, Category
 from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import CustomField, CustomFieldValue
-from mrt.models import Translation
+from mrt.models import Translation, UserNotification
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
 from mrt.utils import unlink_participant_photo
+from mrt.definitions import NOTIFICATION_TYPES
 
 from mrt.forms.base import BaseForm, TranslationInpuForm
 from mrt.forms.base import BooleanField
@@ -192,4 +193,26 @@ class RoleUserEditForm(BaseForm):
         user_role.meeting = g.meeting
         if user_role.id is None:
             db.session.add(user_role)
+        db.session.commit()
+
+
+class UserNotificationForm(BaseForm):
+
+    class Meta:
+        model = UserNotification
+
+    user_id = fields.SelectField('Staff', coerce=int)
+    notification_type = fields.SelectField('Type', choices=NOTIFICATION_TYPES)
+
+    def __init__(self, *args, **kwargs):
+        super(UserNotificationForm, self).__init__(*args, **kwargs)
+        staff = RoleUser.query.filter_by(meeting=g.meeting).all()
+        self.user_id.choices = [(x.user.id, x.user.email) for x in staff]
+
+    def save(self):
+        user_notification = self.obj or self.meta.model()
+        self.populate_obj(user_notification)
+        if user_notification.id is None:
+            user_notification.meeting = g.meeting
+            db.session.add(user_notification)
         db.session.commit()

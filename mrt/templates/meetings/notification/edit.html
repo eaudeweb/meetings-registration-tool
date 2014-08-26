@@ -1,0 +1,62 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+{% set title = 'Edit notification' if notification else 'Add a new notification' %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [(url_for('.notifications'), 'Notifications'),
+                  ('', title)] ) }}
+
+{% endblock %}
+
+{% block content %}
+
+  {{ super() }}
+
+  <div class="container">
+
+    <div class="page-header">
+      <h2>{{ title }}</h2>
+    </div>
+
+    <form class="form-horizontal" role="form" method="POST">
+      {{ form.csrf_token }}
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <b>Notification details</b>
+        </div>
+
+        <div class="panel-body">
+          {{ form_group(form.user_id) }}
+          {{ form_group(form.notification_type) }}
+        </div>
+      </div>
+
+      <div class="form-actions row">
+        <div class="col-sm-6">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <small>or <a href="{{ url_for('.notifications') }}">Cancel</a></small>
+        </div>
+
+        {% if notification %}
+          <div class="col-sm-6 text-right">
+            <a class="delete" data-toggle="delete"
+               data-href="{{ url_for('.notification_edit', notification_id=notification.id) }}"
+               data-message="Are you sure you want to delete this notification?">
+              <span class="glyphicon glyphicon-remove"></span>
+              Delete this notification</a>
+          </div>
+        {% endif %}
+      </div>
+
+    </form>
+
+  </div>
+{% endblock %}

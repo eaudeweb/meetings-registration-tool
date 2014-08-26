@@ -12,7 +12,7 @@ from sqlalchemy.types import TypeDecorator, String
 
 from mrt.utils import slugify
 from mrt.definitions import (
-    CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS,
+    CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES
 )
 
 
@@ -79,6 +79,36 @@ class User(db.Model):
             if set(user_role.role.permissions).issuperset(perms):
                 return True
         return False
+
+
+class UserNotification(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer, db.ForeignKey('user.id'),
+        nullable=False)
+    user = db.relationship(
+        'User',
+        backref=db.backref('user_notifications', lazy='dynamic'))
+
+    meeting_id = db.Column(
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('user_notifications',
+                           lazy='dynamic', cascade="delete"))
+
+    notification_type = db.Column(db.String(32), nullable=False)
+
+    def __repr__(self):
+        return '%s %s' % (self.user, self.notification_type)
+
+    @property
+    def type_detail(self):
+        return dict(NOTIFICATION_TYPES).get(self.notification_type,
+                                            self.notification_type)
 
 
 class Staff(db.Model):
