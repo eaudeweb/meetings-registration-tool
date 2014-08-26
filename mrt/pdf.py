@@ -17,13 +17,12 @@ def stream_template(template_name, **context):
     return rv
 
 
-def render_pdf(template_name, **context):
+def render_pdf(template_name, width=None, height=None,
+               orientation="portrait", **context):
     g.is_rendered_as_pdf = True
     tmp_folder = path(tempfile.mkdtemp())
     template_path = tmp_folder / (str(uuid.uuid4()) + '.html')
     pdf_path = tmp_folder / (str(uuid.uuid4()) + '.pdf')
-    height="2.15in"
-    width="3.4in"
     with open(template_path, 'w+') as f:
         for chunk in stream_template(template_name, **context):
             f.write(chunk.encode('utf-8'))
@@ -33,13 +32,14 @@ def render_pdf(template_name, **context):
             command = [
                 'wkhtmltopdf',
                 '-q',
-                 "--page-height", height,
-               "--page-width", width,
-               "--margin-bottom", "0",
-               "--margin-top", "0",
-               "--margin-left", "0",
-               "--margin-right", "0",
-                str(template_path), str(pdf_path),]
+                "--page-height", height,
+                "--page-width", width,
+                "--margin-bottom", "0",
+                "--margin-top", "0",
+                "--margin-left", "0",
+                "--margin-right", "0",
+                "--orientation", orientation,
+                str(template_path), str(pdf_path), ]
             subprocess.check_call(command, stderr=stderr)
 
     try:

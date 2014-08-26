@@ -7,7 +7,7 @@ from mrt.meetings import Meetings, MeetingEdit, RecipientsCount, AckEmail
 
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
-from mrt.meetings import ParticipantRestore
+from mrt.meetings import ParticipantRestore, ParticipantLabel
 
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
@@ -51,6 +51,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/badge',
     view_func=ParticipantBadge.as_view('participant_badge'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/<int:participant_id>/label',
+    view_func=ParticipantLabel.as_view('participant_label'))
 
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/search',

@@ -49,6 +49,10 @@ settings.example for an settings example file::
     echo '*' >> instance/.gitignore
     touch instance/settings.py
 
+Create a directory named 'logos' inside instance directory which is the
+location for product logo images. Add to settings.py PRODUCT_LOGO and
+PRODUCT_SIDE_LOGO absolute paths.
+
 
 5. Set up the PostgreSQL database::
 

@@ -4,8 +4,8 @@ SECRET_KEY = 'secret'
 
 PRODUCT_NAME = ''
 PRODUCT_TITLE = ''
-PRODUCT_LOGO = 'logo/product_logo_cms.png'
-PRODUCT_SIDE_LOGO = 'logo/product_side_logo_unep.png'
+PRODUCT_LOGO = 'logos/product_logo_cms.png'
+PRODUCT_SIDE_LOGO = 'logos/product_side_logo_unep.png'
 
 UPLOAD_SIZE = 1 * 1024 * 1024
 

@@ -1,0 +1,27 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.label-container {
+    position: relative;
+    display: block;
+    page-break-after: always;
+    margin: 0;
+    padding: 0;
+    line-height: 18px;
+}
+
+.label-content {
+    top: 0.4in;
+    left: 3in;
+    font-size: 12pt;
+    position: relative;
+    height: 5.2cm;
+    width: 8cm;
+}
+
+
+
+
+
+

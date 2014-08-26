@@ -1,0 +1,25 @@
+{% extends "_layout_pdf.html" %}
+
+
+{% block head %}
+
+  <style type="text/css">
+    {{ inject_static_file('css/label.css') }}
+  </style>
+
+{% endblock %}
+
+{% block content %}
+  <div class="label-container">
+
+    <div class="label-content">
+      <p>{{ participant.name }}</p>
+      <p>person representing</p>
+      <p>person address</p>
+      <p>PERSON PLACE</p>
+      <p>{{ participant.country }}</p>
+    </div>
+
+  </div>
+
+{% endblock %}

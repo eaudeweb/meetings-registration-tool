@@ -221,4 +221,19 @@ class ParticipantBadge(MethodView):
                           product_logo=product_logo,
                           product_side_logo=product_side_logo,
                           background_path=background_path,
-                          nostripe=nostripe)
+                          nostripe=nostripe,
+                          width="3.4in",
+                          height="2.15in",
+                          orientation="portrait")
+
+
+class ParticipantLabel(MethodView):
+
+    def get(self, participant_id):
+        participant = Participant.query.active().filter_by(
+            meeting_id=g.meeting.id, id=participant_id).first_or_404()
+        return render_pdf('meetings/participant/label.html',
+                          height="8.3in",
+                          width="11.7in",
+                          orientation="landscape",
+                          participant=participant)
