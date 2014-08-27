@@ -236,6 +236,7 @@ class CustomFieldFactory(SQLAlchemyModelFactory):
     label = SubFactory(CustomFieldLabelFactory)
     meeting = SubFactory(MeetingFactory)
     field_type = 'image'
+    required = False
 
 
 class ProfilePictureFactory(SQLAlchemyModelFactory):
