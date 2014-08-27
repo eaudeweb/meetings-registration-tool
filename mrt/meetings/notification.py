@@ -3,6 +3,7 @@ from flask import render_template, redirect
 from flask import jsonify
 from flask.views import MethodView
 
+
 from mrt.models import UserNotification, db
 from mrt.forms.meetings import UserNotificationForm
 

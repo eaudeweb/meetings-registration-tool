@@ -11,7 +11,7 @@ from mrt.forms.meetings import ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant, search_for_participant
-from mrt.signals import activity_signal
+from mrt.signals import activity_signal, notification_signal
 from mrt.pdf import render_pdf
 from mrt.template import crop
 
@@ -158,6 +158,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
             else:
                 activity_signal.send(self, participant=participant,
                                      action='add')
+                notification_signal.send(self, participant=participant)
             if participant:
                 url = url_for('.participant_detail',
                               participant_id=participant.id)

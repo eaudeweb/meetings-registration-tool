@@ -248,6 +248,16 @@ class ProfilePictureFactory(SQLAlchemyModelFactory):
     value = 'image.png'
 
 
+class UserNotificationFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.UserNotification
+        sqlalchemy_session = models.db.session
+
+    user = SubFactory(UserFactory)
+    meeting = SubFactory(MeetingFactory)
+    notification_type = 'notify_participant'
+
+
 def normalize_data(data):
 
     def convert_data(value):

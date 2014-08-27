@@ -1,9 +1,12 @@
-from flask import current_app as app, request, flash, g
+from flask import current_app as app, request, flash, g, url_for
 from flask.ext.mail import Mail, Message
 
 from datetime import datetime
+from blinker import ANY
 
 from mrt.models import db, Participant, MailLog
+from mrt.models import UserNotification, MediaParticipant
+from mrt.signals import notification_signal
 
 
 mail = Mail()
@@ -66,3 +69,34 @@ def send_bulk_message(recipients, subject, message):
                             sender=sender)
         sent += 1
     return sent
+
+
+@notification_signal.connect_via(ANY)
+def send_notification_message(recipients, participant):
+    sender = app.config['DEFAULT_MAIL_SENDER']
+    if isinstance(participant, Participant):
+        model_class = 'participant'
+        url = url_for('meetings.participant_detail',
+                      meeting_id=participant.meeting.id,
+                      participant_id=participant.id)
+        recipients = UserNotification.query.filter_by(
+            meeting_id=participant.meeting.id,
+            notification_type='notify_participant')
+
+    elif isinstance(participant, MediaParticipant):
+        model_class = 'media_participant'
+        url = url_for('meetings.media_participant_detail',
+                      meeting_id=participant.meeting.id,
+                      media_participant_id=participant.id)
+        recipients = UserNotification.query.filter_by(
+            meeting_id=participant.meeting.id,
+            notification_type='notify_media_participant')
+
+    subject = "New %s has registered" % (model_class,)
+    body = "A new %s has been registered %s" % (model_class,
+                                                request.url_root + url)
+
+    for recipient in recipients:
+        msg = Message(subject=subject, body=body, sender=sender,
+                      recipients=[recipient.user.email])
+        mail.send(msg)

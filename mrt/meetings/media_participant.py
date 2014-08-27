@@ -8,6 +8,7 @@ from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, MediaParticipant
+from mrt.signals import notification_signal
 
 
 class MediaParticipants(PermissionRequiredMixin, MethodView):
@@ -90,9 +91,11 @@ class MediaParticipantEdit(PermissionRequiredMixin, MethodView):
         media_participant = self._get_object(media_participant_id)
         form = MediaParticipantEditForm(request.form, obj=media_participant)
         if form.validate():
-            form.save()
+            media_participant = form.save()
             flash('MediaParticipant information saved', 'success')
-            return redirect(url_for('.media_participants'))
+            notification_signal.send(self, participant=media_participant)
+            return redirect(url_for('.media_participant_detail',
+                                    media_participant_id=media_participant.id))
         return render_template('meetings/media_participant/edit.html',
                                form=form,
                                media_participant=media_participant)

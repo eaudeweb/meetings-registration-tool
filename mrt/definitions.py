@@ -54,6 +54,6 @@ ACTIVITY_ACTIONS = {
 }
 
 NOTIFICATION_TYPES = (
-    ('notifiy_participant', 'Notify participant register'),
-    ('notifiy_media_participant', 'Notify media participant register'),
+    ('notify_participant', 'Notify participant register'),
+    ('notify_media_participant', 'Notify media participant register'),
 )
