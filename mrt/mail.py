@@ -18,6 +18,16 @@ def get_default_sender():
     return app.config['DEFAULT_MAIL_SENDER']
 
 
+def get_recipients(meeting, notification_type):
+    recipients = (
+        UserNotification.query.filter_by(
+            meeting_id=meeting.id,
+            notification_type=notification_type).all())
+    if meeting.owner:
+        recipients.append(meeting.owner)
+    return recipients
+
+
 def send_single_message(to, subject, message, sender=None):
     sender = sender or get_default_sender()
     msg = Message(subject=subject, body=message, sender=sender,
@@ -75,22 +85,26 @@ def send_bulk_message(recipients, subject, message):
 def send_notification_message(recipients, participant):
     sender = app.config['DEFAULT_MAIL_SENDER']
     if isinstance(participant, Participant):
-        model_class = 'participant'
+        model_class = 'Participant'
         url = url_for('meetings.participant_detail',
                       meeting_id=participant.meeting.id,
                       participant_id=participant.id)
-        recipients = UserNotification.query.filter_by(
-            meeting_id=participant.meeting.id,
+        recipients = get_recipients(
+            meeting=participant.meeting,
             notification_type='notify_participant')
 
     elif isinstance(participant, MediaParticipant):
-        model_class = 'media_participant'
+        model_class = 'Media Participant'
         url = url_for('meetings.media_participant_detail',
                       meeting_id=participant.meeting.id,
                       media_participant_id=participant.id)
-        recipients = UserNotification.query.filter_by(
-            meeting_id=participant.meeting.id,
+        recipients = get_recipients(
+            meeting=participant.meeting,
             notification_type='notify_media_participant')
+
+    else:
+        flash('This model has no notification type set')
+        return
 
     subject = "New %s has registered" % (model_class,)
     body = "A new %s has been registered %s" % (model_class,
