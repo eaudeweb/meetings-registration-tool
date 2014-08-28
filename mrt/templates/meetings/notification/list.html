@@ -2,7 +2,7 @@
 {% from "_bits.html" import breadcrumb %}
 
 
-{% set title = "Meeting (" ~ g.meeting.acronym ~ ") notifications" %}
+{% set title = "Meeting (" ~ g.meeting.acronym ~ ") subscribers" %}
 
 {% block title %} {{ title }} {% endblock %}
 
@@ -21,7 +21,7 @@
 {% block breadcrumb %}
 
   {{ breadcrumb( [
-      ('', 'Notifications')
+      ('', 'Subscribers')
   ] ) }}
 
 {% endblock %}
@@ -36,7 +36,7 @@
   <div class="actions">
     <a href="{{ url_for('.notification_edit') }}" class="btn btn-primary btn-sm">
       <span class="glyphicon glyphicon-plus"></span>
-      Add a new notification</a>
+      Add a new subscriber</a>
   </div>
 
   <div class="table-responsive">
@@ -45,7 +45,7 @@
       <thead>
         <tr>
           <th>Staff</th>
-          <th>Notification type</th>
+          <th>Subscriber type</th>
         </tr>
       </thead>
 
@@ -66,7 +66,7 @@
   <div class="actions">
     <a href="#" class="btn btn-primary btn-sm">
       <span class="glyphicon glyphicon-plus"></span>
-      Add a new notification</a>
+      Add a new subscriber</a>
   </div>
 
 

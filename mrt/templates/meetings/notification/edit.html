@@ -1,7 +1,7 @@
 {% extends "meetings/_base.html" %}
 {% from "_bits.html" import breadcrumb, form_group %}
 
-{% set title = 'Edit notification' if notification else 'Add a new notification' %}
+{% set title = 'Edit subscriber' if notification else 'Add a new subscriber' %}
 
 
 {% block title %} {{ title }} {% endblock %}
@@ -9,7 +9,7 @@
 
 {% block breadcrumb %}
 
-  {{ breadcrumb( [(url_for('.notifications'), 'Notifications'),
+  {{ breadcrumb( [(url_for('.notifications'), 'Subscribers'),
                   ('', title)] ) }}
 
 {% endblock %}
@@ -30,7 +30,7 @@
       <div class="panel panel-default">
 
         <div class="panel-heading">
-          <b>Notification details</b>
+          <b>Subscriber details</b>
         </div>
 
         <div class="panel-body">
@@ -49,9 +49,9 @@
           <div class="col-sm-6 text-right">
             <a class="delete" data-toggle="delete"
                data-href="{{ url_for('.notification_edit', notification_id=notification.id) }}"
-               data-message="Are you sure you want to delete this notification?">
+               data-message="Are you sure you want to delete this subscriber?">
               <span class="glyphicon glyphicon-remove"></span>
-              Delete this notification</a>
+              Delete this subscriber</a>
           </div>
         {% endif %}
       </div>
