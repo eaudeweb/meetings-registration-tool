@@ -38,8 +38,8 @@ class ParticipantsFilter(MethodView, FilterView):
         return str(participant.category)
 
     def get_queryset(self, **opt):
-        participants = Participant.query.filter_by(meeting_id=g.meeting.id,
-                                                   deleted=False)
+        participants = (
+            Participant.query.filter_by(meeting_id=g.meeting.id).active())
         total = participants.count()
 
         for item in opt['order']:
@@ -73,8 +73,8 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
     def get(self, participant_id):
         participant = (
             Participant.query
-            .filter_by(meeting_id=g.meeting.id, id=participant_id,
-                       deleted=False)
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .active()
             .first_or_404())
         form = ParticipantEditForm(obj=participant)
 
@@ -108,8 +108,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def _get_object(self, participant_id=None):
         return (Participant.query
-                .filter_by(meeting_id=g.meeting.id, id=participant_id,
-                           deleted=False)
+                .filter_by(meeting_id=g.meeting.id, id=participant_id)
+                .active()
                 .first_or_404()
                 if participant_id else None)
 
@@ -188,8 +188,8 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
     def post(self, participant_id):
         participant = (
             Participant.query
-            .filter_by(meeting_id=g.meeting.id, id=participant_id,
-                       deleted=True)
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .active()
             .first_or_404())
         participant.deleted = False
         activity_signal.send(self, participant=participant,
@@ -204,7 +204,7 @@ class ParticipantBadge(MethodView):
 
     def get(self, participant_id):
         participant = Participant.query.filter_by(
-            meeting_id=g.meeting.id, id=participant_id).first_or_404()
+            meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
         participant_photo = (
             app.config['FILES_PATH'] /
             crop(path(app.config['PATH_CUSTOM_KEY']) / participant.photo)
@@ -232,8 +232,8 @@ class ParticipantBadge(MethodView):
 class ParticipantLabel(MethodView):
 
     def get(self, participant_id):
-        participant = Participant.query.active().filter_by(
-            meeting_id=g.meeting.id, id=participant_id).first_or_404()
+        participant = Participant.query.filter_by(
+            meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
         return render_pdf('meetings/participant/label.html',
                           height="8.3in",
                           width="11.7in",
@@ -244,8 +244,8 @@ class ParticipantLabel(MethodView):
 class ParticipantEnvelope(MethodView):
 
     def get(self, participant_id):
-        participant = Participant.query.active().filter_by(
-            meeting_id=g.meeting.id, id=participant_id).first_or_404()
+        participant = Participant.query.filter_by(
+            meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
         product_logo = (app.config['UPLOADED_LOGOS_DEST'] /
                         app.config['PRODUCT_LOGO'])
         product_side_logo = (app.config['UPLOADED_LOGOS_DEST'] /
@@ -264,7 +264,7 @@ class ParticipantsExport(MethodView):
     def get(self):
 
         participants = (
-            Participant.query.active().filter_by(meeting_id=g.meeting.id))
+            Participant.query.filter_by(meeting_id=g.meeting.id).active())
 
         #TODO Add the rest of the necessary fields
         columns = [
