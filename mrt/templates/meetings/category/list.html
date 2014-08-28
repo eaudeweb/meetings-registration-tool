@@ -7,21 +7,6 @@
 {% block title %} {{ title }} {% endblock %}
 
 
-{% block head %}
-
-  <style type="text/css">
-    .form-control {
-      border: none!important;
-      -webkit-box-shadow: none!important;
-      box-shadow: none!important;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
-
-{% endblock %}
-
-
 {% block breadcrumb %}
 
   {{ breadcrumb( [
@@ -41,7 +26,7 @@
 
     <div class="row">
       <div class="col-sm-12">
-        {{ form.categories(class_="form-control select",
+        {{ form.categories(class_="form-control form-reset-control select",
           **{"data-placeholder": "Select one or more categories from the defaults."}) }}
         {% if form.errors %}
           <div class="text-danger">

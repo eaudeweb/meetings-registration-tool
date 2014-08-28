@@ -34,8 +34,8 @@
       <a href="{{ url_for('.media_participants') }}">
         Media Participants</a>
     </li>
-    <li>
-      <a href="#">Printouts</a>
+    <li class="{{ active('/printouts') }}">
+      <a href="{{ url_for('.printouts') }}">Printouts</a>
     </li>
     <li class="{{ active('/email') }}">
       <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>

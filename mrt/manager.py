@@ -1,10 +1,13 @@
-from .models import User, db, Staff, RoleUser
 
 import click
 import code
-from alembic.config import CommandLine
 
-from mrt.models import get_or_create_role
+from flask import g
+from alembic.config import CommandLine
+from rq import Queue, Connection, Worker
+
+from mrt.models import get_or_create_role, redis_store
+from mrt.models import User, db, Staff, RoleUser
 
 
 @click.group()
@@ -67,3 +70,20 @@ def alembic(ctx, alembic_args):
     app = ctx.obj['app']
     with app.test_request_context():
         CommandLine().main(argv=alembic_args)
+
+
+@cli.group()
+def rq():
+    pass
+
+
+@rq.command()
+@click.argument('queues', nargs=-1)
+@click.pass_context
+def workers(ctx, queues):
+    app = ctx.obj['app']
+    with Connection(redis_store.connection), app.test_request_context():
+        qs = map(Queue, queues) or [Queue()]
+        worker = Worker(qs)
+        g.is_rq_process = True
+        worker.work()

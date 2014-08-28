@@ -16,17 +16,25 @@ from mrt.forms.admin import backgrounds
 from mrt.forms.meetings import custom_upload
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
-from mrt.models import db, User
+from mrt.models import db, User, redis_store
 from mrt.template import country_in
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 
 
+DEFAULT_CONFIG = {
+    'REDIS_URL': 'redis://localhost:6379/0',
+    'DEBUG': True,
+    'ASSETS_DEBUG': True,
+    'MAIL_SUPPRESS_SEND': True
+}
+
+
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile('settings.py')
+    app.config.update(DEFAULT_CONFIG)
     app.config.update(config)
-    app.debug = True
 
     Babel(app)
     assets_env.init_app(app)
@@ -52,6 +60,7 @@ def create_app(config={}):
     login_manager.login_view = 'auth.login'
 
     mail.init_app(app)
+    redis_store.init_app(app)
 
     Sentry(app)
 
@@ -75,11 +84,17 @@ def _configure_uploads(app):
     app.config['PATH_CUSTOM_KEY'] = path_custom_key = 'custom_uploads'
     app.config['PATH_LOGOS_KEY'] = path_logos_key = 'logos'
     app.config['PATH_THUMB_KEY'] = path_thumb_key = 'thumbnails'
+    app.config['PATH_PRINTOUTS_KEY'] = path_printouts_key = 'printouts'
 
     app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / path_backgrounds_key
     app.config['UPLOADED_CROP_DEST'] = files_path / path_crop_key
     app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
     app.config['UPLOADED_LOGOS_DEST'] = files_path / path_logos_key
+    app.config['UPLOADED_PRINTOUTS_DEST'] = files_path / path_printouts_key
+
+    # ensure logos and printouts folders exist
+    app.config['UPLOADED_LOGOS_DEST'].makedirs_p()
+    app.config['UPLOADED_PRINTOUTS_DEST'].makedirs_p()
 
     app.config['MEDIA_FOLDER'] = files_path
     app.config['MEDIA_THUMBNAIL_FOLDER'] = \

@@ -51,7 +51,7 @@ settings.example for an settings example file::
 
 Create a directory named 'logos' inside instance directory which is the
 location for product logo images. Add to settings.py PRODUCT_LOGO and
-PRODUCT_SIDE_LOGO absolute paths.
+PRODUCT_SIDE_LOGO filenames.
 
 
 5. Set up the PostgreSQL database::

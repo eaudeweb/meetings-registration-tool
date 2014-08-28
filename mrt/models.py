@@ -3,6 +3,7 @@ from datetime import datetime
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
+from flask_redis import Redis
 from flask import g
 
 from sqlalchemy.ext.declarative import declared_attr
@@ -17,6 +18,8 @@ from mrt.definitions import (
 
 
 db = SQLAlchemy()
+
+redis_store = Redis()
 
 
 class ParticipantQuery(BaseQuery):

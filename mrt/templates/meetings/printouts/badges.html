@@ -1,17 +1,34 @@
-{% from "_bits.html" import render_pagination %}
 {% extends "meetings/_base.html" %}
+{% from "_bits.html" import render_pagination, breadcrumb %}
+
+
+{% set title = 'Print participant badges' %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.printouts'), 'Printouts'),
+      ('', title),
+  ] ) }}
+
+{% endblock %}
 
 
 {% block content %}
 
   {{ super() }}
 
+  <h3 class="page-title">{{ title }}</h3>
+
   <div class="printout-badge-header row">
     <div class="col-sm-6">
       <p>A number of <b>{{ participants.total }} badges</b> will be printed.</p>
     </div>
     <div class="col-sm-6 text-right">
-      <button class="btn btn-danger btn-sm btn-download">
+      <button class="btn btn-danger btn-sm btn-download"
+              data-url="{{ url_for('.printouts_participant_badges') }}">
         <span class="glyphicon glyphicon-download"></span>
         Download as pdf</button>
     </div>

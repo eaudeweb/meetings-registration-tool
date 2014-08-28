@@ -12,6 +12,8 @@
 
 {% block content %}
 
-  {% include "meetings/participant/_badge.html" with context %}
+  {% for participant in participants %}
+    {% include "meetings/participant/_badge.html" with context %}
+  {% endfor %}
 
 {% endblock %}

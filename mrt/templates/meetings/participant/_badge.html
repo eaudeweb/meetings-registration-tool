@@ -1,0 +1,52 @@
+{% set product_logo = config['UPLOADED_LOGOS_DEST'] /
+                      config['PRODUCT_LOGO'] %}
+{% set product_side_logo = config['UPLOADED_LOGOS_DEST'] /
+                           config['PRODUCT_SIDE_LOGO'] %}
+
+{% if participant.photo %}
+  {% set participant_photo = config['FILES_PATH'] /
+      (config['PATH_CUSTOM_KEY'] ~ '/' ~ participant.photo)|crop %}
+{% else %}
+  {% set participant_photo = None %}
+{% endif %}
+
+{% if participant.category.background %}
+  {% set background = config['UPLOADED_BACKGROUNDS_DEST'] /
+                      participant.category.background %}
+{% else %}
+  {% set background = None %}
+{% endif %}
+
+
+<div class="container">
+
+  <div class="stripe {% if nostripe %}nostripe{% endif %}"
+       style="background: {{ participant.category.color }}">
+    <h1>
+      {{ g.meeting.badge_header[participant.lang_trans] }}
+    </h1>
+    <img src="{{ product_logo }}" class="logo" alt="">
+    <img src="{{ product_side_logo }}" class="side-logo" alt="">
+  </div> {# stripe #}
+
+  <div class="content">
+    {% if participant_photo %}
+      <img src="{{ participant_photo }}" alt="" class="photo">
+    {% endif %}
+    <div class="description">
+      <h2>
+       {{ participant.first_name }}
+       {{ participant.last_name|upper }}
+        <small>person-representing</small>
+      </h2>
+    </div> {# description #}
+
+    {% if background %}
+      <div class="background">
+        <img src="{{ background }}" alt="" />
+      </div>
+    {% endif %}
+
+  </div> {# content #}
+
+</div> {# container #}

@@ -172,4 +172,14 @@ $(function () {
             empty: search_participant_empty_template
         }
     }).on('typeahead:selected', searchSelected);
+
+
+    $('.btn-download').on('click', function () {
+        $.ajax({
+            type: 'HEAD',
+            success: function (data, textStatus, request) {
+                var job_id = request.getResponseHeader('X-Job-ID');
+            }
+        });
+    });
 });

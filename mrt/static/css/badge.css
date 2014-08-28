@@ -17,7 +17,8 @@ h2 {
 }
 
 .container {
-    height: 0.6694in;
+    position: relative;
+    height:2.104in;
 }
 
 .stripe {

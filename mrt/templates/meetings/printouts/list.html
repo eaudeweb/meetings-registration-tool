@@ -1,0 +1,59 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+{% set title = "Printouts" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Printouts')
+  ] ) }}
+
+{% endblock %}
+
+
+{% block head %}
+
+  <style type="text/css">
+
+    select {
+      width: 100%;
+    }
+    .form-actions {
+      padding-bottom: 0;
+      padding-top: 15px;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><b>Print participant badges</b></div>
+    <div class="panel-body">
+      <form action="{{ url_for('.printouts_participant_badges') }}"
+            method="GET">
+        <select name="categories" multiple="multiple" class="form-control form-reset-control select" data-placeholder="Select one or more categories">
+          {% for category in categories %}
+            <option value="{{ category.id }}">{{ category }}</option>
+          {% endfor %}
+        </select>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Preview</button>
+        </div>
+      </form>
+    </div>
+  </div> {# panel #}
+
+{% endblock %}

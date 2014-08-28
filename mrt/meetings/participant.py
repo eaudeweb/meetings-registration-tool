@@ -1,20 +1,18 @@
 from werkzeug.utils import HTMLBuilder
-from flask import g, request, redirect, url_for, jsonify, json
+
 from flask import current_app as app
+from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash, Response
 from flask.views import MethodView
-
-from path import path
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant, search_for_participant
-from mrt.utils import generate_excel
-from mrt.signals import activity_signal, notification_signal
 from mrt.pdf import render_pdf
-from mrt.template import crop
+from mrt.signals import activity_signal, notification_signal
+from mrt.utils import generate_excel
 
 
 class Participants(PermissionRequiredMixin, MethodView):
@@ -203,30 +201,18 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 class ParticipantBadge(MethodView):
 
     def get(self, participant_id):
-        participant = Participant.query.filter_by(
-            meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
-        participant_photo = (
-            app.config['FILES_PATH'] /
-            crop(path(app.config['PATH_CUSTOM_KEY']) / participant.photo)
-        ) if participant.photo else None
-        product_logo = (app.config['UPLOADED_LOGOS_DEST'] /
-                        app.config['PRODUCT_LOGO'])
-        product_side_logo = (app.config['UPLOADED_LOGOS_DEST'] /
-                             app.config['PRODUCT_SIDE_LOGO'])
+        participant = (
+            Participant.query.filter_by(meeting_id=g.meeting.id,
+                                        id=participant_id)
+            .active()
+            .first_or_404())
         nostripe = request.args.get('nostripe')
-        background = participant.category.background
-        background_path = (app.config['UPLOADED_BACKGROUNDS_DEST'] /
-                           background) if background else None
         return render_pdf('meetings/participant/badge.html',
                           participant=participant,
-                          participant_photo=participant_photo,
-                          product_logo=product_logo,
-                          product_side_logo=product_side_logo,
-                          background_path=background_path,
                           nostripe=nostripe,
-                          width="3.4in",
-                          height="2.15in",
-                          orientation="portrait")
+                          width='3.4in',
+                          height='2.15in',
+                          orientation='portrait')
 
 
 class ParticipantLabel(MethodView):

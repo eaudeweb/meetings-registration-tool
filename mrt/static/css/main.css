@@ -327,5 +327,12 @@ h5 {
     position: relative;
     padding-right: 5px;
     top: 2px;
+}
 
+.form-reset-control {
+    border: none!important;
+    -webkit-box-shadow: none!important;
+    box-shadow: none!important;
+    margin: 0;
+    padding: 0;
 }
