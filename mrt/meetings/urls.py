@@ -8,7 +8,7 @@ from mrt.meetings import Meetings, MeetingEdit, RecipientsCount, AckEmail
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
 from mrt.meetings import ParticipantRestore, ParticipantLabel
-from mrt.meetings import ParticipantEnvelope
+from mrt.meetings import ParticipantEnvelope, ParticipantsExport
 
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
@@ -69,6 +69,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/restore',
     view_func=ParticipantRestore.as_view('participant_restore'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/export',
+    view_func=ParticipantsExport.as_view('participants_export'))
 
 # media participants
 meetings.add_url_rule(

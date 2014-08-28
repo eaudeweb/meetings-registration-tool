@@ -1,7 +1,7 @@
 from werkzeug.utils import HTMLBuilder
 from flask import g, request, redirect, url_for, jsonify, json
 from flask import current_app as app
-from flask import render_template, flash
+from flask import render_template, flash, Response
 from flask.views import MethodView
 
 from path import path
@@ -11,6 +11,7 @@ from mrt.forms.meetings import ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant, search_for_participant
+from mrt.utils import generate_excel
 from mrt.signals import activity_signal, notification_signal
 from mrt.pdf import render_pdf
 from mrt.template import crop
@@ -256,3 +257,39 @@ class ParticipantEnvelope(MethodView):
                           width='9.0in',
                           orientation="portrait",
                           participant=participant)
+
+
+class ParticipantsExport(MethodView):
+
+    def get(self):
+
+        participants = (
+            Participant.query.active().filter_by(meeting_id=g.meeting.id))
+
+        #TODO Add the rest of the necessary fields
+        columns = [
+            'title', 'first_name', 'last_name', 'country', 'email',
+            'language'
+        ]
+
+        form = ParticipantEditForm()
+
+        header = [str(form._fields[k].label.text) for k in columns]
+
+        rows = []
+        for p in participants:
+            data = {}
+            data['title'] = p.title.value
+            data['first_name'] = p.first_name
+            data['last_name'] = p.last_name
+            data['country'] = p.country.name
+            data['email'] = p.email
+            data['language'] = p.language.value
+
+            rows.append([data.get(k) or '' for k in columns])
+
+        return Response(
+            generate_excel(header, rows),
+            mimetype='application/vnd.ms-excel',
+            headers={'Content-Disposition': 'attachment; filename=%s.sls'
+                     % 'registration'})

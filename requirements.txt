@@ -17,6 +17,7 @@ Pillow==2.2.1
 psycopg2==2.5.3
 querystring-parser==1.2.0
 SQLAlchemy==0.9.6
+xlwt==0.7.5
 webassets==0.10.1
 Werkzeug==0.9.6
 
