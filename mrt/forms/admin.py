@@ -17,7 +17,7 @@ from mrt.models import PhraseDefault, Phrase
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import PERMISSIONS
 
-from .base import BaseForm, TranslationInpuForm, DescriptionInputForm
+from .base import BaseForm, TranslationInputForm, DescriptionInputForm
 
 
 backgrounds = UploadSet('backgrounds', IMAGES)
@@ -92,7 +92,7 @@ class StaffEditForm(BaseForm):
 
 class CategoryEditBaseForm(BaseForm):
 
-    title = ModelFormField(TranslationInpuForm, label='Title')
+    title = ModelFormField(TranslationInputForm, label='Title')
     background = FileField('Background',
                            [FileAllowed(backgrounds, 'Image is not valid')])
     background_delete = BooleanField()

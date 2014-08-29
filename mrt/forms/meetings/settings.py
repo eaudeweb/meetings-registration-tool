@@ -19,7 +19,7 @@ from mrt.utils import copy_model_fields, duplicate_uploaded_file
 from mrt.utils import unlink_participant_photo
 from mrt.definitions import NOTIFICATION_TYPES
 
-from mrt.forms.base import BaseForm, TranslationInpuForm
+from mrt.forms.base import BaseForm, TranslationInputForm
 from mrt.forms.base import BooleanField
 
 
@@ -73,7 +73,7 @@ class MeetingCategoryAddForm(BaseForm):
 
 class CustomFieldEditForm(BaseForm):
 
-    label = ModelFormField(TranslationInpuForm, label='Field label')
+    label = ModelFormField(TranslationInputForm, label='Field label')
 
     class Meta:
         model = CustomField

@@ -23,7 +23,7 @@ class BaseForm(ModelForm):
         self.obj = obj
 
 
-class TranslationInpuForm(BaseForm):
+class TranslationInputForm(BaseForm):
 
     class Meta:
         model = Translation

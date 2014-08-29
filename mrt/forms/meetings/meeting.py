@@ -6,7 +6,7 @@ from wtforms_alchemy import ModelFormField
 
 from mrt.models import db, Meeting, Staff
 from mrt.models import Phrase, PhraseDefault, Translation
-from mrt.forms.base import BaseForm, TranslationInpuForm, MultiCheckboxField
+from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
 from mrt.utils import copy_model_fields
 from mrt.definitions import MEETING_SETTINGS
 
@@ -27,9 +27,9 @@ class MeetingEditForm(BaseForm):
             }
         }
 
-    title = ModelFormField(TranslationInpuForm, label='Description')
-    badge_header = ModelFormField(TranslationInpuForm, label='Badge header')
-    venue_city = ModelFormField(TranslationInpuForm, label='City')
+    title = ModelFormField(TranslationInputForm, label='Description')
+    badge_header = ModelFormField(TranslationInputForm, label='Badge header')
+    venue_city = ModelFormField(TranslationInputForm, label='City')
     meeting_type = fields.SelectField('Meeting Type')
     owner_id = fields.SelectField('Owner', coerce=int)
     settings = MultiCheckboxField('Settings', choices=MEETING_SETTINGS)
