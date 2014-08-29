@@ -7,7 +7,7 @@ from flask.ext.uploads import UploadSet, IMAGES, TEXT, DOCUMENTS
 from flask_wtf.file import FileField, FileAllowed
 
 from wtforms import fields
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db
@@ -202,13 +202,24 @@ class UserNotificationForm(BaseForm):
     class Meta:
         model = UserNotification
 
-    user_id = fields.SelectField('Staff', coerce=int)
-    notification_type = fields.SelectField('Type', choices=NOTIFICATION_TYPES)
+    user_id = fields.SelectField('Staff',
+                                 validators=[DataRequired()],
+                                 coerce=int)
+    notification_type = fields.SelectField('Type',
+                                           validators=[DataRequired()],
+                                           choices=NOTIFICATION_TYPES)
 
     def __init__(self, *args, **kwargs):
         super(UserNotificationForm, self).__init__(*args, **kwargs)
         staff = RoleUser.query.filter_by(meeting=g.meeting).all()
         self.user_id.choices = [(x.user.id, x.user.email) for x in staff]
+
+    def validate_notification_type(self, field):
+        obj = UserNotification.query.filter_by(notification_type=field.data,
+                                               user_id=self.user_id.data,
+                                               meeting_id=g.meeting.id).first()
+        if obj and obj != self.obj:
+            raise ValidationError('Subscriber already exists')
 
     def save(self):
         user_notification = self.obj or self.meta.model()

@@ -39,7 +39,7 @@ class NotificationEdit(MethodView):
             return redirect(url_for('.notifications'))
         flash('Notification was not saved. Plase see the errors bellow',
               'danger')
-        return render_template('admin/role/edit.html',
+        return render_template('meetings/notification/edit.html',
                                form=form,
                                notification=notification)
 

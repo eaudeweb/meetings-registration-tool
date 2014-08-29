@@ -86,6 +86,9 @@ class User(db.Model):
 
 class UserNotification(db.Model):
 
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'meeting_id', 'notification_type'),)
+
     id = db.Column(db.Integer, primary_key=True)
 
     user_id = db.Column(
