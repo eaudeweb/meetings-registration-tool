@@ -1,0 +1,53 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% block title %}Settings overview{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [('', 'Settings overview')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Settings overview</h2>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="table-responsive">
+        <table class="table table-bordered table-condensed">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>PRODUCT_TITLE</td>
+              <td>{{ config.PRODUCT_TITLE }}</td>
+            </tr>
+            <tr>
+              <td>PRODUCT_LOGO</td>
+              <td>{{ config.PRODUCT_LOGO }}</td>
+            </tr>
+            <tr>
+              <td>PRODUCT_PRODUCT_SIDE_LOGO</td>
+              <td>{{ config.PRODUCT_SIDE_LOGO }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> {# table-responsive #}
+
+      <b>For any changes, please contact the administrator!</b>
+    </div>
+  </div> {# row #}
+
+{% endblock %}

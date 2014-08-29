@@ -3,6 +3,7 @@ from mrt.admin import StaffList, StaffEdit
 from mrt.admin import Categories, CategoryEdit, CategoryUpdatePosition
 from mrt.admin import PhrasesTypes, PhraseEdit
 from mrt.admin import Roles, RoleEdit
+from mrt.admin import SettingsOverview
 
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -38,3 +39,6 @@ admin.add_url_rule('/roles', view_func=Roles.as_view('roles'))
 role_edit_func = RoleEdit.as_view('role_edit')
 admin.add_url_rule('/roles/add', view_func=role_edit_func)
 admin.add_url_rule('/roles/<int:role_id>/edit', view_func=role_edit_func)
+
+# Settings
+admin.add_url_rule('/settings', view_func=SettingsOverview.as_view('settings'))
