@@ -13,7 +13,23 @@
     {% assets "css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}">
     {% endassets %}
+
+    <script id="printout-job-tmpl" type="x-tmpl-mustache">
+      <div id="{{ '{{ id }}' }}" class="job bg-primary tada animated" >
+        <img src="/static/images/ajax-blue.gif" width="16" height="16">
+        Processing {{ '{{ name }}' }} job...
+      </div>
+    </script>
+
+    <script id="printout-job-finished-tmpl" type="x-tmpl-mustache">
+      <div id="{{ '{{ id }}' }}" class="job bg-success tada animated" >
+         <a href="{{ '{{ href }}' }}">{{ '{{ name }}' }} </a>
+      </div>
+    </script>
+
+
     {% block head %}{% endblock %}
+
   </head>
 
   <body>

@@ -16,6 +16,15 @@
 {% endblock %}
 
 
+{% block scripts %}
+
+  <script>
+    window.JOB_STATUS_URL = "{{ url_for('.printouts_job_status') }}";
+  </script>
+
+{% endblock %}
+
+
 {% block content %}
 
   {{ super() }}

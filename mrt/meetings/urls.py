@@ -26,7 +26,7 @@ from mrt.meetings import Roles, RoleUserEdit
 from mrt.meetings import BulkEmail, ActivityLogs
 from mrt.meetings import Statistics, MailLogs, MailLogDetail, ResendEmail
 
-from mrt.meetings import Printouts, Badges
+from mrt.meetings import Printouts, Badges, JobStatus
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -135,8 +135,6 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/custom/fields/<string:custom_field_slug>/crop',
     view_func=CustomFieldCropUpload.as_view('custom_field_crop'))
-
-
 meetings.add_url_rule(
     '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:custom_field_slug>/rotate',
     view_func=CustomFieldRotate.as_view('custom_field_rotate'))
@@ -145,6 +143,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts',
     view_func=Printouts.as_view('printouts'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/job/status',
+    view_func=JobStatus.as_view('printouts_job_status'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/participant/badges',
     view_func=Badges.as_view('printouts_participant_badges'))

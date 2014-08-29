@@ -23,7 +23,10 @@ _BUNDLE_JS = (
     'js/lib/jquery.fancybox.js',
     'js/lib/jquery.sortable.js',
     'js/lib/jquery.typeahead.js',
+    'js/lib/jquery.ba-dotimeout.js',
+    'js/lib/mustache.js',
     'js/main.js',
+    'js/printouts.js',
 )
 
 
