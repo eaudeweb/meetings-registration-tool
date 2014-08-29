@@ -451,8 +451,8 @@ class Meeting(db.Model):
     settings = db.Column(JSONEncodedDict, nullable=True)
 
     @property
-    def media_participant_disabled(self):
-        return self.settings.get('media_participant_remove', False)
+    def media_participant_enabled(self):
+        return self.settings.get('media_participant_enabled', False)
 
     def __repr__(self):
         return self.title.english

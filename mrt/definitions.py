@@ -25,7 +25,7 @@ MEETING_TYPES = (
 )
 
 MEETING_SETTINGS = (
-    ('media_participant_remove', 'Remove Media Participants'),
+    ('media_participant_enabled', 'Enable Media Participants'),
 )
 
 

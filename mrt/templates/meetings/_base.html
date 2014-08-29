@@ -30,10 +30,12 @@
       <a href="{{ url_for('.participants') }}">
         Participants</a>
     </li>
+    {% if g.meeting.media_participant_enabled %}
     <li class="{{ active('/media_participants') }}">
       <a href="{{ url_for('.media_participants') }}">
         Media Participants</a>
     </li>
+    {% endif %}
     <li class="{{ active('/printouts') }}">
       <a href="{{ url_for('.printouts') }}">Printouts</a>
     </li>

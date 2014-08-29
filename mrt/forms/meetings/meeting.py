@@ -1,6 +1,7 @@
 from flask import current_app as app
 from flask.ext.login import current_user
 from wtforms import fields, widgets
+from wtforms.validators import ValidationError
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db, Meeting, Staff
@@ -45,7 +46,7 @@ class MeetingEditForm(BaseForm):
         settings = dict(MEETING_SETTINGS)
         for key in field.data:
             if key not in settings:
-                raise fields.ValidationError("Setting doesn's exist")
+                raise ValidationError("Setting doesn's exist")
 
     def _save_phrases(self, meeting):
         phrases_default = PhraseDefault.query.filter(

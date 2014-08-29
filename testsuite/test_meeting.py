@@ -264,7 +264,7 @@ def test_meeting_add_with_meeting_settings(app):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['settings'] = 'media_participant_remove'
+    data['settings'] = 'media_participant_enabled'
 
     client = app.test_client()
     with app.test_request_context():
@@ -275,7 +275,7 @@ def test_meeting_add_with_meeting_settings(app):
 
     assert resp.status_code == 302
     assert Meeting.query.count() == 1
-    assert Meeting.query.get(1).media_participant_disabled
+    assert Meeting.query.get(1).media_participant_enabled
 
 
 def test_meeting_edit_with_meeting_settings(app):
@@ -286,7 +286,7 @@ def test_meeting_edit_with_meeting_settings(app):
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
     data['badge_header-english'] = data.pop('badge_header')
-    data['settings'] = 'media_participant_remove'
+    data['settings'] = 'media_participant_enabled'
 
     client = app.test_client()
     with app.test_request_context():
@@ -298,11 +298,11 @@ def test_meeting_edit_with_meeting_settings(app):
         assert resp.status_code == 302
         assert Meeting.query.filter(
             Meeting.venue_city.has(english='Rome')).count() == 1
-        assert Meeting.query.get(1).media_participant_disabled
+        assert Meeting.query.get(1).media_participant_enabled
 
         data.pop('settings')
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
         assert resp.status_code == 302
-        assert not Meeting.query.get(1).media_participant_disabled
+        assert not Meeting.query.get(1).media_participant_enabled
