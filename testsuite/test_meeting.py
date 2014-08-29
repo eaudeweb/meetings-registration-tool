@@ -254,3 +254,55 @@ def test_meeting_add_default_phrase_copies(app):
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
         assert Phrase.query.filter_by(meeting_id=1).count() == 10
+
+
+def test_meeting_add_with_meeting_settings(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['settings'] = 'media_participant_remove'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit')
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert Meeting.query.count() == 1
+    assert Meeting.query.get(1).media_participant_disabled
+
+
+def test_meeting_edit_with_meeting_settings(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    meeting = MeetingFactory()
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = 'Sixtieth meeting of the Standing Committee'
+    data['venue_city-english'] = 'Rome'
+    data['badge_header-english'] = data.pop('badge_header')
+    data['settings'] = 'media_participant_remove'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Meeting.query.filter(
+            Meeting.venue_city.has(english='Rome')).count() == 1
+        assert Meeting.query.get(1).media_participant_disabled
+
+        data.pop('settings')
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert not Meeting.query.get(1).media_participant_disabled

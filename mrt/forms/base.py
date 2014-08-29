@@ -61,3 +61,19 @@ class BooleanField(fields.BooleanField):
 
     def process_data(self, data):
         self.data = True if data == 'true' else False
+
+
+class MultiCheckboxField(fields.SelectMultipleField):
+
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
+    def process_data(self, data):
+        data = data or {}
+        try:
+            self.data = [setting for setting in data if data[setting]]
+        except TypeError:
+            raise TypeError('Parameter data must be a dict')
+
+    def process_formdata(self, valuelist):
+        self.data = {setting: True for setting in valuelist}

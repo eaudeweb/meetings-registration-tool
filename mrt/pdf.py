@@ -36,7 +36,7 @@ def render_pdf(template_name, width=None, height=None,
         FNULL = open(os.devnull, 'w')
         subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)
 
-    if g.is_rq_process:
+    if g.get('is_rq_process'):
         generate()
         return str(pdf_path.name)
 

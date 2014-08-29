@@ -24,6 +24,10 @@ MEETING_TYPES = (
     ('pc', 'Plants Committee'),
 )
 
+MEETING_SETTINGS = (
+    ('media_participant_remove', 'Remove Media Participants'),
+)
+
 
 CUSTOM_FIELDS = (
     ('text', 'Text'),

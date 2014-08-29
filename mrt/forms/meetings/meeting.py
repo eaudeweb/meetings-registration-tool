@@ -5,8 +5,9 @@ from wtforms_alchemy import ModelFormField
 
 from mrt.models import db, Meeting, Staff
 from mrt.models import Phrase, PhraseDefault, Translation
-from mrt.forms.base import BaseForm, TranslationInpuForm
+from mrt.forms.base import BaseForm, TranslationInpuForm, MultiCheckboxField
 from mrt.utils import copy_model_fields
+from mrt.definitions import MEETING_SETTINGS
 
 
 class MeetingEditForm(BaseForm):
@@ -30,6 +31,7 @@ class MeetingEditForm(BaseForm):
     venue_city = ModelFormField(TranslationInpuForm, label='City')
     meeting_type = fields.SelectField('Meeting Type')
     owner_id = fields.SelectField('Owner', coerce=int)
+    settings = MultiCheckboxField('Settings', choices=MEETING_SETTINGS)
 
     def __init__(self, *args, **kwargs):
         super(MeetingEditForm, self).__init__(*args, **kwargs)
@@ -38,6 +40,12 @@ class MeetingEditForm(BaseForm):
             (x.id, x.full_name) for x in Staff.query.all()]
         if not self.owner_id.data:
             self.owner_id.data = current_user.staff.id
+
+    def validate_settings(self, field):
+        settings = dict(MEETING_SETTINGS)
+        for key in field.data:
+            if key not in settings:
+                raise fields.ValidationError("Setting doesn's exist")
 
     def _save_phrases(self, meeting):
         phrases_default = PhraseDefault.query.filter(
