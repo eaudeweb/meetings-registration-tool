@@ -5,20 +5,23 @@ from flask.ext.login import login_required
 
 from mrt.models import db, Staff, RoleUser
 from mrt.forms.admin import StaffEditForm
+from mrt.meetings import PermissionRequiredMixin
 
 
-class StaffList(MethodView):
+class StaffList(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
+    permission_required = ('manage_staff', )
 
     def get(self):
         staff = Staff.query.all()
         return render_template('admin/staff/list.html', staff=staff)
 
 
-class StaffEdit(MethodView):
+class StaffEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
+    permission_required = ('manage_staff', )
 
     def get(self, staff_id=None):
         if staff_id:

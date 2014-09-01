@@ -4,15 +4,17 @@ from flask import request, redirect, url_for
 from flask.ext.login import login_required
 from flask.views import MethodView
 
+from mrt.meetings import PermissionRequiredMixin
 from mrt.definitions import COLORS
 from mrt.forms.admin import CategoryDefaultEditForm
 from mrt.models import db, CategoryDefault
 from mrt.utils import unlink_uploaded_file
 
 
-class Categories(MethodView):
+class Categories(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_category', )
 
     def get(self):
         categories = (
@@ -23,9 +25,10 @@ class Categories(MethodView):
                                categories=categories)
 
 
-class CategoryEdit(MethodView):
+class CategoryEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
+    permission_required = ('manage_category', )
 
     def get(self, category_id=None):
         category = (CategoryDefault.query.get_or_404(category_id)
@@ -63,7 +66,9 @@ class CategoryEdit(MethodView):
         return jsonify(status="success", url=url_for('.categories'))
 
 
-class CategoryUpdatePosition(MethodView):
+class CategoryUpdatePosition(MethodView, PermissionRequiredMixin):
+
+    permission_required = ('manage_category', )
 
     def post(self):
         items = request.form.getlist('items[]')

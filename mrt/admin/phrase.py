@@ -7,20 +7,23 @@ from flask.ext.login import login_required
 from mrt.models import PhraseDefault
 from mrt.definitions import MEETING_TYPES
 from mrt.forms.admin import PhraseDefaultEditForm
+from mrt.meetings import PermissionRequiredMixin
 
 
-class PhrasesTypes(MethodView):
+class PhrasesTypes(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_phrases', )
 
     def get(self):
         return render_template('admin/phrase/list.html',
                                meeting_types=MEETING_TYPES)
 
 
-class PhraseEdit(MethodView):
+class PhraseEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_phrases', )
 
     def get(self, meeting_type, phrase_id=None):
         phrases = (

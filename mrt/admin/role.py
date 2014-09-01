@@ -5,20 +5,23 @@ from flask.ext.login import login_required
 
 from mrt.models import db, Role, RoleUser
 from mrt.forms.admin import RoleEditForm
+from mrt.meetings import PermissionRequiredMixin
 
 
-class Roles(MethodView):
+class Roles(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_role', )
 
     def get(self):
         roles = Role.query.all()
         return render_template('admin/role/list.html', roles=roles)
 
 
-class RoleEdit(MethodView):
+class RoleEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_role', )
 
     def get(self, role_id=None):
         role = role_id and Role.query.get_or_404(role_id)

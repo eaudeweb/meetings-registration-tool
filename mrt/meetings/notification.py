@@ -6,9 +6,12 @@ from flask.views import MethodView
 
 from mrt.models import UserNotification, db
 from mrt.forms.meetings import UserNotificationForm
+from mrt.meetings import PermissionRequiredMixin
 
 
-class Notifications(MethodView):
+class Notifications(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
 
     def get(self):
         notifications = UserNotification.query.filter_by(meeting=g.meeting)
@@ -16,7 +19,9 @@ class Notifications(MethodView):
                                notifications=notifications)
 
 
-class NotificationEdit(MethodView):
+class NotificationEdit(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
 
     def get(self, notification_id=None):
         notification = (notification_id and
