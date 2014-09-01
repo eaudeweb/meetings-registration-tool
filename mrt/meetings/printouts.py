@@ -1,15 +1,15 @@
-from flask import g
-from flask import request, render_template, jsonify, abort
 from flask import current_app as app
+from flask import g, session
+from flask import request, render_template, jsonify, abort
 from flask import send_from_directory
 from flask.views import MethodView
 
 from rq import Queue, Connection
-from rq.job import Job, NoSuchJobError
+from rq.job import Job, NoSuchJobError, Status
 
+from mrt.forms.meetings import BadgeCategories
 from mrt.models import Participant, Category, Meeting
 from mrt.models import redis_store
-from mrt.forms.meetings import BadgeCategories
 from mrt.pdf import render_pdf
 
 
@@ -45,6 +45,12 @@ class Badges(MethodView):
         q = Queue('badges', connection=redis_store.connection,
                   default_timeout=1200)
         job = q.enqueue(_process_badges, g.meeting.id, category_ids)
+        session.setdefault('queue', [])
+        session['queue'].append({
+            'id': job.id,
+            'name': self.JOB_NAME,
+            'status': job.get_status()
+        })
         return jsonify(job_id=job.id, job_name=self.JOB_NAME)
 
 
@@ -57,6 +63,7 @@ class JobStatus(MethodView):
                 job = Job.fetch(job_id)
             except NoSuchJobError:
                 abort(404)
+
             if job.is_finished:
                 return jsonify(status=job.get_status(), result=job.result)
             else:
@@ -68,6 +75,23 @@ class PDFDownload(MethodView):
     def get(self, filename):
         return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
                                    filename)
+
+
+class RemvoeJobFromSession(MethodView):
+
+    def get(self):
+        job_id = request.args['job_id']
+        with Connection(redis_store.connection):
+            try:
+                job = Job.fetch(job_id)
+            except NoSuchJobError:
+                abort(404)
+
+            if job.get_status() in (Status.FINISHED, Status.FAILED):
+                if 'queue' in session:
+                    session['queue'] = [j for j in session['queue']
+                                        if j['job_id'] != job.id]
+        return jsonify()
 
 
 def _process_badges(meeting_id, category_ids):

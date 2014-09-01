@@ -18,16 +18,23 @@
       <div id="{{ '{{ id }}' }}" class="job bg-primary tada animated" >
         <img src="/static/images/ajax-blue.gif" width="16" height="16">
         Processing {{ '{{ name }}' }} job...
+        <a data-href="{{ job_close_url }}" class="job-close">
+          <span class="glyphicon glyphicon-remove"></span></a>
       </div>
     </script>
 
     <script id="printout-job-finished-tmpl" type="x-tmpl-mustache">
       <span class="glyphicon glyphicon-download"></span>
-      <a href="{{ '{{ href }}' }}">Download {{ '{{ name }}' }} </a>
+      <a href="{{ '{{ href }}' }}" target="_blank">
+        Download {{ '{{ name }}' }} </a>
+      <a data-href="{{ job_close_url }}" class="job-close">
+          <span class="glyphicon glyphicon-remove"></span></a>
     </script>
 
     <script id="printout-job-failed-tmpl" type="x-tmpl-mustache">
       Render for {{ '{{ name }}' }} failed. Internal server error.
+      <a data-href="{{ job_close_url }}" class="job-close">
+          <span class="glyphicon glyphicon-remove"></span></a>
     </script>
 
     {% block head %}{% endblock %}
@@ -106,9 +113,29 @@
       {% block messages %}{{ flashed_messages() }}{% endblock %}
       {% block content %}{% endblock %}
     </div>
+
+    {% if g.meeting %}
+    <script>
+      window.JOB_STATUS_URL = "{{ url_for('.printouts_job_status') }}";
+    </script>
+    {% endif %}
+
     {% assets "js" %}
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
+
+
+    {% if 'queue' in session %}
+      <script>
+        $(function () {
+          {% for job in session['queue'] %}
+            Queue.addJob('{{ job.id }}', '{{ job.name }}');
+          {% endfor %}
+          Queue.render();
+        });
+      </script>
+    {% endif %}
+
     {% block scripts %}{% endblock %}
 
   </body>

@@ -348,15 +348,15 @@ h5 {
 }
 
 .queue {
-    position: absolute;
+    position: fixed;
     z-index: 9999;
-    width: 300px;
+    width: 320px;
     top: 92px;
     right: 0;
 }
 .queue .job {
     border-bottom: 2px solid #fff;
-    padding: 10px 15px;
+    padding: 10px 35px 10px 15px;
     /*width: 0;*/
 }
 .queue .job img {
@@ -370,11 +370,20 @@ h5 {
     top: 2px;
 }
 .queue .job.bg-success,
-.queue .job.bg-success a {
+.queue .job.bg-success a,
+.queue .job.bg-success .job-close {
     color: #3c763d;
 }
-.queue .job.bg-danger {
-    color: #a94442;
+.queue .job.bg-danger,
+.queue .job.bg-danger .job-close {
+    color: #a94442!important;
+}
+.queue .job .job-close {
+    position: absolute;
+    font-size: 13px;
+    color: #fff;
+    right: 14px;
+    top: 14px;
 }
 
 .animated {
