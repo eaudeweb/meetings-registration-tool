@@ -4,25 +4,34 @@ from pyquery import PyQuery
 from py.path import local
 
 from mrt.models import CategoryDefault
-from .factories import CategoryDefaultFactory, normalize_data
+from .factories import CategoryDefaultFactory, normalize_data, RoleUserFactory
+
+
+PERMISSION = ('manage_category', )
 
 
 def test_category_list(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     CategoryDefaultFactory.create_batch(5)
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.get(url_for('admin.categories'))
         rows = PyQuery(resp.data)('#categories tbody tr')
         assert len(rows) == 5
 
 
 def test_category_add_without_file(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     data = CategoryDefaultFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.category_edit')
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -30,12 +39,15 @@ def test_category_add_without_file(app):
 
 
 def test_category_edit_without_file(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     category = CategoryDefaultFactory()
     data = normalize_data(CategoryDefaultFactory.attributes())
     data['title-english'] = 'Comitee'
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.category_edit', category_id=category.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -43,10 +55,13 @@ def test_category_edit_without_file(app):
 
 
 def test_category_delete_without_file(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     category = CategoryDefaultFactory()
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.category_edit', category_id=category.id)
         resp = client.delete(url)
         assert resp.status_code == 200
@@ -54,6 +69,7 @@ def test_category_delete_without_file(app):
 
 
 def test_category_add_with_file(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     data = CategoryDefaultFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
@@ -63,6 +79,8 @@ def test_category_add_with_file(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.category_edit')
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -73,6 +91,7 @@ def test_category_add_with_file(app):
 
 
 def test_category_edit_file_delete(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     category = CategoryDefaultFactory()
     category.background = filename = 'image_edit.jpg'
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
@@ -84,6 +103,8 @@ def test_category_edit_file_delete(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.category_edit', category_id=1)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -92,6 +113,7 @@ def test_category_edit_file_delete(app):
 
 
 def test_category_edit_with_file(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     category = CategoryDefaultFactory()
     data = normalize_data(CategoryDefaultFactory.attributes())
     data['title-english'] = 'Comitee'
@@ -101,6 +123,8 @@ def test_category_edit_with_file(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.category_edit', category_id=category.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -110,6 +134,7 @@ def test_category_edit_with_file(app):
 
 
 def test_category_delete_with_file(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     category = CategoryDefaultFactory()
     category.background = filename = 'image_edit.jpg'
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
@@ -117,6 +142,8 @@ def test_category_delete_with_file(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.category_edit', category_id=1)
         resp = client.delete(url)
         assert resp.status_code == 200

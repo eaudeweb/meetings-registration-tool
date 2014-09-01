@@ -93,7 +93,7 @@ class AckEmail(PermissionRequiredMixin, MethodView):
 
 class ResendEmail(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant')
+    permission_required = ('view_participant', )
 
     def post(self, mail_id):
         mail = MailLog.query.get_or_404(mail_id)

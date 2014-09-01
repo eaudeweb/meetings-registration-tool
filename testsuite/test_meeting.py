@@ -6,6 +6,7 @@ from mrt.models import Meeting, Category, Phrase
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
 from .factories import PhraseMeetingFactory, RoleUserFactory, StaffFactory
+from .factories import RoleUserMeetingFactory
 
 
 def test_meeting_list(app):
@@ -76,15 +77,19 @@ def test_meeting_delete(app):
         resp = client.delete(url)
 
     assert resp.status_code == 200
-    # assert Meeting.query.count() == 0
+    assert Meeting.query.count() == 0
 
 
 def test_meeting_category_add_list(app):
     CategoryDefaultFactory.create_batch(5)
     meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_category',))
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.get(url)
 
@@ -99,10 +104,14 @@ def test_meeting_category_add_successfully(app):
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_category',))
     data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
@@ -118,10 +127,14 @@ def test_meeting_category_edit_name(app):
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_category',))
     data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -148,10 +161,14 @@ def test_meeting_category_edit_name(app):
 def test_meeting_category_delete(app):
     category = CategoryDefaultFactory()
     meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_category',))
     data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -167,10 +184,14 @@ def test_meeting_category_delete(app):
 
 def test_meeting_phrase_edit_successfully(app):
     phrase = PhraseMeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=phrase.meeting,
+                                       role__permissions=('manage_phrases',))
     data = {'description-english': 'Credentials'}
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.phrase_edit',
                       meeting_id=phrase.meeting.id,
                       meeting_type=phrase.meeting.meeting_type,

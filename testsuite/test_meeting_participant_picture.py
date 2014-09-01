@@ -7,10 +7,11 @@ from PIL import Image
 
 from mrt.models import CustomFieldValue
 from .factories import CustomFieldFactory, ParticipantFactory
-from .factories import ProfilePictureFactory
+from .factories import ProfilePictureFactory, RoleUserFactory
 
 
 def test_participant_picture_add(app):
+    role_user = RoleUserFactory()
     participant = ParticipantFactory()
     field = CustomFieldFactory(meeting=participant.meeting)
     data = {'picture': (StringIO('Test'), 'test.png')}
@@ -18,6 +19,8 @@ def test_participant_picture_add(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.custom_field_upload',
                                    meeting_id=field.meeting.id,
                                    participant_id=participant.id,
@@ -29,6 +32,7 @@ def test_participant_picture_add(app):
 
 
 def test_participant_picture_edit(app):
+    role_user = RoleUserFactory()
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     filename = pic.value
@@ -37,6 +41,8 @@ def test_participant_picture_edit(app):
     data = {'picture': (StringIO('Test'), 'test_edit.png')}
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.custom_field_upload',
                                    meeting_id=pic.custom_field.meeting.id,
                                    participant_id=pic.participant.id,
@@ -47,12 +53,15 @@ def test_participant_picture_edit(app):
 
 
 def test_participant_picture_remove(app):
+    role_user = RoleUserFactory()
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     upload_dir.ensure(pic.value)
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.delete(url_for('meetings.custom_field_upload',
                                      meeting_id=pic.custom_field.meeting.id,
                                      participant_id=pic.participant.id,
@@ -62,6 +71,7 @@ def test_participant_picture_remove(app):
 
 
 def test_participant_picture_rotate(app):
+    role_user = RoleUserFactory()
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     filename = pic.value
@@ -70,6 +80,8 @@ def test_participant_picture_rotate(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.custom_field_rotate',
                       meeting_id=pic.custom_field.meeting.id,
                       participant_id=pic.participant.id,
@@ -83,6 +95,7 @@ def test_participant_picture_rotate(app):
 
 
 def test_participant_picture_remove_thumbnail(app):
+    role_user = RoleUserFactory()
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     thumb_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'] /
@@ -92,6 +105,8 @@ def test_participant_picture_remove_thumbnail(app):
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.custom_field_rotate',
                       meeting_id=pic.custom_field.meeting.id,
                       participant_id=pic.participant.id,
@@ -129,7 +144,6 @@ def test_participant_picture_remove_crop(app, user):
         'w': 150, 'h': 150,
     }
 
-    client = app.test_client()
     with app.test_request_context():
         with app.client.session_transaction() as sess:
             sess['user_id'] = user.id
@@ -154,13 +168,13 @@ def test_participant_picture_remove_crop(app, user):
                       meeting_id=pic.custom_field.meeting.id,
                       participant_id=pic.participant.id,
                       custom_field_slug=pic.custom_field.label.english)
-        resp = client.delete(url)
+        resp = app.client.delete(url)
         assert resp.status_code == 200
         assert not crop_dir.join(pic.value).check()
         assert not thumb_crop_dir.join(thumb_full_name).check()
 
 
-def test_participant_picture_remove_deletes_all_files(app):
+def test_participant_picture_remove_deletes_all_files(app, user):
     pic = ProfilePictureFactory()
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     crop_dir = local(app.config['UPLOADED_CROP_DEST'] /
@@ -178,12 +192,13 @@ def test_participant_picture_remove_deletes_all_files(app):
     thumb_crop_dir.ensure(thumb_full_name)
     thumb_dir.ensure(thumb_full_name)
 
-    client = app.test_client()
     with app.test_request_context():
-        resp = client.delete(url_for('meetings.custom_field_upload',
-                                     meeting_id=pic.custom_field.meeting.id,
-                                     participant_id=pic.participant.id,
-                                     custom_field_slug='picture'))
+        with app.client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = app.client.delete(url_for('meetings.custom_field_upload',
+                                         meeting_id=pic.custom_field.meeting.id,
+                                         participant_id=pic.participant.id,
+                                         custom_field_slug='picture'))
         assert resp.status_code == 200
         assert not upload_dir.join(pic.value).check()
         assert not crop_dir.join(pic.value).check()
@@ -191,7 +206,7 @@ def test_participant_picture_remove_deletes_all_files(app):
         assert not thumb_dir.join(thumb_full_name).check()
 
 
-def test_participant_picture_change_deletes_all_old_files(app):
+def test_participant_picture_change_deletes_all_old_files(app, user):
     pic = ProfilePictureFactory()
     filename = pic.value
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
@@ -211,12 +226,13 @@ def test_participant_picture_change_deletes_all_old_files(app):
     thumb_dir.ensure(thumb_full_name)
 
     data = {'picture': (StringIO('Test'), 'test_edit.png')}
-    client = app.test_client()
     with app.test_request_context():
-        resp = client.post(url_for('meetings.custom_field_upload',
-                                   meeting_id=pic.custom_field.meeting.id,
-                                   participant_id=pic.participant.id,
-                                   custom_field_slug='picture'), data=data)
+        with app.client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = app.client.post(url_for('meetings.custom_field_upload',
+                                       meeting_id=pic.custom_field.meeting.id,
+                                       participant_id=pic.participant.id,
+                                       custom_field_slug='picture'), data=data)
         assert resp.status_code == 200
         assert not upload_dir.join(filename).check()
         assert not crop_dir.join(filename).check()
@@ -224,7 +240,7 @@ def test_participant_picture_change_deletes_all_old_files(app):
         assert not thumb_dir.join(thumb_full_name).check()
 
 
-def test_participant_picture_rotate_deletes_all_old_files(app):
+def test_participant_picture_rotate_deletes_all_old_files(app, user):
     pic = ProfilePictureFactory()
     filename = pic.value
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
@@ -244,14 +260,15 @@ def test_participant_picture_rotate_deletes_all_old_files(app):
     thumb_crop_dir.ensure(thumb_full_name)
     thumb_dir.ensure(thumb_full_name)
 
-    client = app.test_client()
     with app.test_request_context():
+        with app.client.session_transaction() as sess:
+            sess['user_id'] = user.id
         url = url_for('meetings.custom_field_rotate',
                       meeting_id=pic.custom_field.meeting.id,
                       participant_id=pic.participant.id,
                       custom_field_slug=pic.custom_field.label.english)
 
-        resp = client.post(url)
+        resp = app.client.post(url)
         assert resp.status_code == 200
         assert not upload_dir.join(filename).check()
         assert not crop_dir.join(filename).check()

@@ -1,13 +1,19 @@
 from flask import url_for
 from pyquery import PyQuery
 
-from .factories import PhraseDefaultFactory
+from .factories import PhraseDefaultFactory, RoleUserFactory
 from mrt.definitions import MEETING_TYPES
 
 
+PERMISSION = ('manage_phrases', )
+
+
 def test_default_phrase_types_list(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         resp = client.get(url_for('admin.phrases'))
         assert resp.status_code == 200
         rows = PyQuery(resp.data)('table tbody tr')
@@ -15,9 +21,12 @@ def test_default_phrase_types_list(app):
 
 
 def test_default_phrase_category_list(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     PhraseDefaultFactory.create_batch(5)
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.phrase_edit', meeting_type='cop')
         resp = client.get(url, follow_redirects=True)
         assert resp.status_code == 200
@@ -26,11 +35,14 @@ def test_default_phrase_category_list(app):
 
 
 def test_default_phrase_edit_successfully(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     phrase = PhraseDefaultFactory()
     data = PhraseDefaultFactory.attributes()
     data['description-english'] = descr = 'Enter credentials'
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.phrase_edit', meeting_type=phrase.meeting_type,
                       phrase_id=phrase.id)
         resp = client.post(url, data=data)
@@ -41,10 +53,13 @@ def test_default_phrase_edit_successfully(app):
 
 
 def test_default_phrase_edit_fail(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
     phrase = PhraseDefaultFactory()
     data = PhraseDefaultFactory.attributes()
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('admin.phrase_edit', meeting_type=phrase.meeting_type,
                       phrase_id=phrase.id)
         resp = client.post(url, data=data)

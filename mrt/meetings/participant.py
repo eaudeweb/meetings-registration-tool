@@ -189,7 +189,6 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
         participant = (
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
-            .active()
             .first_or_404())
         participant.deleted = False
         activity_signal.send(self, participant=participant,
