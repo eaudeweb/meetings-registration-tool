@@ -6,6 +6,8 @@ from flask.views import MethodView
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
+from mrt.meetings import PermissionRequiredMixin
+
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue
 
@@ -13,7 +15,9 @@ from mrt.utils import crop_file, unlink_participant_photo
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
 
 
-class CustomFields(MethodView):
+class CustomFields(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
 
     def get(self):
         custom_fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
@@ -22,7 +26,9 @@ class CustomFields(MethodView):
                                custom_fields=custom_fields)
 
 
-class CustomFieldEdit(MethodView):
+class CustomFieldEdit(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
 
     def _get_object(self, custom_field_id=None):
         return (CustomField.query
@@ -63,7 +69,9 @@ def _get_participant(participant_id):
         .first_or_404())
 
 
-class CustomFieldUpload(MethodView):
+class CustomFieldUpload(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_participant', )
 
     def post(self, participant_id, custom_field_slug):
         participant = _get_participant(participant_id)
@@ -94,7 +102,9 @@ class CustomFieldUpload(MethodView):
         return jsonify()
 
 
-class CustomFieldRotate(MethodView):
+class CustomFieldRotate(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_participant', )
 
     def post(self, participant_id, custom_field_slug):
         participant = _get_participant(participant_id)
@@ -117,7 +127,9 @@ class CustomFieldRotate(MethodView):
         return jsonify(html=html)
 
 
-class CustomFieldCropUpload(MethodView):
+class CustomFieldCropUpload(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_participant', )
 
     def get(self, participant_id, custom_field_slug):
         participant = _get_participant(participant_id)
@@ -156,7 +168,9 @@ class CustomFieldCropUpload(MethodView):
         return redirect(url)
 
 
-class CustomFieldUpdatePosition(MethodView):
+class CustomFieldUpdatePosition(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
 
     def post(self):
         items = request.form.getlist('items[]')

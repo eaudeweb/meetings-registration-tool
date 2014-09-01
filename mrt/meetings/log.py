@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from mrt.models import db, Participant, MediaParticipant
 from mrt.models import ActivityLog, MailLog, Staff, RoleUser
+from mrt.meetings import PermissionRequiredMixin
 from mrt.signals import activity_signal
 
 
@@ -22,7 +23,9 @@ def activity_listener(sender, participant, action):
     db.session.commit()
 
 
-class Statistics(MethodView):
+class Statistics(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
 
     def get(self):
         participants = (
@@ -34,7 +37,9 @@ class Statistics(MethodView):
                                media_participants=media_participants)
 
 
-class MailLogs(MethodView):
+class MailLogs(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self):
         mails = MailLog.query.filter_by(meeting_id=g.meeting.id)
@@ -42,7 +47,9 @@ class MailLogs(MethodView):
                                mails=mails)
 
 
-class MailLogDetail(MethodView):
+class MailLogDetail(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self, mail_id):
         mail = MailLog.query.get_or_404(mail_id)
@@ -57,7 +64,9 @@ class MailLogDetail(MethodView):
         return jsonify(status="success", url=url_for('.mail_logs'))
 
 
-class ActivityLogs(MethodView):
+class ActivityLogs(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
 
     def get(self):
         staffs = RoleUser.query.filter_by(meeting=g.meeting)

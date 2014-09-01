@@ -4,6 +4,7 @@ from flask.views import MethodView
 from mrt.forms.meetings.email import BulkEmailForm, AckEmailForm
 from mrt.mail import send_bulk_message, send_single_message
 from mrt.models import Participant, MailLog
+from mrt.meetings import PermissionRequiredMixin
 
 
 def get_recipients(language, categories=None):
@@ -16,9 +17,10 @@ def get_recipients(language, categories=None):
     return queryset
 
 
-class BulkEmail(MethodView):
+class BulkEmail(PermissionRequiredMixin, MethodView):
 
     template_name = 'meetings/email/bulk.html'
+    permission_required = ('view_participant', )
 
     def get(self):
         form = BulkEmailForm()
@@ -53,9 +55,10 @@ class RecipientsCount(MethodView):
         return '{0}'.format(qs.count())
 
 
-class AckEmail(MethodView):
+class AckEmail(PermissionRequiredMixin, MethodView):
 
     template_name = 'meetings/email/ack.html'
+    permission_required = ('view_participant', )
 
     def get_participant(self, participant_id):
         return (
@@ -88,7 +91,9 @@ class AckEmail(MethodView):
                                form=form)
 
 
-class ResendEmail(MethodView):
+class ResendEmail(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant')
 
     def post(self, mail_id):
         mail = MailLog.query.get_or_404(mail_id)

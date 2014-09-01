@@ -8,9 +8,10 @@ from mrt.forms.meetings import RoleUserEditForm
 from mrt.meetings import PermissionRequiredMixin
 
 
-class Roles(MethodView):
+class Roles(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_meeting', )
 
     def get(self):
         role_users = RoleUser.query.filter(RoleUser.meeting == g.meeting)
