@@ -5,6 +5,7 @@ from flask.views import MethodView
 
 from mrt.models import db, RoleUser
 from mrt.forms.meetings import RoleUserEditForm
+from mrt.meetings import PermissionRequiredMixin
 
 
 class Roles(MethodView):
@@ -17,9 +18,10 @@ class Roles(MethodView):
                                role_users=role_users)
 
 
-class RoleUserEdit(MethodView):
+class RoleUserEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_meeting', )
 
     def get(self, role_user_id=None):
         role_user = role_user_id and RoleUser.query.get_or_404(role_user_id)

@@ -4,12 +4,14 @@ from flask.ext.login import login_required
 from flask.views import MethodView
 
 from mrt.forms.admin import PhraseEditForm
+from mrt.meetings import PermissionRequiredMixin
 from mrt.models import Phrase
 
 
-class PhraseEdit(MethodView):
+class PhraseEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_phrases', )
 
     def get(self, meeting_type, phrase_id=None):
         phrases = (Phrase.query.filter(Phrase.meeting == g.meeting)

@@ -6,14 +6,16 @@ from flask.views import MethodView
 
 from mrt.forms.meetings import MeetingCategoryAddForm
 from mrt.forms.admin import CategoryEditForm
+from mrt.meetings import PermissionRequiredMixin
 from mrt.models import db, Category
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import COLORS
 
 
-class Categories(MethodView):
+class Categories(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_category', )
 
     def get(self):
         categories = (Category.query.filter(Category.meeting == g.meeting)
@@ -36,9 +38,10 @@ class Categories(MethodView):
                                form=form)
 
 
-class CategoryEdit(MethodView):
+class CategoryEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
+    permission_required = ('manage_category', )
 
     def get(self, category_id):
         category = Category.query.filter_by(
@@ -77,7 +80,10 @@ class CategoryEdit(MethodView):
         return jsonify(status="success", url=url_for('.categories'))
 
 
-class CategoryUpdatePosition(MethodView):
+class CategoryUpdatePosition(PermissionRequiredMixin, MethodView):
+
+    decorators = (login_required,)
+    permission_required = ('manage_category', )
 
     def post(self):
         items = request.form.getlist('items[]')
