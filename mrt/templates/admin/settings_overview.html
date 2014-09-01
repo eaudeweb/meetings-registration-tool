@@ -11,6 +11,8 @@
 
 {% endblock %}
 
+{% set product_logo = url_for('files', filename=config['PATH_LOGOS_KEY'] ~ '/' ~ config['PRODUCT_LOGO']) %}
+{% set product_side_logo = url_for('files', filename=config['PATH_LOGOS_KEY'] ~ '/' ~ config['PRODUCT_SIDE_LOGO']) %}
 
 {% block content %}
 
@@ -26,6 +28,7 @@
             <tr>
               <th>Title</th>
               <th>Description</th>
+              <th>Preview</th>
             </tr>
           </thead>
 
@@ -33,14 +36,17 @@
             <tr>
               <td>PRODUCT_TITLE</td>
               <td>{{ config.PRODUCT_TITLE }}</td>
+              <td></td>
             </tr>
             <tr>
               <td>PRODUCT_LOGO</td>
               <td>{{ config.PRODUCT_LOGO }}</td>
+              <td><img src="{{ product_logo|no_image_cache }}" class="logo" alt="" width="75" height="75"></td>
             </tr>
             <tr>
               <td>PRODUCT_PRODUCT_SIDE_LOGO</td>
               <td>{{ config.PRODUCT_SIDE_LOGO }}</td>
+              <td><img src="{{ product_side_logo|no_image_cache }}" class="logo" alt="" width="75" height="75"></td>
             </tr>
           </tbody>
         </table>
