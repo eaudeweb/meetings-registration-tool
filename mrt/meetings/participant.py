@@ -23,7 +23,7 @@ class Participants(PermissionRequiredMixin, MethodView):
         return render_template('meetings/participant/list.html')
 
 
-class ParticipantsFilter(MethodView, FilterView):
+class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
     permission_required = ('view_participant', )
 
@@ -51,7 +51,9 @@ class ParticipantsFilter(MethodView, FilterView):
         return participants, total
 
 
-class ParticipantSearch(MethodView):
+class ParticipantSearch(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self):
         participants = search_for_participant(request.args['search'])
@@ -198,7 +200,9 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
                        participant_id=participant.id))
 
 
-class ParticipantBadge(MethodView):
+class ParticipantBadge(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self, participant_id):
         participant = (
@@ -215,7 +219,9 @@ class ParticipantBadge(MethodView):
                           orientation='portrait')
 
 
-class ParticipantLabel(MethodView):
+class ParticipantLabel(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self, participant_id):
         participant = Participant.query.filter_by(
@@ -227,7 +233,9 @@ class ParticipantLabel(MethodView):
                           participant=participant)
 
 
-class ParticipantEnvelope(MethodView):
+class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self, participant_id):
         participant = Participant.query.filter_by(
@@ -245,7 +253,9 @@ class ParticipantEnvelope(MethodView):
                           participant=participant)
 
 
-class ParticipantsExport(MethodView):
+class ParticipantsExport(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', )
 
     def get(self):
 

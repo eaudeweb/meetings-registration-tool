@@ -21,10 +21,13 @@ class PermissionRequiredMixin(object):
 
     def check_permissions(self):
         perms = self.get_permission_required()
+        admin_perms = [x.replace('view', 'manage', 1) for x in perms]
         if g.meeting:
             return (
                 current_user.has_perms(perms) or
-                current_user.has_perms(perms, meeting_id=g.meeting.id)
+                current_user.has_perms(perms, meeting_id=g.meeting.id) or
+                current_user.has_perms(admin_perms) or
+                current_user.has_perms(admin_perms, meeting_id=g.meeting.id)
             )
         return current_user.has_perms(perms)
 
