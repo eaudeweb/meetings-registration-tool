@@ -34,6 +34,7 @@
       <th class="handler"></th>
       <th>Label</th>
       <th>Type</th>
+      <th>Required</th>
     </thead>
 
     <tbody>
@@ -48,6 +49,7 @@
             <a href="{{ url }}">{{ field.label }}</a>
           </td>
           <td>{{ field.field_type.value }}</td>
+          <td><span class="glyphicon {% if field.required %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
         </tr>
       {% endfor %}
     </tbody>
