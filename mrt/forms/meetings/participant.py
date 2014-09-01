@@ -54,3 +54,13 @@ class MediaParticipantEditForm(BaseForm):
             db.session.add(media_participant)
         db.session.commit()
         return media_participant
+
+
+class BadgeCategories(BaseForm):
+
+    categories = fields.SelectMultipleField()
+
+    def __init__(self, *args, **kwargs):
+        super(BadgeCategories, self).__init__(*args, **kwargs)
+        categories = Category.query.filter_by(meeting=g.meeting)
+        self.categories.choices = [(c.id, c.title) for c in categories]

@@ -3,7 +3,7 @@ import subprocess
 import uuid
 
 from flask import current_app as app
-from flask import Response, g
+from flask import Response, g, url_for
 
 from mrt.utils import read_file
 
@@ -38,7 +38,8 @@ def render_pdf(template_name, width=None, height=None,
 
     if g.get('is_rq_process'):
         generate()
-        return str(pdf_path.name)
+        return url_for('meetings.printouts_download',
+                       filename=str(pdf_path.name))
 
     try:
         generate()

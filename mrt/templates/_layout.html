@@ -22,11 +22,13 @@
     </script>
 
     <script id="printout-job-finished-tmpl" type="x-tmpl-mustache">
-      <div id="{{ '{{ id }}' }}" class="job bg-success tada animated" >
-         <a href="{{ '{{ href }}' }}">{{ '{{ name }}' }} </a>
-      </div>
+      <span class="glyphicon glyphicon-download"></span>
+      <a href="{{ '{{ href }}' }}">Download {{ '{{ name }}' }} </a>
     </script>
 
+    <script id="printout-job-failed-tmpl" type="x-tmpl-mustache">
+      Render for {{ '{{ name }}' }} failed. Internal server error.
+    </script>
 
     {% block head %}{% endblock %}
 

@@ -31,6 +31,18 @@
 
   <h3 class="page-title">{{ title }}</h3>
 
+  <div class="panel panel-default">
+    <div class="panel-heading"><b>Print participant badges</b></div>
+    <div class="panel-body">
+      {{ badge_categories_form.categories(
+          class_="form-control form-reset-control select",
+          **{'data-placeholder': 'Select one or more categories' }) }}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Preview</button>
+      </div>
+    </div>
+  </div>
+
   <div class="printout-badge-header row">
     <div class="col-sm-6">
       <p>A number of <b>{{ participants.total }} badges</b> will be printed.</p>

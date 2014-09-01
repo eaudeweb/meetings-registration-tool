@@ -78,12 +78,16 @@ h5 {
     font-weight: 300;
 }
 
-.panel label {
+.panel label {f
     font-weight: normal;
 }
 .panel input[type="file"] {
     position: relative;
     top: 8px;
+}
+.panel .form-actions {
+    padding-bottom: 0;
+    padding-top: 15px;
 }
 
 .form-horizontal .checkbox {
@@ -359,6 +363,18 @@ h5 {
     margin-right: 7px;
     position: relative;
     top: -2px;
+}
+.queue .job .glyphicon {
+    position: relative;
+    padding-right: 4px;
+    top: 2px;
+}
+.queue .job.bg-success,
+.queue .job.bg-success a {
+    color: #3c763d;
+}
+.queue .job.bg-danger {
+    color: #a94442;
 }
 
 .animated {

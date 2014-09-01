@@ -16,23 +16,6 @@
 {% endblock %}
 
 
-{% block head %}
-
-  <style type="text/css">
-
-    select {
-      width: 100%;
-    }
-    .form-actions {
-      padding-bottom: 0;
-      padding-top: 15px;
-    }
-
-  </style>
-
-{% endblock %}
-
-
 {% block content %}
 
   {{ super() }}
@@ -44,11 +27,9 @@
     <div class="panel-body">
       <form action="{{ url_for('.printouts_participant_badges') }}"
             method="GET">
-        <select name="categories" multiple="multiple" class="form-control form-reset-control select" data-placeholder="Select one or more categories">
-          {% for category in categories %}
-            <option value="{{ category.id }}">{{ category }}</option>
-          {% endfor %}
-        </select>
+        {{ badge_categories_form.categories(
+            class_="form-control form-reset-control select",
+            **{'data-placeholder': 'Select one or more categories' }) }}
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>

@@ -2,6 +2,7 @@ $(function () {
 
     var template = $('#printout-job-tmpl').html();
     var finished_template = $('#printout-job-finished-tmpl').html();
+    var failed_template = $('#printout-job-failed-tmpl').html();
 
     // speeds up future uses
     Mustache.parse(template);
@@ -19,16 +20,20 @@ $(function () {
                 var req = $.getJSON(job_status_url, {'job_id': job.id});
                 req.done(function (resp) {
                     if(resp.status == 'finished') {
-                        $.doTimeout(job.id, false);
-                        job.finish();
+                        $.doTimeout(job.id);
+                        job.finish(resp.result);
+                    }
+                    if(resp.status == 'failed') {
+                        $.doTimeout(job.id);
+                        job.failed();
                     }
                 });
+                return true;
             }));
 
         };
 
         return {
-
             addJob: $.proxy(function (job_id, job_name) {
                 var job = Job(job_id, job_name);
                 this.queue.push(job);
@@ -67,11 +72,18 @@ $(function () {
         return $(Mustache.render(template, data));
     }
 
-    Job.prototype.finish = function () {
-        $('#' + this.id).slideUp('fast', function () {
-            $(this).remove();
-        });
+    Job.prototype.finish = function (result) {
+        var $job = $('#' + this.id);
+        $job.addClass('bg-success');
+        data = {'name': this.name, 'href': result};
+        $job.html(Mustache.render(finished_template, data));
+    }
 
+    Job.prototype.failed = function () {
+        var $job = $('#' + this.id);
+        $job.addClass('bg-danger');
+        data = {'name': this.name};
+        $job.html(Mustache.render(failed_template, data));
     }
 
     $('.btn-download').on('click', function () {
@@ -80,5 +92,7 @@ $(function () {
             queue.render();
         });
     });
+
+
 
 });

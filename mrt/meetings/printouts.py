@@ -1,5 +1,7 @@
 from flask import g
 from flask import request, render_template, jsonify, abort
+from flask import current_app as app
+from flask import send_from_directory
 from flask.views import MethodView
 
 from rq import Queue, Connection
@@ -7,15 +9,16 @@ from rq.job import Job, NoSuchJobError
 
 from mrt.models import Participant, Category, Meeting
 from mrt.models import redis_store
+from mrt.forms.meetings import BadgeCategories
 from mrt.pdf import render_pdf
 
 
 class Printouts(MethodView):
 
     def get(self):
-        categories = Category.query.filter_by(meeting=g.meeting)
+        badge_categories_form = BadgeCategories()
         return render_template('meetings/printouts/list.html',
-                               categories=categories)
+                               badge_categories_form=badge_categories_form)
 
 
 class Badges(MethodView):
@@ -30,10 +33,12 @@ class Badges(MethodView):
             participants = participants.filter(
                 Participant.category.has(Category.id.in_(category_ids))
             )
+        badge_categories_form = BadgeCategories(request.args)
         participants = participants.paginate(page, per_page=50)
         return render_template('meetings/printouts/badges.html',
                                participants=participants,
-                               category_ids=category_ids)
+                               category_ids=category_ids,
+                               badge_categories_form=badge_categories_form)
 
     def post(self):
         category_ids = request.args.getlist('categories')
@@ -56,6 +61,13 @@ class JobStatus(MethodView):
                 return jsonify(status=job.get_status(), result=job.result)
             else:
                 return jsonify(status=job.get_status())
+
+
+class PDFDownload(MethodView):
+
+    def get(self, filename):
+        return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
+                                   filename)
 
 
 def _process_badges(meeting_id, category_ids):
