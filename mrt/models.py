@@ -633,3 +633,29 @@ def search_for_participant(search, queryset=None):
         Participant.last_name.contains(search) |
         Participant.email.contains(search)
     )
+
+
+def get_participants_full(meeting_id):
+    qs = (
+        Participant.query
+        .join(Participant.custom_field_values)
+        .join(CustomFieldValue.custom_field)
+        .with_entities(Participant,
+                       CustomField.slug,
+                       CustomFieldValue.value)
+        .filter_by(meeting_id=meeting_id).active()
+        .order_by(Participant.id.desc())
+    )
+
+    last_participant = None
+    for participant, slug, value in qs:
+        if last_participant and participant.id != last_participant.id:
+            yield last_participant
+            last_participant = None
+
+        if not last_participant:
+            last_participant = participant
+        setattr(last_participant, slug, value)
+
+    if last_participant:
+        yield last_participant

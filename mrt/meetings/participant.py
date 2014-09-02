@@ -10,6 +10,7 @@ from mrt.forms.meetings import ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant, search_for_participant
+from mrt.models import get_participants_full
 from mrt.pdf import render_pdf
 from mrt.signals import activity_signal, notification_signal
 from mrt.utils import generate_excel
@@ -258,8 +259,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
 
     def get(self):
 
-        participants = (
-            Participant.query.filter_by(meeting_id=g.meeting.id).active())
+        participants = get_participants_full(g.meeting.id)
 
         #TODO Add the rest of the necessary fields
         columns = [
@@ -267,9 +267,12 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             'language'
         ]
 
+        cfs = [cf.slug for cf in g.meeting.custom_fields
+               if cf.field_type.code not in ('image',)]
         form = ParticipantEditForm()
-
         header = [str(form._fields[k].label.text) for k in columns]
+        header.extend([cf.title() for cf in cfs])
+        columns += cfs
 
         rows = []
         for p in participants:
@@ -280,6 +283,9 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['country'] = p.country.name
             data['email'] = p.email
             data['language'] = p.language.value
+
+            for c in cfs:
+                data[c] = getattr(p, c, '')
 
             rows.append([data.get(k) or '' for k in columns])
 
