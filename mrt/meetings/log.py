@@ -75,6 +75,7 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
         staff_id = request.args.get('staff_id', None)
         seconds = request.args.get('time', None)
         part_id = request.args.get('part_id', None)
+        action = request.args.get('action', None)
 
         if staff_id:
             activities = activities.filter_by(staff_id=int(staff_id))
@@ -86,9 +87,13 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
         if part_id:
             activities = activities.filter_by(participant_id=part_id)
 
+        if action:
+            activities = activities.filter_by(action=action)
+
         return render_template('meetings/log/activity.html',
                                activities=activities,
                                staffs=staffs,
                                staff_id=staff_id,
                                seconds=seconds,
-                               part_id=part_id)
+                               part_id=part_id,
+                               action=action)

@@ -55,6 +55,23 @@
           </a>
         </li>
 
+        {% elif action %}
+        <li class="nav-header">Filter by action</li>
+        <li>
+          <li class="active">
+            <a>{{ action|activity_map }}</a>
+          </li>
+        </li>
+        <br>
+        <li>
+          <a href="{{ url_for('.activity') }}">
+            <small style="position:relative; left: -2px;">
+              <span class="glyphicon glyphicon-backward"></span>
+            </small>
+            Back to filters
+          </a>
+        </li>
+
         {% else %}
           <li class="nav-header">Filter by staff</li>
           <li class="{% if not staff_id %}active {% endif %}">
@@ -107,7 +124,7 @@
             <td>{{ activity.staff }}</td>
             <td><a href="{{ url_for('.activity', part_id=activity.participant.id) }}">{{ activity.participant.name }}</a></td>
             <td>{{ activity.date.strftime('%Y-%m-%d %H:%M') }}</td>
-            <td>{{ activity.action|activity_map }}</td>
+            <td><a href="{{ url_for('.activity', action=activity.action) }}">{{ activity.action|activity_map }}</a></td>
             <td>{{ activity_url(activity) }}</td>
           </tr>
         {% endfor %}
