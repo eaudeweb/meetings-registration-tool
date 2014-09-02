@@ -11,7 +11,7 @@ from mrt.models import Phrase
 class PhraseEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_phrases', )
+    permission_required = ('manage_meeting', )
 
     def get(self, meeting_type, phrase_id=None):
         phrases = (Phrase.query.filter(Phrase.meeting == g.meeting)

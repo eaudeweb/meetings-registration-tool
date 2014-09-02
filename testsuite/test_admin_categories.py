@@ -7,7 +7,7 @@ from mrt.models import CategoryDefault
 from .factories import CategoryDefaultFactory, normalize_data, RoleUserFactory
 
 
-PERMISSION = ('manage_category', )
+PERMISSION = ('manage_default', )
 
 
 def test_category_list(app):

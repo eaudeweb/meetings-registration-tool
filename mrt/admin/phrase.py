@@ -13,7 +13,7 @@ from mrt.meetings import PermissionRequiredMixin
 class PhrasesTypes(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_phrases', )
+    permission_required = ('manage_default', )
 
     def get(self):
         return render_template('admin/phrase/list.html',
@@ -23,7 +23,7 @@ class PhrasesTypes(PermissionRequiredMixin, MethodView):
 class PhraseEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_phrases', )
+    permission_required = ('manage_default', )
 
     def get(self, meeting_type, phrase_id=None):
         phrases = (

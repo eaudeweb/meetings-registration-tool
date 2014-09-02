@@ -84,7 +84,7 @@ def test_meeting_category_add_list(app):
     CategoryDefaultFactory.create_batch(5)
     meeting = MeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_category',))
+                                       role__permissions=('manage_meeting',))
 
     client = app.test_client()
     with app.test_request_context():
@@ -105,7 +105,7 @@ def test_meeting_category_add_successfully(app):
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_category',))
+                                       role__permissions=('manage_meeting',))
     data = {'categories': category.id}
 
     client = app.test_client()
@@ -128,7 +128,7 @@ def test_meeting_category_edit_name(app):
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_category',))
+                                       role__permissions=('manage_meeting',))
     data = {'categories': category.id}
 
     client = app.test_client()
@@ -162,7 +162,7 @@ def test_meeting_category_delete(app):
     category = CategoryDefaultFactory()
     meeting = MeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_category',))
+                                       role__permissions=('manage_meeting',))
     data = {'categories': category.id}
 
     client = app.test_client()
@@ -185,7 +185,7 @@ def test_meeting_category_delete(app):
 def test_meeting_phrase_edit_successfully(app):
     phrase = PhraseMeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=phrase.meeting,
-                                       role__permissions=('manage_phrases',))
+                                       role__permissions=('manage_meeting',))
     data = {'description-english': 'Credentials'}
 
     client = app.test_client()

@@ -5,7 +5,7 @@ from .factories import PhraseDefaultFactory, RoleUserFactory
 from mrt.definitions import MEETING_TYPES
 
 
-PERMISSION = ('manage_phrases', )
+PERMISSION = ('manage_default', )
 
 
 def test_default_phrase_types_list(app):

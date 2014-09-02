@@ -1,6 +1,9 @@
-from flask import url_for, g
-from testsuite.factories import RoleUserMeetingFactory, ParticipantFactory, \
-    MediaParticipantFactory
+import pytest
+from flask import url_for
+from testsuite.factories import RoleUserMeetingFactory, ParticipantFactory
+from testsuite.factories import MeetingCategoryFactory, MediaParticipantFactory
+from testsuite.factories import CustomFieldFactory, UserNotificationFactory
+from testsuite.factories import PhraseMeetingFactory
 
 
 STATUS_OK = 200
@@ -18,72 +21,174 @@ def _login_user(client, user, password='eaudeweb'):
     ), follow_redirects=True)
 
 
-def test_staff_no_access(app):
-    role = RoleUserMeetingFactory(role__permissions=[])
-    client = app.test_client()
-    with app.test_request_context():
-        _login_user(client, role.user)
-        _test(client, url_for('meetings.participants',
-                              meeting_id=role.meeting.id), STATUS_DENIED)
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.participants', [], STATUS_DENIED),
+    ('meetings.participants', ('view_participant',), STATUS_OK),
+    ('meetings.participants', ('manage_participant',), STATUS_OK),
 
-        _test(client, url_for('meetings.media_participants',
-                              meeting_id=role.meeting.id), STATUS_DENIED)
+    ('meetings.participant_detail', [], STATUS_DENIED),
+    ('meetings.participant_detail', ('view_participant',), STATUS_OK),
+    ('meetings.participant_detail', ('manage_participant',), STATUS_OK),
 
+    ('meetings.participant_edit', [], STATUS_DENIED),
+    ('meetings.participant_edit', ('view_participant',), STATUS_DENIED),
+    ('meetings.participant_edit', ('manage_participant',), STATUS_OK),
 
-def test_viewer_read_access_participants(app):
-    perms = ('view_participant',)
+    ('meetings.participant_badge', [], STATUS_DENIED),
+    ('meetings.participant_badge', ('view_participant',), STATUS_OK),
+    ('meetings.participant_badge', ('manage_participant',), STATUS_OK),
+
+    ('meetings.participant_label', [], STATUS_DENIED),
+    ('meetings.participant_label', ('view_participant',), STATUS_OK),
+    ('meetings.participant_label', ('manage_participant',), STATUS_OK),
+
+    ('meetings.participant_envelope', [], STATUS_DENIED),
+    ('meetings.participant_envelope', ('view_participant',), STATUS_OK),
+    ('meetings.participant_envelope', ('manage_participant',), STATUS_OK),
+])
+def test_permissions_participant(app, url_name, perms, status):
     role = RoleUserMeetingFactory(role__permissions=perms)
     participant = ParticipantFactory(category__meeting=role.meeting)
     client = app.test_client()
     with app.test_request_context():
         _login_user(client, role.user)
-        _test(client, url_for('meetings.participants',
-                              meeting_id=role.meeting.id), STATUS_OK)
-        _test(client, url_for('meetings.participant_edit',
-                              meeting_id=role.meeting.id,
-                              participant_id=participant.id), STATUS_DENIED)
+        _test(client, url_for(url_name,
+                              participant_id=participant.id,
+                              meeting_id=role.meeting.id), status)
 
 
-def test_viewer_read_access_media_participants(app):
-    perms = ('view_media_participant',)
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.media_participants', [], STATUS_DENIED),
+    ('meetings.media_participants', ('view_media_participant',), STATUS_OK),
+    ('meetings.media_participants', ('manage_media_participant',), STATUS_OK),
+
+    ('meetings.media_participant_detail', [], STATUS_DENIED),
+    ('meetings.media_participant_detail', ('view_media_participant',),
+        STATUS_OK),
+    ('meetings.media_participant_detail', ('manage_media_participant',),
+        STATUS_OK),
+
+    ('meetings.media_participant_edit', [], STATUS_DENIED),
+    ('meetings.media_participant_edit',
+        ('view_media_participant',), STATUS_DENIED),
+    ('meetings.media_participant_edit',
+        ('manage_media_participant',), STATUS_OK),
+])
+def test_permissions_media_participant(app, url_name, perms, status):
     role = RoleUserMeetingFactory(role__permissions=perms)
     participant = MediaParticipantFactory(category__meeting=role.meeting)
     client = app.test_client()
     with app.test_request_context():
         _login_user(client, role.user)
-        _test(client, url_for('meetings.media_participants',
-                              meeting_id=role.meeting.id), STATUS_OK)
-        _test(client, url_for('meetings.media_participant_edit',
-                              meeting_id=role.meeting.id,
-                              participant_id=participant.id), STATUS_DENIED)
+        _test(client, url_for(url_name,
+                              media_participant_id=participant.id,
+                              meeting_id=role.meeting.id), status)
 
 
-def test_manager_full_access_participants(app):
-    perms = ('manage_participant', 'view_participant')
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.bulkemail', [], STATUS_DENIED),
+    ('meetings.bulkemail', ('view_participant',), STATUS_OK),
+    ('meetings.bulkemail', ('manage_participant',), STATUS_OK),
+
+    ('meetings.ackemail', [], STATUS_DENIED),
+    ('meetings.ackemail', ('view_participant',), STATUS_OK),
+    ('meetings.ackemail', ('manage_participant',), STATUS_OK),
+])
+def test_permissions_emails(app, url_name, perms, status):
     role = RoleUserMeetingFactory(role__permissions=perms)
     participant = ParticipantFactory(category__meeting=role.meeting)
     client = app.test_client()
     with app.test_request_context():
         _login_user(client, role.user)
-        _test(client, url_for('meetings.participants',
-                              meeting_id=role.meeting.id), STATUS_OK)
-        _test(client, url_for('meetings.participant_edit',
-                              meeting_id=role.meeting.id,
-                              participant_id=participant.id), STATUS_OK)
+        _test(client, url_for(url_name,
+                              participant_id=participant.id,
+                              meeting_id=role.meeting.id), status)
 
 
-def test_manager_full_access_media_participants(app):
-    perms = ('manage_media_participant', 'view_media_participant')
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.categories', [], STATUS_DENIED),
+    ('meetings.categories', ('manage_meeting',), STATUS_OK),
+
+    ('meetings.category_edit', [], STATUS_DENIED),
+    ('meetings.category_edit', ('manage_meeting',), STATUS_OK),
+])
+def test_permissions_meeting_category(app, url_name, perms, status):
     role = RoleUserMeetingFactory(role__permissions=perms)
-    participant = MediaParticipantFactory(category__meeting=role.meeting)
+    category = MeetingCategoryFactory(meeting=role.meeting)
     client = app.test_client()
     with app.test_request_context():
         _login_user(client, role.user)
-        _test(client, url_for('meetings.media_participants',
-                              meeting_id=role.meeting.id), STATUS_OK)
-        _test(client, url_for('meetings.media_participant_edit',
-                              meeting_id=role.meeting.id,
-                              participant_id=participant.id), STATUS_OK)
+        _test(client, url_for(url_name,
+                              category_id=category.id,
+                              meeting_id=role.meeting.id), status)
 
 
-# TODO: printouts, emails, settings.
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.roles', [], STATUS_DENIED),
+    ('meetings.roles', ('manage_meeting',), STATUS_OK),
+
+    ('meetings.role_user_edit', [], STATUS_DENIED),
+    ('meetings.role_user_edit', ('manage_meeting',), STATUS_OK),
+])
+def test_permissions_meeting_role(app, url_name, perms, status):
+    role = RoleUserMeetingFactory(role__permissions=perms)
+    client = app.test_client()
+    with app.test_request_context():
+        _login_user(client, role.user)
+        _test(client, url_for(url_name,
+                              role_user_id=role.id,
+                              meeting_id=role.meeting.id), status)
+
+
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.notifications', [], STATUS_DENIED),
+    ('meetings.notifications', ('manage_meeting',), STATUS_OK),
+
+    ('meetings.notification_edit', [], STATUS_DENIED),
+    ('meetings.notification_edit', ('manage_meeting',), STATUS_OK),
+])
+def test_permissions_meeting_notification(app, url_name, perms, status):
+    role = RoleUserMeetingFactory(role__permissions=perms)
+    notification = UserNotificationFactory(user=role.user,
+                                           meeting=role.meeting)
+    client = app.test_client()
+    with app.test_request_context():
+        _login_user(client, role.user)
+        _test(client, url_for(url_name,
+                              notification_id=notification.id,
+                              meeting_id=role.meeting.id), status)
+
+
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.phrase_edit', [], STATUS_DENIED),
+    ('meetings.phrase_edit', ('manage_meeting',), STATUS_OK),
+])
+def test_permissions_meeting_phrase(app, url_name, perms, status):
+    role = RoleUserMeetingFactory(role__permissions=perms)
+    PhraseMeetingFactory(meeting=role.meeting)
+    client = app.test_client()
+    with app.test_request_context():
+        _login_user(client, role.user)
+        _test(client, url_for(url_name,
+                              meeting_type='scc',
+                              meeting_id=role.meeting.id), status)
+
+
+@pytest.mark.parametrize("url_name, perms, status", [
+    ('meetings.custom_fields', [], STATUS_DENIED),
+    ('meetings.custom_fields', ('manage_meeting',), STATUS_OK),
+
+    ('meetings.custom_field_edit', [], STATUS_DENIED),
+    ('meetings.custom_field_edit', ('manage_meeting',), STATUS_OK),
+])
+def test_permissions_meeting_custom_field(app, url_name, perms, status):
+    role = RoleUserMeetingFactory(role__permissions=perms)
+    field = CustomFieldFactory(meeting=role.meeting)
+    client = app.test_client()
+    with app.test_request_context():
+        _login_user(client, role.user)
+        _test(client, url_for(url_name,
+                              custom_field_id=field.id,
+                              meeting_id=role.meeting.id), status)
+
+# TODO: printouts

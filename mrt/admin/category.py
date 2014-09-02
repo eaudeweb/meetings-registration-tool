@@ -14,7 +14,7 @@ from mrt.utils import unlink_uploaded_file
 class Categories(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_category', )
+    permission_required = ('manage_default', )
 
     def get(self):
         categories = (
@@ -28,7 +28,7 @@ class Categories(PermissionRequiredMixin, MethodView):
 class CategoryEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
-    permission_required = ('manage_category', )
+    permission_required = ('manage_default', )
 
     def get(self, category_id=None):
         category = (CategoryDefault.query.get_or_404(category_id)
@@ -68,7 +68,7 @@ class CategoryEdit(PermissionRequiredMixin, MethodView):
 
 class CategoryUpdatePosition(MethodView, PermissionRequiredMixin):
 
-    permission_required = ('manage_category', )
+    permission_required = ('manage_default', )
 
     def post(self):
         items = request.form.getlist('items[]')

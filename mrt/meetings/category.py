@@ -15,7 +15,7 @@ from mrt.definitions import COLORS
 class Categories(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_category', )
+    permission_required = ('manage_meeting', )
 
     def get(self):
         categories = (Category.query.filter(Category.meeting == g.meeting)
@@ -41,7 +41,7 @@ class Categories(PermissionRequiredMixin, MethodView):
 class CategoryEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_category', )
+    permission_required = ('manage_meeting', )
 
     def get(self, category_id):
         category = Category.query.filter_by(
@@ -83,7 +83,7 @@ class CategoryEdit(PermissionRequiredMixin, MethodView):
 class CategoryUpdatePosition(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_category', )
+    permission_required = ('manage_meeting', )
 
     def post(self):
         items = request.form.getlist('items[]')

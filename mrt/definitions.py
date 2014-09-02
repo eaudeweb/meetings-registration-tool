@@ -45,8 +45,6 @@ PERMISSIONS = (
     ('manage_media_participant', 'Manage Media Partipant'),
     ('view_media_participant', 'View Media Participant'),
     ('manage_meeting', 'Manage Meeting'),
-    ('manage_category', 'Manage Category'),
-    ('manage_phrases', 'Manage Phrases'),
     ('manage_default', 'Manage Default Values'),
 )
 
