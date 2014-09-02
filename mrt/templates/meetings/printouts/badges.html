@@ -9,7 +9,6 @@
 {% block breadcrumb %}
 
   {{ breadcrumb( [
-      (url_for('.printouts'), 'Printouts'),
       ('', title),
   ] ) }}
 
@@ -39,10 +38,11 @@
       <p>A number of <b>{{ participants.total }} badges</b> will be printed.</p>
     </div>
     <div class="col-sm-6 text-right">
-      <button class="btn btn-danger btn-sm btn-download"
-              data-url="{{ url_for('.printouts_participant_badges') }}">
-        <span class="glyphicon glyphicon-download"></span>
-        Download as pdf</button>
+      <form method="POST">
+        <button class="btn btn-danger btn-sm btn-download" type="submit">
+          <span class="glyphicon glyphicon-download"></span>
+          Download as pdf</button>
+      </form>
     </div>
   </div> {# row #}
 

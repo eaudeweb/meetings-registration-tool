@@ -96,11 +96,11 @@ var Queue = (function () {
 
 $(function () {
 
-    $('.btn-download').on('click', function () {
-        $.post().done(function (data) {
-            Queue.addJob(data.job_id, data.job_name);
-            Queue.render();
-        });
-    });
+    // $('.btn-download').on('click', function () {
+    //     $.post().done(function (data) {
+    //         Queue.addJob(data.job_id, data.job_name);
+    //         Queue.render();
+    //     });
+    // });
 
 });

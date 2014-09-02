@@ -618,6 +618,42 @@ class ActivityLog(db.Model):
         return '%s %s' % (self.staff.full_name, self.action)
 
 
+class Job(db.Model):
+
+    QUEUED = 'queued'
+    FINISHED = 'finished'
+    FAILED = 'failed'
+    STARTED = 'started'
+
+    STATUS = (
+        (QUEUED, 'Queued'),
+        (FINISHED, 'Finished'),
+        (FAILED, 'Failed'),
+        (STARTED, 'Started'),
+    )
+
+    id = db.Column(db.String(64), primary_key=True)
+    name = db.Column(db.String(32))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
+                        nullable=False)
+    user = db.relationship('User', backref=db.backref('jobs', uselist=False))
+    date = db.Column(db.DateTime, nullable=False)
+    status = db.Column(ChoiceType(STATUS), nullable=False)
+    result = db.Column(db.String(512))
+
+    @property
+    def is_finished(self):
+        return self.status == self.FINISHED
+
+    @property
+    def is_failed(self):
+        return self.status == self.FAILED
+
+    @property
+    def is_started(self):
+        return self.status == self.STARTED
+
+
 def get_or_create_role(name):
     role = Role.query.filter_by(name=name).first()
     if not role:

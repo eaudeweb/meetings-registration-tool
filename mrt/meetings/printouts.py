@@ -1,27 +1,34 @@
 from flask import current_app as app
-from flask import g, session
-from flask import request, render_template, jsonify, abort
+from flask import g, flash, url_for
+from flask import request, render_template, jsonify, abort, redirect
 from flask import send_from_directory
+from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
 from rq import Queue, Connection
-from rq.job import Job, NoSuchJobError, Status
+from rq.job import Job as JobRedis
+from rq.job import NoSuchJobError
+from sqlalchemy import desc
 
 from mrt.forms.meetings import BadgeCategories
-from mrt.models import Participant, Category, Meeting
-from mrt.models import redis_store
+from mrt.models import Participant, Category, Meeting, Job
+from mrt.models import redis_store, db
 from mrt.pdf import render_pdf
 
 
-class Printouts(MethodView):
+class ProcessingFileList(MethodView):
+
+    decorators = (login_required,)
 
     def get(self):
-        badge_categories_form = BadgeCategories()
-        return render_template('meetings/printouts/list.html',
-                               badge_categories_form=badge_categories_form)
+        jobs = Job.query.order_by(desc(Job.date))
+        return render_template('meetings/printouts/processing_file_list.html',
+                               jobs=jobs)
 
 
 class Badges(MethodView):
+
+    decorators = (login_required,)
 
     JOB_NAME = 'participant categories'
 
@@ -44,23 +51,25 @@ class Badges(MethodView):
         category_ids = request.args.getlist('categories')
         q = Queue('badges', connection=redis_store.connection,
                   default_timeout=1200)
-        job = q.enqueue(_process_badges, g.meeting.id, category_ids)
-        session.setdefault('queue', [])
-        session['queue'].append({
-            'id': job.id,
-            'name': self.JOB_NAME,
-            'status': job.get_status()
-        })
-        return jsonify(job_id=job.id, job_name=self.JOB_NAME)
+        job_redis = q.enqueue(_process_badges, g.meeting.id, category_ids)
+        job = Job(id=job_redis.id, name=self.JOB_NAME,
+                  user_id=current_user.id, status=job_redis.get_status(),
+                  date=job_redis.enqueued_at)
+        db.session.add(job)
+        db.session.commit()
+        flash('Started processing %s.' % self.JOB_NAME, 'success')
+        return redirect(url_for('.printouts_participant_badges'))
 
 
 class JobStatus(MethodView):
+
+    decorators = (login_required,)
 
     def get(self):
         job_id = request.args['job_id']
         with Connection(redis_store.connection):
             try:
-                job = Job.fetch(job_id)
+                job = JobRedis.fetch(job_id)
             except NoSuchJobError:
                 abort(404)
 
@@ -72,26 +81,11 @@ class JobStatus(MethodView):
 
 class PDFDownload(MethodView):
 
+    decorators = (login_required,)
+
     def get(self, filename):
         return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
                                    filename)
-
-
-class RemvoeJobFromSession(MethodView):
-
-    def get(self):
-        job_id = request.args['job_id']
-        with Connection(redis_store.connection):
-            try:
-                job = Job.fetch(job_id)
-            except NoSuchJobError:
-                abort(404)
-
-            if job.get_status() in (Status.FINISHED, Status.FAILED):
-                if 'queue' in session:
-                    session['queue'] = [j for j in session['queue']
-                                        if j['job_id'] != job.id]
-        return jsonify()
 
 
 def _process_badges(meeting_id, category_ids):

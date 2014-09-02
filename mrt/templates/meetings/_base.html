@@ -36,8 +36,20 @@
         Media Participants</a>
     </li>
     {% endif %}
-    <li class="{{ active('/printouts') }}">
-      <a href="{{ url_for('.printouts') }}">Printouts</a>
+    <li class="dropdown {{ active('/printouts') }}">
+      <a class="dropdown-toggle" data-toggle="dropdown">
+        Printouts <span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+          <li>
+            <a href="{{ url_for('.printouts_participant_badges') }}">
+              Print participant badges</a>
+          </li>
+          <li class="divider"></li>
+          <li>
+            <a href="{{ url_for('.processing_file_list') }}">
+              Processing file list</a>
+          </li>
+        </ul>
     </li>
     <li class="{{ active('/email') }}">
       <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>
