@@ -23,7 +23,9 @@
 
   <h3 class="page-title">{{ title }}</h3>
   <p><em>All files will be deleted after one week.</em></p>
-  <table class="table table-bordered table-condesed">
+
+  <table id="job-list" class="table table-bordered table-condesed"
+         data-job-status-url="{{ url_for('.printouts_job_status') }}">
 
     <thead>
       <tr>
@@ -40,13 +42,14 @@
       {% for job in jobs %}
         <tr class="{% if job.is_finished %}success{% endif %}
                    {% if job.is_failed %}danger{% endif %}
-                   {% if job.is_started %}active{% endif %}">
-          <td>{{ job.id }}</td>
+                   {% if job.is_started %}active{% endif %} job"
+            id="{{ job.id }}">
+          <td class="jobid">{{ job.id }}</td>
           <td>{{ job.name|title }}</td>
           <td>{{ job.user }}</td>
           <td>{{ job.date.strftime('%d.%m.%Y %H:%M') }}</td>
-          <td>{{ job.status }}</td>
-          <td>{{ job.result }}</td>
+          <td class="status">{{ job.status }}</td>
+          <td class="result">{{ job.result }}</td>
         </tr>
       {% endfor %}
     </tbody>

@@ -67,16 +67,25 @@ class JobStatus(MethodView):
 
     def get(self):
         job_id = request.args['job_id']
+        job = Job.query.get_or_404(job_id)
+
         with Connection(redis_store.connection):
             try:
-                job = JobRedis.fetch(job_id)
+                job_redis = JobRedis.fetch(job.id)
             except NoSuchJobError:
+                job.status = Job.FAILED
+                db.session.commit()
                 abort(404)
 
-            if job.is_finished:
-                return jsonify(status=job.get_status(), result=job.result)
+            if job_redis.is_finished:
+                result = {'status': job_redis.get_status(),
+                          'result': job_redis.result}
             else:
-                return jsonify(status=job.get_status())
+                result = {'status': job_redis.get_status()}
+
+            job.status = job_redis.get_status()
+            db.session.commit()
+            return jsonify(**result)
 
 
 class PDFDownload(MethodView):
