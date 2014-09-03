@@ -40,7 +40,8 @@
       <p>A number of <b>{{ participants.total }} badges</b> will be printed.</p>
     </div>
     <div class="col-sm-6 text-right">
-      <form method="POST">
+      {% set url = url_for('.printouts_participant_badges', categories=category_ids) %}
+      <form method="POST" action="{{ url }}">
         <button class="btn btn-danger btn-sm btn-download" type="submit">
           <span class="glyphicon glyphicon-download"></span>
           Download as pdf</button>
@@ -61,6 +62,8 @@
     <tbody>
       {% for participant in participants.items %}
         <tr>
+          {% set url = url_for('.participant_detail',
+                               participant_id=participant.id) %}
           <td class="text-center photo">
             {% if participant.photo %}
               {% set file_path = config['PATH_CUSTOM_KEY'] ~ '/' ~
@@ -71,8 +74,6 @@
             {% endif %}
           </td>
           <td>
-            {% set url = url_for('.participant_detail',
-                                 participant_id=participant.id) %}
             <a href="{{ url }}">{{ participant.name }}</a>
           </td>
           <td>{{ participant.category }}</td>

@@ -72,7 +72,11 @@ PRODUCT_SIDE_LOGO filenames.
 
 After that, run alembic upgrade to have the tables created::
 
-    ./manage.py alembic upgrade head
+    ./manage.py alembic upgrade head\
+
+6. Start RQ workers by running (for printouts):
+
+    ./manage.py rq workers badges
 
 
 Development hints
