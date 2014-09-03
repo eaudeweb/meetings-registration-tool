@@ -49,7 +49,13 @@
           <td>{{ job.user }}</td>
           <td>{{ job.date.strftime('%d.%m.%Y %H:%M') }}</td>
           <td class="status">{{ job.status }}</td>
-          <td class="result">{{ job.result }}</td>
+          <td class="result">
+            {% if job.result %}
+              <a href="{{ job.result }}">Download file</a>
+            {% else %}
+              -
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

@@ -84,6 +84,7 @@ class JobStatus(MethodView):
                 result = {'status': job_redis.get_status()}
 
             job.status = job_redis.get_status()
+            job.result = job_redis.result
             db.session.commit()
             return jsonify(**result)
 
@@ -117,10 +118,8 @@ class ShortList(MethodView):
         category_ids = request.args.getlist('categories')
         printout_type = request.args.get('printout_type', 'verified', type=str)
         participants = (
-            Participant.query
-            .join(Participant.category)
-            .filter_by(meeting=g.meeting)
-            .active()
+            Participant.query.join(Participant.category)
+            .filter_by(meeting=g.meeting).active()
             .order_by(Category.sort))
 
         if category_ids:
