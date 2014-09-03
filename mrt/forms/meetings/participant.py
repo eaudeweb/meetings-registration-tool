@@ -6,6 +6,7 @@ from wtforms.validators import DataRequired
 from mrt.forms.base import BaseForm
 from mrt.models import db
 from mrt.models import Participant, Category, MediaParticipant
+from mrt.definitions import PRINTOUT_TYPES
 
 
 class ParticipantEditForm(BaseForm):
@@ -64,3 +65,9 @@ class BadgeCategories(BaseForm):
         super(BadgeCategories, self).__init__(*args, **kwargs)
         categories = Category.query.filter_by(meeting=g.meeting)
         self.categories.choices = [(c.id, c.title) for c in categories]
+
+
+class PrintoutForm(BadgeCategories):
+
+    printout_type = fields.SelectField('Type', choices=PRINTOUT_TYPES)
+

@@ -1,0 +1,92 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import render_pagination, breadcrumb %}
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Short list'),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+  {{ super() }}
+
+  <div class="meeting-title">
+
+      <hgroup>
+      <h3 style="text-align:center;">
+        {{ g.meeting.acronym }}: {{ g.meeting.title.english }}
+      </h3>
+      <h4 class="text-center">
+        {{ g.meeting.venue_city.english }}
+        ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
+        {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
+      </h4>
+    </hgroup>
+
+    {% if g.meeting.venue_address %}
+      <p class="text-center"><b>{{ g.meeting.venue_address }}</b></p>
+    {% endif %}
+
+    <h2 class="text-center">List of {{ printout_type }} participants - Total: {{ participant_count }}</h2>
+
+  </div> {# meeting-title #}
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><b>Print short list</b></div>
+    <div class="panel-body">
+      <form>
+        <div class="row">
+          <div class="col-sm-10">
+            {{ categories_form.categories(
+              class_="form-control form-reset-control select",
+              **{'data-placeholder': 'Select one or more categories' }) }}
+          </div>
+          <div class="col-sm-2">
+            {{ categories_form.printout_type.label }}
+            {{ categories_form.printout_type() }}
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Preview</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <table id="participants"
+         class="table table-bordered table-condensed">
+    <thead>
+      <tr>
+        <th style="width: 4%;" class="text-center">Pic</th>
+        <th style="width: 46%;">Representing</th>
+        <th style="width: 42%;">Name</th>
+        <th style="width: 4%;" class="text-center">Cat</th>
+        <th style="width: 4%;">Lang</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for participant in participants.items %}
+        <tr>
+            <td class="text-center">
+              {% if participant.photo %}
+                <span class="glyphicon glyphicon-camera"></span>
+              {% endif %}
+            </td>
+            <td>printout representing</td>
+            <td>{{ participant.name }}</td>
+            <td class="text-center"><b>{{ participant.category.id }}<b></td>
+            <td>{{ participant.language.code.title() }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {{ render_pagination(participants,
+                       '.printouts_short_list',
+                       extra={'categories': category_ids}) }}
+
+{% endblock %}

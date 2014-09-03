@@ -242,6 +242,8 @@ class Participant(db.Model):
 
     deleted = db.Column(db.Boolean, default=False)
 
+    attended = db.Column(db.Boolean, default=False)
+
     def __repr__(self):
         return self.name
 

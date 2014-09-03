@@ -28,6 +28,7 @@ from mrt.meetings import Statistics, MailLogs, MailLogDetail, ResendEmail
 
 from mrt.meetings import Badges, JobStatus, PDFDownload
 from mrt.meetings import ProcessingFileList
+from mrt.meetings import ShortList
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -152,6 +153,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/download/<string:filename>',
     view_func=PDFDownload.as_view('printouts_download'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/shortlist',
+    view_func=ShortList.as_view('printouts_short_list'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',

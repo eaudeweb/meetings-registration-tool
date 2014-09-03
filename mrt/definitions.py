@@ -59,3 +59,8 @@ NOTIFICATION_TYPES = (
     ('notify_participant', 'Notify participant register'),
     ('notify_media_participant', 'Notify media participant register'),
 )
+
+PRINTOUT_TYPES = (
+    ('announced', 'Announced'),
+    ('attending', 'Attending'),
+)

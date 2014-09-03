@@ -10,7 +10,7 @@ from rq.job import Job as JobRedis
 from rq.job import NoSuchJobError
 from sqlalchemy import desc
 
-from mrt.forms.meetings import BadgeCategories
+from mrt.forms.meetings import BadgeCategories, PrintoutForm
 from mrt.models import Participant, Category, Meeting, Job
 from mrt.models import redis_store, db
 from mrt.pdf import render_pdf
@@ -99,3 +99,32 @@ def _process_badges(meeting_id, category_ids):
                           participants=participants,
                           height='2.15in', width='3.4in',
                           orientation='portrait')
+
+
+class ShortList(MethodView):
+
+    def get(self):
+        page = request.args.get('page', 1, type=int)
+        category_ids = request.args.getlist('categories')
+        printout_type = request.args.get('printout_type', 'verified', type=str)
+        participants = (
+            Participant.query
+            .join(Participant.category)
+            .filter_by(meeting=g.meeting)
+            .active()
+            .order_by(Category.sort))
+
+        if category_ids:
+            participants = participants.filter(Category.id.in_(category_ids))
+        if printout_type == 'attending':
+            participants = participants.filter(Participant.attended == True)
+
+        participant_count = participants.count()
+        participants = participants.paginate(page, per_page=50)
+        categories_form = PrintoutForm(request.args)
+        return render_template('meetings/printouts/short_list.html',
+                               printout_type=printout_type,
+                               participants=participants,
+                               participant_count=participant_count,
+                               category_ids=category_ids,
+                               categories_form=categories_form)
