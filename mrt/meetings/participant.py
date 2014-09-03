@@ -170,6 +170,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         return render_template('meetings/participant/edit.html',
                                form=form,
                                custom_form_text=custom_form_text,
+                               custom_form_checkbox=custom_form_checkbox,
                                participant=participant)
 
     def delete(self, participant_id):
