@@ -76,7 +76,7 @@ After that, run alembic upgrade to have the tables created::
 
 6. Start RQ workers by running (for printouts):
 
-    ./manage.py rq workers badges
+    ./manage.py rq workers printouts
 
 
 Development hints

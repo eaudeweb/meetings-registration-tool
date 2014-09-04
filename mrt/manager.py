@@ -1,13 +1,15 @@
-
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import click
 import code
 
 from flask import g
 from alembic.config import CommandLine
 from rq import Queue, Connection, Worker
+from rq import get_failed_queue
 
 from mrt.models import get_or_create_role, redis_store
-from mrt.models import User, db, Staff, RoleUser
+from mrt.models import User, db, Staff, RoleUser, Job
 
 
 @click.group()
@@ -87,3 +89,25 @@ def workers(ctx, queues):
         worker = Worker(qs)
         g.is_rq_process = True
         worker.work()
+
+
+@rq.command()
+@click.pass_context
+def cleanup(ctx):
+    """ delete failed jobs from redis """
+    app = ctx.obj['app']
+    with Connection(redis_store.connection):
+        failed = get_failed_queue()
+        count = failed.count
+        failed.empty()
+        click.echo('%s number of failed jobs cleared from redis' % count)
+
+    """ delete jobs that are older than a month """
+    now = datetime.now()
+    since = now - relativedelta(months=1)
+    with app.app_context():
+        jobs = Job.query.filter(Job.date <= since)
+        count = jobs.count()
+        jobs.delete()
+        db.session.commit()
+        click.echo('%s number of jobs cleared from postgres' % count)

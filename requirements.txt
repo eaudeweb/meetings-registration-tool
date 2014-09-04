@@ -16,13 +16,14 @@ MarkupSafe==0.23
 path.py==5.2
 Pillow==2.2.1
 psycopg2==2.5.3
+python-dateutil==2.2
 querystring-parser==1.2.0
 redis==2.10.3
 rq==0.4.6
 SQLAlchemy==0.9.6
-xlwt==0.7.5
 webassets==0.10.1
 Werkzeug==0.9.6
+xlwt==0.7.5
 
 # flask mail
 blinker==1.3

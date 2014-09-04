@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, render_pagination %}
 
 
 {% set title = 'Processing file list' %}
@@ -22,7 +22,7 @@
   {{ super() }}
 
   <h3 class="page-title">{{ title }}</h3>
-  <p><em>All files will be deleted after one week.</em></p>
+  <p><em>All files will be deleted after one month.</em></p>
 
   <table id="job-list" class="table table-bordered table-condesed"
          data-job-status-url="{{ url_for('.printouts_job_status') }}">
@@ -39,7 +39,7 @@
     </thead>
 
     <tbody>
-      {% for job in jobs %}
+      {% for job in jobs.items %}
         <tr class="{% if job.is_finished %}success{% endif %}
                    {% if job.is_failed %}danger{% endif %}
                    {% if job.is_started %}active{% endif %} job"
@@ -61,5 +61,7 @@
     </tbody>
 
   </table>
+
+  {{ render_pagination(jobs, '.processing_file_list') }}
 
 {% endblock %}

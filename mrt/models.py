@@ -633,10 +633,10 @@ class ActivityLog(db.Model):
 
 class Job(db.Model):
 
-    QUEUED = 'queued'
-    FINISHED = 'finished'
-    FAILED = 'failed'
-    STARTED = 'started'
+    QUEUED = u'queued'
+    FINISHED = u'finished'
+    FAILED = u'failed'
+    STARTED = u'started'
 
     STATUS = (
         (QUEUED, 'Queued'),

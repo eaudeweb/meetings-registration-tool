@@ -21,7 +21,9 @@ class ProcessingFileList(MethodView):
     decorators = (login_required,)
 
     def get(self):
+        page = request.args.get('page', 1, type=int)
         jobs = Job.query.order_by(desc(Job.date))
+        jobs = jobs.paginate(page, per_page=50)
         return render_template('meetings/printouts/processing_file_list.html',
                                jobs=jobs)
 
@@ -49,7 +51,7 @@ class Badges(MethodView):
 
     def post(self):
         category_ids = request.args.getlist('categories')
-        q = Queue('badges', connection=redis_store.connection,
+        q = Queue('printouts', connection=redis_store.connection,
                   default_timeout=1200)
         job_redis = q.enqueue(_process_badges, g.meeting.id, category_ids)
         job = Job(id=job_redis.id, name=self.JOB_NAME,
@@ -57,7 +59,10 @@ class Badges(MethodView):
                   date=job_redis.enqueued_at)
         db.session.add(job)
         db.session.commit()
-        flash('Started processing %s.' % self.JOB_NAME, 'success')
+        url = url_for('.processing_file_list')
+        flash('Started processing %s. You can see the progress in the '
+              '<a href="%s">processing file list section</a>.' %
+              (self.JOB_NAME, url), 'success')
         return redirect(url_for('.printouts_participant_badges'))
 
 
