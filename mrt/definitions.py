@@ -64,3 +64,17 @@ PRINTOUT_TYPES = (
     ('announced', 'Announced'),
     ('attending', 'Attending'),
 )
+
+REPRESENTING_REGIONS = (
+    ('africa', 'Africa'),
+    ('asia', 'Asia'),
+    ('central_and_south_america',
+        'Central and South America and the Carribean'),
+    ('depositary_government', 'Depositary Government'),
+    ('europe', 'Europe'),
+    ('next_host_country', 'Next host country'),
+    ('nomenclature_specialist', 'Nomenclature specialist'),
+    ('north_america', 'North America'),
+    ('oceania', 'Oceania'),
+    ('previous_host_country', 'Previous host country')
+)

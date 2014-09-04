@@ -13,7 +13,8 @@ from sqlalchemy.types import TypeDecorator, String
 
 from mrt.utils import slugify
 from mrt.definitions import (
-    CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES
+    CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES,
+    REPRESENTING_REGIONS
 )
 
 
@@ -243,6 +244,16 @@ class Participant(db.Model):
     deleted = db.Column(db.Boolean, default=False)
 
     attended = db.Column(db.Boolean, default=False, info={'label': 'Attended'})
+
+    represented_country = db.Column(CountryType,
+                                    info={'label': 'Country represented'})
+
+    represented_region = db.Column(ChoiceType(REPRESENTING_REGIONS),
+                                   info={'label': 'Representing region'})
+
+    represented_organization = db.Column(
+        db.String(64),
+        info={'label': 'Organization represented'})
 
     def __repr__(self):
         return self.name
