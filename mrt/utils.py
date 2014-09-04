@@ -1,3 +1,4 @@
+import os
 import re
 import xlwt
 from StringIO import StringIO
@@ -5,7 +6,8 @@ from PIL import Image
 from unicodedata import normalize
 from uuid import uuid4
 
-from flask import current_app as app
+from flask import _request_ctx_stack, current_app as app
+from babel import support, Locale
 from path import path
 
 
@@ -143,3 +145,23 @@ def generate_excel(header, rows):
     wb.save(output)
 
     return output.getvalue()
+
+
+def get_translation(locale):
+    ctx = _request_ctx_stack.top
+    if ctx is None:
+        return None
+    translations = getattr(ctx, 'translation_%s' % locale.language, None)
+    if translations is None:
+        dirname = os.path.join(ctx.app.root_path, 'translations')
+        translations = support.Translations.load(dirname, [locale])
+        setattr(ctx, 'translation_%s' % locale.language, translations)
+    return translations
+
+
+def translate(text, lang_code='en'):
+    locale = Locale(lang_code)
+    translations = get_translation(locale)
+    if translations:
+        return translations.gettext(text).decode('unicode-escape')
+    return text
