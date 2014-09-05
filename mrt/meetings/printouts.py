@@ -22,7 +22,7 @@ class ProcessingFileList(MethodView):
 
     def get(self):
         page = request.args.get('page', 1, type=int)
-        jobs = Job.query.order_by(desc(Job.date))
+        jobs = Job.query.filter_by(meeting=g.meeting).order_by(desc(Job.date))
         jobs = jobs.paginate(page, per_page=50)
         return render_template('meetings/printouts/processing_file_list.html',
                                jobs=jobs)
@@ -56,7 +56,7 @@ class Badges(MethodView):
         job_redis = q.enqueue(_process_badges, g.meeting.id, category_ids)
         job = Job(id=job_redis.id, name=self.JOB_NAME,
                   user_id=current_user.id, status=job_redis.get_status(),
-                  date=job_redis.enqueued_at)
+                  date=job_redis.enqueued_at, meeting_id=g.meeting.id)
         db.session.add(job)
         db.session.commit()
         url = url_for('.processing_file_list')

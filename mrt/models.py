@@ -664,6 +664,9 @@ class Job(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                         nullable=False)
     user = db.relationship('User', backref=db.backref('jobs', uselist=False))
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'))
+    meeting = db.relationship('Meeting',
+                              backref=db.backref('jobs', uselist=False))
     date = db.Column(db.DateTime, nullable=False)
     status = db.Column(ChoiceType(STATUS), nullable=False)
     result = db.Column(db.String(512))

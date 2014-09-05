@@ -10,6 +10,7 @@ from rq import get_failed_queue
 
 from mrt.models import get_or_create_role, redis_store
 from mrt.models import User, db, Staff, RoleUser, Job
+from mrt.pdf import _clean_printouts
 
 
 @click.group()
@@ -91,9 +92,15 @@ def workers(ctx, queues):
         worker.work()
 
 
+_CLEANUP_HOOKS = {
+    'clean_printouts': _clean_printouts
+}
+
+
 @rq.command()
+@click.option('--hook', '-k', help='hook after cleaning up jobs')
 @click.pass_context
-def cleanup(ctx):
+def cleanup(ctx, hook):
     """ delete failed jobs from redis """
     app = ctx.obj['app']
     with Connection(redis_store.connection):
@@ -108,6 +115,12 @@ def cleanup(ctx):
     with app.app_context():
         jobs = Job.query.filter(Job.date <= since)
         count = jobs.count()
+        results = [j.result for j in jobs]
         jobs.delete()
         db.session.commit()
         click.echo('%s number of jobs cleared from postgres' % count)
+
+        if hook in _CLEANUP_HOOKS:
+            cleanup_count = _CLEANUP_HOOKS[hook](results)
+            click.echo('%s number of items cleaned from %s' %
+                       (cleanup_count, hook))

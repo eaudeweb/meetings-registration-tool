@@ -38,14 +38,27 @@ def render_pdf(template_name, width=None, height=None,
 
     if g.get('is_rq_process'):
         generate()
+        template_path.unlink_p()
         return url_for('meetings.printouts_download',
                        filename=str(pdf_path.name))
 
     try:
         generate()
+        template_path.unlink_p()
         pdf = open(pdf_path, 'rb')
     finally:
         pdf_path.unlink_p()
-        template_path.unlink_p()
 
     return Response(read_file(pdf), mimetype='application/pdf')
+
+
+def _clean_printouts(results):
+    count = 0
+    for result in results:
+        filename = result.split('/').pop()
+        pdf_path = app.config['UPLOADED_PRINTOUTS_DEST'] / filename
+        if pdf_path.exists():
+            pdf_path.unlink_p()
+            count += 1
+    return count
+

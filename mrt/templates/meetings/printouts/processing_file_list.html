@@ -32,6 +32,7 @@
         <th>JobId</th>
         <th>Name</th>
         <th>User</th>
+        <th>Meeting</th>
         <th>Date</th>
         <th>Status</th>
         <th>Result</th>
@@ -47,6 +48,7 @@
           <td class="jobid">{{ job.id }}</td>
           <td>{{ job.name|title }}</td>
           <td>{{ job.user }}</td>
+          <td>{{ job.meeting }}</td>
           <td>{{ job.date.strftime('%d.%m.%Y %H:%M') }}</td>
           <td class="status">{{ job.status }}</td>
           <td class="result">
