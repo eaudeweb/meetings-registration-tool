@@ -38,7 +38,7 @@ class MeetingEditForm(BaseForm):
         super(MeetingEditForm, self).__init__(*args, **kwargs)
         self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
         self.owner_id.choices = [
-            (x.id, x.full_name) for x in Staff.query.all()]
+            (x.id, x.full_name or x.user.email) for x in Staff.query.all()]
         if not self.owner_id.data:
             self.owner_id.data = current_user.staff.id
 

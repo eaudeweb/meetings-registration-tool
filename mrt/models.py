@@ -4,12 +4,13 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask_redis import Redis
-from flask import g, render_template
+from flask import g, render_template, current_app as app
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy_utils import generates
 from sqlalchemy.types import TypeDecorator, String
+from jinja2.exceptions import TemplateNotFound
 
 from mrt.utils import slugify
 from mrt.definitions import (
@@ -269,9 +270,13 @@ class Participant(db.Model):
 
     @property
     def representing(self):
-        base_path = 'meetings/participant/representing/'
-        return render_template(base_path + self.category.representing.code,
-                               participant=self)
+        template_name = str(app.config['REPRESENTING_TEMPLATES']
+                            / self.category.representing.code)
+        try:
+            template = app.jinja_env.get_template(template_name)
+        except TemplateNotFound:
+            return ''
+        return render_template(template, participant=self)
 
     @property
     def photo(self):

@@ -66,6 +66,8 @@ def create_app(config={}):
     Sentry(app)
 
     _configure_uploads(app)
+    app.config['REPRESENTING_TEMPLATES'] = (
+        path('meetings/participant/representing'))
 
     @login_manager.user_loader
     def load_user(user_id):
