@@ -78,3 +78,17 @@ REPRESENTING_REGIONS = (
     ('oceania', 'Oceania'),
     ('previous_host_country', 'Previous host country')
 )
+
+
+CATEGORY_REPRESENTING = (
+    ('organization.html', 'Organization'),
+    ('region_country.html', 'Region - Organization'),
+    ('region_country_translated.html',
+        'Region E / Region S / Region F - Country E / Country S / Country F'),
+    ('region_translated.html', 'Region E / Region S / Region F'),
+    ('region.html', 'Region'),
+    ('representing_country.html', 'Representing country'),
+    ('representing_country_translated.html',
+        'Representing country E / Representing country S / Representing country F'),
+    ('category.html', 'Category'),
+)

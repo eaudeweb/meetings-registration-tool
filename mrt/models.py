@@ -4,7 +4,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask_redis import Redis
-from flask import g
+from flask import g, render_template
 
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
@@ -14,7 +14,7 @@ from sqlalchemy.types import TypeDecorator, String
 from mrt.utils import slugify
 from mrt.definitions import (
     CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES,
-    REPRESENTING_REGIONS
+    REPRESENTING_REGIONS, CATEGORY_REPRESENTING
 )
 
 
@@ -268,6 +268,12 @@ class Participant(db.Model):
         return self.language.value.lower()
 
     @property
+    def representing(self):
+        base_path = 'meetings/participant/representing/'
+        return render_template(base_path + self.category.representing.code,
+                               participant=self)
+
+    @property
     def photo(self):
         field = (
             CustomField.query
@@ -487,6 +493,9 @@ class CategoryMixin(object):
     color = db.Column(db.String(7), nullable=False, info={'label': 'Color'})
 
     background = db.Column(db.String(64))
+
+    representing = db.Column(ChoiceType(CATEGORY_REPRESENTING),
+                             info={'label': 'Representing'})
 
     type = db.Column(ChoiceType(CATEGORIES), nullable=False,
                      info={'label': 'Category Type'})

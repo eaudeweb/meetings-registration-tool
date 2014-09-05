@@ -27,6 +27,7 @@
       {{ form_group(form.type, label_size="2", input_size="3") }}
       {{ form_group(form.color, label_size="2", input_size="3") }}
       {{ form_group(form.background) }}
+      {{ form_group(form.representing) }}
       {% if form.background.data %}
         <div class="checkbox">
           {% set url = url_for("files",

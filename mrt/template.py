@@ -10,6 +10,7 @@ from jinja2 import evalcontextfilter, Markup, escape
 from path import path
 
 from mrt.definitions import ACTIVITY_ACTIONS
+from mrt.utils import translate
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
@@ -89,3 +90,7 @@ def inject_static_file(filepath):
 
 def country_in(country, lang_code='en'):
     return Locale(lang_code).territories.get(country.code)
+
+
+def region_in(region, lang_code='en'):
+    return translate(region.value, lang_code)
