@@ -130,6 +130,7 @@ class MeetingCategoryFactory(SQLAlchemyModelFactory):
     color = '#93284c'
     type = Choice(code='member', value='Member')
     meeting = SubFactory(MeetingFactory)
+    representing = 'region.html'
 
 
 class PhraseDescriptionFactory(SQLAlchemyModelFactory):
@@ -194,6 +195,7 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     email = 'john@doe.com'
     language = 'en'
     country = 'FR'
+    represented_region = 'asia'
 
 
 class MailLogFactory(SQLAlchemyModelFactory):
