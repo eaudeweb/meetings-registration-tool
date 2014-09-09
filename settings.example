@@ -2,11 +2,6 @@ SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
 SECRET_KEY = 'secret'
 
 
-PRODUCT_NAME = ''
-PRODUCT_TITLE = ''
-PRODUCT_LOGO = 'product_logo_cms.png'
-PRODUCT_SIDE_LOGO = 'product_side_logo_unep.png'
-
 UPLOAD_SIZE = 1 * 1024 * 1024
 
 MEETING_TYPES = (

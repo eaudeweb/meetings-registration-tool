@@ -1,7 +1,7 @@
-{% set product_logo = config['UPLOADED_LOGOS_DEST'] /
-                      config['PRODUCT_LOGO'] %}
-{% set product_side_logo = config['UPLOADED_LOGOS_DEST'] /
-                           config['PRODUCT_SIDE_LOGO'] %}
+{% set product_logo = url_for_brand_static_path(config['PRODUCT_LOGO']) %}
+{% set product_side_logo = url_for_brand_static_path(
+    config['PRODUCT_SIDE_LOGO']) %}
+
 
 {% if participant.photo %}
   {% set participant_photo = config['FILES_PATH'] /

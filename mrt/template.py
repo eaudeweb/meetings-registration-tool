@@ -123,3 +123,7 @@ def pluralize(value, arg='s'):
         except TypeError:
             pass
     return singular_suffix
+
+
+def url_for_brand_static_path(filename):
+    return app.config['BRAND_PATH'] / 'static' / filename

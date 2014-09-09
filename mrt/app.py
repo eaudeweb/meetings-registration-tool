@@ -20,7 +20,7 @@ from mrt.models import db, User, redis_store
 from mrt.template import country_in, region_in
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
-from mrt.template import pluralize
+from mrt.template import pluralize, url_for_brand_static_path
 
 
 DEFAULT_CONFIG = {
@@ -55,6 +55,7 @@ def create_app(config={}):
     app.add_template_filter(pluralize)
     app.add_template_global(active)
     app.add_template_global(active)
+    app.add_template_global(url_for_brand_static_path)
     app.add_template_global(date_processor)
     app.add_template_global(inject_static_file)
 
@@ -68,6 +69,8 @@ def create_app(config={}):
     Sentry(app)
 
     _configure_uploads(app)
+    _configure_brand(app)
+
     app.config['REPRESENTING_TEMPLATES'] = (
         path('meetings/participant/representing'))
 
@@ -115,3 +118,9 @@ def _configure_uploads(app):
     patch_request_class(app, app.config.get('UPLOAD_SIZE', 1 * 1024 * 1024))
     configure_uploads(app, (backgrounds, custom_upload))
     Thumbnail(app)
+
+
+def _configure_brand(app):
+    app.config['BRAND_PATH'] = brand_path = path(app.instance_path) / 'brand'
+    if brand_path.exists() and brand_path.isdir():
+        app.config.from_pyfile(brand_path / 'settings.py')

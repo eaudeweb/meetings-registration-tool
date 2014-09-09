@@ -11,8 +11,11 @@
 
 {% endblock %}
 
-{% set product_logo = url_for('files', filename=config['PATH_LOGOS_KEY'] ~ '/' ~ config['PRODUCT_LOGO']) %}
-{% set product_side_logo = url_for('files', filename=config['PATH_LOGOS_KEY'] ~ '/' ~ config['PRODUCT_SIDE_LOGO']) %}
+
+{% set product_logo = url_for_brand_static_path(config['PRODUCT_LOGO']) %}
+{% set product_side_logo = url_for_brand_static_path(
+    config['PRODUCT_SIDE_LOGO']) %}
+
 
 {% block content %}
 

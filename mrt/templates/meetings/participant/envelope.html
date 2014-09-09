@@ -26,9 +26,13 @@
     </div>
 
     <div class="secretariat-container">
+      {% set product_logo = url_for_brand_static_path(
+          config['PRODUCT_LOGO']) %}
+      {% set product_side_logo = url_for_brand_static_path(
+          config['PRODUCT_SIDE_LOGO']) %}
       <img src="{{ product_logo }}" class="logo" alt="" >
       <img src="{{ product_side_logo }}" class="side-logo" alt="">
-      {# # TODO GET SECRETARIAT INFO / #}
+      {# TODO GET SECRETARIAT INFO  #}
       <address>
         Conference Service <br/>
         SECRETARIAT/SECRETARIA <br/>
