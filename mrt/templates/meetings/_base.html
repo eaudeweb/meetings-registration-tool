@@ -1,7 +1,7 @@
 {% extends "_layout.html" %}
 
 
-{% block messages %}{%endblock%}
+{% block messages %}{% endblock %}
 
 
 {% block content %}
@@ -121,6 +121,16 @@
                  tabindex="1">
         </div>
       </form>
+    </li>
+    {% set status_url = url_for('.printouts_queue_status',
+                                queue='printouts') %}
+    <li class="pull-right hide hiden-xs hidden-sm printout-count"
+        data-url="{{ status_url }}">
+      <a href="{{ url_for('.processing_file_list') }}"
+         data-toggle="tooltip" data-placement="bottom"
+         data-container="body">
+        <span class="badge"></span>
+      </a>
     </li>
 
   </ul>

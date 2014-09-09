@@ -659,6 +659,8 @@ class Job(db.Model):
         (STARTED, 'Started'),
     )
 
+    PRINTOUTS_QUEUE = 'printouts'
+
     id = db.Column(db.String(64), primary_key=True)
     name = db.Column(db.String(32))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
@@ -669,6 +671,7 @@ class Job(db.Model):
                               backref=db.backref('jobs', uselist=False))
     date = db.Column(db.DateTime, nullable=False)
     status = db.Column(ChoiceType(STATUS), nullable=False)
+    queue = db.Column(db.String(32))
     result = db.Column(db.String(512))
 
     @property

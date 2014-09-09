@@ -94,3 +94,32 @@ def country_in(country, lang_code='en'):
 
 def region_in(region, lang_code='en'):
     return translate(region.value, lang_code)
+
+
+def pluralize(value, arg='s'):
+    """
+    Returns a plural suffix if the value is not 1. By default, 's' is used as
+    the suffix:
+    """
+
+    if ',' not in arg:
+        arg = ',' + arg
+    bits = arg.split(',')
+    if len(bits) > 2:
+        return ''
+    singular_suffix, plural_suffix = bits[:2]
+    try:
+        if float(value) != 1:
+            return plural_suffix
+    # Invalid string that's not a number.
+    except ValueError:
+        pass
+    # Value isn't a string or a number; maybe it's a list?
+    except TypeError:
+        try:
+            if len(value) != 1:
+                return plural_suffix
+        # len() of unsized object.
+        except TypeError:
+            pass
+    return singular_suffix

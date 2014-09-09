@@ -14,6 +14,7 @@ from mrt.forms.meetings import BadgeCategories, PrintoutForm
 from mrt.models import Participant, Category, Meeting, Job
 from mrt.models import redis_store, db
 from mrt.pdf import render_pdf
+from mrt.template import pluralize
 
 
 class ProcessingFileList(MethodView):
@@ -51,12 +52,13 @@ class Badges(MethodView):
 
     def post(self):
         category_ids = request.args.getlist('categories')
-        q = Queue('printouts', connection=redis_store.connection,
+        q = Queue(Job.PRINTOUTS_QUEUE,
+                  connection=redis_store.connection,
                   default_timeout=1200)
         job_redis = q.enqueue(_process_badges, g.meeting.id, category_ids)
-        job = Job(id=job_redis.id, name=self.JOB_NAME,
-                  user_id=current_user.id, status=job_redis.get_status(),
-                  date=job_redis.enqueued_at, meeting_id=g.meeting.id)
+        job = Job(id=job_redis.id, name=self.JOB_NAME, user_id=current_user.id,
+                  status=job_redis.get_status(), date=job_redis.enqueued_at,
+                  meeting_id=g.meeting.id, queue=Job.PRINTOUTS_QUEUE)
         db.session.add(job)
         db.session.commit()
         url = url_for('.processing_file_list')
@@ -92,6 +94,17 @@ class JobStatus(MethodView):
             job.result = job_redis.result
             db.session.commit()
             return jsonify(**result)
+
+
+class QueueStatus(MethodView):
+
+    decorators = (login_required,)
+
+    def get(self, queue):
+        jobs = Job.query.filter_by(queue=queue, status=Job.QUEUED)
+        count = jobs.count()
+        title = '%d processing job%s' % (count, pluralize(count))
+        return jsonify(count=count, title=title)
 
 
 class PDFDownload(MethodView):

@@ -326,6 +326,20 @@ h5 {
     border-right: none;
     width: 25px;
 }
+.printout-count a {
+    border: none!important;
+    padding: 0!important;
+}
+.printout-count a:hover {
+    background: none!important;
+    border: none!important;
+}
+
+.printout-count .badge {
+    position: relative;
+    top: 12px;
+    right: 12px;
+}
 
 .btn-download .glyphicon {
     position: relative;

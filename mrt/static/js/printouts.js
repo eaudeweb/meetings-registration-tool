@@ -72,5 +72,16 @@ $(function () {
         }
     });
 
+    var printout_count = $('.printout-count');
+    if(printout_count.length > 0) {
+        var url = printout_count.data('url');
+        $.getJSON(url, function (data) {
+            if(data.count !=0) {
+                printout_count.removeClass('hide');
+                printout_count.find('.badge').text(data.count);
+                printout_count.find('.badge').attr('title', data.title);
+            }
+        });
+    }
 
 });

@@ -174,5 +174,5 @@ $(function () {
     }).on('typeahead:selected', searchSelected);
 
 
-
+    $('[data-toggle=tooltip]').tooltip();
 });
