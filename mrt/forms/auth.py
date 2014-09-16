@@ -18,13 +18,13 @@ class LoginForm(Form):
         user = self.get_user()
         if user is None:
             raise validators.ValidationError('Invalid user')
-
         if not user.is_active():
             raise validators.ValidationError('Inactive user')
 
     def validate_password(self, field):
         user = self.get_user()
-        if user and not user.check_password(self.password.data):
+        if (user and user.is_active() and
+            not user.check_password(self.password.data)):
             raise validators.ValidationError('Invalid password')
 
     def get_user(self):
