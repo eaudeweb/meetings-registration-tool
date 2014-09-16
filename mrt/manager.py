@@ -11,6 +11,7 @@ from rq import get_failed_queue
 from mrt.models import get_or_create_role, redis_store
 from mrt.models import User, db, Staff, RoleUser, Job
 from mrt.pdf import _clean_printouts
+from mrt.scripts.informea import get_meetings
 
 
 @click.group()
@@ -124,3 +125,10 @@ def cleanup(ctx, hook):
             cleanup_count = _CLEANUP_HOOKS[hook](results)
             click.echo('%s number of items cleaned from %s' %
                        (cleanup_count, hook))
+
+
+@cli.command()
+@click.pass_context
+def meetings(ctx):
+    import pprint
+    pprint.pprint(get_meetings())
