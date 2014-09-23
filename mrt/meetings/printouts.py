@@ -1,3 +1,6 @@
+from operator import attrgetter
+from itertools import groupby, islice
+
 from flask import current_app as app
 from flask import g, flash, url_for
 from flask import request, render_template, jsonify, abort, redirect
@@ -132,25 +135,35 @@ def _process_badges(meeting_id, category_ids):
 class ShortList(MethodView):
 
     def get(self):
-        page = request.args.get('page', 1, type=int)
-        category_ids = request.args.getlist('categories')
-        printout_type = request.args.get('printout_type', 'verified', type=str)
         participants = (
-            Participant.query.join(Participant.category)
-            .filter_by(meeting=g.meeting).active()
-            .order_by(Category.sort))
+            Participant.query.filter_by(meeting=g.meeting)
+            .order_by(Participant.last_name)
+            .active())
 
-        if category_ids:
-            participants = participants.filter(Category.id.in_(category_ids))
-        if printout_type == 'attending':
-            participants = participants.filter(Participant.attended == True)
+        grouped_participants = groupby(participants, attrgetter('category'))
+        grouped_participants = islice(grouped_participants, 10)
 
-        participant_count = participants.count()
-        participants = participants.paginate(page, per_page=50)
-        categories_form = PrintoutForm(request.args)
+        # page = request.args.get('page', 1, type=int)
+        # category_ids = request.args.getlist('categories')
+        # printout_type = request.args.get('printout_type', 'verified', type=str)
+        # participants = (
+        #     Participant.query.join(Participant.category)
+        #     .filter_by(meeting=g.meeting).active()
+        #     .order_by(Category.sort))
+
+        # if category_ids:
+        #     participants = participants.filter(Category.id.in_(category_ids))
+        # if printout_type == 'attending':
+        #     participants = participants.filter(Participant.attended == True)
+
+        # participant_count = participants.count()
+        # participants = participants.paginate(page, per_page=50)
+        # categories_form = PrintoutForm(request.args)
         return render_template('meetings/printouts/short_list.html',
-                               printout_type=printout_type,
-                               participants=participants,
-                               participant_count=participant_count,
-                               category_ids=category_ids,
-                               categories_form=categories_form)
+                               grouped_participants=grouped_participants,
+                               )
+                               # printout_type=printout_type,
+                               # participants=participants,
+                               # participant_count=participant_count,
+                               # category_ids=category_ids,
+                               # categories_form=categories_form)
