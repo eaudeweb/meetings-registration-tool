@@ -27,7 +27,10 @@ DEFAULT_CONFIG = {
     'REDIS_URL': 'redis://localhost:6379/0',
     'DEBUG': True,
     'ASSETS_DEBUG': True,
-    'MAIL_SUPPRESS_SEND': True
+    'MAIL_SUPPRESS_SEND': True,
+    # Branding defaults
+    'PRODUCT_LOGO': '',
+    'PRODUCT_SIDE_LOGO': '',
 }
 
 

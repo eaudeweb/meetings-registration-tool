@@ -2,12 +2,12 @@
 {% from "_bits.html" import breadcrumb %}
 
 
-{% block title %}Settings overview{% endblock %}
+{% block title %}Settings Overview{% endblock %}
 
 
 {% block breadcrumb %}
 
-  {{ breadcrumb( [('', 'Settings overview')] ) }}
+  {{ breadcrumb( [('', 'Settings Overview')] ) }}
 
 {% endblock %}
 
@@ -20,7 +20,7 @@
 {% block content %}
 
   <div class="page-header">
-    <h2>Settings overview</h2>
+    <h2>Settings Overview</h2>
   </div>
 
   <div class="row">
@@ -29,33 +29,45 @@
         <table class="table table-bordered table-condensed">
           <thead>
             <tr>
-              <th>Title</th>
-              <th>Description</th>
+              <th>Name</th>
+              <th>Value</th>
               <th>Preview</th>
             </tr>
           </thead>
 
           <tbody>
             <tr>
-              <td>PRODUCT_TITLE</td>
+              <td>Backend Version</td>
+              <td>{{ VERSION }}</td>
+              <td></td>
+            </tr> <tr>
+              <td>Product Title</td>
               <td>{{ config.PRODUCT_TITLE }}</td>
               <td></td>
             </tr>
             <tr>
-              <td>PRODUCT_LOGO</td>
+              <td>Logo</td>
               <td>{{ config.PRODUCT_LOGO }}</td>
-              <td><img src="{{ product_logo|no_image_cache }}" class="logo" alt="" width="75" height="75"></td>
+              <td>
+                {% if config.PRODUCT_LOGO %}
+                <img src="{{ product_logo|no_image_cache }}" class="logo" alt="" width="75" height="75">
+                {% endif %}
+              </td>
             </tr>
             <tr>
-              <td>PRODUCT_SIDE_LOGO</td>
+              <td>Side Logo</td>
               <td>{{ config.PRODUCT_SIDE_LOGO }}</td>
-              <td><img src="{{ product_side_logo|no_image_cache }}" class="logo" alt="" width="75" height="75"></td>
+              <td>
+                {% if config.PRODUCT_SIDE_LOGO %}
+                <img src="{{ product_side_logo|no_image_cache }}" class="logo" alt="" width="75" height="75">
+                {% endif %}
+              </td>
             </tr>
           </tbody>
         </table>
       </div> {# table-responsive #}
 
-      <b>For any changes, please contact the administrator!</b>
+      <p><b>For any changes, please contact the administrator!</b></p>
     </div>
   </div> {# row #}
 
