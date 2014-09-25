@@ -1,0 +1,16 @@
+{% extends "_layout_pdf.html" %}
+
+
+{% block head %}
+
+  <style type="text/css">
+    {{ inject_static_file('css/printouts.css') }}
+    {{ inject_static_file('css/landscape.css') }}
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+  {% include "meetings/printouts/_short_list_table.html" %}
+{% endblock %}

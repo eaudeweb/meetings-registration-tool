@@ -340,6 +340,13 @@ h5 {
     top: 12px;
     right: 12px;
 }
+.printout-loading {
+    text-align: center;
+    padding: 20px 0;
+}
+.short-list-container {
+    font-size: 150%;
+}
 
 .btn-download .glyphicon {
     position: relative;

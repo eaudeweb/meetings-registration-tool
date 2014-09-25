@@ -84,4 +84,24 @@ $(function () {
         });
     }
 
+    $('#infinite-scroll-container .printout-item-container').infinitescroll({
+        nextSelector: '#infinite-scroll-container .pagination a.next',
+        navSelector: '#infinite-scroll-container .pagination',
+        itemSelector: '#infinite-scroll-container .printout-table ',
+        loading: {
+            finishedMsg: '',
+            msgText: '',
+            selector: '#infinite-scroll-container .printout-loading'
+        }
+    }, function (newElements, data, url) {
+        $(newElements).find('.column-headers').hide();
+        $(newElements).find('.group').each(function () {
+            var id = $(this).data('id');
+            if($('[data-id=' + id +']').length > 1) {
+                $(this).parents('tr').hide();
+            }
+        });
+        $(this).append(newElements);
+    });
+
 });

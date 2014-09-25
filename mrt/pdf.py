@@ -8,6 +8,9 @@ from flask import Response, g, url_for
 from mrt.utils import read_file
 
 
+_PAGE_DEFAULT_MARGIN = {'top': '0', 'bottom': '0', 'left': '0', 'right': '0'}
+
+
 def stream_template(template_name, **context):
     app.update_template_context(context)
     template = app.jinja_env.get_template(template_name)
@@ -16,8 +19,11 @@ def stream_template(template_name, **context):
     return rv
 
 
-def render_pdf(template_name, width=None, height=None,
-               orientation="portrait", **context):
+def render_pdf(template_name,
+               width=None, height=None,
+               margin=_PAGE_DEFAULT_MARGIN,
+               orientation="portrait",
+               **context):
     template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
                      (str(uuid.uuid4()) + '.html'))
     pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
@@ -27,10 +33,14 @@ def render_pdf(template_name, width=None, height=None,
             f.write(chunk.encode('utf-8'))
 
     def generate():
-        command = ['wkhtmltopdf', '-q', '--encoding', 'utf-8',
-                   '--page-height', height, '--page-width', width,
-                   '--margin-bottom', '0', '--margin-top', '0',
-                   '--margin-left', '0', '--margin-right', '0',
+        command = ['wkhtmltopdf', '-q',
+                   '--encoding', 'utf-8',
+                   '--page-height', height,
+                   '--page-width', width,
+                   '-B', margin['bottom'],
+                   '-T', margin['top'],
+                   '-L', margin['left'],
+                   '-R', margin['right'],
                    '--orientation', orientation,
                    str(template_path), str(pdf_path)]
         FNULL = open(os.devnull, 'w')
@@ -61,4 +71,3 @@ def _clean_printouts(results):
             pdf_path.unlink_p()
             count += 1
     return count
-

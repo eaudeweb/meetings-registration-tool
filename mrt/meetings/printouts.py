@@ -1,5 +1,5 @@
+from itertools import groupby
 from operator import attrgetter
-from itertools import groupby, islice
 
 from flask import current_app as app
 from flask import g, flash, url_for
@@ -12,12 +12,32 @@ from rq import Queue, Connection
 from rq.job import Job as JobRedis
 from rq.job import NoSuchJobError
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload
 
-from mrt.forms.meetings import BadgeCategories, PrintoutForm
+from mrt.forms.meetings import BadgeCategories
 from mrt.models import Participant, Category, Meeting, Job
 from mrt.models import redis_store, db
 from mrt.pdf import render_pdf
 from mrt.template import pluralize
+
+
+def _add_to_printout_queue(method, job_name, *args):
+    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store.connection,
+              default_timeout=1200)
+    job_redis = q.enqueue(method, g.meeting.id, *args)
+    job = Job(id=job_redis.id,
+              name=job_name,
+              user_id=current_user.id,
+              status=job_redis.get_status(),
+              date=job_redis.enqueued_at,
+              meeting_id=g.meeting.id,
+              queue=Job.PRINTOUTS_QUEUE)
+    db.session.add(job)
+    db.session.commit()
+    url = url_for('.processing_file_list')
+    flash('Started processing %s. You can see the progress in the '
+          '<a href="%s">processing file list section</a>.' %
+          (job_name, url), 'success')
 
 
 class ProcessingFileList(MethodView):
@@ -55,20 +75,22 @@ class Badges(MethodView):
 
     def post(self):
         category_ids = request.args.getlist('categories')
-        q = Queue(Job.PRINTOUTS_QUEUE,
-                  connection=redis_store.connection,
-                  default_timeout=1200)
-        job_redis = q.enqueue(_process_badges, g.meeting.id, category_ids)
-        job = Job(id=job_redis.id, name=self.JOB_NAME, user_id=current_user.id,
-                  status=job_redis.get_status(), date=job_redis.enqueued_at,
-                  meeting_id=g.meeting.id, queue=Job.PRINTOUTS_QUEUE)
-        db.session.add(job)
-        db.session.commit()
-        url = url_for('.processing_file_list')
-        flash('Started processing %s. You can see the progress in the '
-              '<a href="%s">processing file list section</a>.' %
-              (self.JOB_NAME, url), 'success')
+        _add_to_printout_queue(_process_badges, self.JOB_NAME,
+                               *[category_ids])
         return redirect(url_for('.printouts_participant_badges'))
+
+
+def _process_badges(meeting_id, category_ids):
+    g.meeting = Meeting.query.get(meeting_id)
+    participants = Participant.query.filter_by(meeting=g.meeting)
+    if category_ids:
+        participants = participants.filter(
+            Participant.category.has(Category.id.in_(category_ids))
+        )
+    return render_pdf('meetings/printouts/badges_pdf.html',
+                      participants=participants,
+                      height='2.15in', width='3.4in',
+                      orientation='portrait')
 
 
 class JobStatus(MethodView):
@@ -119,51 +141,49 @@ class PDFDownload(MethodView):
                                    filename)
 
 
-def _process_badges(meeting_id, category_ids):
-        g.meeting = Meeting.query.get(meeting_id)
-        participants = Participant.query.filter_by(meeting=g.meeting)
-        if category_ids:
-            participants = participants.filter(
-                Participant.category.has(Category.id.in_(category_ids))
-            )
-        return render_pdf('meetings/printouts/badges_pdf.html',
-                          participants=participants,
-                          height='2.15in', width='3.4in',
-                          orientation='portrait')
-
-
 class ShortList(MethodView):
 
+    JOB_NAME = 'short list'
+
+    @staticmethod
+    def _get_query():
+        return (
+            Participant.query
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .filter(Participant.meeting == g.meeting)
+            .order_by(Category.sort, Participant.last_name, Participant.id)
+        )
+
     def get(self):
-        participants = (
-            Participant.query.filter_by(meeting=g.meeting)
-            .order_by(Participant.last_name)
-            .active())
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query()
+        count = query.count()
+        pagination = query.paginate(page, per_page=50)
+        participants = groupby(pagination.items, key=attrgetter('category'))
+        return render_template(
+            'meetings/printouts/short_list.html',
+            participants=participants,
+            pagination=pagination,
+            count=count)
 
-        grouped_participants = groupby(participants, attrgetter('category'))
-        grouped_participants = islice(grouped_participants, 10)
+    def post(self):
+        _add_to_printout_queue(_process_short_list, self.JOB_NAME)
+        return redirect(url_for('.printouts_short_list'))
 
-        # page = request.args.get('page', 1, type=int)
-        # category_ids = request.args.getlist('categories')
-        # printout_type = request.args.get('printout_type', 'verified', type=str)
-        # participants = (
-        #     Participant.query.join(Participant.category)
-        #     .filter_by(meeting=g.meeting).active()
-        #     .order_by(Category.sort))
 
-        # if category_ids:
-        #     participants = participants.filter(Category.id.in_(category_ids))
-        # if printout_type == 'attending':
-        #     participants = participants.filter(Participant.attended == True)
-
-        # participant_count = participants.count()
-        # participants = participants.paginate(page, per_page=50)
-        # categories_form = PrintoutForm(request.args)
-        return render_template('meetings/printouts/short_list.html',
-                               grouped_participants=grouped_participants,
-                               )
-                               # printout_type=printout_type,
-                               # participants=participants,
-                               # participant_count=participant_count,
-                               # category_ids=category_ids,
-                               # categories_form=categories_form)
+def _process_short_list(meeting_id):
+    g.meeting = Meeting.query.get(meeting_id)
+    participants = ShortList._get_query()
+    count = participants.count()
+    participants = groupby(participants, key=attrgetter('category'))
+    margin = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
+              'right': '0.8in'}
+    return render_pdf('meetings/printouts/short_list_pdf.html',
+                      participants=participants,
+                      count=count,
+                      height='11.693in',
+                      width='8.268in',
+                      margin=margin,
+                      orientation='landscape')

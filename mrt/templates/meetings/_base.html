@@ -7,23 +7,18 @@
 {% block content %}
 
   <div class="meeting-title">
-
-    <hgroup>
-      <h2 style="text-align:center;">
-        {{ g.meeting.acronym }}: {{ g.meeting.title.english }}
-      </h2>
-      <h3 class="text-center">
-        {{ g.meeting.venue_city.english }}
-        ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
-        {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
-      </h3>
-    </hgroup>
-
+    <h2 style="text-align:center;">
+      {{ g.meeting.acronym }}: {{ g.meeting.title.english }}
+    </h2>
+    <h3 class="text-center">
+      {{ g.meeting.venue_city.english }}
+      ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
+      {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
+    </h3>
     {% if g.meeting.venue_address %}
       <p class="text-center"><b>{{ g.meeting.venue_address }}</b></p>
     {% endif %}
-
-  </div> {# meeting-title #}
+  </div>
 
   <ul class="nav nav-tabs meeting-navs" role="tablist">
     <li class="{{ active('/participants') }}">

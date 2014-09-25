@@ -21,7 +21,10 @@ class ParticipantEditForm(BaseForm):
     def __init__(self, *args, **kwargs):
         super(ParticipantEditForm, self).__init__(*args, **kwargs)
         query = Category.query.filter_by(meeting_id=g.meeting.id)
-        self.category_id.choices = [(c.id, c.title) for c in query]
+        self.category_id.choices = (
+            [(0, '----')] + [(c.id, c.title) for c in query]
+        )
+        self.country.choices = [('', '----')] + self.country.choices()
 
     def save(self):
         participant = self.obj or Participant()

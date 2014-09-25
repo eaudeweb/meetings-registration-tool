@@ -270,6 +270,8 @@ class Participant(db.Model):
 
     @property
     def representing(self):
+        if not self.category.representing:
+            return ''
         template_name = str(app.config['REPRESENTING_TEMPLATES']
                             / self.category.representing.code)
         try:

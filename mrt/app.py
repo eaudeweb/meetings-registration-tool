@@ -1,5 +1,7 @@
-from werkzeug import SharedDataMiddleware
+import logging
+import sys
 
+from werkzeug import SharedDataMiddleware
 from flask import Flask, redirect, url_for
 from flask.ext.babel import Babel
 from flask.ext.login import LoginManager
@@ -17,10 +19,12 @@ from mrt.forms.meetings import custom_upload
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
 from mrt.models import db, User, redis_store
+
 from mrt.template import country_in, region_in
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 from mrt.template import pluralize, url_for_brand_static_path
+from mrt.utils import slugify
 
 
 DEFAULT_CONFIG = {
@@ -56,6 +60,7 @@ def create_app(config={}):
     app.add_template_filter(nl2br)
     app.add_template_filter(no_image_cache)
     app.add_template_filter(pluralize)
+    app.add_template_filter(slugify)
     app.add_template_global(active)
     app.add_template_global(active)
     app.add_template_global(url_for_brand_static_path)
@@ -73,6 +78,7 @@ def create_app(config={}):
 
     _configure_uploads(app)
     _configure_brand(app)
+    _configure_logging(app)
 
     app.config['REPRESENTING_TEMPLATES'] = (
         path('meetings/participant/representing'))
@@ -127,3 +133,9 @@ def _configure_brand(app):
     app.config['BRAND_PATH'] = brand_path = path(app.instance_path) / 'brand'
     if brand_path.exists() and brand_path.isdir():
         app.config.from_pyfile(brand_path / 'settings.py')
+
+
+def _configure_logging(app):
+    stream_handler = logging.StreamHandler(stream=sys.stdout)
+    stream_handler.setLevel(logging.INFO)
+    app.logger.addHandler(stream_handler)

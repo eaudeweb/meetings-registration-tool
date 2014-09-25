@@ -1,0 +1,69 @@
+
+<div class="printout-meeting-title">
+  {{ g.meeting.title }} <br>
+  {{ g.meeting.venue_city.english }}
+  ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
+  {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
+</div>
+
+
+<div class="printout-doc-title">
+  List of announced participants - Total: {{ count }}
+</div>
+
+
+<div class="printout-item-container">
+
+  <table class="printout-table">
+
+    {% set loop_helper = True %} {# strange jinja bug with loop.index #}
+
+
+      <thead>
+        <tr class="column-headers">
+          <th><p>Pic</p></th>
+          <th><p>Representing</p></th>
+          <th><p>Name</p></th>
+          <th class="text-right"><p>Language</p></th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for group, list in participants %}
+
+          <tr>
+            <th colspan="4" class="group"
+                data-id="{{ group.title.english|slugify }}">
+              {{ group }}</th>
+          </tr>
+
+          {% for participant in list %}
+            <tr>
+              <td style="width: 5%;">
+                <p>
+                {% if participant.photo %}
+                  <span class="checked">✔</span>
+                {% else %}
+                  <span class="checked">&#45;&#45;</span>
+                {% endif %}
+                </p>
+              </td>
+              <td style="width: 20%;">
+                <p>{{ participant.representing }}</p></td>
+              <td>
+                <p>{{ participant.last_name|upper }}
+                   {{ participant.first_name }}</p>
+              </td>
+              <td class="text-right" style="width: 45%">
+                <p>{{ participant.language }}</p></td>
+            </tr>
+          {% endfor %}
+
+        {% endfor %}
+
+      </tbody>
+
+  </table>
+
+</div> {# printout-item-container #}

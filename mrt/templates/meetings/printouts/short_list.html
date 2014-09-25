@@ -1,5 +1,10 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, render_pagination %}
+
+
+{% set title = 'List of announced participants' %}
+
+{% block title %} {{ title }} {% endblock %}
 
 
 {% block breadcrumb %}
@@ -23,41 +28,32 @@
 
   {{ super() }}
 
-  <div class="short-list-container">
+  <div id="infinite-scroll-container" class="short-list-container">
 
-    <table repeat="1">
-      <thead>
-        <th style="width: 4%">Pic</th>
-        <th>Representing</th>
-        <th>Name</th>
-        <th style="width: 4%">Cat</th>
-        <th style="width: 4%">Cred</th>
-        <th style="width: 4%">Appr</th>
-        <th style="width: 4%">Inv</th>
-        <th>Fee</th>
-        <th style="width: 4%">Lang</th>
-      </thead>
+    <form method="POST" class="text-right">
+      <button class="btn btn-danger btn-sm btn-download" type="submit">
+        <span class="glyphicon glyphicon-download"></span>
+        Download as pdf</button>
+    </form>
+    <br>
 
-      <tbody>
-        {% for group, participants in grouped_participants %}
-          <tr><td colspan="9">{{ group }}</td></tr>
-          {% for participant in participants %}
-            <tr>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
-            </tr>
-          {% endfor %}
-        {% endfor %}
-      </tbody>
+    {% include "meetings/printouts/_short_list_table.html" %}
 
-    </table>
+    <div class="printout-loading"></div>
+
+    <ul class="pagination">
+      {% if pagination.has_prev %}
+        {% set prev_url = url_for('.printouts_short_list',
+                                  page=pagination.prev().page) %}
+        <li><a href="{{ prev_url }}">Previous</a></li>
+      {% endif %}
+      {% if pagination.has_next %}
+        {% set next_url = url_for('.printouts_short_list',
+                                  page=pagination.next().page) %}
+        <li><a href="{{ next_url }}" class="next">Next</a></li>
+      {% endif %}
+    </ul>
 
   </div>
+
 {% endblock %}
