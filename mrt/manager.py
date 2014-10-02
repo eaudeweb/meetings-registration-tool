@@ -86,10 +86,16 @@ def rq():
 @click.pass_context
 def workers(ctx, queues):
     app = ctx.obj['app']
+
     with Connection(redis_store.connection), app.test_request_context():
         qs = map(Queue, queues) or [Queue()]
         worker = Worker(qs)
         g.is_rq_process = True
+
+        sentry = app.extensions.get('sentry')
+        if sentry is not None:
+            from rq.contrib.sentry import register_sentry
+            register_sentry(sentry.client, worker)
         worker.work()
 
 

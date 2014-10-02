@@ -9,7 +9,6 @@ from flask.ext.thumbnails import Thumbnail
 from flask.ext.uploads import configure_uploads, patch_request_class
 
 from path import path
-from raven.contrib.flask import Sentry
 
 from mrt.admin.urls import admin
 from mrt.assets import assets_env
@@ -75,7 +74,9 @@ def create_app(config={}):
     mail.init_app(app)
     redis_store.init_app(app)
 
-    Sentry(app)
+    if app.config.get('SENTRY_DSN'):
+        from raven.contrib.flask import Sentry
+        Sentry(app)
 
     _configure_uploads(app)
     _configure_brand(app)
