@@ -19,15 +19,15 @@ def stream_template(template_name, **context):
     return rv
 
 
-def render_pdf(template_name,
-               width=None, height=None,
-               margin=_PAGE_DEFAULT_MARGIN,
-               orientation="portrait",
-               **context):
+def render_pdf(template_name, title='', width=None, height=None,
+               margin=_PAGE_DEFAULT_MARGIN, orientation="portrait",
+               context={}):
     template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
                      (str(uuid.uuid4()) + '.html'))
     pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
                 (str(uuid.uuid4()) + '.pdf'))
+    footer_url = url_for('meetings.printouts_footer', _external=True)
+
     with open(template_path, 'w+') as f:
         for chunk in stream_template(template_name, **context):
             f.write(chunk.encode('utf-8'))
@@ -37,10 +37,12 @@ def render_pdf(template_name,
                    '--encoding', 'utf-8',
                    '--page-height', height,
                    '--page-width', width,
+                   '--title', title,
                    '-B', margin['bottom'],
                    '-T', margin['top'],
                    '-L', margin['left'],
                    '-R', margin['right'],
+                   '--footer-html', footer_url,
                    '--orientation', orientation,
                    str(template_path), str(pdf_path)]
         FNULL = open(os.devnull, 'w')

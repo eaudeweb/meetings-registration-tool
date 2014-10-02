@@ -1,3 +1,4 @@
+from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
 
@@ -87,10 +88,11 @@ def _process_badges(meeting_id, category_ids):
         participants = participants.filter(
             Participant.category.has(Category.id.in_(category_ids))
         )
+    context = {'participants': participants}
     return render_pdf('meetings/printouts/badges_pdf.html',
-                      participants=participants,
                       height='2.15in', width='3.4in',
-                      orientation='portrait')
+                      orientation='portrait',
+                      context=context)
 
 
 class JobStatus(MethodView):
@@ -145,6 +147,8 @@ class ShortList(MethodView):
 
     JOB_NAME = 'short list'
 
+    decorators = (login_required,)
+
     @staticmethod
     def _get_query():
         return (
@@ -173,6 +177,13 @@ class ShortList(MethodView):
         return redirect(url_for('.printouts_short_list'))
 
 
+class PrintoutFooter(MethodView):
+
+    def get(self):
+        return render_template('meetings/printouts/footer.html',
+                               now=datetime.now())
+
+
 def _process_short_list(meeting_id):
     g.meeting = Meeting.query.get(meeting_id)
     participants = ShortList._get_query()
@@ -180,10 +191,9 @@ def _process_short_list(meeting_id):
     participants = groupby(participants, key=attrgetter('category'))
     margin = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
               'right': '0.8in'}
+    context = {'participants': participants, 'count': count}
     return render_pdf('meetings/printouts/short_list_pdf.html',
-                      participants=participants,
-                      count=count,
-                      height='11.693in',
-                      width='8.268in',
-                      margin=margin,
-                      orientation='landscape')
+                      title='List of announced participants',
+                      height='11.693in', width='8.268in',
+                      margin=margin, orientation='landscape',
+                      context=context)

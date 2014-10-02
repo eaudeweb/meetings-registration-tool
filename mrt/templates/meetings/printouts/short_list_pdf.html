@@ -8,6 +8,20 @@
     {{ inject_static_file('css/landscape.css') }}
   </style>
 
+  <style type="text/css">
+
+    @page {
+        @top-left {
+        content: "TOP SECRET";
+        color: red
+        }
+        @bottom-right {
+            content: counter(page);
+        font-style: italic
+        }
+    }
+  </style>
+
 {% endblock %}
 
 

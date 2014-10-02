@@ -211,12 +211,10 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
             .active()
             .first_or_404())
         nostripe = request.args.get('nostripe')
+        context = {'participant': participant, 'nostripe': nostripe}
         return render_pdf('meetings/participant/badge.html',
-                          participant=participant,
-                          nostripe=nostripe,
-                          width='3.4in',
-                          height='2.15in',
-                          orientation='portrait')
+                          width='3.4in', height='2.15in',
+                          orientation='portrait', context=context)
 
 
 class ParticipantLabel(PermissionRequiredMixin, MethodView):
@@ -226,11 +224,10 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
     def get(self, participant_id):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
+        context= {'participant': participant}
         return render_pdf('meetings/participant/label.html',
-                          height="8.3in",
-                          width="11.7in",
-                          orientation="landscape",
-                          participant=participant)
+                          height="8.3in", width="11.7in",
+                          orientation="landscape", context=context)
 
 
 class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
@@ -240,10 +237,11 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
     def get(self, participant_id):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
+        context= {'participant': participant}
         return render_pdf('meetings/participant/envelope.html',
                           height='6.4in', width='9.0in',
                           orientation="portrait",
-                          participant=participant)
+                          context=context)
 
 
 class ParticipantsExport(PermissionRequiredMixin, MethodView):

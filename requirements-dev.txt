@@ -1,18 +1,18 @@
 -r requirements.txt
 
-Fabric==1.9.0
+Fabric==1.10.0
 factory-boy==2.4.1
-pyquery==1.2.8
+pyquery==1.2.9
 # pytest
-py==1.4.20
-pytest==2.5.2
+py==1.4.25
+pytest==2.6.3
 
 # git lint
 docopt==0.6.2
-docutils==0.11
-git-lint==0.0.5.6
-html-linter==0.1.6
+docutils==0.12
+git-lint==0.0.6.1
+html-linter==0.1.9
 pep8==1.5.7
 PyYAML==3.11
-template-remover==0.1.6
+template-remover==0.1.9
 termcolor==1.1.0
