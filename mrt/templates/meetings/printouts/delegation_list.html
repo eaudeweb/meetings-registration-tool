@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, render_pagination %}
 
 
 {% block title %} {{ title }} {% endblock %}
@@ -8,7 +8,7 @@
 {% block breadcrumb %}
 
   {{ breadcrumb( [
-      ('', 'Short list'),
+      ('', 'Delegations'),
   ] ) }}
 
 {% endblock %}
@@ -37,24 +37,12 @@
     </div>
 
     {% with title=title %}
-      {% include "meetings/printouts/_short_list_table.html" %}
+      {% include "meetings/printouts/_delegation_list_table.html" %}
     {% endwith %}
 
     <div class="printout-loading"></div>
 
-    <ul class="pagination">
-      {% if pagination.has_prev %}
-        {% set prev_url = url_for('.printouts_short_list',
-                                  page=pagination.prev().page) %}
-        <li><a href="{{ prev_url }}">Previous</a></li>
-      {% endif %}
-      {% if pagination.has_next %}
-        {% set next_url = url_for('.printouts_short_list',
-                                  page=pagination.next().page) %}
-        <li><a href="{{ next_url }}" class="next">Next</a></li>
-      {% endif %}
-    </ul>
 
-  </div>
+  </div> {# /.delegation-list-container #}
 
 {% endblock %}

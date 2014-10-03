@@ -1,0 +1,15 @@
+{% extends "_layout_pdf.html" %}
+
+
+{% block head %}
+
+  <style type="text/css">
+    {{ inject_static_file('css/printouts.css') }}
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+  {% include template %}
+{% endblock %}

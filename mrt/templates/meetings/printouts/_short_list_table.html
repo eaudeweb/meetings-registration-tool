@@ -1,30 +1,22 @@
-
-<div class="printout-meeting-title">
-  {{ g.meeting.title }} <br>
-  {{ g.meeting.venue_city.english }}
-  ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
-  {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
-</div>
+{% from "_bits.html" import meeting_title_for_printouts %}
 
 
 <div class="printout-doc-title">
-  List of announced participants - Total: {{ count }}
+  <h4>{{ meeting_title_for_printouts() }}</h4>
+  <h2>{{ title }} - Total: {{ count }}</h2>
 </div>
 
 
 <div class="printout-item-container">
 
-  <table class="printout-table">
-
-    {% set loop_helper = True %} {# strange jinja bug with loop.index #}
-
+  <table class="table table-bordered table-condensed">
 
       <thead>
         <tr class="column-headers">
-          <th><p>Pic</p></th>
-          <th><p>Representing</p></th>
-          <th><p>Name</p></th>
-          <th class="text-right"><p>Language</p></th>
+          <th class="text-center">Pic</th>
+          <th>Representing</th>
+          <th>Name</th>
+          <th class="text-right">Language</th>
         </tr>
       </thead>
 
@@ -32,31 +24,29 @@
 
         {% for group, list in participants %}
 
-          <tr>
-            <th colspan="4" class="group"
+          <tr class="highlight">
+            <th colspan="4" class="text-center"
                 data-id="{{ group.title.english|slugify }}">
               {{ group }}</th>
           </tr>
 
           {% for participant in list %}
             <tr>
-              <td style="width: 5%;">
-                <p>
-                {% if participant.photo %}
-                  <span class="checked">✔</span>
-                {% else %}
-                  <span class="checked">&#45;&#45;</span>
-                {% endif %}
-                </p>
+              <td class="text-center" style="width: 5%;">
+              {% if participant.photo %}
+                <span class="checked">✔</span>
+              {% else %}
+                <span class="checked">&#45;&#45;</span>
+              {% endif %}
               </td>
               <td style="width: 20%;">
-                <p>{{ participant.representing }}</p></td>
+                {{ participant.representing }}</td>
               <td id="participant-name" data-id="{{ participant.id }}">
-                <p>{{ participant.last_name|upper }}
-                   {{ participant.first_name }}</p>
+                {{ participant.last_name|upper }}
+                {{ participant.first_name }}
               </td>
               <td class="text-right" style="width: 45%">
-                <p>{{ participant.language }}</p></td>
+                {{ participant.language }}</td>
             </tr>
           {% endfor %}
 

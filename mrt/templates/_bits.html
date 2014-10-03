@@ -177,3 +177,13 @@
   </ul>
 
 {% endmacro %}
+
+
+{% macro meeting_title_for_printouts() %}
+
+  {{ g.meeting.title }} <br>
+  {{ g.meeting.venue_city.english }}
+  ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
+  {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
+
+{% endmacro %}

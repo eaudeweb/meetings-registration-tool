@@ -1,0 +1,44 @@
+{% from "_bits.html" import meeting_title_for_printouts %}
+
+
+<div class="printout-doc-title">
+  <h4>{{ meeting_title_for_printouts() }}</h4>
+  <h2>{{ title }}</h2>
+</div>
+
+
+<div class="printout-item-container">
+
+  <table class="table table-bordered table-condensed">
+
+    <thead>
+      <tr class="column-headers">
+        <th style="width: 8%;" class="text-center">Qty</th>
+        <th>Delegation</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for group, list in participants %}
+
+        <tr class="highlight">
+          <th colspan="4" class="text-center"
+              data-id="{{ group.title.english|slugify }}">
+            {{ group }}</th>
+        </tr>
+        {% for representing, participants in list|groupby('representing')|sort_by_tuple_element %}
+          <tr>
+            <td class="text-center">{{ participants|length }}</td>
+            <td>{{ representing }}</td>
+          </tr>
+        {% endfor %}
+
+      {% endfor %}
+
+    </tbody>
+
+
+  </table> {# /.printout-table #}
+
+</div> {# /.printout-item-container #}

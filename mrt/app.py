@@ -23,6 +23,7 @@ from mrt.template import country_in, region_in
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 from mrt.template import pluralize, url_for_brand_static_path
+from mrt.template import sort_by_tuple_element
 from mrt.utils import slugify
 
 
@@ -60,6 +61,7 @@ def create_app(config={}):
     app.add_template_filter(no_image_cache)
     app.add_template_filter(pluralize)
     app.add_template_filter(slugify)
+    app.add_template_filter(sort_by_tuple_element)
     app.add_template_global(active)
     app.add_template_global(active)
     app.add_template_global(url_for_brand_static_path)

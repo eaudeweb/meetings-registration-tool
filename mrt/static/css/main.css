@@ -103,8 +103,6 @@ h5 {
 
 .actions {
     margin-bottom: 20px;
-    /*padding: 5px 10px;*/
-    /*background: #eee;*/
 }
 .actions .glyphicon {
     font-size: 10px;
@@ -344,9 +342,6 @@ h5 {
     text-align: center;
     padding: 20px 0;
 }
-.short-list-container {
-    font-size: 150%;
-}
 
 .btn-download .glyphicon {
     position: relative;
@@ -378,7 +373,6 @@ h5 {
 .queue .job {
     border-bottom: 2px solid #fff;
     padding: 10px 35px 10px 15px;
-    /*width: 0;*/
 }
 .queue .job img {
     margin-right: 7px;

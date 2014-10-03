@@ -1,64 +1,18 @@
 
 
-.short-list-container {
-    font-family: Verdana;
+.printout-container {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
-
-.printout-table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    width: 100%;
-}
-
-.printout-table th {
-    border-bottom: 2px solid #ddd;
-    border-top: 2px solid #ddd;
-    vertical-align: bottom;
-    line-height: 1.42857;
-    font-weight: bold;
-    text-align: left;
-    font-size: 1em;
-    padding: 6px;
-}
-.printout-table th.text-right,
-.printout-table td.text-right {
-    text-align: right;
-}
-.printout-table td {
-    border-top: 1px solid #ddd;
-    line-height: 1.42857;
-    vertical-align: top;
-    padding: 6px;
-}
-.printout-table p {
-    font-size: 0.8em;
-    padding: 0;
-    margin: 0;
-}
-
-th.group {
-    background-color: #C0C0C0;
-    text-align: center!important;
-    font-style: italic;
-    font-weight: bold;
-}
-
-.checked {
-    font-size: 1em;
-}
-
-.printout-meeting-title {
-    line-height: 1.4em;
-    margin-bottom: 15px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 0.8em;
-}
-
 .printout-doc-title {
     margin-bottom: 0.5in;
     text-align: center;
-    font-weight: bold;
-    font-size: 1.2em;
+}
+.printout-doc-title h4 {
+    line-height: 1.4em;
+}
 
+table tr.highlight td,
+table tr.highlight th {
+    background: #f5f5f5;
+    font-size: 1em;
 }

@@ -22,6 +22,10 @@ from mrt.pdf import render_pdf
 from mrt.template import pluralize
 
 
+_PRINTOUT_MARGIN = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
+                    'right': '0.8in'}
+
+
 def _add_to_printout_queue(method, job_name, *args):
     q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store.connection,
               default_timeout=1200)
@@ -146,6 +150,7 @@ class PDFDownload(MethodView):
 class ShortList(MethodView):
 
     JOB_NAME = 'short list'
+    DOC_TITLE = 'List of announced participants'
 
     decorators = (login_required,)
 
@@ -170,10 +175,44 @@ class ShortList(MethodView):
             'meetings/printouts/short_list.html',
             participants=participants,
             pagination=pagination,
-            count=count)
+            count=count,
+            title=self.DOC_TITLE)
 
     def post(self):
-        _add_to_printout_queue(_process_short_list, self.JOB_NAME)
+        _add_to_printout_queue(_process_short_list, self.JOB_NAME,
+                               self.DOC_TITLE)
+        return redirect(url_for('.printouts_short_list'))
+
+
+class DelegationsList(MethodView):
+
+    JOB_NAME = 'delegation list'
+    DOC_TITLE = 'List of delegations (to prepare the meeting room)'
+
+    decorators = (login_required,)
+
+    @staticmethod
+    def _get_query():
+        return (
+            Participant.query
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .filter(Participant.meeting == g.meeting)
+            .order_by(Category.sort, Participant.last_name, Participant.id)
+        )
+
+    def get(self):
+        query = self._get_query()
+        participants = groupby(query, key=attrgetter('category'))
+        return render_template(
+            'meetings/printouts/delegation_list.html',
+            participants=participants,
+            title=self.DOC_TITLE,)
+
+    def post(self):
+        _add_to_printout_queue(_process_delegation_list, self.JOB_NAME,
+                               self.DOC_TITLE)
         return redirect(url_for('.printouts_short_list'))
 
 
@@ -184,16 +223,32 @@ class PrintoutFooter(MethodView):
                                now=datetime.now())
 
 
-def _process_short_list(meeting_id):
+def _process_short_list(meeting_id, title):
     g.meeting = Meeting.query.get(meeting_id)
-    participants = ShortList._get_query()
-    count = participants.count()
-    participants = groupby(participants, key=attrgetter('category'))
-    margin = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
-              'right': '0.8in'}
-    context = {'participants': participants, 'count': count}
-    return render_pdf('meetings/printouts/short_list_pdf.html',
-                      title='List of announced participants',
+    query = ShortList._get_query()
+    count = query.count()
+    participants = groupby(query, key=attrgetter('category'))
+    context = {'participants': participants,
+               'count': count,
+               'title': title,
+               'template': 'meetings/printouts/_short_list_table.html'}
+    return render_pdf('meetings/printouts/printout.html',
+                      title=title,
                       height='11.693in', width='8.268in',
-                      margin=margin, orientation='landscape',
+                      margin=_PRINTOUT_MARGIN, orientation='landscape',
+                      context=context)
+
+
+def _process_delegation_list(meeting_id, title):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = DelegationsList._get_query()
+    participants = groupby(query, key=attrgetter('category'))
+    context = {'participants': participants,
+               'title': title,
+               'template': 'meetings/printouts/_delegation_list_table.html'}
+
+    return render_pdf('meetings/printouts/printout.html',
+                      title=title,
+                      height='11.693in', width='8.268in',
+                      margin=_PRINTOUT_MARGIN, orientation='landscape',
                       context=context)

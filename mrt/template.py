@@ -127,3 +127,12 @@ def pluralize(value, arg='s'):
 
 def url_for_brand_static_path(filename):
     return app.config['BRAND_PATH'] / 'static' / filename
+
+
+def sort_by_tuple_element(value, position=0):
+    def sort(item):
+        value = item[position]
+        if isinstance(value, basestring):
+            return value.lower()
+        return value
+    return sorted(value, key=sort)

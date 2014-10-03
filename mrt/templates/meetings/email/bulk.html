@@ -2,6 +2,10 @@
 {% from "_bits.html" import breadcrumb, form_group %}
 
 
+{% set title = 'Send bulk emails' %}
+{% block title %} {{ title }} {% endblock %}
+
+
 {% block breadcrumb %}
 
   {{ breadcrumb( [
@@ -51,7 +55,7 @@
 
   {{ super() }}
 
-  <h3 class="page-title">Send bulk emails</h3>
+  <h3 class="page-title">{{ title }}</h3>
 
   <form class="form-horizontal" method="post">
 
