@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>
+      Registration for {{ g.meeting.acronym }} - {{ g.meeting.title}}
+    </title>
+
+    {% assets "registration_css" %}
+      <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+
+  </head>
+
+  <body>
+    <div class="container content">
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+
+</html>

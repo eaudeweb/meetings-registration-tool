@@ -1,22 +1,25 @@
-import json
 from datetime import datetime
+import json
 
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from flask import g, render_template, current_app as app
+from flask.ext.babel import gettext as _
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask_redis import Redis
-from flask import g, render_template, current_app as app
 
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy_utils import ChoiceType, CountryType, EmailType
-from sqlalchemy_utils import generates
-from sqlalchemy.types import TypeDecorator, String
 from jinja2.exceptions import TemplateNotFound
 
-from mrt.utils import slugify
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.types import TypeDecorator, String
+from sqlalchemy_utils import ChoiceType, CountryType, EmailType
+from sqlalchemy_utils import generates
+
 from mrt.definitions import (
     CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES,
     REPRESENTING_REGIONS, CATEGORY_REPRESENTING
 )
+from mrt.utils import slugify
 
 
 db = SQLAlchemy()
@@ -211,16 +214,16 @@ class Participant(db.Model):
         backref=db.backref('participants', lazy='dynamic', cascade="delete"))
 
     title = db.Column(ChoiceType(TITLE_CHOICES), nullable=False,
-                      info={'label': 'Title'})
+                      info={'label': _('Title')})
 
     first_name = db.Column(db.String(64), nullable=False,
-                           info={'label': 'Given name'})
+                           info={'label': _('Given name')})
 
     last_name = db.Column(db.String(64), nullable=False,
-                          info={'label': 'Family name'})
+                          info={'label': _('Family name')})
 
     email = db.Column(db.String(64), nullable=False,
-                      info={'label': 'Email'})
+                      info={'label': _('Email')})
 
     user_id = db.Column(
         db.Integer, db.ForeignKey('user.id'),
@@ -237,24 +240,27 @@ class Participant(db.Model):
         backref=db.backref('participants', lazy='dynamic'))
 
     language = db.Column(ChoiceType(LANGUAGE_CHOICES), nullable=False,
-                         info={'label': 'Working language'}, default=u'en')
+                         info={'label': _('Working language')}, default=u'en')
 
     country = db.Column(CountryType, nullable=False,
-                        info={'label': 'Country'})
+                        info={'label': _('Country')})
 
     deleted = db.Column(db.Boolean, default=False)
 
-    attended = db.Column(db.Boolean, default=False, info={'label': 'Attended'})
+    attended = db.Column(db.Boolean, default=False,
+                         info={'label': _('Attended')})
 
-    represented_country = db.Column(CountryType,
-                                    info={'label': 'Country represented'})
+    represented_country = db.Column(
+        CountryType,
+        info={'label': _('Country represented')})
 
-    represented_region = db.Column(ChoiceType(REPRESENTING_REGIONS),
-                                   info={'label': 'Representing region'})
+    represented_region = db.Column(
+        ChoiceType(REPRESENTING_REGIONS),
+        info={'label': _('Representing region')})
 
     represented_organization = db.Column(
         db.String(64),
-        info={'label': 'Organization represented'})
+        info={'label': _('Organization represented')})
 
     def __repr__(self):
         return self.name
