@@ -3,15 +3,15 @@
 
   <div class="table-responsive">
 
-    <table id="categories"
-           class="table table-bordered table-condensed sortable"
-           data-url="{{ url_for('.category_update_position') }}">
+    <table id="categories" class="table table-bordered table-condensed sortable table-hover" data-url="{{ url_for('.category_update_position') }}">
 
       <thead>
         <tr>
           <th class="handler"></th>
           <th>Name</th>
-          <th>Type</th>
+          <th>Category Type</th>
+          <th>Category Group</th>
+          <th>Visible on registration form?</th>
           <th>Badge color</th>
         </tr>
       </thead>
@@ -28,7 +28,13 @@
               <a href="{{ url_for('.category_edit', category_id=category.id) }}">
                 {{ category.title.english }}</a>
             </td>
-            <td>{{ category.type }}</td>
+            <td>{{ category.category_type }}</td>
+            <td>{{ category.group }}</td>
+            <td>
+              {% if category.visible_on_registration_form %}
+                <span class="glyphicon glyphicon-ok"></span>
+              {% endif %}
+            </td>
             <td>
               <span class="stripe" style="background: {{ category.color }}"></span>
               <span class="color">{{ category.color }}</span>

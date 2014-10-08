@@ -20,7 +20,10 @@ class ParticipantEditForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(ParticipantEditForm, self).__init__(*args, **kwargs)
-        query = Category.query.filter_by(meeting_id=g.meeting.id)
+        query = (
+            Category.query.filter_by(meeting_id=g.meeting.id)
+            .filter_by(category_type=Category.PARTICIPANT)
+        )
         self.category_id.choices = (
             [(0, '----')] + [(c.id, c.title) for c in query]
         )
@@ -47,7 +50,9 @@ class MediaParticipantEditForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(MediaParticipantEditForm, self).__init__(*args, **kwargs)
-        query = Category.query.filter_by(meeting_id=g.meeting.id)
+        query = (
+            Category.query.filter_by(meeting_id=g.meeting.id)
+            .filter_by(Category.MEDIA))
         self.category_id.choices = [(c.id, c.title) for c in query]
 
     def save(self):

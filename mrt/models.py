@@ -16,9 +16,8 @@ from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy_utils import generates
 
 from mrt.definitions import (
-    CATEGORIES, MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES,
-    REPRESENTING_REGIONS, CATEGORY_REPRESENTING
-)
+    MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES,
+    REPRESENTING_REGIONS, CATEGORY_REPRESENTING)
 from mrt.utils import slugify
 
 
@@ -492,6 +491,18 @@ class Meeting(db.Model):
 
 class CategoryMixin(object):
 
+    PARTICIPANT = 'participant'
+    MEDIA = 'media'
+    CATEGORY_TYPES = (
+        (PARTICIPANT, 'Category for participants'),
+        (MEDIA, 'Category for media participants'),
+    )
+
+    CATEGORY_GROUPS = (
+        ('country', 'Group category by country'),
+        ('organization', 'Group category by organization'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
 
     @declared_attr
@@ -510,10 +521,18 @@ class CategoryMixin(object):
     representing = db.Column(ChoiceType(CATEGORY_REPRESENTING),
                              info={'label': 'Representing'})
 
-    type = db.Column(ChoiceType(CATEGORIES), nullable=False,
-                     info={'label': 'Category Type'})
+    category_type = db.Column(ChoiceType(CATEGORY_TYPES),
+                              nullable=False, default=PARTICIPANT,
+                              info={'label': 'Category type'})
+
+    group = db.Column(ChoiceType(CATEGORY_GROUPS),
+                      info={'label': 'Group'})
 
     sort = db.Column(db.Integer, default=0)
+
+    visible_on_registration_form = db.Column(
+        db.Boolean, default=False,
+        info={'label': 'Visible on registration form'})
 
 
 class Category(CategoryMixin, db.Model):

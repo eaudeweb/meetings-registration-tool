@@ -21,13 +21,16 @@ class RegistrationForm(BaseForm):
     class Meta:
         model = Participant
         only = ('title', 'first_name', 'last_name', 'email',
-                'country', 'language')
+                'country', 'language', 'represented_country',
+                'represented_organization',)
 
         field_args = {}
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        query = Category.query.filter_by(meeting_id=g.meeting.id)
+        query = (
+            Category.query.filter_by(meeting_id=g.meeting.id)
+            .filter_by(visible_on_registration_form=True))
         self.category_id.choices = [(c.id, c.title) for c in query]
 
     def save(self):

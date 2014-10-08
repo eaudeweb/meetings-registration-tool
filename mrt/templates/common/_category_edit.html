@@ -20,14 +20,13 @@
   <div class="panel panel-default">
 
     <div class="panel-heading">
-      <b>General</b>
+      <b>Badges</b>
     </div>
 
     <div class="panel-body">
-      {{ form_group(form.type, label_size="2", input_size="3") }}
       {{ form_group(form.color, label_size="2", input_size="3") }}
+      {{ form_group(form.representing, label_size="2", input_size="4") }}
       {{ form_group(form.background) }}
-      {{ form_group(form.representing) }}
       {% if form.background.data %}
         <div class="checkbox">
           {% set url = url_for("files",
@@ -40,6 +39,21 @@
         </div>
       {% endif %}
     </div>
+
+  </div> {# panel #}
+
+  <div class="panel panel-default">
+
+    <div class="panel-heading">
+      <b>Registration Form</b>
+    </div>
+
+    <div class="panel-body">
+      {{ form_group(form.category_type, label_size="2", input_size="4") }}
+      {{ form_group(form.group, label_size="2", input_size="4") }}
+      {{ form_group(form.visible_on_registration_form, label_size="2", input_size="4") }}
+    </div>
+
 
   </div> {# panel #}
 

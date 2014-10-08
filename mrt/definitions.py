@@ -1,13 +1,3 @@
-
-CATEGORIES = (
-    ('member', 'Member'),
-    ('party', 'Party'),
-    ('observer', 'Observer'),
-    ('media', 'Media'),
-    ('staff', 'Staff'),
-    ('miscellaneous', 'Miscellaneous'),
-)
-
 COLORS = [
     ['#fff', '#0080FF', '#00BB22', '#FEF200', '#808080'],
     ['#faee38', '#f1c832', '#ff7dff', '#e7992c', '#de7426'],
@@ -16,6 +6,7 @@ COLORS = [
     ['#559751', '#c1d942', '#b0b7c0', '#c9a132', '#9b6633'],
 ]
 
+
 MEETING_TYPES = (
     ('cop', 'Conference of the Parties'),
     ('ac', 'Animals Committee'),
@@ -23,6 +14,7 @@ MEETING_TYPES = (
     ('sc', 'Standing Committee'),
     ('pc', 'Plants Committee'),
 )
+
 
 MEETING_SETTINGS = (
     ('media_participant_enabled', 'Enable Media Participants'),
@@ -48,6 +40,7 @@ PERMISSIONS = (
     ('manage_default', 'Manage Default Values'),
 )
 
+
 ACTIVITY_ACTIONS = {
     'add': 'Add participant',
     'edit': 'Edit participant',
@@ -55,15 +48,18 @@ ACTIVITY_ACTIONS = {
     'restore': 'Restore participant'
 }
 
+
 NOTIFICATION_TYPES = (
     ('notify_participant', 'Notify participant register'),
     ('notify_media_participant', 'Notify media participant register'),
 )
 
+
 PRINTOUT_TYPES = (
     ('announced', 'Announced'),
     ('attending', 'Attending'),
 )
+
 
 REPRESENTING_REGIONS = (
     ('africa', 'Africa'),
@@ -89,6 +85,7 @@ CATEGORY_REPRESENTING = (
     ('region.html', 'Region'),
     ('representing_country.html', 'Representing country'),
     ('representing_country_translated.html',
-        'Representing country E / Representing country S / Representing country F'),
+     'Representing country E / Representing country S / '
+     'Representing country F'),
     ('category.html', 'Category'),
 )
