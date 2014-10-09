@@ -6,7 +6,7 @@ from mrt.models import Meeting, Category, Phrase
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
 from .factories import PhraseMeetingFactory, RoleUserFactory, StaffFactory
-from .factories import RoleUserMeetingFactory
+from .factories import RoleUserMeetingFactory, CustomFieldFactory
 
 
 def test_meeting_list(app):
@@ -32,6 +32,7 @@ def test_meeting_add(app):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -52,6 +53,7 @@ def test_meeting_edit(app):
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
     data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -63,6 +65,29 @@ def test_meeting_edit(app):
     assert resp.status_code == 302
     assert Meeting.query.filter(
         Meeting.venue_city.has(english='Rome')).count() == 1
+    assert meeting.photo_field is None
+
+
+def test_meeting_edit_with_photo_field(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    meeting = MeetingFactory()
+    photo_field = CustomFieldFactory(meeting=meeting)
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = 'Sixtieth meeting of the Standing Committee'
+    data['badge_header-english'] = data.pop('badge_header')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['photo_field_id'] = photo_field.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert meeting.photo_field == photo_field
 
 
 def test_meeting_delete(app):
@@ -209,6 +234,7 @@ def test_meeting_add_phrase_edit(app):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -237,6 +263,7 @@ def test_meeting_add_default_phrase_edit(app):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -265,6 +292,7 @@ def test_meeting_add_default_phrase_copies(app):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
+    data['photo_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
 
     client = app.test_client()
@@ -285,6 +313,7 @@ def test_meeting_add_with_meeting_settings(app):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
 
     client = app.test_client()
@@ -306,6 +335,7 @@ def test_meeting_edit_with_meeting_settings(app):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
+    data['photo_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
     data['settings'] = 'media_participant_enabled'
 

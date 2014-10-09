@@ -50,9 +50,8 @@ class MediaParticipantEditForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(MediaParticipantEditForm, self).__init__(*args, **kwargs)
-        query = (
-            Category.query.filter_by(meeting_id=g.meeting.id)
-            .filter_by(Category.MEDIA))
+        query = Category.query.filter_by(meeting_id=g.meeting.id,
+                                         category_type=Category.MEDIA)
         self.category_id.choices = [(c.id, c.title) for c in query]
 
     def save(self):
@@ -78,4 +77,3 @@ class BadgeCategories(BaseForm):
 class PrintoutForm(BadgeCategories):
 
     printout_type = fields.SelectField('Type', choices=PRINTOUT_TYPES)
-
