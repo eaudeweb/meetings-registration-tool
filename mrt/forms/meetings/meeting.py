@@ -4,11 +4,21 @@ from wtforms import fields, widgets
 from wtforms.validators import ValidationError
 from wtforms_alchemy import ModelFormField
 
-from mrt.models import db, Meeting, Staff
+from mrt.models import db, Meeting, Staff, Participant, CustomField
 from mrt.models import Phrase, PhraseDefault, Translation
+
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
+
 from mrt.utils import copy_model_fields
 from mrt.definitions import MEETING_SETTINGS
+
+
+_CUSOMT_FIELD_MAPPER = {
+    'StringField': CustomField.TEXT,
+    'BooleanField': CustomField.CHECKBOX,
+    'SelectField': CustomField.SELECT,
+    'CountryField': CustomField.SELECT,
+}
 
 
 class MeetingEditForm(BaseForm):
@@ -72,11 +82,31 @@ class MeetingEditForm(BaseForm):
             db.session.add(phrase)
             db.session.flush()
 
+    def _add_custom_fields_for_meeting(self, meeting):
+        for i, field in enumerate(ParticipantDummyForm()):
+            custom_field = CustomField()
+            custom_field.meeting = meeting
+            custom_field.label = Translation(english=unicode(field.label.text))
+            custom_field.required = field.flags.required
+            custom_field.field_type = _CUSOMT_FIELD_MAPPER[field.type]
+            custom_field.is_primary = True
+            custom_field.sort = i + 1
+            db.session.add(custom_field)
+        db.session.commit()
+
     def save(self):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
         if meeting.id is None:
             db.session.add(meeting)
             self._save_phrases(meeting)
+            self._add_custom_fields_for_meeting(meeting)
         db.session.commit()
         return meeting
+
+
+class ParticipantDummyForm(BaseForm):
+
+    class Meta:
+        model = Participant
+        exclude = ('deleted',)

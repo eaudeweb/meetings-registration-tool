@@ -5,19 +5,21 @@ from werkzeug import FileStorage, OrderedMultiDict
 
 from flask.ext.uploads import UploadSet, IMAGES, TEXT, DOCUMENTS
 from flask_wtf.file import FileField, FileAllowed
+from sqlalchemy import desc
 
 from wtforms import fields
 from wtforms.validators import DataRequired, ValidationError
 from wtforms_alchemy import ModelFormField
 
-from mrt.models import db
 from mrt.models import CategoryDefault, Category
-from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import CustomField, CustomFieldValue
+from mrt.models import db
+from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import Translation, UserNotification
+
+from mrt.definitions import NOTIFICATION_TYPES
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
 from mrt.utils import unlink_participant_photo
-from mrt.definitions import NOTIFICATION_TYPES
 
 from mrt.forms.base import BaseForm, TranslationInputForm
 from mrt.forms.base import BooleanField
@@ -83,6 +85,12 @@ class CustomFieldEditForm(BaseForm):
         self.populate_obj(custom_field)
         custom_field.meeting = g.meeting
         if not custom_field.slug:
+            last_sort = (
+                CustomField.query.with_entities(CustomField.sort)
+                .order_by(desc(CustomField.id))
+                .first())
+            if last_sort:
+                custom_field.sort = last_sort[0]
             db.session.add(custom_field)
         db.session.commit()
 

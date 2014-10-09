@@ -111,6 +111,11 @@ h5 {
 .table td {
     position: relative;
 }
+table tr.highlight td,
+table tr.highlight th {
+    background: #f5f5f5;
+}
+
 .row-link {
     position: absolute;
     margin-right: -15px;

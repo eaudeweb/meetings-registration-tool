@@ -21,13 +21,6 @@ MEETING_SETTINGS = (
 )
 
 
-CUSTOM_FIELDS = (
-    ('text', 'Text'),
-    ('image', 'Image'),
-    ('checkbox', 'Checkbox'),
-)
-
-
 PERMISSIONS = (
     ('manage_user', 'Manage User'),
     ('manage_staff', 'Manage Staff'),

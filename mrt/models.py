@@ -16,8 +16,8 @@ from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy_utils import generates
 
 from mrt.definitions import (
-    MEETING_TYPES, CUSTOM_FIELDS, PERMISSIONS, NOTIFICATION_TYPES,
-    REPRESENTING_REGIONS, CATEGORY_REPRESENTING)
+    MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
+    CATEGORY_REPRESENTING)
 from mrt.utils import slugify
 
 
@@ -298,6 +298,18 @@ class Participant(db.Model):
 
 class CustomField(db.Model):
 
+    TEXT = 'text'
+    IMAGE = 'image'
+    CHECKBOX = 'checkbox'
+    SELECT = 'select'
+
+    CUSTOM_FIELDS = (
+        (TEXT, 'Text'),
+        (IMAGE, 'Image'),
+        (CHECKBOX, 'Checkbox'),
+        (SELECT, 'Select'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
 
     slug = db.Column(db.String(255))
@@ -323,6 +335,8 @@ class CustomField(db.Model):
                          info={'label': 'Required'})
 
     sort = db.Column(db.Integer, default=0)
+
+    is_primary = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return self.label.english

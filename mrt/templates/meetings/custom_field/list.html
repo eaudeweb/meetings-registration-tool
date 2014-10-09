@@ -41,12 +41,17 @@
       {% for field in custom_fields %}
         {% set url = url_for('.custom_field_edit',
                              custom_field_id=field.id)%}
-        <tr id="items-{{ field.id }}">
+        <tr id="items-{{ field.id }}"
+            class="{% if field.is_primary %}highlight{% endif %}">
           <td class="handler">
             <span class="glyphicon glyphicon-align-justify"></span>
           </td>
           <td>
-            <a href="{{ url }}">{{ field.label }}</a>
+            {% if field.is_primary %}
+              <b>{{ field.label }}</b>
+            {% else %}
+              <a href="{{ url }}">{{ field.label }}</a>
+            {% endif %}
           </td>
           <td>{{ field.field_type.value }}</td>
           <td><span class="glyphicon {% if field.required %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
