@@ -32,6 +32,7 @@ class MeetingEditForm(BaseForm):
     venue_city = ModelFormField(TranslationInputForm, label='City')
     meeting_type = fields.SelectField('Meeting Type')
     owner_id = fields.SelectField('Owner', coerce=int)
+    photo_field_id = fields.SelectField('Photo Field', coerce=int)
     settings = MultiCheckboxField('Settings', choices=MEETING_SETTINGS)
 
     def __init__(self, *args, **kwargs):
@@ -39,8 +40,17 @@ class MeetingEditForm(BaseForm):
         self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
         self.owner_id.choices = [
             (x.id, x.full_name or x.user.email) for x in Staff.query.all()]
+        self.photo_field_id.choices = [(0, '-----')]
+        if self.obj:
+            query = self.obj.custom_fields.filter_by(field_type='image')
+            image_fields = [(x.id, x.label) for x in query]
+            self.photo_field_id.choices += image_fields
         if not self.owner_id.data:
             self.owner_id.data = current_user.staff.id
+
+    def validate_photo_field_id(self, field):
+        if field.data == 0:
+            field.data = None
 
     def validate_settings(self, field):
         settings = dict(MEETING_SETTINGS)

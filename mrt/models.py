@@ -287,11 +287,7 @@ class Participant(db.Model):
 
     @property
     def photo(self):
-        field = (
-            CustomField.query
-            .filter_by(meeting=g.meeting, field_type=u'image')
-            .first()
-        )
+        field = g.meeting.photo_field
         if field:
             photo = (
                 field.custom_field_values
@@ -311,6 +307,7 @@ class CustomField(db.Model):
         nullable=False)
     meeting = db.relationship(
         'Meeting',
+        foreign_keys=meeting_id,
         backref=db.backref('custom_fields', lazy='dynamic', cascade="delete"))
 
     label_id = db.Column(
@@ -480,6 +477,17 @@ class Meeting(db.Model):
         info={'label': 'Allow Online Registration'})
 
     settings = db.Column(JSONEncodedDict, nullable=True)
+
+    photo_field_id = db.Column(db.Integer,
+                               db.ForeignKey('custom_field.id',
+                                             ondelete="SET NULL",
+                                             use_alter=True,
+                                             name='fk_photo_field'),
+                               nullable=True)
+
+    photo_field = db.relationship('CustomField',
+                                  foreign_keys=photo_field_id,
+                                  post_update=True)
 
     @property
     def media_participant_enabled(self):

@@ -118,7 +118,6 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
 
     title = SubFactory(CategoryDefaultNameFactory)
     color = '#93284c'
-    type = Choice(code='member', value='Member')
 
 
 class MeetingCategoryFactory(SQLAlchemyModelFactory):
@@ -128,7 +127,6 @@ class MeetingCategoryFactory(SQLAlchemyModelFactory):
 
     title = SubFactory(CategoryDefaultNameFactory)
     color = '#93284c'
-    type = Choice(code='member', value='Member')
     meeting = SubFactory(MeetingFactory)
     representing = 'region.html'
 
