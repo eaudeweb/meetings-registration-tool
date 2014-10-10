@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask.ext.login import current_user
 from wtforms import fields, widgets
-from wtforms.validators import ValidationError
+from wtforms.validators import ValidationError, DataRequired
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db, Meeting, Staff, Participant
@@ -9,6 +9,7 @@ from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.models import CustomField, CustomFieldChoice
 
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
+from mrt.forms.base import CategoryField
 
 from mrt.utils import copy_model_fields
 from mrt.definitions import MEETING_SETTINGS
@@ -19,6 +20,7 @@ _CUSOMT_FIELD_MAPPER = {
     'BooleanField': CustomField.CHECKBOX,
     'SelectField': CustomField.SELECT,
     'CountryField': CustomField.COUNTRY,
+    'CategoryField': CustomField.CATEGORY,
 }
 
 
@@ -101,9 +103,9 @@ class MeetingEditForm(BaseForm):
         db.session.commit()
 
     def _add_choice_values_for_custom_field(self, custom_field, choices):
-        for choice in choices:
+        for value, label in (choices or []):
             custom_field_choice = CustomFieldChoice(custom_field=custom_field)
-            custom_field_choice.value = Translation(english=unicode(choice))
+            custom_field_choice.value = Translation(english=value)
             db.session.add(custom_field_choice)
 
     def save(self):
@@ -118,6 +120,9 @@ class MeetingEditForm(BaseForm):
 
 
 class ParticipantDummyForm(BaseForm):
+
+    category_id = CategoryField('Category', validators=[DataRequired()],
+                                coerce=int, choices=[])
 
     class Meta:
         model = Participant

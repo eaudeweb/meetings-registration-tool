@@ -10,6 +10,7 @@ from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 from mrt.models import db, Participant, search_for_participant
 from mrt.models import get_participants_full
+from mrt.models import CustomField
 from mrt.pdf import render_pdf
 from mrt.signals import activity_signal, notification_signal
 from mrt.utils import generate_excel
@@ -115,22 +116,21 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id=None):
         participant = self._get_object(participant_id)
-        form = ParticipantEditForm(obj=participant)
-        CustomFormText = custom_form_factory(participant, field_type='text')
-        CustomObjectText = custom_object_factory(participant,
-                                                 field_type='text')
-        custom_form_text = CustomFormText(obj=CustomObjectText())
+        Form = custom_form_factory(
+            participant,
+            field_type=[CustomField.TEXT, CustomField.SELECT,
+                        CustomField.COUNTRY, CustomField.CATEGORY])
+        # Object = custom_object_factory(participant)
+        form = Form()
 
-        CustomFormCheckbox = custom_form_factory(participant,
-                                                 field_type='checkbox')
-        CustomObjectCheckbox = custom_object_factory(participant,
-                                                     field_type='checkbox')
-        custom_form_checkbox = CustomFormCheckbox(obj=CustomObjectCheckbox())
+        FlagsForm = custom_form_factory(
+            participant,
+            field_type=[CustomField.CHECKBOX])
+        flags_form = FlagsForm()
 
         return render_template('meetings/participant/edit.html',
                                form=form,
-                               custom_form_text=custom_form_text,
-                               custom_form_checkbox=custom_form_checkbox,
+                               flags_form=flags_form,
                                participant=participant)
 
     def post(self, participant_id=None):
@@ -224,7 +224,7 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
     def get(self, participant_id):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
-        context= {'participant': participant}
+        context = {'participant': participant}
         return render_pdf('meetings/participant/label.html',
                           height="8.3in", width="11.7in",
                           orientation="landscape", context=context)
@@ -237,7 +237,7 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
     def get(self, participant_id):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
-        context= {'participant': participant}
+        context = {'participant': participant}
         return render_pdf('meetings/participant/envelope.html',
                           height='6.4in', width='9.0in',
                           orientation="portrait",

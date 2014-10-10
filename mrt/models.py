@@ -198,16 +198,15 @@ class Participant(db.Model):
         ('Mr', 'Mr'),
     )
     LANGUAGE_CHOICES = (
-        ('en', 'English'),
-        ('es', 'Spanish'),
-        ('fr', 'French'),
+        ('English', 'English'),
+        ('Spanish', 'Spanish'),
+        ('French', 'French'),
     )
 
     id = db.Column(db.Integer, primary_key=True)
 
-    meeting_id = db.Column(
-        db.Integer, db.ForeignKey('meeting.id'),
-        nullable=False)
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'),
+                           nullable=False)
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('participants', lazy='dynamic', cascade="delete"))
@@ -246,9 +245,6 @@ class Participant(db.Model):
 
     deleted = db.Column(db.Boolean, default=False)
 
-    attended = db.Column(db.Boolean, default=False,
-                         info={'label': _('Attended')})
-
     represented_country = db.Column(
         CountryType,
         info={'label': _('Country represented')})
@@ -260,6 +256,15 @@ class Participant(db.Model):
     represented_organization = db.Column(
         db.String(64),
         info={'label': _('Organization represented')})
+
+    attended = db.Column(db.Boolean, default=False,
+                         info={'label': _('Attended')})
+
+    verified = db.Column(db.Boolean, default=False,
+                         info={'label': _('Verified')})
+
+    credentials = db.Column(db.Boolean, default=False,
+                            info={'label': _('Credentials')})
 
     def __repr__(self):
         return self.name
@@ -303,6 +308,7 @@ class CustomField(db.Model):
     CHECKBOX = 'checkbox'
     SELECT = 'select'
     COUNTRY = 'country'
+    CATEGORY = 'category'
 
     CUSTOM_FIELDS = (
         (TEXT, 'Text Field'),
@@ -310,6 +316,7 @@ class CustomField(db.Model):
         (CHECKBOX, 'Checkbox Field'),
         (SELECT, 'Select Field'),
         (COUNTRY, 'Country Field'),
+        (CATEGORY, 'Category Field'),
     )
 
     id = db.Column(db.Integer, primary_key=True)

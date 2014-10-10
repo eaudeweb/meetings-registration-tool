@@ -77,3 +77,7 @@ class MultiCheckboxField(fields.SelectMultipleField):
 
     def process_formdata(self, valuelist):
         self.data = {setting: True for setting in valuelist}
+
+
+class CategoryField(fields.SelectField):
+    pass
