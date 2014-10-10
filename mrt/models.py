@@ -302,12 +302,14 @@ class CustomField(db.Model):
     IMAGE = 'image'
     CHECKBOX = 'checkbox'
     SELECT = 'select'
+    COUNTRY = 'country'
 
     CUSTOM_FIELDS = (
-        (TEXT, 'Text'),
-        (IMAGE, 'Image'),
-        (CHECKBOX, 'Checkbox'),
-        (SELECT, 'Select'),
+        (TEXT, 'Text Field'),
+        (IMAGE, 'Image Field'),
+        (CHECKBOX, 'Checkbox Field'),
+        (SELECT, 'Select Field'),
+        (COUNTRY, 'Country Field'),
     )
 
     id = db.Column(db.Integer, primary_key=True)

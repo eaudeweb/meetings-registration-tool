@@ -4,8 +4,9 @@ from wtforms import fields, widgets
 from wtforms.validators import ValidationError
 from wtforms_alchemy import ModelFormField
 
-from mrt.models import db, Meeting, Staff, Participant, CustomField
+from mrt.models import db, Meeting, Staff, Participant
 from mrt.models import Phrase, PhraseDefault, Translation
+from mrt.models import CustomField, CustomFieldChoice
 
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
 
@@ -17,7 +18,7 @@ _CUSOMT_FIELD_MAPPER = {
     'StringField': CustomField.TEXT,
     'BooleanField': CustomField.CHECKBOX,
     'SelectField': CustomField.SELECT,
-    'CountryField': CustomField.SELECT,
+    'CountryField': CustomField.COUNTRY,
 }
 
 
@@ -92,7 +93,18 @@ class MeetingEditForm(BaseForm):
             custom_field.is_primary = True
             custom_field.sort = i + 1
             db.session.add(custom_field)
+
+            if custom_field.field_type == CustomField.SELECT:
+                self._add_choice_values_for_custom_field(
+                    custom_field, field.choices)
+
         db.session.commit()
+
+    def _add_choice_values_for_custom_field(self, custom_field, choices):
+        for choice in choices:
+            custom_field_choice = CustomFieldChoice(custom_field=custom_field)
+            custom_field_choice.value = Translation(english=unicode(choice))
+            db.session.add(custom_field_choice)
 
     def save(self):
         meeting = self.obj or Meeting()
