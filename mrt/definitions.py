@@ -55,17 +55,17 @@ PRINTOUT_TYPES = (
 
 
 REPRESENTING_REGIONS = (
-    ('africa', 'Africa'),
-    ('asia', 'Asia'),
-    ('central_and_south_america',
-        'Central and South America and the Carribean'),
-    ('depositary_government', 'Depositary Government'),
-    ('europe', 'Europe'),
-    ('next_host_country', 'Next host country'),
-    ('nomenclature_specialist', 'Nomenclature specialist'),
-    ('north_america', 'North America'),
-    ('oceania', 'Oceania'),
-    ('previous_host_country', 'Previous host country')
+    ('Africa', 'Africa'),
+    ('Asia', 'Asia'),
+    ('Central and South America and the Carribean',
+     'Central and South America and the Carribean'),
+    ('Depositary Government', 'Depositary Government'),
+    ('Europe', 'Europe'),
+    ('Next host country', 'Next host country'),
+    ('Nomenclature specialist', 'Nomenclature specialist'),
+    ('North America', 'North America'),
+    ('Oceania', 'Oceania'),
+    ('Previous host country', 'Previous host country')
 )
 
 
