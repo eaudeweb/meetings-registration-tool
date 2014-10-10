@@ -1,14 +1,14 @@
 """Added custom_field fk on meeting
 
 Revision ID: 53ee924603d0
-Revises: 42707257d9e8
+Revises: 47f427245619
 Create Date: 2014-10-09 15:33:35.576708
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '53ee924603d0'
-down_revision = '42707257d9e8'
+down_revision = '47f427245619'
 
 from alembic import op
 import sqlalchemy as sa
