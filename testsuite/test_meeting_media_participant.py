@@ -1,10 +1,11 @@
 from flask import url_for
 
+from mrt.models import Category
 from .factories import MediaParticipantFactory, MeetingCategoryFactory
 
 
 def test_meeting_media_participant_add(app, user):
-    cat = MeetingCategoryFactory()
+    cat = MeetingCategoryFactory(category_type=Category.MEDIA)
     data = MediaParticipantFactory.attributes()
     data['category_id'] = cat.id
     with app.test_request_context():
@@ -17,7 +18,7 @@ def test_meeting_media_participant_add(app, user):
 
 
 def test_meeting_media_participant_edit(app, user):
-    med_part = MediaParticipantFactory()
+    med_part = MediaParticipantFactory(category__category_type=Category.MEDIA)
     data = MediaParticipantFactory.attributes()
     data['category_id'] = med_part.category.id
     data['first_name'] = name = 'James'

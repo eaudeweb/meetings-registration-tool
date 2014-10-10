@@ -5,7 +5,7 @@ from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import UserNotificationFactory, RoleUserMeetingFactory
 from .factories import StaffFactory, MediaParticipantFactory
 
-from mrt.models import RoleUser
+from mrt.models import RoleUser, Category
 
 
 def test_send_notification_add_participant(app):
@@ -31,7 +31,7 @@ def test_send_notification_add_participant(app):
 
 
 def test_send_notification_add_media_participant(app):
-    category = MeetingCategoryFactory()
+    category = MeetingCategoryFactory(category_type=Category.MEDIA)
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
     RoleUserMeetingFactory(meeting=category.meeting,
                            user__email='test@email.com')
