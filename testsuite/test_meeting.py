@@ -2,7 +2,10 @@ from flask import url_for
 from pyquery import PyQuery
 from py.path import local
 
-from mrt.models import Meeting, Category, Phrase
+from mrt.models import Meeting, Category, Phrase, CustomField
+from mrt.forms.meetings.meeting import ParticipantDummyForm
+from mrt.utils import slugify
+
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
 from .factories import PhraseMeetingFactory, RoleUserFactory, StaffFactory
@@ -43,6 +46,70 @@ def test_meeting_add(app):
 
     assert resp.status_code == 302
     assert Meeting.query.count() == 1
+
+
+def test_meeting_add_custom_field_generation(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        participant_fields = ParticipantDummyForm()._fields
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit')
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        field_count = len(participant_fields)
+        field_query = CustomField.query.filter_by(meeting_id=1)
+        assert field_query.count() == field_count
+
+        for participant_field in participant_fields.values():
+            slug = slugify(unicode(participant_field.label.text))
+            custom_field = field_query.filter_by(slug=slug).first()
+
+            assert custom_field
+            assert custom_field.label.english == participant_field.label.text
+
+
+def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit')
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        field_query = CustomField.query.filter_by(meeting_id=1)
+
+        for field in field_query:
+            data = CustomFieldFactory.attributes()
+            url = url_for('meetings.custom_field_edit',
+                          meeting_id=field.meeting.id,
+                          custom_field_id=field.id)
+            resp = client.post(url, data=data)
+            assert resp.status_code == 404
+            resp = client.delete(url)
+            assert resp.status_code == 404
 
 
 def test_meeting_edit(app):
