@@ -3,6 +3,7 @@ from pyquery import PyQuery
 from py.path import local
 
 from mrt.models import Meeting, Category, Phrase, CustomField
+from mrt.models import CustomFieldChoice
 from mrt.forms.meetings.meeting import ParticipantDummyForm
 from mrt.utils import slugify
 
@@ -78,6 +79,41 @@ def test_meeting_add_custom_field_generation(app):
 
             assert custom_field
             assert custom_field.label.english == participant_field.label.text
+
+
+def test_meeting_add_custom_field_choice_generation(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        participant_fields = ParticipantDummyForm()._fields.values()
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit')
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        field_query = (
+            CustomField.query.filter_by(meeting_id=1,
+                                        field_type=CustomField.SELECT))
+        select_fields = filter(lambda x: x.type == 'SelectField',
+                               participant_fields)
+        assert field_query.count() == len(select_fields)
+        for select_field in select_fields:
+            for choice in select_field.choices:
+                query = (
+                    CustomFieldChoice.query
+                    .filter_by()
+                    .filter(CustomFieldChoice.value.has(english=str(choice))))
+                assert query.count() == 1
 
 
 def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app):
