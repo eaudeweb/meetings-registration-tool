@@ -261,8 +261,8 @@ class ParticipantAckPDF(MethodView):
         context = {'participant': participant,
                    'template': 'meetings/printouts/_acknowledge_detail.html'}
         return render_pdf('meetings/printouts/printout.html',
-                          height='8.26in',
-                          width='11.7in',
+                          height='11.7in',
+                          width='8.26in',
                           orientation='portrait',
                           context=context)
 
