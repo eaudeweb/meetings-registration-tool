@@ -8,41 +8,37 @@
   <h3>Details of registration - {{ participant.category }}</h3>
 </div>
 
-<div class="ack-content">
+<table class="ack-table">
+  <tbody>
 
-  <div class="row">
-    <div class="col-sm-4 ack-label">Name</div>
-    <div class="col-sm-8">
-      {{ participant.name }} <br/>
+    <tr>
+      <td class="ack-label">Name</td>
+      <td>
+        {{ participant.name }} <br/>
+        {% if participant.represented_organization %}
+          {{ participant.represented_organization }} <br/>
+        {% endif %}
 
-      {% if participant.represented_organization %}
-        {{ participant.represented_organization }} <br/>
-      {% endif %}
+        {{ participant.country }} <br/>
+        {{ participant.email }}
+      </td>
+    </tr>
 
-      {{ participant.country }} <br/>
-      {{ participant.email }}
-    </div>
-  </div>
+    <tr>
+      <td class="ack-label">Category</td>
+      <td>{{ participant.category }}</td>
+    </tr>
 
-  <div class="row">
-    <div class="col-sm-4 ack-label">Category</div>
-    <div class="col-sm-8">
-      {{ participant.category }}
-    </div>
-  </div>
+    <tr>
+      <td class="ack-label">Representative of</td>
+      <td>{{ participant.representing }}</td>
+    </tr>
 
-  <div class="row">
-    <div class="col-sm-4 ack-label">Representative of</div>
-    <div class="col-sm-8">
-      {{ participant.representing }}
-    </div>
-  </div>
+    <tr>
+      <td class="ack-label">Working language</td>
+      <td>{{ participant.language }}</td>
+    </tr>
 
-  <div class="row">
-    <div class="col-sm-4 ack-label">Working language</div>
-    <div class="col-sm-8">
-      {{ participant.language }}
-    </div>
-  </div>
+  </tbody>
+</table>
 
-</div>

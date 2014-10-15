@@ -34,12 +34,15 @@ table tr.highlight th {
     margin-bottom: 20px;
 }
 
-.ack-content {
+.ack-table {
+    margin: 20px 250px;
     font-size: 20px;
+
 }
 
 .ack-label {
-    text-align: right;
+    width: 190px;
     font-style: italic;
     font-weight: bold;
+    vertical-align: top;
 }
