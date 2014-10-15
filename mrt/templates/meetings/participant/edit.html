@@ -37,13 +37,35 @@
     <div class="row">
 
       <div class="col-sm-9">
-
-        {% for field in form %}
-          {{ form_group(field, label_size="3", input_size="9") }}
-        {% endfor %}
+        <div class="panel panel-default">
+          <div class="panel-heading"><b>Participant details</b></div>
+          <div class="panel-body">
+            {% for field in form %}
+              {% if loop.first %}
+                {% set options = {'autofocus': '' } %}
+              {% else %}
+                {% set options = {} %}
+              {% endif %}
+              {{ form_group(field, label_size="3", input_size="8",
+                            options=options) }}
+            {% endfor %}
+          </div>
+        </div>
 
       </div> {# col-sm-9 #}
 
+      <div class="col-sm-3">
+
+        <div class="panel panel-default">
+          <div class="panel-heading"><b>Meeting flags</b></div>
+          <div class="panel-body">
+            {% for field in flags_form %}
+              {{ form_group(field, label_size="4", input_size="2") }}
+            {% endfor %}
+          </div>
+        </div> {# panel #}
+
+      </div> {# col-sm-3 #}
 
     </div> {# row #}
 

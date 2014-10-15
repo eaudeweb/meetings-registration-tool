@@ -20,20 +20,20 @@ from mrt.utils import unlink_participant_photo
 custom_upload = UploadSet('custom', TEXT + DOCUMENTS + IMAGES)
 
 
+_CUSOMT_FIELDS_MAP = {
+    CustomField.TEXT: {'field': fields.StringField},
+    CustomField.CHECKBOX: {'field': BooleanField},
+    CustomField.IMAGE: {'field': FileField,
+                        'validators': [FileAllowed(IMAGES)]},
+    CustomField.SELECT: {'field': fields.SelectField},
+    CustomField.COUNTRY: {'field': CountryField},
+    CustomField.CATEGORY: {'field': CategoryField},
+}
+
+
 class _MagicForm(BaseForm):
 
-    MAP = {
-        CustomField.TEXT: {'field': fields.StringField},
-        CustomField.CHECKBOX: {'field': BooleanField},
-        CustomField.IMAGE: {'field': FileField,
-                            'validators': [FileAllowed(IMAGES)]},
-        CustomField.SELECT: {'field': fields.SelectField},
-        CustomField.COUNTRY: {'field': CountryField},
-        CustomField.CATEGORY: {'field': CategoryField},
-    }
-
     def save(self, participant=None):
-        participant = self._participant or participant
         items = []
         for field_name, field in self._fields.items():
             custom_field_value = (
@@ -58,12 +58,11 @@ class _MagicForm(BaseForm):
         return items
 
 
-def custom_form_factory(participant, field_type=[], form=_MagicForm):
+def custom_form_factory(field_type=[], form=_MagicForm):
     fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
               .order_by(CustomField.sort))
     form_attrs = {
         '_custom_fields': OrderedMultiDict({c.slug: c for c in fields}),
-        '_participant': participant,
     }
 
     if field_type:
@@ -71,7 +70,7 @@ def custom_form_factory(participant, field_type=[], form=_MagicForm):
 
     for f in fields:
         attrs = {'label': f.label, 'validators': []}
-        data = form.MAP[f.field_type.code]
+        data = _CUSOMT_FIELDS_MAP[f.field_type.code]
         if f.required:
             attrs['validators'].append(DataRequired())
         attrs['validators'].extend(data.get('validators', []))
@@ -79,11 +78,13 @@ def custom_form_factory(participant, field_type=[], form=_MagicForm):
         if f.field_type.code == CustomField.SELECT:
             query = CustomFieldChoice.query.filter_by(custom_field=f)
             attrs['choices'] = [(c.id, c.value) for c in query]
+            attrs['coerce'] = int
 
         if f.field_type.code == CustomField.CATEGORY:
             query = (Category.query.filter_by(meeting=g.meeting)
                      .filter_by(category_type=Category.PARTICIPANT))
             attrs['choices'] = [(c.id, c.title) for c in query]
+            attrs['coerce'] = int
 
         # set field to form
         form_attrs[f.slug] = data['field'](**attrs)

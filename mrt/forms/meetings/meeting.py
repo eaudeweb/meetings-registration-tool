@@ -89,6 +89,7 @@ class MeetingEditForm(BaseForm):
         for i, field in enumerate(ParticipantDummyForm()):
             custom_field = CustomField()
             custom_field.meeting = meeting
+            custom_field.slug = field.name
             custom_field.label = Translation(english=unicode(field.label.text))
             custom_field.required = field.flags.required
             custom_field.field_type = _CUSOMT_FIELD_MAPPER[field.type]

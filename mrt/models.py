@@ -352,7 +352,7 @@ class CustomField(db.Model):
 
     @generates('slug')
     def _create_slug(self):
-        return slugify(self.label.english)
+        return self.slug or slugify(self.label.english)
 
 
 class CustomFieldValue(db.Model):
@@ -389,6 +389,16 @@ class CustomFieldValue(db.Model):
 
     def __repr__(self):
         return self.value
+
+    @classmethod
+    def get_or_create(cls, participant=None, field_name=None):
+        if participant:
+            return (
+                cls.query.filter(cls.custom_field.has(slug=field_name))
+                .filter(cls.participant == participant)
+                .scalar())
+        else:
+            return cls()
 
 
 class CustomFieldChoice(db.Model):

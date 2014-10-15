@@ -4,7 +4,7 @@ from flask import render_template, flash, make_response, jsonify
 from flask import request, redirect, url_for
 from flask.views import MethodView
 
-from mrt.forms.meetings import custom_form_factory, custom_object_factory
+from mrt.forms.meetings import custom_form_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.meetings import PermissionRequiredMixin
 
