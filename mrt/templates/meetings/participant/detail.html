@@ -54,6 +54,11 @@
       Print items <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">
         <li>
+          <a href="{{ url_for('.participant_ack_detail',
+                                participant_id=participant.id) }}">
+           Acknowledge details</a>
+        </li>
+        <li>
           <a href="{{ url_for('.participant_badge',
                                participant_id=participant.id) }}">
             Badge</a>

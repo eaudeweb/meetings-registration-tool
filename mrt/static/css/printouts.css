@@ -16,3 +16,30 @@ table tr.highlight th {
     background: #f5f5f5;
     font-size: 1em;
 }
+
+.ack-registration-number {
+    background: #f5f5f5;
+    border: 1px solid #CCCCCC;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px;
+    margin-top: 10px;
+}
+
+.ack-subheader {
+    background: #f5f5f5;
+    border: 1px solid #CCCCCC;
+    font-style: italic;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.ack-content {
+    font-size: 20px;
+}
+
+.ack-label {
+    text-align: right;
+    font-style: italic;
+    font-weight: bold;
+}

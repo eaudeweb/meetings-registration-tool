@@ -1,0 +1,41 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+{% block title %} Credentials for {{ participant.name }} {% endblock %}
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', "Acknowledge details"),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block head %}
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/printouts.css') }}">
+
+{% endblock %}
+
+{% block content %}
+
+{{ super() }}
+
+  <div class="printout-container">
+
+    <div class="text-right">
+      <a class="btn btn-danger btn-sm btn-download"
+         href="{{ url_for('.participant_ack_pdf', participant_id=participant.id) }}">
+      <span class="glyphicon glyphicon-download"></span>
+      Download as pdf</a>
+    </div>
+
+    {% include "meetings/printouts/_acknowledge_detail.html" %}
+
+    <div class="printout-loading"></div>
+
+  </div>
+
+{% endblock %}
