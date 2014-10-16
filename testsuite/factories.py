@@ -191,9 +191,9 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     first_name = 'John'
     last_name = 'Doe'
     email = 'john@doe.com'
-    language = 'en'
+    language = 'English'
     country = 'FR'
-    represented_region = 'asia'
+    represented_region = 'Asia'
 
 
 class MailLogFactory(SQLAlchemyModelFactory):

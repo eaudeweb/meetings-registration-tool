@@ -1,28 +1,67 @@
 from flask import url_for
+from pyquery import PyQuery
 from jinja2 import FileSystemLoader
+from werkzeug.datastructures import MultiDict
 
 from .factories import ParticipantFactory, RoleUserFactory, StaffFactory
 from .factories import MeetingCategoryFactory, RoleUserMeetingFactory
 from .factories import CustomFieldFactory
 
-from mrt.models import Participant
+from mrt.models import Participant, CustomField
 from mrt.utils import translate
+
+from testsuite.utils import (add_participant_custom_fields,
+                             populate_participant_form,
+                             get_value)
 
 
 def test_meeting_participant_add_success(app):
     category = MeetingCategoryFactory()
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
     StaffFactory(user=role_user.user)
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+
+        assert resp.status_code == 302
+        assert Participant.query.filter_by(meeting=category.meeting).first()
+        part = Participant.query.filter_by(meeting=category.meeting).first()
+        assert part.category
+        assert part.title
+        assert part.language
+        assert part.first_name
+        assert part.last_name
+        assert part.email
+        assert part.country
+
+
+def test_meeting_participant_add_with_custom_field(app):
+    category = MeetingCategoryFactory()
+    role_user = RoleUserMeetingFactory(meeting=category.meeting)
+    StaffFactory(user=role_user.user)
+    CustomFieldFactory(field_type='text', meeting=category.meeting,
+                       required=True, label__english='size')
     CustomFieldFactory(field_type='checkbox', meeting=category.meeting,
                        required=True, label__english='passport')
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
+    data['size'] = 40
     data['passport'] = 'y'
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
+            add_participant_custom_fields(category.meeting)
+            populate_participant_form(category.meeting, data)
             sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.participant_edit',
                                    meeting_id=category.meeting.id), data=data)
@@ -43,11 +82,101 @@ def test_meeting_participant_add_fail(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
+            add_participant_custom_fields(category.meeting)
+            populate_participant_form(category.meeting, data)
             sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.participant_edit',
                                    meeting_id=category.meeting.id), data=data)
         assert resp.status_code == 200
         assert not category.meeting.participants.first()
+
+
+def test_meeting_participant_add_form_field_order(app):
+    category = MeetingCategoryFactory()
+    role_user = RoleUserMeetingFactory(meeting=category.meeting)
+    StaffFactory(user=role_user.user)
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+
+        #CHECK ORDER
+        resp = client.get(url_for('meetings.participant_edit',
+                                  meeting_id=category.meeting.id), data=data)
+        form_fields = PyQuery(resp.data)('.control-label')
+        custom_fields = (
+            CustomField.query
+            .filter_by(meeting=category.meeting, is_primary=True)
+            .order_by(CustomField.sort).all())
+        for i, custom_field in enumerate(custom_fields):
+            assert custom_field.label.english == form_fields[i].text.strip()
+
+        #CHANGE ORDER
+        custom_fields[2], custom_fields[3] = custom_fields[3], custom_fields[2]
+        new_order = MultiDict([('items[]', x.id) for x in custom_fields])
+        resp = client.post(url_for('meetings.custom_field_update_position'),
+                           data=new_order)
+        assert resp.status_code == 200
+
+        #CHECK ORDER AGAIN
+        resp = client.get(url_for('meetings.participant_edit',
+                                  meeting_id=category.meeting.id), data=data)
+        form_fields = PyQuery(resp.data)('.control-label')
+        custom_fields = (
+            CustomField.query
+            .filter_by(meeting=category.meeting, is_primary=True)
+            .order_by(CustomField.sort))
+        for i, custom_field in enumerate(custom_fields):
+            assert custom_field.label.english == form_fields[i].text.strip()
+
+
+def test_meeting_participant_edit_form_populated(app):
+    category = MeetingCategoryFactory()
+    role_user = RoleUserMeetingFactory(meeting=category.meeting)
+    StaffFactory(user=role_user.user)
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+
+        assert resp.status_code == 302
+        assert Participant.query.filter_by(meeting=category.meeting).first()
+        part = Participant.query.filter_by(meeting=category.meeting).first()
+
+        resp = client.get(url_for('meetings.participant_edit',
+                                  meeting_id=category.meeting.id,
+                                  participant_id=part.id))
+        form_fields = PyQuery(resp.data)('.form-group')
+
+        form_title = get_value(form_fields('#title'))
+        form_first_name = get_value(form_fields('#first_name'))
+        form_last_name = get_value(form_fields('#last_name'))
+        form_email = get_value(form_fields('#email'))
+        form_category_id = get_value(form_fields('#category_id'))
+        form_country = get_value(form_fields('#country'))
+        form_language = get_value(form_fields('#language'))
+        form_represented_region = get_value(form_fields('#represented_region'))
+
+        assert part.title.code == form_title
+        assert part.first_name == form_first_name
+        assert part.last_name == form_last_name
+        assert part.email == form_email
+        assert part.category_id == form_category_id
+        assert part.country.code == form_country
+        assert part.language.code == form_language
+        assert part.represented_region.code == form_represented_region
 
 
 def test_meeting_participant_delete(app):

@@ -15,7 +15,7 @@ from mrt.utils import copy_model_fields
 from mrt.definitions import MEETING_SETTINGS
 
 
-_CUSOMT_FIELD_MAPPER = {
+_CUSTOM_FIELD_MAPPER = {
     'StringField': CustomField.TEXT,
     'BooleanField': CustomField.CHECKBOX,
     'SelectField': CustomField.SELECT,
@@ -92,7 +92,7 @@ class MeetingEditForm(BaseForm):
             custom_field.slug = field.name
             custom_field.label = Translation(english=unicode(field.label.text))
             custom_field.required = field.flags.required
-            custom_field.field_type = _CUSOMT_FIELD_MAPPER[field.type]
+            custom_field.field_type = _CUSTOM_FIELD_MAPPER[field.type]
             custom_field.is_primary = True
             custom_field.sort = i + 1
             db.session.add(custom_field)
