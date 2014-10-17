@@ -2,6 +2,7 @@ from flask import url_for
 from pyquery import PyQuery
 from jinja2 import FileSystemLoader
 from werkzeug.datastructures import MultiDict
+from sqlalchemy_utils import types
 
 from .factories import ParticipantFactory, RoleUserFactory, StaffFactory
 from .factories import MeetingCategoryFactory, RoleUserMeetingFactory
@@ -33,19 +34,32 @@ def test_meeting_participant_detail(app):
 
         assert resp.status_code == 302
         assert Participant.query.filter_by(meeting=category.meeting).first()
-
+        participant = Participant.query.get(1)
+        participant.attended = True
         resp = client.get(url_for('meetings.participant_detail',
                                   meeting_id=category.meeting.id,
                                   participant_id=1))
 
         assert resp.status_code == 200
-        details = PyQuery(resp.data)('th')
+        details = PyQuery(resp.data)('tr')
         custom_fields = (
             CustomField.query
             .filter_by(meeting=category.meeting, is_primary=True)
             .order_by(CustomField.sort).all())
         for i, custom_field in enumerate(custom_fields):
-            assert custom_field.label.english == details[i].text.strip()
+            detail_label = details[i].find('th').text_content().strip()
+            detail_data = details[i].find('td').text_content().strip()
+            participant_data = getattr(participant, custom_field.slug)
+            assert custom_field.label.english == detail_label
+            if isinstance(participant_data, types.choice.Choice):
+                assert participant_data.value == detail_data
+            elif isinstance(participant_data, types.country.Country):
+                assert participant_data.name == detail_data
+            elif isinstance(participant_data, bool):
+                if participant_data:
+                    assert details[i].find('td').find('span') is not None
+            else:
+                assert str(participant_data) == detail_data
 
 
 def test_meeting_participant_add_success(app):
