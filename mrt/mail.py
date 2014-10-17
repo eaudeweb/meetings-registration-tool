@@ -28,10 +28,13 @@ def get_recipients(meeting, notification_type):
     return recipients
 
 
-def send_single_message(to, subject, message, sender=None):
+def send_single_message(to, subject, message, sender=None, attachement=None,
+                        attachement_name='attachement.pdf'):
     sender = sender or get_default_sender()
     msg = Message(subject=subject, body=message, sender=sender,
                   recipients=[to])
+    if attachement:
+        msg.attach(attachement_name, "application/pdf", attachement.read())
     mail.send(msg)
     if g.get('meeting'):
         participant = Participant.query.filter_by(email=to).first()

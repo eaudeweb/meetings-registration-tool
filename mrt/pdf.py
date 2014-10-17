@@ -21,7 +21,7 @@ def stream_template(template_name, **context):
 
 def render_pdf(template_name, title='', width=None, height=None,
                margin=_PAGE_DEFAULT_MARGIN, orientation="portrait",
-               context={}):
+               attachement=False, context={}):
     template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
                      (str(uuid.uuid4()) + '.html'))
     pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
@@ -60,6 +60,9 @@ def render_pdf(template_name, title='', width=None, height=None,
         pdf = open(pdf_path, 'rb')
     finally:
         pdf_path.unlink_p()
+
+    if attachement:
+        return pdf
 
     return Response(read_file(pdf), mimetype='application/pdf')
 

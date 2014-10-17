@@ -5,6 +5,7 @@ from mrt.forms.meetings.email import BulkEmailForm, AckEmailForm
 from mrt.mail import send_bulk_message, send_single_message
 from mrt.models import Participant, MailLog
 from mrt.meetings import PermissionRequiredMixin
+from mrt.pdf import render_pdf
 
 
 def get_recipients(language, categories=None):
@@ -77,8 +78,19 @@ class AckEmail(PermissionRequiredMixin, MethodView):
         participant = self.get_participant(participant_id)
         form = AckEmailForm(request.form)
         if form.validate():
+            context = {
+                'participant': participant,
+                'template': 'meetings/printouts/_acknowledge_detail.html'}
+            attachement = render_pdf('meetings/printouts/printout.html',
+                                     height='11.7in',
+                                     width='8.26in',
+                                     orientation='portrait',
+                                     attachement=True,
+                                     context=context)
             if send_single_message(form.to.data, form.subject.data,
-                                   form.message.data):
+                                   form.message.data,
+                                   attachement=attachement,
+                                   attachement_name='registration_detail.pdf'):
                 flash('Message successfully sent', 'success')
                 return redirect(
                     url_for('.participant_detail',
