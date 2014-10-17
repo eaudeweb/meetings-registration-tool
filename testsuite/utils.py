@@ -38,7 +38,7 @@ def populate_participant_form(meeting, data={}):
                                                 field_type=CustomField.SELECT)
 
     for custom_field in custom_fields:
-        data[custom_field.slug] = custom_field.custom_field_choices.first().id
+        data[custom_field.slug] = custom_field.custom_field_choices.first().value
     data['represented_country'] = 'RO'
 
 

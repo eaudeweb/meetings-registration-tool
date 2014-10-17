@@ -4,6 +4,7 @@ from pyquery import PyQuery
 from mrt.models import CustomField
 from .factories import CustomFieldFactory, MeetingFactory
 from .factories import RoleUserMeetingFactory
+from .utils import add_participant_custom_fields
 
 
 def test_meeting_custom_fields_list(app):
@@ -36,6 +37,25 @@ def test_meeting_custom_field_add(app):
                                    meeting_id=meeting.id), data=data)
         assert resp.status_code == 302
         assert CustomField.query.scalar()
+
+
+def test_meeting_custom_field_add_sort_init(app):
+    meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_meeting',))
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data['label'].english
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        max_sort = max([x.sort for x in CustomField.query.all()])
+        resp = client.post(url_for('meetings.custom_field_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 302
+        new_max_sort = max([x.sort for x in CustomField.query.all()])
+        assert new_max_sort == max_sort + 1
 
 
 def test_meeting_custom_field_edit(app):
