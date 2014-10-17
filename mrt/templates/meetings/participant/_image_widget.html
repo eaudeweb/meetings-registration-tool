@@ -1,12 +1,12 @@
 {% set edit_url = url_for('.custom_field_upload',
                           participant_id=participant.id,
-                          custom_field_slug=field.name) %}
+                          field_slug=field.name) %}
 {% set rotate_url = url_for('.custom_field_rotate',
                             participant_id=participant.id,
-                            custom_field_slug=field.name) %}
+                            field_slug=field.name) %}
 {% set crop_url = url_for('.custom_field_crop',
                           participant_id=participant.id,
-                          custom_field_slug=field.name) %}
+                          field_slug=field.name) %}
 
 <div class="image-widget">
 

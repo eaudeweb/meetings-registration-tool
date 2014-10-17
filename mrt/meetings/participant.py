@@ -4,7 +4,7 @@ from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash, Response
 from flask.views import MethodView
 
-from mrt.forms.meetings import custom_form_factory
+from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantEditForm
 
 from mrt.meetings import PermissionRequiredMixin
@@ -74,36 +74,32 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
     permission_required = ('view_participant', )
 
     def get(self, participant_id):
-        pass
-        # participant = (
-        #     Participant.query
-        #     .filter_by(meeting_id=g.meeting.id, id=participant_id)
-        #     .active()
-        #     .first_or_404())
-        # form = ParticipantEditForm(obj=participant)
+        participant = (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .active().first_or_404())
 
-        # CustomFormImages = custom_form_factory(participant, field_type='image')
-        # CustomObjectImages = custom_object_factory(participant,
-        #                                            field_type='image')
-        # custom_form_images = CustomFormImages(obj=CustomObjectImages())
+        field_types = [CustomField.TEXT, CustomField.SELECT,
+                       CustomField.COUNTRY, CustomField.CATEGORY]
+        Form = custom_form_factory(field_type=field_types)
+        Object = custom_object_factory(participant, field_types)
+        form = Form(obj=Object())
 
-        # CustomFormText = custom_form_factory(participant, field_type='text')
-        # CustomObjectText = custom_object_factory(participant,
-        #                                          field_type='text')
-        # custom_form_text = CustomFormText(obj=CustomObjectText())
+        field_types = [CustomField.CHECKBOX]
+        FlagsForm = custom_form_factory(field_type=field_types)
+        FlagsObject = custom_object_factory(participant, field_types)
+        flags_form = FlagsForm(obj=FlagsObject())
 
-        # CustomFormCheckbox = custom_form_factory(participant,
-        #                                          field_type='checkbox')
-        # CustomObjectCheckbox = custom_object_factory(participant,
-        #                                              field_type='checkbox')
-        # custom_form_checkbox = CustomFormCheckbox(obj=CustomObjectCheckbox())
+        field_types = [CustomField.IMAGE]
+        ImagesForm = custom_form_factory(field_type=field_types)
+        ImagesObject = custom_object_factory(participant, field_types)
+        images_form = ImagesForm(obj=ImagesObject())
 
-        # return render_template('meetings/participant/detail.html',
-        #                        participant=participant,
-        #                        custom_form_images=custom_form_images,
-        #                        custom_form_text=custom_form_text,
-        #                        custom_form_checkbox=custom_form_checkbox,
-        #                        form=form)
+        return render_template('meetings/participant/detail.html',
+                               participant=participant,
+                               form=form,
+                               flags_form=flags_form,
+                               images_form=images_form)
 
 
 class ParticipantEdit(PermissionRequiredMixin, MethodView):

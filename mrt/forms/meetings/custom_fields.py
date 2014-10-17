@@ -11,7 +11,7 @@ from wtforms_alchemy import CountryField
 
 from mrt.forms.base import BaseForm
 from mrt.forms.base import BooleanField, CategoryField
-from mrt.models import CustomField, CustomFieldValue, CustomFieldChoice
+from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import Category
 from mrt.models import db
 from mrt.utils import unlink_participant_photo
@@ -33,32 +33,27 @@ _CUSOMT_FIELDS_MAP = {
 
 class _MagicForm(BaseForm):
 
-    def save(self, participant=None):
+    def save(self, participant):
         items = []
         for field_name, field in self._fields.items():
-            custom_field_value = (
-                CustomFieldValue.query
-                .filter(CustomFieldValue.custom_field.has(slug=field_name))
-                .filter(CustomFieldValue.participant == participant)
-                .scalar())
-            custom_field_value = custom_field_value or CustomFieldValue()
+            cf = self._custom_fields[field.name]
+            cfv = cf.get_or_create_value(participant)
             if isinstance(field.data, FileStorage):
-                current_filename = custom_field_value.value
-                custom_field_value.value = custom_upload.save(
-                    field.data, name=str(uuid4()) + '.')
+                current_filename = cfv.value
+                cfv.value = custom_upload.save(field.data,
+                                               name=str(uuid4()) + '.')
                 unlink_participant_photo(current_filename)
             else:
-                custom_field_value.value = field.data
-            custom_field_value.custom_field = self._custom_fields[field_name]
-            custom_field_value.participant = participant
-            if not custom_field_value.id:
-                db.session.add(custom_field_value)
-            items.append(custom_field_value)
+                cfv.value = field.data
+            cfv.participant = participant
+            if not cfv.id:
+                db.session.add(cfv)
+            items.append(cfv)
         db.session.commit()
         return items
 
 
-def custom_form_factory(field_type=[], form=_MagicForm):
+def custom_form_factory(field_type=[], field_slugs=[], form=_MagicForm):
     fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
               .order_by(CustomField.sort))
     form_attrs = {
@@ -67,6 +62,9 @@ def custom_form_factory(field_type=[], form=_MagicForm):
 
     if field_type:
         fields = fields.filter(CustomField.field_type.in_(field_type))
+
+    if field_slugs:
+        fields = fields.filter(CustomField.slug.in_(field_slugs))
 
     for f in fields:
         attrs = {'label': f.label, 'validators': []}
@@ -77,8 +75,8 @@ def custom_form_factory(field_type=[], form=_MagicForm):
 
         if f.field_type.code == CustomField.SELECT:
             query = CustomFieldChoice.query.filter_by(custom_field=f)
-            attrs['choices'] = [(c.id, c.value) for c in query]
-            attrs['coerce'] = int
+            attrs['choices'] = [(unicode(c.value), c.value) for c in query]
+            attrs['coerce'] = unicode
 
         if f.field_type.code == CustomField.CATEGORY:
             query = (Category.query.filter_by(meeting=g.meeting)
@@ -90,3 +88,25 @@ def custom_form_factory(field_type=[], form=_MagicForm):
         form_attrs[f.slug] = data['field'](**attrs)
 
     return type(form)(form.__name__, (form,), form_attrs)
+
+
+def custom_object_factory(participant, field_type=[], obj=object):
+    object_attrs = {}
+    query = CustomField.query.filter_by(meeting=g.meeting)
+
+    if field_type:
+        query = query.filter(CustomField.field_type.in_(field_type))
+
+    for cf in query:
+        if cf.is_primary:
+            value = getattr(participant, cf.slug, None)
+            from sqlalchemy_utils import Choice
+            if isinstance(value, Choice):
+                value = value.value
+            object_attrs[cf.slug] = value
+        else:
+            object_attrs[cf.slug] = (cf.custom_field_values
+                                     .filter_by(participant=participant)
+                                     .first())
+
+    return type(obj)(obj.__name__, (obj,), object_attrs)

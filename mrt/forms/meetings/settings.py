@@ -76,10 +76,10 @@ class CustomFieldEditForm(BaseForm):
         if not custom_field.slug:
             last_sort = (
                 CustomField.query.with_entities(CustomField.sort)
-                .order_by(desc(CustomField.id))
+                .order_by(desc(CustomField.sort))
                 .first())
             if last_sort:
-                custom_field.sort = last_sort[0]
+                custom_field.sort = last_sort[0] + 1
             db.session.add(custom_field)
         db.session.commit()
 

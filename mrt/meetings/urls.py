@@ -144,13 +144,13 @@ meetings.add_url_rule(
     view_func=CustomFieldUpdatePosition.as_view('custom_field_update_position'))
 
 meetings.add_url_rule(
-    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:custom_field_slug>/upload',
+    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:field_slug>/upload',
     view_func=CustomFieldUpload.as_view('custom_field_upload'))
 meetings.add_url_rule(
-    '/<int:meeting_id>/participants/<int:participant_id>/custom/fields/<string:custom_field_slug>/crop',
+    '/<int:meeting_id>/participants/<int:participant_id>/custom/fields/<string:field_slug>/crop',
     view_func=CustomFieldCropUpload.as_view('custom_field_crop'))
 meetings.add_url_rule(
-    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:custom_field_slug>/rotate',
+    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:field_slug>/rotate',
     view_func=CustomFieldRotate.as_view('custom_field_rotate'))
 
 # printouts

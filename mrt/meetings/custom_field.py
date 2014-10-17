@@ -4,7 +4,7 @@ from flask import render_template, flash, make_response, jsonify
 from flask import request, redirect, url_for
 from flask.views import MethodView
 
-from mrt.forms.meetings import custom_form_factory
+from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.meetings import PermissionRequiredMixin
 
@@ -74,26 +74,34 @@ class CustomFieldUpload(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_participant', )
 
-    def post(self, participant_id, custom_field_slug):
+    def post(self, participant_id, field_slug):
         participant = _get_participant(participant_id)
-        Obj = custom_object_factory(participant, field_type='image')
-        Form = custom_form_factory(participant, slug=custom_field_slug)
-        form = Form(obj=Obj())
+        CustomField.query.filter_by(slug=field_slug).first_or_404()
+
+        field_types = [CustomField.IMAGE]
+        Object = custom_object_factory(participant, field_types)
+        Form = custom_form_factory(field_slugs=[field_slug])
+        form = Form(obj=Object())
+
         if form.validate():
-            custom_field_value = form.save()[0]
+            try:
+                [field_value] = form.save(participant)
+                data = field_value.value
+            except ValueError:
+                field_value = data = None
         else:
             return make_response(jsonify(form.errors), 400)
 
         html = render_template('meetings/custom_field/_image_widget.html',
-                               data=custom_field_value.value)
+                               data=data)
         return jsonify(html=html)
 
-    def delete(self, participant_id, custom_field_slug):
+    def delete(self, participant_id, field_slug):
         participant = _get_participant(participant_id)
         custom_field = (
             CustomFieldValue.query
             .filter(CustomFieldValue.participant == participant)
-            .filter(CustomFieldValue.custom_field.has(slug=custom_field_slug))
+            .filter(CustomFieldValue.custom_field.has(slug=field_slug))
             .first_or_404()
         )
         filename = custom_field.value
@@ -107,10 +115,10 @@ class CustomFieldRotate(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_participant', )
 
-    def post(self, participant_id, custom_field_slug):
+    def post(self, participant_id, field_slug):
         participant = _get_participant(participant_id)
         custom_field = CustomField.query.filter_by(
-            slug=custom_field_slug, field_type='image').first_or_404()
+            slug=field_slug, field_type='image').first_or_404()
         custom_field_value = CustomFieldValue.query.filter_by(
             participant=participant, custom_field=custom_field
         ).first_or_404()
@@ -132,10 +140,10 @@ class CustomFieldCropUpload(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_participant', )
 
-    def get(self, participant_id, custom_field_slug):
+    def get(self, participant_id, field_slug):
         participant = _get_participant(participant_id)
         custom_field = CustomField.query.filter_by(
-            slug=custom_field_slug, field_type='image').first_or_404()
+            slug=field_slug, field_type='image').first_or_404()
         custom_field_value = CustomFieldValue.query.filter_by(
             participant=participant, custom_field=custom_field
         ).first_or_404()
@@ -143,10 +151,10 @@ class CustomFieldCropUpload(PermissionRequiredMixin, MethodView):
                                participant=participant,
                                data=custom_field_value.value)
 
-    def post(self, participant_id, custom_field_slug):
+    def post(self, participant_id, field_slug):
         participant = _get_participant(participant_id)
         custom_field = CustomField.query.filter_by(
-            slug=custom_field_slug, field_type='image').first_or_404()
+            slug=field_slug, field_type='image').first_or_404()
         custom_field_value = CustomFieldValue.query.filter_by(
             participant=participant, custom_field=custom_field
         ).first_or_404()

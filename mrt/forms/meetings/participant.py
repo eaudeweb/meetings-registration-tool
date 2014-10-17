@@ -6,20 +6,10 @@ from wtforms.validators import DataRequired
 from mrt.forms.base import BaseForm
 from mrt.models import db
 from mrt.models import Participant, Category, MediaParticipant
-from mrt.models import CustomFieldValue
 from mrt.definitions import PRINTOUT_TYPES
 
 
 class ParticipantEditForm(BaseForm):
-
-    def _get_value_for_field(self, field):
-        cf = self._custom_fields[field.name]
-        if cf.field_type == cf.SELECT:
-            cfv = cf.custom_field_choices.filter_by(id=field.data).scalar()
-            if cfv:
-                return unicode(cfv.value)
-        else:
-            return field.data
 
     def save(self):
         participant = self.obj or Participant()
@@ -28,10 +18,10 @@ class ParticipantEditForm(BaseForm):
         for field_name, field in self._fields.items():
             cf = self._custom_fields[field.name]
             if cf.is_primary:
-                value = self._get_value_for_field(field)
+                value = field.data
                 setattr(participant, field_name, value)
             else:
-                cfv = CustomFieldValue.get_or_create(participant, field_name)
+                cfv = cf.get_or_create_value(participant)
                 cfv.value = field.data
                 if not cfv.id:
                     db.session.add(cfv)
@@ -39,6 +29,7 @@ class ParticipantEditForm(BaseForm):
         if participant.id is None:
             db.session.add(participant)
         db.session.commit()
+
         return participant
 
 

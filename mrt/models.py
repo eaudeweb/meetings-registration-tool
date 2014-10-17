@@ -354,6 +354,12 @@ class CustomField(db.Model):
     def _create_slug(self):
         return self.slug or slugify(self.label.english)
 
+    def get_or_create_value(self, participant):
+        value = (self.custom_field_values.filter_by(participant=participant)
+                 .first())
+        return value or CustomFieldValue(custom_field=self,
+                                         participant=participant)
+
 
 class CustomFieldValue(db.Model):
 
@@ -389,16 +395,6 @@ class CustomFieldValue(db.Model):
 
     def __repr__(self):
         return self.value
-
-    @classmethod
-    def get_or_create(cls, participant=None, field_name=None):
-        if participant:
-            return (
-                cls.query.filter(cls.custom_field.has(slug=field_name))
-                .filter(cls.participant == participant)
-                .scalar())
-        else:
-            return cls()
 
 
 class CustomFieldChoice(db.Model):
@@ -532,8 +528,8 @@ class Meeting(db.Model):
 
 class CategoryMixin(object):
 
-    PARTICIPANT = 'participant'
-    MEDIA = 'media'
+    PARTICIPANT = u'participant'
+    MEDIA = u'media'
     CATEGORY_TYPES = (
         (PARTICIPANT, 'Category for participants'),
         (MEDIA, 'Category for media participants'),
