@@ -11,9 +11,8 @@ from .factories import CustomFieldFactory
 from mrt.models import Participant, CustomField
 from mrt.utils import translate
 
-from testsuite.utils import (add_participant_custom_fields,
-                             populate_participant_form,
-                             get_value)
+from testsuite.utils import add_participant_custom_fields
+from testsuite.utils import populate_participant_form, get_value
 
 
 def test_meeting_participant_detail(app):
@@ -220,7 +219,7 @@ def test_meeting_participant_edit_form_populated(app):
         assert part.first_name == form_first_name
         assert part.last_name == form_last_name
         assert part.email == form_email
-        assert part.category_id == form_category_id
+        assert part.category_id == int(form_category_id)
         assert part.country.code == form_country
         assert part.language.code == form_language
         assert part.represented_region.code == form_represented_region
