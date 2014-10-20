@@ -118,11 +118,13 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         field_types = [CustomField.TEXT, CustomField.SELECT,
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_type=field_types)
-        form = Form()
+        Object = custom_object_factory(participant, field_types)
+        form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
         FlagsForm = custom_form_factory(field_type=field_types)
-        flags_form = FlagsForm()
+        FlagsObject = custom_object_factory(participant, field_types)
+        flags_form = FlagsForm(obj=FlagsObject())
 
         return render_template('meetings/participant/edit.html',
                                form=form,
@@ -135,14 +137,16 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_type=field_types,
                                    form=ParticipantEditForm)
-        form = Form()
+        Object = custom_object_factory(participant, field_types)
+        form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
         FlagsForm = custom_form_factory(field_type=field_types)
-        flags_form = FlagsForm()
+        FlagsObject = custom_object_factory(participant, field_types)
+        flags_form = FlagsForm(obj=FlagsObject())
 
         if (form.validate() and flags_form.validate()):
-            participant = form.save()
+            participant = form.save(participant)
             flags_form.save(participant)
             flash('Person information saved', 'success')
             if participant:

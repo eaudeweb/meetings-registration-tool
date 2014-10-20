@@ -11,8 +11,8 @@ from mrt.definitions import PRINTOUT_TYPES
 
 class ParticipantEditForm(BaseForm):
 
-    def save(self):
-        participant = self.obj or Participant()
+    def save(self, participant=None):
+        participant = participant or Participant()
         participant.meeting_id = g.meeting.id
 
         for field_name, field in self._fields.items():
