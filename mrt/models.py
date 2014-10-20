@@ -347,6 +347,10 @@ class CustomField(db.Model):
 
     is_primary = db.Column(db.Boolean, default=False)
 
+    visible_on_registration_form = db.Column(
+        db.Boolean, default=False,
+        info={'label': 'Visible on registration form'})
+
     def __repr__(self):
         return self.label.english
 

@@ -86,7 +86,8 @@ class MeetingEditForm(BaseForm):
             db.session.flush()
 
     def _add_custom_fields_for_meeting(self, meeting):
-        for i, field in enumerate(ParticipantDummyForm()):
+        form = ParticipantDummyForm()
+        for i, field in enumerate(form):
             custom_field = CustomField()
             custom_field.meeting = meeting
             custom_field.slug = field.name
@@ -94,6 +95,10 @@ class MeetingEditForm(BaseForm):
             custom_field.required = field.flags.required
             custom_field.field_type = _CUSTOM_FIELD_MAPPER[field.type]
             custom_field.is_primary = True
+            if field.name in form.meta.visible_on_registration_form:
+                custom_field.visible_on_registration_form = True
+            else:
+                custom_field.visible_on_registration_form = False
             custom_field.sort = i + 1
             db.session.add(custom_field)
 
@@ -128,3 +133,7 @@ class ParticipantDummyForm(BaseForm):
     class Meta:
         model = Participant
         exclude = ('deleted',)
+        visible_on_registration_form = (
+            'title', 'first_name', 'last_name', 'email', 'category_id',
+            'language', 'country', 'represented_country',
+            'represented_organization',)

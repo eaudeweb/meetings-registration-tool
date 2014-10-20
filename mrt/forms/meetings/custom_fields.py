@@ -53,18 +53,23 @@ class _MagicForm(BaseForm):
         return items
 
 
-def custom_form_factory(field_type=[], field_slugs=[], form=_MagicForm):
+def custom_form_factory(field_types=[], field_slugs=[],
+                        registration_fields=False,
+                        form=_MagicForm):
     fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
               .order_by(CustomField.sort))
     form_attrs = {
         '_custom_fields': OrderedMultiDict({c.slug: c for c in fields}),
     }
 
-    if field_type:
-        fields = fields.filter(CustomField.field_type.in_(field_type))
+    if field_types:
+        fields = fields.filter(CustomField.field_type.in_(field_types))
 
     if field_slugs:
         fields = fields.filter(CustomField.slug.in_(field_slugs))
+
+    if registration_fields:
+        fields = fields.filter_by(visible_on_registration_form=True)
 
     for f in fields:
         attrs = {'label': f.label, 'validators': []}

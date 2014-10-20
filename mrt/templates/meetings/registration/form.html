@@ -6,27 +6,9 @@
 
   <form method="POST" class="form-horizontal">
 
-    {{ form_group(form.title, class_="input-sm", input_size="2",
-                  options={'autofocus': "autofocus"}) }}
-
-    {{ form_group(form.first_name, class_="input-sm", input_size="4") }}
-
-    {{ form_group(form.last_name, class_="input-sm", input_size="4") }}
-
-    {{ form_group(form.country, class_="input-sm", input_size="4") }}
-
-    {{ form_group(form.email, class_="input-sm", input_size="4") }}
-
-    {{ form_group(form.category_id, class_="list-unstyled radio_field",
-                  input_size="4") }}
-
-    {{ form_group(form.represented_country, class_="input-sm",
-                  input_size="4") }}
-
-    {{ form_group(form.represented_organization, class_="input-sm",
-                  input_size="4") }}
-
-    {{ form_group(form.language, class_="input-sm", input_size="4") }}
+    {% for field in form %}
+      {{ form_group(field) }}
+    {% endfor %}
 
     <div class="form-actions row">
       <div class="col-sm-4 col-sm-push-2">

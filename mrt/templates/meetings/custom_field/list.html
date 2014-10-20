@@ -35,6 +35,7 @@
       <th>Label</th>
       <th>Type</th>
       <th>Required</th>
+      <th class="text-right col-sm-3">Visible on registration form</th>
     </thead>
 
     <tbody>
@@ -55,6 +56,7 @@
           </td>
           <td>{{ field.field_type.value }}</td>
           <td><span class="glyphicon {% if field.required %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
+          <td class="text-right"><span class="glyphicon {% if field.visible_on_registration_form %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
         </tr>
       {% endfor %}
     </tbody>
