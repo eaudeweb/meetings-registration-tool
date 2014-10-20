@@ -362,10 +362,10 @@ table tr.highlight th {
     padding: 0;
 }
 
-
-.settings {
-    list-style-type: none;
-    padding-left: 0;
+.meeting-settings label {
+    font-weight: normal!important;
+    position: relative;
+    top: 6px;
 }
 
 .queue {

@@ -124,27 +124,32 @@
         {{ form_group(form.online_registration) }}
         {{ form_group(form.owner_id,
                       label_size="2", input_size="3") }}
-        {{ form_group(form.settings, class_="settings") }}
+        {{ form_group(form.settings,
+                      class_="list-unstyled meeting-settings") }}
 
-        <div class="form-group {% if form.photo_field_id.errors %}has-error{% endif %}">
-          <label class="col-sm-2 control-label" for="{{ form.photo_field_id.id }}">
-            {{ form.photo_field_id.label.text }}
-          </label>
-          <div class="col-sm-3">
-            {{ form.photo_field_id(class_="form-control") }}
-            {% if form.photo_field_id.errors %}
-              <div class="text-danger"><small>{{ form.photo_field_id.errors[0] }}</small></div>
-            {% endif %}
-          </div>
-          {% if g.meeting %}
-            <div class="actions">
-            <a href="{{ url_for('.custom_field_edit') }}">
-              <span class="glyphicon glyphicon-plus"></span>
-              Add a new custom field
-            </a>
+        {% if g.meeting %}
+          <div class="form-group {% if form.photo_field_id.errors %}has-error{% endif %}">
+            <label class="col-sm-2 control-label" for="{{ form.photo_field_id.id }}">
+              {{ form.photo_field_id.label.text }}
+            </label>
+
+            <div class="col-sm-3">
+              {{ form.photo_field_id(class_="form-control") }}
+              {% if form.photo_field_id.errors %}
+                <div class="text-danger"><small>{{ form.photo_field_id.errors[0] }}</small></div>
+              {% endif %}
             </div>
-          {% endif %}
-        </div>
+            <div class="actions">
+              <a href="{{ url_for('.custom_field_edit') }}">
+                <span class="glyphicon glyphicon-plus"></span>
+                Add a new custom field
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <input type="hidden" name="photo_field_id" value="0">
+        {% endif %}
+
       </div>
 
     </div> {# panel #}
