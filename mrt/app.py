@@ -24,6 +24,7 @@ from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 from mrt.template import pluralize, url_for_brand_static_path
 from mrt.template import sort_by_tuple_element
+from mrt.template import convert_to_dict
 from mrt.utils import slugify
 
 
@@ -58,6 +59,7 @@ def create_app(config={}):
     app.add_template_filter(region_in)
     app.add_template_filter(crop)
     app.add_template_filter(nl2br)
+    app.add_template_filter(convert_to_dict, name='dict')
     app.add_template_filter(no_image_cache)
     app.add_template_filter(pluralize)
     app.add_template_filter(slugify)

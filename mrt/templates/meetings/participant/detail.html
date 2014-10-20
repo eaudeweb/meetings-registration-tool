@@ -107,7 +107,14 @@
             {% for field in form %}
               <tr>
                 <th class="col-sm-3">{{ field.label.text }}</th>
-                <td>{{ field.data }}</td>
+                <td>
+                  {% if field.type == 'CategoryField' %}
+                    {% set choices = field.choices|dict %}
+                    {{ choices[field.data] }}
+                  {% else %}
+                    {{ field.data }}
+                  {% endif %}
+                </td>
               </tr>
             {% endfor %}
           </tbody>

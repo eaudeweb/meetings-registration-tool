@@ -136,3 +136,10 @@ def sort_by_tuple_element(value, position=0):
             return value.lower()
         return value
     return sorted(value, key=sort)
+
+
+def convert_to_dict(value):
+    try:
+        return dict(value)
+    except TypeError:
+        return None

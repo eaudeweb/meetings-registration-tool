@@ -4,9 +4,9 @@
 
 
 {% if custom_field %}
-  {% set title = "Edit Custom Field" %}
+  {% set title = "Edit Field" %}
 {% else %}
-  {% set title = "Add Custom Field" %}
+  {% set title = "Add Field" %}
 {% endif %}
 
 
@@ -16,7 +16,7 @@
 {% block breadcrumb %}
 
   {{ breadcrumb( [
-      (url_for('.custom_fields'), 'Custom Fields'),
+      (url_for('.custom_fields'), 'Fields'),
       ('', title)
   ] ) }}
 
