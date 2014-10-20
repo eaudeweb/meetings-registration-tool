@@ -61,25 +61,21 @@ def test_meeting_add_custom_field_generation(app):
 
     client = app.test_client()
     with app.test_request_context():
-        participant_fields = ParticipantDummyForm()._fields
         with client.session_transaction() as sess:
             sess['user_id'] = role_user.user.id
-        url = url_for('meetings.edit')
-        resp = client.post(url, data=data)
-
+        resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
-        field_count = len(participant_fields)
-        field_query = CustomField.query.filter_by(meeting_id=1)
-        assert field_query.count() == field_count
 
-        for participant_field in participant_fields.values():
-            slug = slugify(unicode(participant_field.label.text))
-            custom_field = field_query.filter_by(slug=slug).first()
+        fields = ParticipantDummyForm()._fields
+        query = CustomField.query.filter_by(meeting_id=1)
+        assert query.count() == len(fields)
 
-            assert custom_field
-            assert custom_field.label.english == participant_field.label.text
-
+        for field in fields.values():
+            cf = (CustomField.query
+                  .filter_by(meeting_id=1, slug=field.name)
+                  .filter(CustomField.label.has(english=field.label.text))
+                  .one())
 
 def test_meeting_add_custom_field_choice_generation(app):
     role_user = RoleUserFactory()
@@ -93,27 +89,22 @@ def test_meeting_add_custom_field_choice_generation(app):
 
     client = app.test_client()
     with app.test_request_context():
-        participant_fields = ParticipantDummyForm()._fields.values()
         with client.session_transaction() as sess:
             sess['user_id'] = role_user.user.id
-        url = url_for('meetings.edit')
-        resp = client.post(url, data=data)
-
+        resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
-        field_query = (
-            CustomField.query.filter_by(meeting_id=1,
-                                        field_type=CustomField.SELECT))
-        select_fields = filter(lambda x: x.type == 'SelectField',
-                               participant_fields)
-        assert field_query.count() == len(select_fields)
-        for select_field in select_fields:
-            for choice in select_field.choices:
-                query = (
-                    CustomFieldChoice.query
-                    .filter_by()
-                    .filter(CustomFieldChoice.value.has(english=str(choice))))
-                assert query.count() == 1
+
+        query = CustomField.query.filter_by(
+            meeting_id=1, field_type=CustomField.SELECT)
+        fields = [f for f in ParticipantDummyForm()._fields.values()
+                  if f.type == 'SelectField']
+        assert query.count() == len(fields)
+        for field in fields:
+            query = (
+                CustomFieldChoice.query
+                .filter(CustomFieldChoice.custom_field.has(slug=field.name)))
+            assert query.count() == len(field.choices)
 
 
 def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app):
