@@ -81,17 +81,17 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
         field_types = [CustomField.TEXT, CustomField.SELECT,
                        CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_type=field_types)
+        Form = custom_form_factory(field_types=field_types)
         Object = custom_object_factory(participant, field_types)
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_type=field_types)
+        FlagsForm = custom_form_factory(field_types=field_types)
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
 
         field_types = [CustomField.IMAGE]
-        ImagesForm = custom_form_factory(field_type=field_types)
+        ImagesForm = custom_form_factory(field_types=field_types)
         ImagesObject = custom_object_factory(participant, field_types)
         images_form = ImagesForm(obj=ImagesObject())
 
@@ -117,12 +117,12 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         participant = self._get_object(participant_id)
         field_types = [CustomField.TEXT, CustomField.SELECT,
                        CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_type=field_types)
+        Form = custom_form_factory(field_types=field_types)
         Object = custom_object_factory(participant, field_types)
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_type=field_types)
+        FlagsForm = custom_form_factory(field_types=field_types)
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
 
@@ -135,13 +135,13 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         participant = self._get_object(participant_id)
         field_types = [CustomField.TEXT, CustomField.SELECT,
                        CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_type=field_types,
+        Form = custom_form_factory(field_types=field_types,
                                    form=ParticipantEditForm)
         Object = custom_object_factory(participant, field_types)
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_type=field_types)
+        FlagsForm = custom_form_factory(field_types=field_types)
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
 
