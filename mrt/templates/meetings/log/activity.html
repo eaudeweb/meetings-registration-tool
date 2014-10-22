@@ -121,7 +121,7 @@
       <tbody>
         {% for activity in activities %}
           <tr style="text-align: center;">
-            <td>{{ activity.staff }}</td>
+            <td>{{ activity.staff or '' }}</td>
             <td><a href="{{ url_for('.activity', part_id=activity.participant.id) }}">{{ activity.participant.name }}</a></td>
             <td>{{ activity.date.strftime('%Y-%m-%d %H:%M') }}</td>
             <td><a href="{{ url_for('.activity', action=activity.action) }}">{{ activity.action|activity_map }}</a></td>

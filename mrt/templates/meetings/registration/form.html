@@ -1,8 +1,9 @@
 {% extends "meetings/registration/_base.html" %}
-{% from "_bits.html" import form_group %}
+{% from "_bits.html" import form_group, flashed_messages %}
 
 
 {% block content %}
+  {{ flashed_messages() }}
 
   <form method="POST" class="form-horizontal">
 

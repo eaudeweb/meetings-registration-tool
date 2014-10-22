@@ -687,7 +687,7 @@ class ActivityLog(db.Model):
 
     staff_id = db.Column(
         db.Integer, db.ForeignKey('staff.id'),
-        nullable=False)
+        nullable=True)
     staff = db.relationship(
         'Staff',
         backref=db.backref('activities', lazy='dynamic', cascade='delete'))

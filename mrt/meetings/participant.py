@@ -3,6 +3,7 @@ from werkzeug.utils import HTMLBuilder
 from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash, Response
 from flask.views import MethodView
+from flask.ext.login import current_user as user
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantEditForm
@@ -10,7 +11,7 @@ from mrt.forms.meetings import ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 
-from mrt.models import db, Participant, CustomField
+from mrt.models import db, Participant, CustomField, Staff
 from mrt.models import search_for_participant, get_participants_full
 
 from mrt.pdf import render_pdf
@@ -148,14 +149,15 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
             participant = form.save(participant)
             flags_form.save(participant)
             flash('Person information saved', 'success')
+            staff = Staff.query.filter_by(user=user).first()
             if participant_id:
                 activity_signal.send(self, participant=participant,
-                                     action='edit')
+                                     action='edit', staff=staff)
                 url = url_for('.participant_detail',
                               participant_id=participant.id)
             else:
                 activity_signal.send(self, participant=participant,
-                                     action='add')
+                                     action='add', staff=staff)
                 notification_signal.send(self, participant=participant)
                 url = url_for('.participants')
             return redirect(url)
@@ -168,8 +170,9 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     def delete(self, participant_id):
         participant = self._get_object(participant_id)
         participant.deleted = True
+        staff = Staff.query.filter_by(user=user).first()
         activity_signal.send(self, participant=participant,
-                             action='delete')
+                             action='delete', staff=staff)
         db.session.commit()
         flash('Participant successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.participants'))

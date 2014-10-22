@@ -6,7 +6,7 @@ from blinker import ANY
 
 from mrt.models import db, Participant, MailLog
 from mrt.models import UserNotification, MediaParticipant
-from mrt.signals import notification_signal
+from mrt.signals import notification_signal, registration_signal
 
 
 mail = Mail()
@@ -117,3 +117,14 @@ def send_notification_message(recipients, participant):
         msg = Message(subject=subject, body=body, sender=sender,
                       recipients=[recipient.user.email])
         mail.send(msg)
+
+
+@registration_signal.connect_via(ANY)
+def send_registration_message(sender, participant):
+    sender = app.config['DEFAULT_MAIL_SENDER']
+    subject = "%s registration" % (participant.meeting.acronym,)
+    body = "You successfully registered on %s" % (participant.meeting.acronym,)
+
+    msg = Message(subject=subject, body=body, sender=sender,
+                  recipients=[participant.email])
+    mail.send(msg)

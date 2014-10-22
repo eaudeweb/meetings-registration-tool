@@ -15,6 +15,7 @@ def add_participant_custom_fields(meeting):
         custom_field.field_type = _CUSTOM_FIELD_MAPPER[field.type]
         custom_field.is_primary = True
         custom_field.sort = i + 1
+        custom_field.visible_on_registration_form = True
         db.session.add(custom_field)
 
         if custom_field.field_type == CustomField.SELECT:

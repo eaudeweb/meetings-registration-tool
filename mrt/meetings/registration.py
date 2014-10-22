@@ -1,9 +1,11 @@
 from functools import wraps
 from flask.views import MethodView
-from flask import g, render_template, request
+from flask import g, render_template, request, flash
 
 from mrt.forms.meetings import custom_form_factory
 from mrt.forms.meetings import RegistrationForm
+from mrt.signals import activity_signal, notification_signal
+from mrt.signals import registration_signal
 
 
 def _render_if_closed(func):
@@ -31,6 +33,11 @@ class Registration(MethodView):
                                    form=RegistrationForm)
         form = Form(request.form)
         if form.validate():
-            form.save()
+            participant = form.save()
+            flash('Person infomration saved', 'success')
+            activity_signal.send(self, participant=participant,
+                                 action='add')
+            notification_signal.send(self, participant=participant)
+            registration_signal.send(self, participant=participant)
         return render_template('meetings/registration/form.html',
                                form=form)

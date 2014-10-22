@@ -1,20 +1,18 @@
 from flask import g, render_template
 from flask import jsonify, flash, url_for, request
 from flask.views import MethodView
-from flask.ext.login import current_user as user
 
 from blinker import ANY
 from datetime import datetime, timedelta
 
 from mrt.models import db, Participant, MediaParticipant
-from mrt.models import ActivityLog, MailLog, Staff, RoleUser
+from mrt.models import ActivityLog, MailLog, RoleUser
 from mrt.meetings import PermissionRequiredMixin
 from mrt.signals import activity_signal
 
 
 @activity_signal.connect_via(ANY)
-def activity_listener(sender, participant, action):
-    staff = Staff.query.filter_by(user=user).first()
+def activity_listener(sender, participant, action, staff=None):
     activity = ActivityLog(participant=participant,
                            meeting=participant.meeting,
                            staff=staff, action=action,
