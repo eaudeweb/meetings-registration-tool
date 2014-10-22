@@ -18,7 +18,6 @@ def test_shortlist_printout(app):
                                     category=cat_staff)
     ParticipantFactory.create_batch(25, meeting=cat.meeting,
                                     category=cat_obs)
-
     client = app.test_client()
     with app.test_request_context():
         #TEST FIRST PAGE
@@ -26,7 +25,7 @@ def test_shortlist_printout(app):
                                   meeting_id=cat.meeting.id))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
-        assert len(html('.printout-table tbody tr')) == 52
+        assert len(html('#infinite-scroll-container table tbody tr')) == 52
         groups = html('th.group')
         for group in groups:
             categs.pop(0).title.english == group.text.strip()
@@ -41,8 +40,9 @@ def test_shortlist_printout(app):
                                   page=2))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
-        assert len(html('.printout-table tbody tr')) == 26
-        assert categs.pop().title.english == html('th.group').text().strip()
+        assert len(html('#infinite-scroll-container table tbody tr')) == 26
+        category_name = html('th.text-center').pop().text.strip()
+        assert categs.pop().title.english == category_name
         participant_names = html('td#participant-name')
         for participant in participant_names:
             participant_ids.add(participant.attrib['data-id'])

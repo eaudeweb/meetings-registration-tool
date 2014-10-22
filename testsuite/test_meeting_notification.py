@@ -5,6 +5,8 @@ from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import UserNotificationFactory, RoleUserMeetingFactory
 from .factories import StaffFactory, MediaParticipantFactory
 
+from .utils import add_participant_custom_fields, populate_participant_form
+
 from mrt.models import RoleUser, Category
 
 
@@ -21,6 +23,8 @@ def test_send_notification_add_participant(app):
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
+        add_participant_custom_fields(category.meeting)
+        populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
             sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.participant_edit',

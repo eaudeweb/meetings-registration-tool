@@ -144,12 +144,11 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         FlagsForm = custom_form_factory(field_types=field_types)
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
-
         if (form.validate() and flags_form.validate()):
             participant = form.save(participant)
             flags_form.save(participant)
             flash('Person information saved', 'success')
-            if participant:
+            if participant_id:
                 activity_signal.send(self, participant=participant,
                                      action='edit')
                 url = url_for('.participant_detail',

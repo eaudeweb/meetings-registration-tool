@@ -57,6 +57,8 @@ def test_meeting_participant_detail(app):
             elif isinstance(participant_data, bool):
                 if participant_data:
                     assert details[i].find('td').find('span') is not None
+            elif custom_field.slug == 'category_id':
+                assert participant.category.title.english == detail_data
             else:
                 assert str(participant_data) == detail_data
 

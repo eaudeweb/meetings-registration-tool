@@ -17,7 +17,7 @@ def test_send_email_in_english(app):
     data = {
         'message': 'Test',
         'subject': 'Test subject',
-        'language': 'en'
+        'language': 'English'
     }
 
     client = app.test_client()
@@ -41,7 +41,7 @@ def test_send_email_to_categories(app):
     data = {
         'message': 'Test',
         'subject': 'Test subject',
-        'language': 'en',
+        'language': 'English',
         'categories': '1'
     }
 
