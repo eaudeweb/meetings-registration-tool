@@ -6,7 +6,7 @@ from mrt.forms.meetings import custom_form_factory
 from mrt.forms.meetings import RegistrationForm
 
 
-def closed(func):
+def _render_if_closed(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not g.meeting.online_registration:
@@ -17,7 +17,7 @@ def closed(func):
 
 class Registration(MethodView):
 
-    decorators = (closed, )
+    decorators = (_render_if_closed, )
 
     def get(self):
         Form = custom_form_factory(registration_fields=True,
