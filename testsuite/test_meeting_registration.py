@@ -14,8 +14,7 @@ def test_meeting_online_resistration_open(app):
         add_participant_custom_fields(category.meeting)
         resp = client.get(url_for('meetings.registration',
                                   meeting_id=category.meeting.id))
-        form = PyQuery(resp.data)('form')
-        assert form
+        assert PyQuery(resp.data)('form').length
 
 
 def test_meeting_online_registration_closed(app):
@@ -27,7 +26,5 @@ def test_meeting_online_registration_closed(app):
         resp = client.get(url_for('meetings.registration',
                                   meeting_id=category.meeting.id))
         html = PyQuery(resp.data)
-        form = html('form')
-        alert = html('.alert')
-        assert not form
-        assert alert
+        assert html('form').length == 0
+        assert html('.alert').length
