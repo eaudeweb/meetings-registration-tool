@@ -1,5 +1,8 @@
-from flask import g
+from uuid import uuid4
 
+from flask import g
+from flask.ext.uploads import UploadSet, IMAGES
+from werkzeug import FileStorage
 from wtforms import fields
 from wtforms.validators import DataRequired
 
@@ -9,9 +12,12 @@ from mrt.models import Participant, Category, MediaParticipant
 from mrt.definitions import PRINTOUT_TYPES
 
 
+custom_upload = UploadSet('custom', IMAGES)
+
+
 class ParticipantEditForm(BaseForm):
 
-    def save(self, participant=None):
+    def save(self, participant=None, commit=True):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
 
@@ -22,13 +28,18 @@ class ParticipantEditForm(BaseForm):
                 setattr(participant, field_name, value)
             else:
                 cfv = cf.get_or_create_value(participant)
-                cfv.value = field.data
+                if isinstance(field.data, FileStorage):
+                    cfv.value = custom_upload.save(
+                        field.data, name=str(uuid4()) + '.')
+                else:
+                    cfv.value = field.data
                 if not cfv.id:
                     db.session.add(cfv)
 
         if participant.id is None:
             db.session.add(participant)
-        db.session.commit()
+        if commit:
+            db.session.commit()
 
         return participant
 
