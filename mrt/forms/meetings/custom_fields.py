@@ -46,6 +46,8 @@ class _MagicForm(BaseForm):
             else:
                 cfv.value = field.data
             cfv.participant = participant
+            if cf.is_primary:
+                setattr(participant, cf.slug, cfv.value)
             if not cfv.id:
                 db.session.add(cfv)
             items.append(cfv)

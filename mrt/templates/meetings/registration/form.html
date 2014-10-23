@@ -5,7 +5,7 @@
 {% block content %}
   {{ flashed_messages() }}
 
-  <form method="POST" class="form-horizontal">
+  <form method="POST" class="form-horizontal" enctype="multipart/form-data">
 
     {% for field in form %}
       {{ form_group(field) }}

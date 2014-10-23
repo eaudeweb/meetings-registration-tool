@@ -78,7 +78,6 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .active().first_or_404())
-
         field_types = [CustomField.TEXT, CustomField.SELECT,
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_types=field_types)

@@ -1,6 +1,6 @@
 from functools import wraps
 from flask.views import MethodView
-from flask import g, render_template, request, flash
+from flask import g, render_template, request
 
 from mrt.forms.meetings import custom_form_factory
 from mrt.forms.meetings import RegistrationForm

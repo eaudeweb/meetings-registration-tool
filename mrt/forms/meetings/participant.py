@@ -26,7 +26,7 @@ class ParticipantEditForm(BaseForm):
             if cf.is_primary:
                 value = field.data
                 setattr(participant, field_name, value)
-            else:
+            elif field.data:
                 cfv = cf.get_or_create_value(participant)
                 if isinstance(field.data, FileStorage):
                     cfv.value = custom_upload.save(
