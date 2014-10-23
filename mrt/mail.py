@@ -4,7 +4,7 @@ from flask.ext.mail import Mail, Message
 from datetime import datetime
 from blinker import ANY
 
-from mrt.models import db, Participant, MailLog
+from mrt.models import db, Participant, MailLog, Phrase
 from mrt.models import UserNotification, MediaParticipant
 from mrt.signals import notification_signal, registration_signal
 
@@ -122,9 +122,17 @@ def send_notification_message(recipients, participant):
 @registration_signal.connect_via(ANY)
 def send_registration_message(sender, participant):
     sender = app.config['DEFAULT_MAIL_SENDER']
-    subject = "%s registration" % (participant.meeting.acronym,)
-    body = "You successfully registered on %s" % (participant.meeting.acronym,)
+    subject = "%s registration confirmation" % (participant.meeting.acronym,)
+    phrase = Phrase.query.filter_by(meeting=participant.meeting,
+                                    group='Online registration confirmation',
+                                    name='for participants').first()
+    template = app.jinja_env.get_template(
+        'meetings/registration/mail_template.html')
+    body_html = template.render({
+        'participant': participant,
+        'phrase': phrase,
+    })
 
-    msg = Message(subject=subject, body=body, sender=sender,
+    msg = Message(subject=subject, html=body_html, sender=sender,
                   recipients=[participant.email])
     mail.send(msg)

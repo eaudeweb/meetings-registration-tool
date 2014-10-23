@@ -1,0 +1,73 @@
+<html>
+
+<head>
+  <style>
+    table {
+      width: 100%;
+      background: #ddd;
+    }
+
+    table th, table td {
+      background: #fff;
+      padding: 8px;
+    }
+
+    table th {
+      text-align: left;
+      width: 200px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+</body>
+
+<h4>{{ phrase.description }}</h4>
+
+<table>
+  <tbody>
+    <tr>
+      <th>Category </th>
+      <td>{{ participant.category }}</td>
+    </tr>
+
+    <tr>
+      <th>Given name</th>
+      <td>{{ participant.first_name }}</td>
+    </tr>
+
+    <tr>
+      <th>Family name</th>
+      <td>{{ participant.last_name }}</td>
+    </tr>
+
+    <tr>
+      <th>Email</th>
+      <td>{{ participant.email }}</td>
+    </tr>
+
+    <tr>
+      <th>Working language</th>
+      <td>{{ participant.language }}</td>
+    </tr>
+
+    <tr>
+      <th>Country</th>
+      <td>{{ participant.country }}</td>
+    </tr>
+
+    <tr>
+      <th>Country represented</th>
+      <td>{{ participant.represented_country }}</td>
+    </tr>
+
+    <tr>
+      <th>Organization represented</th>
+      <td>{{ participant.represented_organization }}</td>
+    </tr>
+
+  </tbody>
+</table>
+
+</html>

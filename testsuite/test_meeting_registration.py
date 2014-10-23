@@ -37,23 +37,24 @@ def test_meeting_online_registration_closed(app):
 
 def test_meeting_online_registration_add(app):
     category = MeetingCategoryFactory(meeting__online_registration=True)
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
-    RoleUserMeetingFactory(meeting=category.meeting,
+    meeting = category.meeting
+    role_user = RoleUserMeetingFactory(meeting=meeting)
+    RoleUserMeetingFactory(meeting=meeting,
                            user__email='test@email.com')
     StaffFactory(user=role_user.user)
-    UserNotificationFactory(user=role_user.user, meeting=category.meeting)
+    UserNotificationFactory(user=role_user.user, meeting=meeting)
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
-        add_participant_custom_fields(category.meeting)
-        populate_participant_form(category.meeting, data)
+        add_participant_custom_fields(meeting)
+        populate_participant_form(meeting, data)
         resp = client.post(url_for('meetings.registration',
-                                   meeting_id=category.meeting.id), data=data)
+                                   meeting_id=meeting.id), data=data)
 
         assert resp.status_code == 200
-        assert Participant.query.filter_by(meeting=category.meeting).first()
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
         assert len(outbox) == 2
-        assert ActivityLog.query.filter_by(meeting=category.meeting).first()
+        assert ActivityLog.query.filter_by(meeting=meeting).count() == 1

@@ -38,5 +38,5 @@ class FilterView(object):
             data.append(row_data)
 
         return jsonify(recordsTotal=total,
-                       recordsFiltered=len(data),
+                       recordsFiltered=total,
                        data=data)

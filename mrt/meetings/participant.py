@@ -50,7 +50,6 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
         if opt['search']:
             participants = search_for_participant(opt['search'], participants)
-
         participants = participants.limit(opt['limit']).offset(opt['start'])
         return participants, total
 

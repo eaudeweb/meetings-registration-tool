@@ -34,10 +34,11 @@ class Registration(MethodView):
         form = Form(request.form)
         if form.validate():
             participant = form.save()
-            flash('Person infomration saved', 'success')
             activity_signal.send(self, participant=participant,
                                  action='add')
             notification_signal.send(self, participant=participant)
             registration_signal.send(self, participant=participant)
+            return render_template('meetings/registration/success.html',
+                                   participant=participant)
         return render_template('meetings/registration/form.html',
                                form=form)
