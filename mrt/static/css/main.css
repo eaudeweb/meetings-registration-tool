@@ -46,10 +46,20 @@ h5 {
     margin-top: 0;
 }
 
+.list-unstyled {
+    margin: 0;
+}
+li.separator {
+    margin: 3px 0;
+    border-bottom: 2px solid #eee;
+}
 
 .form-group input[type=checkbox] {
     position: relative;
     top: 5px;
+}
+.form-group li label {
+    font-weight: normal;
 }
 .form-actions {
     padding-bottom: 20px;

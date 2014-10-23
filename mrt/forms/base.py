@@ -1,8 +1,11 @@
+from itertools import groupby
+
 from flask import request
 from werkzeug import MultiDict
 
-from wtforms_alchemy import ModelForm
 from wtforms import widgets, fields
+from wtforms.widgets.core import html_params, HTMLString
+from wtforms_alchemy import ModelForm
 
 from mrt.models import db, Translation
 
@@ -79,5 +82,26 @@ class MultiCheckboxField(fields.SelectMultipleField):
         self.data = {setting: True for setting in valuelist}
 
 
-class CategoryField(fields.SelectField):
-    pass
+class CategoryWidget(widgets.ListWidget):
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        kwargs.pop('placeholder', None)
+        class_ = kwargs.get('class_', '') + ' list-unstyled'
+        kwargs['class_'] = class_
+        html = ['<%s %s>' % (self.html_tag, html_params(**kwargs))]
+        fields = groupby([opt for opt in field],
+                         lambda x: x.label.text.group.code)
+        for group, subfields in fields:
+            html.append('<li class="separator"></li>')
+            for subfield in subfields:
+                label = subfield.label.text
+                html.append('<li><label>%s %s</label></li>' % (subfield(), label))
+
+        html.append('</%s>' % self.html_tag)
+        return HTMLString(''.join(html))
+
+
+class CategoryField(fields.RadioField):
+
+    widget = CategoryWidget()

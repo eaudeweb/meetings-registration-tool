@@ -4,6 +4,8 @@ from flask import g
 from flask.ext.uploads import UploadSet, IMAGES, TEXT, DOCUMENTS
 from flask_wtf.file import FileField, FileAllowed
 
+from sqlalchemy_utils import Choice
+
 from werkzeug import FileStorage, OrderedMultiDict
 from wtforms import fields
 from wtforms.validators import DataRequired
@@ -88,7 +90,7 @@ def custom_form_factory(field_types=[], field_slugs=[],
         if f.field_type.code == CustomField.CATEGORY:
             query = (Category.query.filter_by(meeting=g.meeting)
                      .filter_by(category_type=Category.PARTICIPANT))
-            attrs['choices'] = [(c.id, c.title) for c in query]
+            attrs['choices'] = [(c.id, c) for c in query]
             attrs['coerce'] = int
 
         # set field to form
@@ -107,7 +109,6 @@ def custom_object_factory(participant, field_type=[], obj=object):
     for cf in query:
         if cf.is_primary:
             value = getattr(participant, cf.slug, None)
-            from sqlalchemy_utils import Choice
             if isinstance(value, Choice):
                 value = value.value
             object_attrs[cf.slug] = value

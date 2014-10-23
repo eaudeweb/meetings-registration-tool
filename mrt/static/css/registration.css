@@ -11,3 +11,10 @@
 .radio_field li {
     margin-bottom: 5px;
 }
+
+.list-unstyled {
+    margin: 0;
+}
+.form-group li label {
+    font-weight: normal;
+}
