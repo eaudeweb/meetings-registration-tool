@@ -89,7 +89,8 @@ def custom_form_factory(field_types=[], field_slugs=[],
 
         if f.field_type.code == CustomField.CATEGORY:
             query = (Category.query.filter_by(meeting=g.meeting)
-                     .filter_by(category_type=Category.PARTICIPANT))
+                     .filter_by(category_type=Category.PARTICIPANT)
+                     .order_by(Category.group, Category.sort))
             attrs['choices'] = [(c.id, c) for c in query]
             attrs['coerce'] = int
 

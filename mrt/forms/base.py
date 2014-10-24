@@ -93,10 +93,10 @@ class CategoryWidget(widgets.ListWidget):
         fields = groupby([opt for opt in field],
                          lambda x: x.label.text.group.code)
         for group, subfields in fields:
-            html.append('<li class="separator"></li>')
             for subfield in subfields:
                 label = subfield.label.text
                 html.append('<li><label>%s %s</label></li>' % (subfield(), label))
+            html.append('<li class="separator"></li>')
 
         html.append('</%s>' % self.html_tag)
         return HTMLString(''.join(html))
