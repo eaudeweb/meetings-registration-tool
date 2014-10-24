@@ -41,8 +41,8 @@ DEFAULT_CONFIG = {
 
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_pyfile('settings.py')
     app.config.update(DEFAULT_CONFIG)
+    app.config.from_pyfile('settings.py')
     app.config.update(config)
 
     Babel(app)

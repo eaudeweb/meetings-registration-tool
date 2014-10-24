@@ -114,8 +114,9 @@ def custom_object_factory(participant, field_type=[], obj=object):
                 value = value.value
             object_attrs[cf.slug] = value
         else:
-            object_attrs[cf.slug] = (cf.custom_field_values
-                                     .filter_by(participant=participant)
-                                     .first())
+            cfv = (cf.custom_field_values
+                   .filter_by(participant=participant)
+                   .first())
+            object_attrs[cf.slug] = cfv.value if cfv else None
 
     return type(obj)(obj.__name__, (obj,), object_attrs)
