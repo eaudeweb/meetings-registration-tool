@@ -6,7 +6,7 @@ from flask.views import MethodView
 from flask.ext.login import current_user as user
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
-from mrt.forms.meetings import ParticipantEditForm
+from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
 
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
@@ -276,13 +276,13 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             'language'
         ]
 
-        cfs = [cf.slug for cf in g.meeting.custom_fields
+        custom_fields = g.meeting.custom_fields.filter_by(is_primary=True)
+        cfs = [cf.slug for cf in custom_fields
                if cf.field_type.code not in ('image',)]
-        form = ParticipantEditForm()
+        form = ParticipantDummyForm()
         header = [str(form._fields[k].label.text) for k in columns]
         header.extend([cf.title() for cf in cfs])
         columns += cfs
-
         rows = []
         for p in participants:
             data = {}
@@ -292,9 +292,14 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['country'] = p.country.name
             data['email'] = p.email
             data['language'] = p.language.value
-
-            for c in cfs:
-                data[c] = getattr(p, c, '')
+            data['category_id'] = p.category_id
+            data['represented_country'] = p.represented_country.name
+            data['represented_region'] = (
+                p.represented_region.value if p.represented_region else None)
+            data['represented_organization'] = p.represented_organization
+            data['attended'] = 'Yes' if p.attended == 'true' else None
+            data['verified'] = 'Yes' if p.verified == 'true' else None
+            data['credentials'] = 'Yes' if p.credentials == 'true' else None
 
             rows.append([data.get(k) or '' for k in columns])
 
