@@ -21,12 +21,12 @@ def stream_template(template_name, **context):
 
 def render_pdf(template_name, title='', width=None, height=None,
                margin=_PAGE_DEFAULT_MARGIN, orientation="portrait",
-               attachement=False, context={}):
+               as_attachement=False, footer=True,
+               context={}):
     template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
                      (str(uuid.uuid4()) + '.html'))
     pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
                 (str(uuid.uuid4()) + '.pdf'))
-    footer_url = url_for('meetings.printouts_footer', _external=True)
 
     with open(template_path, 'w+') as f:
         for chunk in stream_template(template_name, **context):
@@ -42,9 +42,12 @@ def render_pdf(template_name, title='', width=None, height=None,
                    '-T', margin['top'],
                    '-L', margin['left'],
                    '-R', margin['right'],
-                   '--footer-html', footer_url,
-                   '--orientation', orientation,
-                   str(template_path), str(pdf_path)]
+                   '--orientation', orientation]
+        if footer:
+            footer_url = url_for('meetings.printouts_footer', _external=True)
+            command += ['--footer-html', footer_url]
+        command += [str(template_path), str(pdf_path)]
+
         FNULL = open(os.devnull, 'w')
         subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)
 
@@ -61,7 +64,7 @@ def render_pdf(template_name, title='', width=None, height=None,
     finally:
         pdf_path.unlink_p()
 
-    if attachement:
+    if as_attachement:
         return pdf
 
     return Response(read_file(pdf), mimetype='application/pdf')

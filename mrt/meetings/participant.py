@@ -208,7 +208,8 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
         context = {'participant': participant, 'nostripe': nostripe}
         return render_pdf('meetings/participant/badge.html',
                           width='3.4in', height='2.15in',
-                          orientation='portrait', context=context)
+                          footer=False, orientation='portrait',
+                          context=context)
 
 
 class ParticipantLabel(PermissionRequiredMixin, MethodView):
@@ -221,7 +222,8 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
         context = {'participant': participant}
         return render_pdf('meetings/participant/label.html',
                           height="8.3in", width="11.7in",
-                          orientation="landscape", context=context)
+                          orientation="landscape", footer=False,
+                          context=context)
 
 
 class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
@@ -234,7 +236,7 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
         context = {'participant': participant}
         return render_pdf('meetings/participant/envelope.html',
                           height='6.4in', width='9.0in',
-                          orientation="portrait",
+                          orientation="portrait", footer=False,
                           context=context)
 
 
@@ -255,9 +257,8 @@ class ParticipantAckPDF(MethodView):
         context = {'participant': participant,
                    'template': 'meetings/printouts/_acknowledge_detail.html'}
         return render_pdf('meetings/printouts/printout.html',
-                          height='11.7in',
-                          width='8.26in',
-                          orientation='portrait',
+                          height='11.7in', width='8.26in',
+                          orientation='portrait', footer=False,
                           context=context)
 
 

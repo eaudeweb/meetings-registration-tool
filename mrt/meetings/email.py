@@ -85,7 +85,7 @@ class AckEmail(PermissionRequiredMixin, MethodView):
                                      height='11.7in',
                                      width='8.26in',
                                      orientation='portrait',
-                                     attachement=True,
+                                     as_attachement=True,
                                      context=context)
             if send_single_message(form.to.data, form.subject.data,
                                    form.message.data,
