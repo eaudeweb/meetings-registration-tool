@@ -129,6 +129,7 @@ class MeetingCategoryFactory(SQLAlchemyModelFactory):
     color = '#93284c'
     meeting = SubFactory(MeetingFactory)
     representing = 'region.html'
+    group = 'country'
 
 
 class PhraseDescriptionFactory(SQLAlchemyModelFactory):
@@ -236,7 +237,8 @@ class CustomFieldFactory(SQLAlchemyModelFactory):
     label = SubFactory(CustomFieldLabelFactory)
     meeting = SubFactory(MeetingFactory)
     field_type = 'image'
-    required = False
+    required = True
+    visible_on_registration_form = True
 
 
 class ProfilePictureFactory(SQLAlchemyModelFactory):

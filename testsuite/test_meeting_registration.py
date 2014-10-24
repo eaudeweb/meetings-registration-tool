@@ -1,11 +1,13 @@
 from flask import url_for
 from pyquery import PyQuery
+from StringIO import StringIO
+from py.path import local
 
 from mrt.mail import mail
 from mrt.models import Participant, ActivityLog
 from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import StaffFactory, RoleUserMeetingFactory
-from .factories import UserNotificationFactory
+from .factories import UserNotificationFactory, CustomFieldFactory
 
 from testsuite.utils import add_participant_custom_fields
 from testsuite.utils import populate_participant_form
@@ -58,3 +60,26 @@ def test_meeting_online_registration_add(app):
         assert Participant.query.filter_by(meeting=meeting).count() == 1
         assert len(outbox) == 2
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
+
+
+def test_meeting_online_registration_with_meeting_photo(app):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    photo_field = CustomFieldFactory(meeting=meeting)
+    meeting.photo_field = photo_field
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[photo_field.slug] = (StringIO('Test'), 'test.png')
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(meeting)
+        populate_participant_form(meeting, data)
+        resp = client.post(url_for('meetings.registration',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 200
+        participant = Participant.query.filter_by(meeting=meeting).first()
+        assert participant.photo is not None
+        assert upload_dir.join(participant.photo).check()
