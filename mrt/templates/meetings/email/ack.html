@@ -32,19 +32,20 @@
             {{ form_group(form.to, label_size="2", input_size="6") }}
             {{ form_group(form.subject, label_size="2", input_size="6",
                           options={"autofocus": ""}) }}
+
+            <div class="row attachement">
+              <div class="col-sm-2"></div>
+              <div class="col-sm-6">
+                <a href="{{ url_for('.participant_ack_pdf', participant_id=participant.id) }}">
+                <span class="label label-info">
+                  <span class="glyphicon glyphicon-paperclip"></span>
+                  &nbsp;Registration Details.pdf</span></a>
+              </div>
+            </div> {# row #}
+
             {{ form_group(form.message, label_size="2", input_size="6",
                           options={"rows": "10"}) }}
-            <div class="form-group">
-              <div class="col-sm-2 attachement-label">
-                <span class="glyphicon glyphicon-paperclip pull-right"></span>
-              </div>
-              <div class="col-sm-6">
-                <div class="attachement alert alert-info">
-                  <a href="{{ url_for('.participant_ack_pdf', participant_id=participant.id) }}">
-                  <small>registration_details.pdf</small></a>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div> {# panel #}
 

@@ -494,13 +494,9 @@ table tr.highlight th {
 }
 
 .attachement {
-    padding: 8px;
-    width: 40%;
-    width: -webkit-fit-content;
-    width: -moz-fit-content;
+    position: relative;
+    top: -10px;
 }
-
-.attachement > a {
-    color: #555555;
-
+.attachement a {
+    text-decoration: none;
 }
