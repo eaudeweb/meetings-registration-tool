@@ -63,7 +63,7 @@ class DescriptionInputForm(BaseForm):
 class BooleanField(fields.BooleanField):
 
     def process_data(self, data):
-        self.data = True if data == 'true' else False
+        self.data = True if (data == 'true' or data is True) else False
 
 
 class MultiCheckboxField(fields.SelectMultipleField):
