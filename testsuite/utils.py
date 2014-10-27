@@ -1,6 +1,5 @@
-from lxml.html import SelectElement, InputElement
-
-from mrt.forms.meetings.meeting import ParticipantDummyForm, _CUSTOM_FIELD_MAPPER
+from mrt.forms.meetings.meeting import ParticipantDummyForm
+from mrt.forms.meetings.meeting import _CUSTOM_FIELD_MAPPER
 from mrt.models import CustomField, CustomFieldChoice, Translation, db
 
 
@@ -39,19 +38,6 @@ def populate_participant_form(meeting, data={}):
                                                 field_type=CustomField.SELECT)
 
     for custom_field in custom_fields:
-        data[custom_field.slug] = custom_field.custom_field_choices.first().value
+        data[custom_field.slug] = (
+            custom_field.custom_field_choices.first().value)
     data['represented_country'] = 'RO'
-
-
-def get_value(field):
-    """Returns the selected option value for a select input."""
-    if isinstance(field[0], InputElement):
-        return field[0].attrib.get('value')
-    elif isinstance(field[0], SelectElement):
-        option = field.children().filter(lambda i: this.attrib.get('selected'))
-        try:
-            value = option[0].attrib.get('value')
-            return value
-        except IndexError:
-            return ''
-    return ''

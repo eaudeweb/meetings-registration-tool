@@ -121,6 +121,7 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
 
 
 class MeetingCategoryFactory(SQLAlchemyModelFactory):
+
     class Meta:
         model = models.Category
         sqlalchemy_session = models.db.session
@@ -130,6 +131,7 @@ class MeetingCategoryFactory(SQLAlchemyModelFactory):
     meeting = SubFactory(MeetingFactory)
     representing = 'region.html'
     group = 'country'
+    visible_on_registration_form = True
 
 
 class PhraseDescriptionFactory(SQLAlchemyModelFactory):

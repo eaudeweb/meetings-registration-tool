@@ -12,7 +12,7 @@ from mrt.models import Participant, CustomField
 from mrt.utils import translate
 
 from testsuite.utils import add_participant_custom_fields
-from testsuite.utils import populate_participant_form, get_value
+from testsuite.utils import populate_participant_form
 
 
 def test_meeting_participant_detail(app):
@@ -206,16 +206,17 @@ def test_meeting_participant_edit_form_populated(app):
         resp = client.get(url_for('meetings.participant_edit',
                                   meeting_id=category.meeting.id,
                                   participant_id=part.id))
-        form_fields = PyQuery(resp.data)('.form-group')
 
-        form_title = get_value(form_fields('#title'))
-        form_first_name = get_value(form_fields('#first_name'))
-        form_last_name = get_value(form_fields('#last_name'))
-        form_email = get_value(form_fields('#email'))
-        form_category_id = get_value(form_fields('#category_id'))
-        form_country = get_value(form_fields('#country'))
-        form_language = get_value(form_fields('#language'))
-        form_represented_region = get_value(form_fields('#represented_region'))
+        sel = PyQuery(resp.data)
+
+        form_title = sel('#title > option:selected').val()
+        form_first_name = sel('#first_name').val()
+        form_last_name = sel('#last_name').val()
+        form_email = sel('#email').val()
+        form_category_id = sel('#category_id input').val()
+        form_country = sel('#country > option:selected').val()
+        form_language = sel('#language > option:selected').val()
+        form_repr_region = sel('#represented_region > option:selected').val()
 
         assert part.title.code == form_title
         assert part.first_name == form_first_name
@@ -224,7 +225,7 @@ def test_meeting_participant_edit_form_populated(app):
         assert part.category_id == int(form_category_id)
         assert part.country.code == form_country
         assert part.language.code == form_language
-        assert part.represented_region.code == form_represented_region
+        assert part.represented_region.code == form_repr_region
 
 
 def test_meeting_participant_delete(app):
