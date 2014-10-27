@@ -10,7 +10,7 @@ from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
 from mrt.meetings import ParticipantRestore, ParticipantLabel
 from mrt.meetings import ParticipantEnvelope, ParticipantsExport
-from mrt.meetings import ParticipantAckDetail, ParticipantAckPDF
+from mrt.meetings import ParticipantAckPDF
 
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
@@ -72,9 +72,6 @@ meetings.add_url_rule(
     view_func=ParticipantEnvelope.as_view('participant_envelope'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/acknowledge',
-    view_func=ParticipantAckDetail.as_view('participant_ack_detail'))
-meetings.add_url_rule(
-    '/<int:meeting_id>/participants/<int:participant_id>/acknowledge_pdf',
     view_func=ParticipantAckPDF.as_view('participant_ack_pdf'))
 
 meetings.add_url_rule(

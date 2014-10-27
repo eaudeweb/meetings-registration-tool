@@ -240,15 +240,6 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
                           context=context)
 
 
-class ParticipantAckDetail(MethodView):
-
-    def get(self, participant_id):
-        participant = Participant.query.filter_by(
-            meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
-        return render_template('meetings/printouts/acknowledge_detail.html',
-                               participant=participant)
-
-
 class ParticipantAckPDF(MethodView):
 
     def get(self, participant_id):

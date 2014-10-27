@@ -1,44 +1,45 @@
-<div class="ack-registration-number">Registration No. {{ participant.id }}</div>
 
-<div class="printout-doc-title">
-  <h2>{{ g.meeting }}</h2>
+<div class="highlight highlight-border highlight-pad" >
+  <h4><b>Registration No. {{ participant.id }}</b></h4>
 </div>
 
-<div class="ack-subheader">
-  <h3>Details of registration - {{ participant.category }}</h3>
+<div class="text-center">
+  <h2 style="margin-bottom: 20px;">{{ g.meeting }}</h2>
 </div>
 
-<table class="ack-table">
-  <tbody>
+<div class="highlight highlight-border highlight-pad text-center">
+  <h3><em>Details of registration - {{ participant.category }}</em></h3>
+</div>
 
-    <tr>
-      <td class="ack-label">Name</td>
-      <td>
-        {{ participant.name }} <br/>
-        {% if participant.represented_organization %}
-          {{ participant.represented_organization }} <br/>
-        {% endif %}
+<table class="table">
 
-        {{ participant.country }} <br/>
-        {{ participant.email }}
-      </td>
-    </tr>
+  <tr>
+    <td class="text-right col-sm-4 noborder"><b><em>Name</em></b></td>
+    <td class="col-sm-6 noborder pad-left">
+      {{ participant.name }} <br/>
+      {% if participant.represented_organization %}
+        {{ participant.represented_organization }} <br/>
+      {% endif %}
 
-    <tr>
-      <td class="ack-label">Category</td>
-      <td>{{ participant.category }}</td>
-    </tr>
+      {{ participant.country }} <br/>
+      {{ participant.email }}
+    </td>
+  </tr>
 
-    <tr>
-      <td class="ack-label">Representative of</td>
-      <td>{{ participant.representing }}</td>
-    </tr>
+  <tr>
+    <td class="text-right"><b><em>Category</em></b></td>
+    <td class="pad-left">{{ participant.category }}</td>
+  </tr>
 
-    <tr>
-      <td class="ack-label">Working language</td>
-      <td>{{ participant.language }}</td>
-    </tr>
+  <tr>
+    <td class="text-right"><b><em>Representative of</em></b></td>
+    <td class="pad-left">{{ participant.representing }}</td>
+  </tr>
 
-  </tbody>
+  <tr>
+    <td class="text-right"><b><em>Working language</em></b></td>
+    <td class="pad-left">{{ participant.language }}</td>
+  </tr>
+
 </table>
 
