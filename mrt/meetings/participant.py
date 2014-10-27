@@ -245,9 +245,8 @@ class ParticipantAckPDF(MethodView):
     def get(self, participant_id):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
-        context = {'participant': participant,
-                   'template': 'meetings/printouts/_acknowledge_detail.html'}
-        return render_pdf('meetings/printouts/printout.html',
+        context = {'participant': participant}
+        return render_pdf('meetings/printouts/acknowledge_detail.html',
                           height='11.7in', width='8.26in',
                           orientation='portrait', footer=False,
                           context=context)

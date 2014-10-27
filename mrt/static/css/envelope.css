@@ -3,6 +3,7 @@ body {
 }
 
 .envelope-container {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     position: absolute;
 }
 
@@ -10,16 +11,14 @@ body {
     position: absolute;
     font-size: 10pt;
     height: 5.2cm;
-    left: 5.9375in;
+    left: 5in;
     width: 9cm;
-    margin-top: 7cm;
-    float: right;
+    margin-top: 6cm;
 }
 
 .participant-container ul li {
     padding-bottom: 0.070in;
 }
-
 
 .secretariat-container {
     position: absolute;
@@ -27,32 +26,29 @@ body {
     font-size: 12pt;
     height: 5.2cm;
     left: 2cm;
-    width: 13cm;
-    top: 14.5cm;
-    float: right;
+    width: 11.1cm;
+    top: 10.5cm;
 }
 
 .logo {
     position: absolute;
-    width: 2cm;
+    width: 1.5cm;
     top: 1cm;
-    left: 0.1cm;
+    left: 0cm;
 }
 .side-logo {
     position: absolute;
-    width: 2cm;
+    width: 1.5cm;
     top: 1cm;
-    right: 0.1cm;
+    right: 0cm;
 }
 
 .secretariat-container address {
     position: absolute;
-    left: 2.5cm;
+    left: 2cm;
     top: 1cm;
 }
 
-
-
-
-
-
+address {
+    font-size: 10pt;
+}

@@ -1,3 +1,16 @@
+{% extends "_layout_pdf.html" %}
+
+
+{% block head %}
+
+  <style type="text/css">
+    {{ inject_static_file('css/printouts.css') }}
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
 
 <div class="highlight highlight-border highlight-pad" >
   <h4><b>Registration No. {{ participant.id }}</b></h4>
@@ -42,4 +55,4 @@
   </tr>
 
 </table>
-
+{% endblock %}
