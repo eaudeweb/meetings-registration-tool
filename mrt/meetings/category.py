@@ -7,7 +7,7 @@ from flask.views import MethodView
 from mrt.forms.meetings import MeetingCategoryAddForm
 from mrt.forms.admin import CategoryEditForm
 from mrt.meetings import PermissionRequiredMixin
-from mrt.models import db, Category
+from mrt.models import db, Category, Participant
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import COLORS
 
@@ -73,6 +73,13 @@ class CategoryEdit(PermissionRequiredMixin, MethodView):
         category = Category.query.filter_by(
             id=category_id,
             meeting_id=g.meeting.id).first_or_404()
+        count = Participant.query.filter_by(meeting=g.meeting,
+                                            category=category).count()
+        if count:
+            msg = ("Unable to remove the category. There are %s participants "
+                   "in this category. Please assign them to another category "
+                   "before removing this one.") % count
+            return jsonify(status="error", message=msg)
         db.session.delete(category)
         db.session.commit()
         unlink_uploaded_file(category.background, 'backgrounds')
