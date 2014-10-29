@@ -54,7 +54,7 @@
       Print items <span class="caret"></span></a>
       <ul class="dropdown-menu" role="menu">
         <li>
-          <a href="{{ url_for('.participant_ack_pdf',
+          <a href="{{ url_for('.participant_acknowledge_pdf',
                                 participant_id=participant.id) }}">
            Acknowledge details</a>
         </li>
@@ -82,8 +82,9 @@
       </ul>
     </span>
 
-    {% set acknowledge_url = url_for('.ackemail',
-                         participant_id=participant.id) %}
+    {% set acknowledge_url = url_for(
+        '.participant_acknowledge',
+        participant_id=participant.id) %}
     <a class="btn btn-default btn-sm"
         href="{{ acknowledge_url }}">Acknowledge Email</a>
 

@@ -8,10 +8,12 @@ from flask.ext.login import current_user as user
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
+from mrt.forms.meetings import AcknowledgeEmailForm
 
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 
+from mrt.mail import send_single_message
 from mrt.models import db, Participant, CustomField, Staff, Category
 from mrt.models import search_for_participant, get_participants_full
 
@@ -252,7 +254,53 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
                           context=context)
 
 
-class ParticipantAckPDF(MethodView):
+class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
+
+    template_name = 'meetings/participant/acknowledge.html'
+    permission_required = ('view_participant', )
+
+    def get_participant(self, participant_id):
+        return (
+            Participant.query
+            .filter_by(meeting=g.meeting, id=participant_id).active()
+            .first_or_404())
+
+    def get(self, participant_id):
+        participant = self.get_participant(participant_id)
+        form = AcknowledgeEmailForm(to=participant.email)
+        return render_template(self.template_name, participant=participant,
+                               form=form)
+
+    def post(self, participant_id):
+        participant = self.get_participant(participant_id)
+        form = AcknowledgeEmailForm(request.form)
+        if form.validate():
+            context = {
+                'participant': participant,
+                'template': 'meetings/printouts/_acknowledge_detail.html'}
+            attachement = render_pdf('meetings/printouts/printout.html',
+                                     height='11.7in',
+                                     width='8.26in',
+                                     orientation='portrait',
+                                     as_attachement=True,
+                                     context=context)
+            if send_single_message(form.to.data, form.subject.data,
+                                   form.message.data,
+                                   attachement=attachement,
+                                   attachement_name='registration_detail.pdf'):
+                flash('Message successfully sent', 'success')
+                return redirect(
+                    url_for('.participant_detail',
+                            participant_id=participant.id)
+                )
+            else:
+                flash('Message failed to send', 'error')
+
+        return render_template(self.template_name, participant=participant,
+                               form=form)
+
+
+class ParticipantAcknowledgePDF(MethodView):
 
     def get(self, participant_id):
         participant = Participant.query.filter_by(

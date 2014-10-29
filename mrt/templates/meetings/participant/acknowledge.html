@@ -36,7 +36,8 @@
             <div class="row attachement">
               <div class="col-sm-2"></div>
               <div class="col-sm-6">
-                <a href="{{ url_for('.participant_ack_pdf', participant_id=participant.id) }}">
+                <a href="{{ url_for('.participant_acknowledge_pdf',
+                                    participant_id=participant.id) }}">
                 <span class="label label-info">
                   <span class="glyphicon glyphicon-paperclip"></span>
                   &nbsp;Registration Details.pdf</span></a>

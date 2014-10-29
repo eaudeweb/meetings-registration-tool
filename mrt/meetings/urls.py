@@ -3,14 +3,14 @@ from flask import current_app as app
 
 from mrt.models import Meeting
 
-from mrt.meetings import Meetings, MeetingEdit, RecipientsCount, AckEmail
+from mrt.meetings import Meetings, MeetingEdit, RecipientsCount
 from mrt.meetings import Registration
 
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
 from mrt.meetings import ParticipantRestore, ParticipantLabel
 from mrt.meetings import ParticipantEnvelope, ParticipantsExport
-from mrt.meetings import ParticipantAckPDF
+from mrt.meetings import ParticipantAcknowledgeEmail, ParticipantAcknowledgePDF
 
 from mrt.meetings import MediaParticipants, MediaParticipantsFilter
 from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
@@ -72,7 +72,10 @@ meetings.add_url_rule(
     view_func=ParticipantEnvelope.as_view('participant_envelope'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/acknowledge',
-    view_func=ParticipantAckPDF.as_view('participant_ack_pdf'))
+    view_func=ParticipantAcknowledgeEmail.as_view('participant_acknowledge'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/<int:participant_id>/acknowledge/pdf',
+    view_func=ParticipantAcknowledgePDF.as_view('participant_acknowledge_pdf'))
 
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/search',
@@ -190,8 +193,7 @@ meetings.add_url_rule('/<int:meeting_id>/email/bulk',
                       view_func=BulkEmail.as_view('bulkemail'))
 meetings.add_url_rule('/<int:meeting_id>/email/recipients-count',
                       view_func=RecipientsCount.as_view('recipients_count'))
-meetings.add_url_rule('/<int:meeting_id>/participants/<int:participant_id>/ack',
-                      view_func=AckEmail.as_view('ackemail'))
+
 
 # logs
 meetings.add_url_rule('/<int:meeting_id>/logs/statistics',

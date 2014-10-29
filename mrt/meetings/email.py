@@ -1,11 +1,10 @@
-from flask import render_template, request, flash, redirect, url_for, g, abort
+from flask import render_template, request, flash, redirect, url_for, g
 from flask.views import MethodView
 
-from mrt.forms.meetings.email import BulkEmailForm, AckEmailForm
+from mrt.forms.meetings.email import BulkEmailForm
 from mrt.mail import send_bulk_message, send_single_message
 from mrt.models import Participant, MailLog
 from mrt.meetings import PermissionRequiredMixin
-from mrt.pdf import render_pdf
 
 
 def get_recipients(language, categories=None):
@@ -54,53 +53,6 @@ class RecipientsCount(MethodView):
         categories = request.args.get('categories[]')
         qs = get_recipients(language, categories)
         return '{0}'.format(qs.count())
-
-
-class AckEmail(PermissionRequiredMixin, MethodView):
-
-    template_name = 'meetings/email/ack.html'
-    permission_required = ('view_participant', )
-
-    def get_participant(self, participant_id):
-        return (
-            Participant.query
-            .filter_by(meeting=g.meeting, id=participant_id).active()
-            .first()
-        ) or abort(404)
-
-    def get(self, participant_id):
-        participant = self.get_participant(participant_id)
-        form = AckEmailForm(to=participant.email)
-        return render_template(self.template_name, participant=participant,
-                               form=form)
-
-    def post(self, participant_id):
-        participant = self.get_participant(participant_id)
-        form = AckEmailForm(request.form)
-        if form.validate():
-            context = {
-                'participant': participant,
-                'template': 'meetings/printouts/_acknowledge_detail.html'}
-            attachement = render_pdf('meetings/printouts/printout.html',
-                                     height='11.7in',
-                                     width='8.26in',
-                                     orientation='portrait',
-                                     as_attachement=True,
-                                     context=context)
-            if send_single_message(form.to.data, form.subject.data,
-                                   form.message.data,
-                                   attachement=attachement,
-                                   attachement_name='registration_detail.pdf'):
-                flash('Message successfully sent', 'success')
-                return redirect(
-                    url_for('.participant_detail',
-                            participant_id=participant.id)
-                )
-            else:
-                flash('Message failed to send', 'error')
-
-        return render_template(self.template_name, participant=participant,
-                               form=form)
 
 
 class ResendEmail(PermissionRequiredMixin, MethodView):

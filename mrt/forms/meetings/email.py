@@ -36,6 +36,6 @@ class BulkEmailForm(BaseEmailForm):
         self.categories.choices = [(c.id, c.title) for c in query]
 
 
-class AckEmailForm(BaseEmailForm):
+class AcknowledgeEmailForm(BaseEmailForm):
 
     to = fields.StringField(validators=[DataRequired(), Email()])

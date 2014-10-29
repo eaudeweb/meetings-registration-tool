@@ -617,6 +617,10 @@ class Translation(db.Model):
 
 class PhraseMixin(object):
 
+    ACK_EMAIL = 'Acknowledge email'
+    SUBJECT = 'Subject'
+    BODY = 'Body'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), nullable=False)
 

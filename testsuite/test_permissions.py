@@ -90,9 +90,9 @@ def test_permissions_media_participant(app, url_name, perms, status):
     ('meetings.bulkemail', ('view_participant',), STATUS_OK),
     ('meetings.bulkemail', ('manage_participant',), STATUS_OK),
 
-    ('meetings.ackemail', [], STATUS_DENIED),
-    ('meetings.ackemail', ('view_participant',), STATUS_OK),
-    ('meetings.ackemail', ('manage_participant',), STATUS_OK),
+    ('meetings.participant_acknowledge', [], STATUS_DENIED),
+    ('meetings.participant_acknowledge', ('view_participant',), STATUS_OK),
+    ('meetings.participant_acknowledge', ('manage_participant',), STATUS_OK),
 ])
 def test_permissions_emails(app, url_name, perms, status):
     role = RoleUserMeetingFactory(role__permissions=perms)
