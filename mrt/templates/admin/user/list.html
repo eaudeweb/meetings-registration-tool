@@ -1,0 +1,97 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% block title %}Users{% endblock %}
+
+{% block head %}
+
+  <style type="text/css">
+    .options {
+      display: none;
+    }
+
+    .table tr:hover .options {
+      display: block;
+    }
+
+  </style>
+
+{% endblock %}
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#users').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [('', 'Users')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Users</h2>
+  </div>
+
+
+    <div class="table-responsive">
+
+      <table id="users" class="table table-bordered table-condensed table-hover">
+
+        <thead>
+          <tr>
+            <th class="col-sm-3">Email</th>
+            <th>Meetings</th>
+            <th>Active</th>
+            <th class="col-sm-2">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for user in users %}
+            <tr>
+              <td>{{ user.email }}</td>
+              <td>
+                <ul class="list-unstyled">
+                  {% for participant in user.participants %}
+                    <li><a href="{{ url_for('meetings.participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
+                      {{ participant.meeting }}</a></li>
+                  {% endfor %}
+                </ul>
+              </td>
+              <td class="text-center">
+                {% if user.is_active %}
+                  <span class="glyphicon glyphicon-ok"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-minus"></span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="options">
+                  <small><a href="#">Change Password</a></small> &nbsp;
+                  {% if user.is_active %}
+                    <small><a href="#">Disable</a></small>
+                  {% else %}
+                    <small><a href="#">Enable</a></small>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+    </div>
+
+
+{% endblock %}

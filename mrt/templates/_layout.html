@@ -74,6 +74,10 @@
                 <a href="{{ url_for('admin.roles') }}">
                   Roles</a>
               </li>
+              <li class="{{ active('/admin/users') }}">
+                <a href="{{ url_for('admin.users') }}">
+                  Users</a>
+              </li>
               <li class="{{ active('/admin/settings') }}">
                 <a href="{{ url_for('admin.settings') }}">
                   Settings</a>

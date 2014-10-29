@@ -1,8 +1,8 @@
 from flask import Blueprint
 from mrt.admin import StaffList, StaffEdit
 from mrt.admin import Categories, CategoryEdit, CategoryUpdatePosition
-from mrt.admin import PhrasesTypes, PhraseEdit
-from mrt.admin import Roles, RoleEdit
+from mrt.admin import PhrasesTypes, PhraseEdit, Roles, RoleEdit
+from mrt.admin import Users
 from mrt.admin import SettingsOverview
 
 
@@ -42,3 +42,6 @@ admin.add_url_rule('/roles/<int:role_id>/edit', view_func=role_edit_func)
 
 # Settings
 admin.add_url_rule('/settings', view_func=SettingsOverview.as_view('settings'))
+
+# Users
+admin.add_url_rule('/users', view_func=Users.as_view('users'))
