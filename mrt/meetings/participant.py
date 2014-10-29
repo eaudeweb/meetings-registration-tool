@@ -15,6 +15,7 @@ from mrt.mixins import FilterView
 
 from mrt.mail import send_single_message
 from mrt.models import db, Participant, CustomField, Staff, Category
+from mrt.models import Phrase
 from mrt.models import search_for_participant, get_participants_full
 
 from mrt.pdf import render_pdf
@@ -267,7 +268,15 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id):
         participant = self.get_participant(participant_id)
+        subject = Phrase.query.filter_by(meeting=g.meeting,
+                                         group=Phrase.ACK_EMAIL,
+                                         name=Phrase.SUBJECT).scalar()
+        body = Phrase.query.filter_by(meeting=g.meeting,
+                                      group=Phrase.ACK_EMAIL,
+                                      name=Phrase.BODY).scalar()
         form = AcknowledgeEmailForm(to=participant.email)
+        form.subject.data = subject
+        form.message.data = body
         return render_template(self.template_name, participant=participant,
                                form=form)
 
