@@ -3,9 +3,11 @@ from itertools import groupby
 from flask import request
 from werkzeug import MultiDict
 
+from sqlalchemy_utils import Country
 from wtforms import widgets, fields
 from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import ModelForm
+from wtforms_alchemy import CountryField as _CountryField
 
 from mrt.models import db, Translation
 
@@ -95,7 +97,8 @@ class CategoryWidget(widgets.ListWidget):
         for group, subfields in fields:
             for subfield in subfields:
                 label = subfield.label.text
-                html.append('<li><label>%s %s</label></li>' % (subfield(), label))
+                html.append('<li><label>%s %s</label></li>' % (
+                    subfield(), label))
             html.append('<li class="separator"></li>')
 
         html.append('</%s>' % self.html_tag)
@@ -105,3 +108,18 @@ class CategoryWidget(widgets.ListWidget):
 class CategoryField(fields.RadioField):
 
     widget = CategoryWidget()
+
+
+class CountryField(_CountryField):
+
+    def process_data(self, value):
+        if isinstance(value, Country):
+            self.data = value if value.code else None
+        else:
+            self.data = value
+
+    def _get_choices(self):
+        choices = super(CountryField, self)._get_choices()
+        if not self.flags.required:
+            choices = [('', '---')] + choices
+        return choices

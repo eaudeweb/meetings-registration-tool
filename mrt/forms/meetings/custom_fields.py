@@ -9,10 +9,9 @@ from sqlalchemy_utils import Choice
 from werkzeug import FileStorage, OrderedMultiDict
 from wtforms import fields
 from wtforms.validators import DataRequired
-from wtforms_alchemy import CountryField
 
 from mrt.forms.base import BaseForm
-from mrt.forms.base import BooleanField, CategoryField
+from mrt.forms.base import BooleanField, CategoryField, CountryField
 from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import Category
 from mrt.models import db
@@ -85,6 +84,8 @@ def custom_form_factory(field_types=[], field_slugs=[],
         if f.field_type.code == CustomField.SELECT:
             query = CustomFieldChoice.query.filter_by(custom_field=f)
             attrs['choices'] = [(unicode(c.value), c.value) for c in query]
+            if not f.required:
+                attrs['choices'] = [('', '---')] + attrs['choices']
             attrs['coerce'] = unicode
 
         if f.field_type.code == CustomField.CATEGORY:
