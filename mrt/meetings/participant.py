@@ -1,5 +1,6 @@
-from werkzeug.utils import HTMLBuilder
+from functools import wraps
 
+from werkzeug.utils import HTMLBuilder
 from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash, Response
 from flask.views import MethodView
@@ -11,12 +12,22 @@ from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 
-from mrt.models import db, Participant, CustomField, Staff
+from mrt.models import db, Participant, CustomField, Staff, Category
 from mrt.models import search_for_participant, get_participants_full
 
 from mrt.pdf import render_pdf
 from mrt.signals import activity_signal, notification_signal
 from mrt.utils import generate_excel
+
+
+def _category_required(func):
+    @wraps(func)
+    def wrapper(**kwargs):
+        query = Category.query.filter_by(meeting=g.meeting)
+        if query.count() == 0:
+            return render_template('meetings/category_required.html')
+        return func(**kwargs)
+    return wrapper
 
 
 class Participants(PermissionRequiredMixin, MethodView):
@@ -103,7 +114,8 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
 class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('manage_participant', )
+    permission_required = ('manage_participant',)
+    decorators = (_category_required,)
 
     def _get_object(self, participant_id=None):
         return (Participant.query

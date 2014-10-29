@@ -1,0 +1,21 @@
+{% extends "meetings/_base.html" %}
+
+
+{% set title = "A category for this meeting is required to access this page" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+  <div class="text-center" style="margin-top: 80px;">
+    <h3 class="page-title text-danger">{{ title }}</h3>
+    <p>
+      <a href="{{ url_for('.categories') }}" class="btn btn-primary">
+        Manage categories for this meeting</a>
+    </p>
+  </div>
+
+{% endblock %}
