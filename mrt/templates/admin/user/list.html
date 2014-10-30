@@ -24,8 +24,32 @@
   <script>
     $(function () {
       $('#users').dataTable({"order": []});
+
+      $("[data-toggle=enable]").on("click", function () {
+        var url = $(this).data("href");
+        var row = $(this).parents("tr");
+        var icon = row.find(".glyphicon");
+        var button = $(this);
+          $.ajax({
+            type: "POST",
+            url: url,
+            success: function (resp) {
+              row.effect("highlight");
+              if (icon.hasClass("glyphicon-ok")) {
+                icon.removeClass("glyphicon-ok").addClass("glyphicon-minus");
+                button.text(button.data("enable"));
+              }
+              else {
+                icon.removeClass("glyphicon-minus").addClass("glyphicon-ok");
+                button.text(button.data("disable"));
+              }
+            }
+
+          });
+      });
     });
   </script>
+
 
 {% endblock %}
 
@@ -46,7 +70,7 @@
 
     <div class="table-responsive">
 
-      <table id="users" class="table table-bordered table-condensed table-hover">
+      <table id="users" class="table table-bordered table-condensed">
 
         <thead>
           <tr>
@@ -70,7 +94,7 @@
                 </ul>
               </td>
               <td class="text-center">
-                {% if user.is_active %}
+                {% if user.active %}
                   <span class="glyphicon glyphicon-ok"></span>
                 {% else %}
                   <span class="glyphicon glyphicon-minus"></span>
@@ -79,11 +103,13 @@
               <td>
                 <div class="options">
                   <small><a href="#">Change Password</a></small> &nbsp;
-                  {% if user.is_active %}
-                    <small><a href="#">Disable</a></small>
-                  {% else %}
-                    <small><a href="#">Enable</a></small>
-                  {% endif %}
+
+                  {% set text = 'Disable' if user.active else 'Enable' %}
+                  <small><a data-toggle="enable"
+                            data-enable="Enable"
+                            data-disable="Disable"
+                            data-href="{{ url_for('admin.user_toggle', user_id=user.id) }}">{{ text }}</a>
+                  </small>
                 </div>
               </td>
             </tr>

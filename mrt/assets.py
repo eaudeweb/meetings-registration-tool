@@ -14,6 +14,7 @@ _BUNDLE_CSS = (
 
 _BUNDLE_JS = (
     'js/lib/jquery.min.js',
+    'js/lib/jquery-ui.min.js',
     'js/lib/bootstrap.min.js',
     'js/lib/moment.js',
     'js/lib/jquery.dataTables.min.js',

@@ -2,7 +2,7 @@ from flask import Blueprint
 from mrt.admin import StaffList, StaffEdit
 from mrt.admin import Categories, CategoryEdit, CategoryUpdatePosition
 from mrt.admin import PhrasesTypes, PhraseEdit, Roles, RoleEdit
-from mrt.admin import Users
+from mrt.admin import Users, UserToggle
 from mrt.admin import SettingsOverview
 
 
@@ -45,3 +45,5 @@ admin.add_url_rule('/settings', view_func=SettingsOverview.as_view('settings'))
 
 # Users
 admin.add_url_rule('/users', view_func=Users.as_view('users'))
+admin.add_url_rule('/users/<int:user_id>/toggle',
+                   view_func=UserToggle.as_view('user_toggle'))
