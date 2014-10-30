@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, form_group %}
 
 
 {% block title %}Users{% endblock %}
@@ -23,29 +23,40 @@
 
   <script>
     $(function () {
-      $('#users').dataTable({"order": []});
+      $('#users').dataTable({
+        "order": [],
+        stateSave: true
+      });
 
       $("[data-toggle=enable]").on("click", function () {
         var url = $(this).data("href");
         var row = $(this).parents("tr");
         var icon = row.find(".glyphicon");
         var button = $(this);
-          $.ajax({
-            type: "POST",
-            url: url,
-            success: function (resp) {
-              row.effect("highlight");
-              if (icon.hasClass("glyphicon-ok")) {
-                icon.removeClass("glyphicon-ok").addClass("glyphicon-minus");
-                button.text(button.data("enable"));
-              }
-              else {
-                icon.removeClass("glyphicon-minus").addClass("glyphicon-ok");
-                button.text(button.data("disable"));
-              }
+          $.post(url, function (resp) {
+            row.effect("highlight");
+            if (icon.hasClass("glyphicon-ok")) {
+              icon.removeClass("glyphicon-ok").addClass("glyphicon-minus");
+              button.text(button.data("enable"));
             }
-
+            else {
+              icon.removeClass("glyphicon-minus").addClass("glyphicon-ok");
+              button.text(button.data("disable"));
+            }
           });
+      });
+
+      $("#modal-password").on("submit", "form", function(e) {
+        e.preventDefault();
+        var url = $(this).attr("href");
+        $.post(url, $(this).serialize(), function (resp) {
+          if (resp.status == "success") {
+            location.reload();
+          }
+          else if(resp.status == "error") {
+            $('.modal-content').html(resp.data);
+          }
+        });
       });
     });
   </script>
@@ -84,7 +95,11 @@
         <tbody>
           {% for user in users %}
             <tr>
-              <td>{{ user.email }}</td>
+              <td>{{ user.email }}<br>
+                {% if user.staff %}
+                <small class="text-danger"><em>Staff</em></small>
+                {% endif %}
+              </td>
               <td>
                 <ul class="list-unstyled">
                   {% for participant in user.participants %}
@@ -102,7 +117,9 @@
               </td>
               <td>
                 <div class="options">
-                  <small><a href="#">Change Password</a></small> &nbsp;
+                  <small>
+                    <a href="{{ url_for('admin.user_edit', user_id=user.id) }}" data-toggle="modal" data-target=".modal-password">Change Password</a>
+                  </small>&nbsp;
 
                   {% set text = 'Disable' if user.active else 'Enable' %}
                   <small><a data-toggle="enable"
@@ -119,5 +136,10 @@
       </table>
     </div>
 
+    <div id="modal-password" class="modal fade modal-password" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content"></div>
+      </div>
+    </div>
 
 {% endblock %}

@@ -71,19 +71,26 @@ class ResetPasswordForm(Form):
             raise validators.ValidationError('Passwords differ!')
 
 
-class ChangePasswordForm(Form):
-    password = PasswordField('Password', [validators.DataRequired()])
+class AdminChangePasswordForm(Form):
     new_password = PasswordField('New Password', [validators.DataRequired()])
     confirm = PasswordField('Confirm Password', [validators.DataRequired()])
 
-    def validate_password(self, field):
-        if not current_user.check_password(self.password.data):
-            raise validators.ValidationError('Password is incorrect')
+    def __init__(self, *args, **kwargs):
+        super(AdminChangePasswordForm, self).__init__(*args, **kwargs)
+        self.user = kwargs.get('user', current_user)
 
     def validate_confirm(self, field):
         if self.new_password.data != self.confirm.data:
             raise validators.ValidationError('Passwords differ')
 
     def save(self):
-        current_user.set_password(self.new_password.data)
+        self.user.set_password(self.new_password.data)
         db.session.commit()
+
+
+class ChangePasswordForm(AdminChangePasswordForm):
+    password = PasswordField('Password', [validators.DataRequired()])
+
+    def validate_password(self, field):
+        if not self.user.check_password(self.password.data):
+            raise validators.ValidationError('Password is incorrect')
