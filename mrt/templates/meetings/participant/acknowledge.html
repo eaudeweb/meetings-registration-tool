@@ -23,6 +23,22 @@
 {% endblock %}
 
 
+{% block head %}
+
+  <style type="text/css">
+    .participant-language {
+      text-transform: uppercase;
+      position: absolute;
+      background: #333;
+      padding: 3px 8px;
+      color: #fff;
+      right: 0;
+    }
+  </style>
+
+{% endblock %}
+
+
 {% block content %}
 
   {{ super() }}
@@ -38,6 +54,12 @@
         <div class="panel panel-default">
 
           <div class="panel-body">
+
+            <div class="participant-language" title="Participant working language" data-toggle="tooltip" data-placement="top"
+            data-container="body">
+              <small>{{ participant.language }}</small>
+            </div>
+
             {{ form_group(form.to, label_size="2", input_size="6") }}
             {{ form_group(form.subject, label_size="2", input_size="6",
                           options={"autofocus": ""}) }}
