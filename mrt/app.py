@@ -2,7 +2,7 @@ import logging
 import sys
 
 from werkzeug import SharedDataMiddleware
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, g
 from flask.ext.babel import Babel
 from flask.ext.login import LoginManager
 from flask.ext.thumbnails import Thumbnail
@@ -45,7 +45,12 @@ def create_app(config={}):
     app.config.from_pyfile('settings.py')
     app.config.update(config)
 
-    Babel(app)
+    babel = Babel(app)
+
+    @babel.localeselector
+    def get_locale():
+        return getattr(g, 'language', 'en')
+
     assets_env.init_app(app)
     db.init_app(app)
 

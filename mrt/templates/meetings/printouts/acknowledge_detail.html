@@ -21,7 +21,7 @@
 </div>
 
 <div class="highlight highlight-border highlight-pad text-center">
-  <h3><em>Details of registration - {{ participant.category }}</em></h3>
+  <h3><em>{{ gettext('Details of registration') }} - {{ participant.category }}</em></h3>
 </div>
 
 <table class="table">
@@ -40,17 +40,23 @@
   </tr>
 
   <tr>
-    <td class="text-right"><b><em>Category</em></b></td>
+    <td class="text-right">
+      <b><em>{{ gettext('Category') }}</em></b>
+    </td>
     <td class="pad-left">{{ participant.category }}</td>
   </tr>
 
   <tr>
-    <td class="text-right"><b><em>Representative of</em></b></td>
+    <td class="text-right">
+      <b><em>{{ gettext('Representative of') }}</em></b>
+    </td>
     <td class="pad-left">{{ participant.representing }}</td>
   </tr>
 
   <tr>
-    <td class="text-right"><b><em>Working language</em></b></td>
+    <td class="text-right">
+      <b><em>{{ gettext('Working language') }}</em></b>
+    </td>
     <td class="pad-left">{{ participant.language }}</td>
   </tr>
 

@@ -1,7 +1,16 @@
 {% extends "meetings/_base.html" %}
 {% from "_bits.html" import breadcrumb, form_group %}
 
-{% set participant_url = url_for('meetings.participant_detail', participant_id=participant.id) %}
+
+{% set title = 'Send acknowledge email to: ' ~ participant.name %}
+
+
+{% set participant_url = url_for('meetings.participant_detail',
+                                 participant_id=participant.id) %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
 
 {% block breadcrumb %}
 
@@ -18,7 +27,7 @@
 
   {{ super() }}
 
-  <h3 class="page-title">Send acknowledge email to: {{ participant.name }}</h3>
+  <h3 class="page-title">{{ title }}</h3>
 
   <form class="form-horizontal" method="post">
 
@@ -40,10 +49,9 @@
                                     participant_id=participant.id) }}">
                 <span class="label label-info">
                   <span class="glyphicon glyphicon-paperclip"></span>
-                  &nbsp;Registration Details.pdf</span></a>
+                  &nbsp;{{ gettext('Details of registration') }}.pdf</span></a>
               </div>
             </div> {# row #}
-
             {{ form_group(form.message, label_size="2", input_size="6",
                           options={"rows": "10"}) }}
 

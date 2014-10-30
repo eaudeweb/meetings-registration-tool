@@ -131,6 +131,23 @@ Lint python files on commit::
     chmod +x .git/hooks/pre-commit
 
 
+i18n deployment
+---------------
+
+Run the `pybabel` command that comes with Babel to extract your strings::
+    pybabel extract -F babel.cfg -o mrt/translations/messages.pot .
+
+Create translations::
+    pybabel init -i mrt/translations/messages.pot -d cites/translations -l es
+    pybabel init -i mrt/translations/messages.pot -d cites/translations -l fr
+
+To compile the translations for use, pybabel helps again::
+    pybabel compile -d mrt/translations
+
+Merge the changes::
+    pybabel update -i mrt/translations/messages.pot -d mrt/translations
+
+
 Contacts
 ========
 

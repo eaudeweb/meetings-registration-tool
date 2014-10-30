@@ -1,12 +1,16 @@
-import os
-import re
-import xlwt
-from StringIO import StringIO
 from PIL import Image
+from StringIO import StringIO
 from unicodedata import normalize
 from uuid import uuid4
 
+import os
+import re
+import xlwt
+
 from flask import _request_ctx_stack, current_app as app
+from flask import g
+from flask.ext.babel import refresh
+
 from babel import support, Locale
 from path import path
 
@@ -165,3 +169,9 @@ def translate(text, lang_code='en'):
     if translations:
         return translations.gettext(text).decode('unicode-escape')
     return text
+
+
+def set_language(lang='english'):
+    iso = {'english': 'en', 'french': 'fr', 'spanish': 'es'}.get(lang, 'en')
+    g.language = iso
+    refresh()

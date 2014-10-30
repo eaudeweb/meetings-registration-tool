@@ -276,7 +276,7 @@ class Participant(db.Model):
                              self.last_name)
 
     @property
-    def lang_trans(self):
+    def lang(self):
         return self.language.value.lower()
 
     @property
