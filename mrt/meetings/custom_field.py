@@ -57,6 +57,13 @@ class CustomFieldEdit(PermissionRequiredMixin, MethodView):
 
     def delete(self, custom_field_id):
         custom_field = self._get_object(custom_field_id)
+        count = CustomFieldValue.query.filter_by(
+            custom_field=custom_field).count()
+        if count:
+            msg = ("Unable to remove the custom field. There are participants "
+                   "with values for this field.")
+            return jsonify(status="error", message=msg)
+
         db.session.delete(custom_field)
         db.session.commit()
         flash('Custom field successfully deleted', 'warning')
