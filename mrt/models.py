@@ -267,6 +267,8 @@ class Participant(db.Model):
     credentials = db.Column(db.Boolean, default=False,
                             info={'label': _('Credentials')})
 
+    registration_token = db.Column(db.String(64), nullable=True)
+
     def __repr__(self):
         return self.name
 

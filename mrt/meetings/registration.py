@@ -1,9 +1,11 @@
 from functools import wraps
 from flask.views import MethodView
-from flask import g, render_template, request
+from flask import g, render_template, request, session
 
+from mrt.models import Participant, db
 from mrt.forms.meetings import custom_form_factory
 from mrt.forms.meetings import RegistrationForm
+from mrt.forms.auth import UserRegistrationForm
 from mrt.signals import activity_signal, notification_signal
 from mrt.signals import registration_signal
 
@@ -38,7 +40,27 @@ class Registration(MethodView):
                                  action='add')
             notification_signal.send(self, participant=participant)
             registration_signal.send(self, participant=participant)
+            user_form = UserRegistrationForm(email=participant.email)
+            session['participant'] = participant.registration_token
             return render_template('meetings/registration/success.html',
-                                   participant=participant)
+                                   participant=participant,
+                                   form=user_form)
         return render_template('meetings/registration/form.html',
                                form=form)
+
+
+class UserRegistration(MethodView):
+
+    def post(self):
+        user_form = UserRegistrationForm(request.form)
+        import pdb; pdb.set_trace()
+        if user_form.validate():
+            registration_token = session.pop('participant', None)
+            participant = Participant.query.filter_by(
+                registration_token=registration_token).first()
+            user = user_form.save()
+            participant.user = user
+            db.session.commit()
+            return render_template('meetings/registration/user_success.html')
+        return render_template('meetings/registration/user_registration.html',
+                               form=user_form)

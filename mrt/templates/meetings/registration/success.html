@@ -1,4 +1,5 @@
 {% extends "meetings/registration/_base.html" %}
+{% from "_bits.html" import form_group %}
 
 
 {% block content %}
@@ -8,5 +9,24 @@
     <h2 class="text-center">An email with your personal details has been sent to {{ participant.email }}
     </h2>
   </div>
+
+  <form method="post" class="form-horizontal" action="{{ url_for('meetings.user_registration') }}">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <b>Create a user in order to login to the meetings web site</b>
+      </div>
+
+      <div class="panel-body">
+        {{ form_group(form.email) }}
+        {{ form_group(form.password) }}
+        {{ form_group(form.confirm) }}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Create user</button>
+    </div>
+
+  </form>
 
 {% endblock %}

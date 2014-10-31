@@ -94,3 +94,22 @@ class ChangePasswordForm(AdminChangePasswordForm):
     def validate_password(self, field):
         if not self.user.check_password(self.password.data):
             raise validators.ValidationError('Password is incorrect')
+
+
+class UserRegistrationForm(Form):
+
+    email = StringField('Email')
+    password = PasswordField('Password', [validators.DataRequired()])
+    confirm = PasswordField('Confirm Password', [validators.DataRequired()])
+
+    def validate_email(self, field):
+        #check if another user with this email exists
+        pass
+
+    def validate_confirm(self, field):
+        if self.password.data != self.confirm.data:
+            raise validators.ValidationError('Passwords differ')
+
+    def save(self):
+        #create user and return it
+        pass

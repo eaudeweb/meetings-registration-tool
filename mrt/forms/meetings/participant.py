@@ -21,6 +21,10 @@ class ParticipantEditForm(BaseForm):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
 
+        if participant.id is None:
+            participant.registration_token = str(uuid4())
+            db.session.add(participant)
+
         for field_name, field in self._fields.items():
             cf = self._custom_fields[field.name]
             if cf.is_primary:
@@ -35,9 +39,6 @@ class ParticipantEditForm(BaseForm):
                     cfv.value = field.data
                 if not cfv.id:
                     db.session.add(cfv)
-
-        if participant.id is None:
-            db.session.add(participant)
         if commit:
             db.session.commit()
 
