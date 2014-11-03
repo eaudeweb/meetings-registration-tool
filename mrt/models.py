@@ -584,7 +584,7 @@ class CategoryMixin(object):
         locale = get_locale()
         lang = {'en': 'english', 'fr': 'french', 'es': 'spanish'}.get(
             locale.language, 'english')
-        return getattr(self.title, lang, 'english')
+        return getattr(self.title, lang, '') or ''
 
 
 class Category(CategoryMixin, db.Model):
