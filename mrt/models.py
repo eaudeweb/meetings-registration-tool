@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask import g, render_template, current_app as app
 from flask.ext.babel import gettext as _
+from flask.ext.babel import lazy_gettext as __
+from flask.ext.babel import get_locale
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask_redis import Redis
 
@@ -199,9 +201,9 @@ class Participant(db.Model):
         ('Mr', 'Mr'),
     )
     LANGUAGE_CHOICES = (
-        ('English', 'English'),
-        ('Spanish', 'Spanish'),
-        ('French', 'French'),
+        ('English', __('English')),
+        ('Spanish', __('Spanish')),
+        ('French', __('French')),
     )
 
     id = db.Column(db.Integer, primary_key=True)
@@ -578,6 +580,12 @@ class CategoryMixin(object):
         db.Boolean, default=False,
         info={'label': 'Visible on registration form'})
 
+    def __repr__(self):
+        locale = get_locale()
+        lang = {'en': 'english', 'fr': 'french', 'es': 'spanish'}.get(
+            locale.language, 'english')
+        return getattr(self.title, lang, 'english')
+
 
 class Category(CategoryMixin, db.Model):
 
@@ -591,16 +599,10 @@ class Category(CategoryMixin, db.Model):
         'Meeting',
         backref=db.backref('categories', lazy='dynamic', cascade="delete"))
 
-    def __repr__(self):
-        return self.title.english
-
 
 class CategoryDefault(CategoryMixin, db.Model):
 
     __tablename__ = 'category_default'
-
-    def __repr__(self):
-        return self.title.english
 
 
 class Translation(db.Model):

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-10-30 17:16+0200\n"
+"POT-Creation-Date: 2014-11-03 16:25+0200\n"
 "PO-Revision-Date: 2014-09-04 15:12+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
@@ -17,59 +17,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: mrt/models.py:215
+#: mrt/models.py:203
+msgid "English"
+msgstr "Anglais"
+
+#: mrt/models.py:204
+msgid "Spanish"
+msgstr "Espagnol"
+
+#: mrt/models.py:205
+msgid "French"
+msgstr "Français"
+
+#: mrt/models.py:217
 msgid "Title"
 msgstr "Titre"
 
-#: mrt/models.py:218
+#: mrt/models.py:220
 msgid "Given name"
 msgstr "Prénom"
 
-#: mrt/models.py:221
+#: mrt/models.py:223
 msgid "Family name"
 msgstr "Nom de famille"
 
-#: mrt/models.py:224
+#: mrt/models.py:226
 msgid "Email"
 msgstr "Email"
 
-#: mrt/models.py:241
+#: mrt/models.py:243
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:58
 msgid "Working language"
 msgstr "Langue de travail"
 
-#: mrt/models.py:244
+#: mrt/models.py:246
 msgid "Country"
 msgstr "Pays"
 
-#: mrt/models.py:250
+#: mrt/models.py:252
 msgid "Country represented"
 msgstr "Pays représentés"
 
-#: mrt/models.py:254
+#: mrt/models.py:256
 msgid "Representing region"
 msgstr "Région représentant"
 
-#: mrt/models.py:258
+#: mrt/models.py:260
 msgid "Organization represented"
 msgstr "Organisation représentée"
 
-#: mrt/models.py:261
+#: mrt/models.py:263
 msgid "Attended"
 msgstr "Participation"
 
-#: mrt/models.py:264
+#: mrt/models.py:266
 msgid "Verified"
 msgstr "Vérifié"
 
-#: mrt/models.py:267
+#: mrt/models.py:269
 msgid "Credentials"
 msgstr "Lettres de créance"
 
-#: mrt/templates/meetings/participant/acknowledge.html:52
-msgid "Registration details"
-msgstr "Détails de l'enregistrement"
-
+#: mrt/templates/meetings/participant/acknowledge.html:74
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:24
 msgid "Details of registration"
 msgstr "Détails de l'inscription"
@@ -114,4 +123,7 @@ msgstr "Représentant de"
 
 #~ msgid "Nomenclature specialist"
 #~ msgstr "Sp\\u00e9cialiste de la nomenclature"
+
+#~ msgid "Registration details"
+#~ msgstr "Détails de l'enregistrement"
 
