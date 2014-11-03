@@ -1,6 +1,7 @@
 from flask import render_template, jsonify, request
 from flask import flash
-from flask.ext.login import login_required
+from flask import g, abort
+from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
 from mrt.meetings import PermissionRequiredMixin
@@ -26,6 +27,8 @@ class UserToggle(PermissionRequiredMixin, MethodView):
 
     def post(self, user_id):
         user = User.query.get_or_404(user_id)
+        if user == current_user:
+            abort(400)
         user.active = not user.active
         db.session.commit()
         return jsonify(status="success")
