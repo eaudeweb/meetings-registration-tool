@@ -44,8 +44,8 @@ meetings.add_url_rule('/<int:meeting_id>/edit', view_func=meeting_edit_func)
 
 meetings.add_url_rule('/<int:meeting_id>/registration',
                       view_func=Registration.as_view('registration'))
-meetings.add_url_rule('/user/registration',
-                      view_func=UserRegistration.as_view('user_registration'))
+meetings.add_url_rule('/<int:meeting_id>/registration/user',
+                      view_func=UserRegistration.as_view('registration_user'))
 
 
 # participants

@@ -4,28 +4,42 @@
 
 {% block content %}
 
-  <div class="alert alert-success">
-    <h2 class="text-center">Successfully registered  for {{ g.meeting.acronym }}.</h2>
-    <h2 class="text-center">An email with your personal details has been sent to {{ participant.email }}
-    </h2>
+  <div class="text-center">
+    <h2>Successfully registered  for {{ g.meeting.acronym }}.</h2>
+    <h4>An email with your personal details has been sent to {{ participant.email }}</h4>
   </div>
 
-  <form method="post" class="form-horizontal" action="{{ url_for('meetings.user_registration') }}">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <b>Create a user in order to login to the meetings web site</b>
-      </div>
+  <form method="post" class="form-horizontal" style="margin-top: 45px;"
+        action="{{ url_for('meetings.registration_user') }}">
 
-      <div class="panel-body">
-        {{ form_group(form.email) }}
-        {{ form_group(form.password) }}
-        {{ form_group(form.confirm) }}
-      </div>
-    </div>
+    <div class="row">
 
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary">Create user</button>
-    </div>
+      <div class="col-sm-6 col-sm-push-3">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <b>Create a user in order to login to the meetings web site</b>
+          </div>
+
+          <div class="panel-body">
+
+            {{ form_group(form.email, label_size="4", options={'autofocus': ''}) }}
+            {{ form_group(form.password, label_size="4") }}
+            {{ form_group(form.confirm, label_size="4") }}
+
+            <div class="row">
+              <div class="col-sm-8 col-sm-push-4">
+                <button type="submit" class="btn btn-primary">Create user</button>
+              </div>
+            </div>
+
+          </div> {# panel-body #}
+
+        </div> {# panel #}
+
+      </div> {# col-sm-6#}
+
+    </div> {# row#}
 
   </form>
 

@@ -1,17 +1,19 @@
-from wtforms import Form
-from wtforms import StringField, PasswordField, validators
-from flask.ext.login import current_user
-
 from uuid import uuid4
 from datetime import datetime
 
-from .base import BaseForm
+from flask.ext.babel import gettext as _
+from flask.ext.login import current_user
+
+from wtforms import Form
+from wtforms import StringField, PasswordField, validators
+
 from mrt.models import db, User
+from .base import BaseForm
 
 
 class LoginForm(Form):
 
-    email = StringField('Email')
+    email = StringField('Email', [validators.Email()])
     password = PasswordField('Password')
 
     def validate_email(self, field):
@@ -24,7 +26,7 @@ class LoginForm(Form):
     def validate_password(self, field):
         user = self.get_user()
         if (user and user.is_active() and
-            not user.check_password(self.password.data)):
+           not user.check_password(self.password.data)):
             raise validators.ValidationError('Invalid password')
 
     def get_user(self):
@@ -39,7 +41,7 @@ class UserForm(BaseForm):
 
 class RecoverForm(Form):
 
-    email = StringField('Email', [validators.DataRequired()])
+    email = StringField('Email', [validators.Email()])
 
     def validate_email(self, field):
         user = self.get_user()
@@ -98,13 +100,16 @@ class ChangePasswordForm(AdminChangePasswordForm):
 
 class UserRegistrationForm(Form):
 
-    email = StringField('Email')
+    email = StringField('Email', [validators.Email()])
     password = PasswordField('Password', [validators.DataRequired()])
     confirm = PasswordField('Confirm Password', [validators.DataRequired()])
 
     def validate_email(self, field):
-        #check if another user with this email exists
-        pass
+        user = User.query.filter_by(email=field.data).scalar()
+        if user:
+            raise validators.ValidationError(
+                _('Another participant is already registered with this email '
+                  'address.'))
 
     def validate_confirm(self, field):
         if self.password.data != self.confirm.data:

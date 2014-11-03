@@ -1,6 +1,6 @@
 from functools import wraps
 from flask.views import MethodView
-from flask import g, render_template, request, session
+from flask import g, render_template, request, session, abort
 
 from mrt.models import Participant, db
 from mrt.forms.meetings import custom_form_factory
@@ -21,7 +21,7 @@ def _render_if_closed(func):
 
 class Registration(MethodView):
 
-    decorators = (_render_if_closed, )
+    decorators = (_render_if_closed,)
 
     def get(self):
         Form = custom_form_factory(registration_fields=True,
@@ -40,8 +40,10 @@ class Registration(MethodView):
                                  action='add')
             notification_signal.send(self, participant=participant)
             registration_signal.send(self, participant=participant)
+
             user_form = UserRegistrationForm(email=participant.email)
-            session['participant'] = participant.registration_token
+            session['registration_token'] = participant.registration_token
+
             return render_template('meetings/registration/success.html',
                                    participant=participant,
                                    form=user_form)
@@ -52,15 +54,17 @@ class Registration(MethodView):
 class UserRegistration(MethodView):
 
     def post(self):
-        user_form = UserRegistrationForm(request.form)
-        import pdb; pdb.set_trace()
-        if user_form.validate():
-            registration_token = session.pop('participant', None)
-            participant = Participant.query.filter_by(
-                registration_token=registration_token).first()
-            user = user_form.save()
-            participant.user = user
+        registration_token = session.get('registration_token', None)
+        if not registration_token:
+            abort(400)
+        participant = Participant.query.filter_by(
+            registration_token=registration_token).first_or_404()
+
+        form = UserRegistrationForm(request.form)
+        if form.validate():
+            session.pop('registration_token', None)
+            participant.user = form.save()
             db.session.commit()
-            return render_template('meetings/registration/user_success.html')
-        return render_template('meetings/registration/user_registration.html',
-                               form=user_form)
+        return render_template('meetings/registration/success.html',
+                               participant=participant,
+                               form=form)
