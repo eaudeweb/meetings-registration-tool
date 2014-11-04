@@ -194,6 +194,9 @@ class RoleUser(db.Model):
 
 class Participant(db.Model):
 
+    __table_args__ = (
+        db.UniqueConstraint('registration_token'),)
+
     query_class = ParticipantQuery
 
     TITLE_CHOICES = (
