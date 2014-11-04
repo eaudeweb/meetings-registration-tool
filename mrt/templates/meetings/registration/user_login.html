@@ -1,0 +1,41 @@
+{% extends "meetings/registration/_base.html" %}
+{% from "_bits.html" import form_group %}
+
+
+{% block content %}
+
+  <form method="post" class="form-horizontal" style="margin-top: 45px;">
+
+    <div class="row">
+
+      <div class="col-sm-6 col-sm-push-3">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <b>Login an pre fill the registration form</b>
+          </div>
+
+          <div class="panel-body">
+
+            {{ form_group(form.email, label_size="4", options={'autofocus': ''}) }}
+            {{ form_group(form.password, label_size="4") }}
+
+            <div class="row">
+              <div class="col-sm-8 col-sm-push-4">
+                <button type="submit" class="btn btn-primary">
+                  Login</button> or
+                  <a href="{{ url_for('.registration') }}">Cancel</a>
+              </div>
+            </div>
+
+          </div> {# panel-body #}
+
+        </div> {# panel #}
+
+      </div> {# col-sm-6 #}
+
+    </div> {# row #}
+
+  </form>
+
+{% endblock %}

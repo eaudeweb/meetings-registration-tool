@@ -4,7 +4,7 @@ from flask import current_app as app
 from mrt.models import Meeting
 
 from mrt.meetings import Meetings, MeetingEdit, RecipientsCount
-from mrt.meetings import Registration, UserRegistration
+from mrt.meetings import Registration, UserRegistration, UserRegistrationLogin
 
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
@@ -46,6 +46,9 @@ meetings.add_url_rule('/<int:meeting_id>/registration',
                       view_func=Registration.as_view('registration'))
 meetings.add_url_rule('/<int:meeting_id>/registration/user',
                       view_func=UserRegistration.as_view('registration_user'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/registration/login',
+    view_func=UserRegistrationLogin.as_view('registration_user_login'))
 
 
 # participants

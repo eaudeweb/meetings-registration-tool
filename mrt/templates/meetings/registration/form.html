@@ -3,12 +3,18 @@
 
 
 {% block content %}
+
   {{ flashed_messages() }}
+
+  <div class="text-right">
+    <a href="{{ url_for('.registration_user_login') }}">
+      Login and pre fill the registration form</a>
+  </div>
 
   <form method="POST" class="form-horizontal" enctype="multipart/form-data">
 
     {% for field in form %}
-      {{ form_group(field) }}
+      {{ form_group(field, label_size="2", input_size="10") }}
     {% endfor %}
 
     <div class="form-actions row">

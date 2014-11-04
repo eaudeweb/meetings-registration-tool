@@ -1,7 +1,6 @@
 from uuid import uuid4
 from datetime import datetime
 
-from flask.ext.babel import gettext as _
 from flask.ext.login import current_user
 
 from wtforms import Form
@@ -96,28 +95,3 @@ class ChangePasswordForm(AdminChangePasswordForm):
     def validate_password(self, field):
         if not self.user.check_password(self.password.data):
             raise validators.ValidationError('Password is incorrect')
-
-
-class UserRegistrationForm(Form):
-
-    email = StringField('Email', [validators.Email()])
-    password = PasswordField('Password', [validators.DataRequired()])
-    confirm = PasswordField('Confirm Password', [validators.DataRequired()])
-
-    def validate_email(self, field):
-        user = User.query.filter_by(email=field.data).scalar()
-        if user:
-            raise validators.ValidationError(
-                _('Another participant is already registered with this email '
-                  'address.'))
-
-    def validate_confirm(self, field):
-        if self.password.data != self.confirm.data:
-            raise validators.ValidationError('Passwords differ')
-
-    def save(self):
-        user = User(email=self.email.data)
-        user.set_password(self.password.data)
-        db.session.add(user)
-        db.session.commit()
-        return user
