@@ -128,10 +128,8 @@ def send_registration_message(sender, participant):
                                     name='for participants').first()
     template = app.jinja_env.get_template(
         'meetings/registration/mail_template.html')
-    body_html = template.render({
-        'participant': participant,
-        'phrase': phrase,
-    })
+    body_html = template.render({'participant': participant,
+                                 'phrase': phrase})
 
     msg = Message(subject=subject, html=body_html, sender=sender,
                   recipients=[participant.email])

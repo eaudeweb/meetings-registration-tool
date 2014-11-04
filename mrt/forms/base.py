@@ -118,6 +118,13 @@ class CountryField(_CountryField):
         else:
             self.data = value
 
+    def process_formdata(self, valuelist):
+        if valuelist:
+            if valuelist[0]:
+                self.data = self.coerce(valuelist[0])
+            else:
+                self.data = None
+
     def _get_choices(self):
         choices = super(CountryField, self)._get_choices()
         if not self.flags.required:

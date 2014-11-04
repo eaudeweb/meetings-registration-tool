@@ -65,6 +65,6 @@ class UserRegistration(MethodView):
             session.pop('registration_token', None)
             participant.user = form.save()
             db.session.commit()
-        return render_template('meetings/registration/success.html',
+        return render_template('meetings/registration/user_success.html',
                                participant=participant,
                                form=form)

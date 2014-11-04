@@ -116,5 +116,8 @@ class UserRegistrationForm(Form):
             raise validators.ValidationError('Passwords differ')
 
     def save(self):
-        #create user and return it
-        pass
+        user = User(email=self.email.data)
+        user.set_password(self.password.data)
+        db.session.add(user)
+        db.session.commit()
+        return user
