@@ -4,9 +4,9 @@ import json
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask import g, render_template, current_app as app
+from flask.ext.babel import get_locale, Locale
 from flask.ext.babel import gettext as _
 from flask.ext.babel import lazy_gettext as __
-from flask.ext.babel import get_locale
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask_redis import Redis
 
@@ -581,7 +581,7 @@ class CategoryMixin(object):
         info={'label': 'Visible on registration form'})
 
     def __repr__(self):
-        locale = get_locale()
+        locale = get_locale() or Locale('en')
         lang = {'en': 'english', 'fr': 'french', 'es': 'spanish'}.get(
             locale.language, 'english')
         return getattr(self.title, lang, '') or ''
