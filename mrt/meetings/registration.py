@@ -5,7 +5,7 @@ from flask import redirect, url_for
 from flask.ext.login import login_user, current_user
 
 from mrt.models import Participant, db
-from mrt.forms.meetings import custom_form_factory
+from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
 from mrt.forms.auth import LoginForm
 from mrt.signals import activity_signal, notification_signal
@@ -33,7 +33,8 @@ class Registration(MethodView):
             participant = current_user.participants.filter_by(
                 meeting=None,
                 category=None).first()
-            form = Form(obj=participant)
+            Object = custom_object_factory(participant)
+            form = Form(obj=Object())
         return render_template('meetings/registration/form.html',
                                form=form)
 
@@ -43,6 +44,9 @@ class Registration(MethodView):
         form = Form(request.form)
         if form.validate():
             participant = form.save()
+            if current_user.is_authenticated():
+                participant.user = current_user
+                db.session.commit()
             activity_signal.send(self, participant=participant,
                                  action='add')
             notification_signal.send(self, participant=participant)
