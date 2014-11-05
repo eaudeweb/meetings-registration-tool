@@ -212,7 +212,7 @@ class Participant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'),
-                           nullable=False)
+                           nullable=True)
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('participants', lazy='dynamic', cascade="delete"))
@@ -238,7 +238,7 @@ class Participant(db.Model):
 
     category_id = db.Column(
         db.Integer, db.ForeignKey('category.id'),
-        nullable=False)
+        nullable=True)
     category = db.relationship(
         'Category',
         backref=db.backref('participants', lazy='dynamic'))
