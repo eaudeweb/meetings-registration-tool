@@ -2,7 +2,7 @@ from functools import wraps
 from flask.views import MethodView
 from flask import g, render_template, request, session, abort
 from flask import redirect, url_for
-from flask.ext.login import login_user
+from flask.ext.login import login_user, current_user
 
 from mrt.models import Participant, db
 from mrt.forms.meetings import custom_form_factory
@@ -29,6 +29,11 @@ class Registration(MethodView):
         Form = custom_form_factory(registration_fields=True,
                                    form=RegistrationForm)
         form = Form()
+        if current_user.is_authenticated():
+            participant = current_user.participants.filter_by(
+                meeting=None,
+                category=None).first()
+            form = Form(obj=participant)
         return render_template('meetings/registration/form.html',
                                form=form)
 
