@@ -1,6 +1,8 @@
 from functools import wraps
 from flask.views import MethodView
 from flask import g, render_template, request, session, abort
+from flask import redirect, url_for
+from flask.ext.login import login_user
 
 from mrt.models import Participant, db
 from mrt.forms.meetings import custom_form_factory
@@ -78,8 +80,10 @@ class UserRegistrationLogin(MethodView):
                                form=form)
 
     def post(self):
-        form = LoginForm()
+        form = LoginForm(request.form)
         if form.validate():
-            pass
+            user = form.get_user()
+            login_user(user)
+            return redirect(url_for('meetings.registration'))
         return render_template('meetings/registration/user_login.html',
                                form=form)
