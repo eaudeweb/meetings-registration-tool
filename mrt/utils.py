@@ -175,3 +175,13 @@ def set_language(lang='english'):
     iso = {'english': 'en', 'french': 'fr', 'spanish': 'es'}.get(lang, 'en')
     g.language = iso
     refresh()
+
+
+def clone_sqlalchemy_object(obj, source, with_relations=False, exclude=[]):
+    for c in obj.__table__.c:
+        if c.name == 'id' or c.name in exclude:
+            continue
+        if not with_relations and c.name.endswith('id'):
+            continue
+        setattr(obj, c.name, getattr(source, c.name))
+    return obj

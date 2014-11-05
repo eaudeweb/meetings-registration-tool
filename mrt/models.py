@@ -20,7 +20,7 @@ from sqlalchemy_utils import generates
 from mrt.definitions import (
     MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
     CATEGORY_REPRESENTING)
-from mrt.utils import slugify
+from mrt.utils import slugify, clone_sqlalchemy_object
 
 
 db = SQLAlchemy()
@@ -308,6 +308,12 @@ class Participant(db.Model):
             return photo.value if photo else None
         return None
 
+    def clone(self):
+        participant = clone_sqlalchemy_object(
+            Participant(), self, with_relations=True,
+            exclude=('meeting_id', 'category_id', 'registration_token',))
+        return participant
+
 
 class CustomField(db.Model):
 
@@ -368,7 +374,8 @@ class CustomField(db.Model):
 
     def get_or_create_value(self, participant):
         with db.session.no_autoflush:
-            value = (self.custom_field_values.filter_by(participant=participant)
+            value = (self.custom_field_values
+                     .filter_by(participant=participant)
                      .first())
         return value or CustomFieldValue(custom_field=self,
                                          participant=participant)

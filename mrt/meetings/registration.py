@@ -71,6 +71,9 @@ class UserRegistration(MethodView):
         if form.validate():
             session.pop('registration_token', None)
             participant.user = form.save()
+            db.session.flush()
+            default_participant = participant.clone()
+            db.session.add(default_participant)
             db.session.commit()
         return render_template('meetings/registration/user_success.html',
                                participant=participant,
