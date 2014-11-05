@@ -367,8 +367,9 @@ class CustomField(db.Model):
         return self.slug or slugify(self.label.english)
 
     def get_or_create_value(self, participant):
-        value = (self.custom_field_values.filter_by(participant=participant)
-                 .first())
+        with db.session.no_autoflush:
+            value = (self.custom_field_values.filter_by(participant=participant)
+                     .first())
         return value or CustomFieldValue(custom_field=self,
                                          participant=participant)
 
