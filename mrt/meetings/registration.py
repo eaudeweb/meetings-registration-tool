@@ -2,7 +2,7 @@ from functools import wraps
 from flask.views import MethodView
 from flask import g, render_template, request, session, abort
 from flask import redirect, url_for
-from flask.ext.login import login_user, current_user
+from flask.ext.login import login_user, logout_user, current_user
 
 from mrt.models import Participant, db
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
@@ -46,7 +46,7 @@ class Registration(MethodView):
             participant = form.save()
             if current_user.is_authenticated():
                 participant.user = current_user
-                db.session.commit()
+            db.session.commit()
             activity_signal.send(self, participant=participant,
                                  action='add')
             notification_signal.send(self, participant=participant)
@@ -79,7 +79,8 @@ class UserRegistration(MethodView):
             default_participant = participant.clone()
             db.session.add(default_participant)
             db.session.commit()
-        return render_template('meetings/registration/user_success.html',
+            return render_template('meetings/registration/user_success.html')
+        return render_template('meetings/registration/success.html',
                                participant=participant,
                                form=form)
 
@@ -99,3 +100,10 @@ class UserRegistrationLogin(MethodView):
             return redirect(url_for('meetings.registration'))
         return render_template('meetings/registration/user_login.html',
                                form=form)
+
+
+class UserRegistrationLogout(MethodView):
+
+    def get(self):
+        logout_user()
+        return redirect(url_for('.registration'))

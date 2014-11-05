@@ -9,7 +9,7 @@
     <h4>An email with your personal details has been sent to {{ participant.email }}</h4>
   </div>
 
-  {% if not participant.user %}
+  {% if not current_user.is_authenticated() %}
     <form method="post" class="form-horizontal" style="margin-top: 45px;"
           action="{{ url_for('meetings.registration_user') }}">
 

@@ -5,6 +5,7 @@ from mrt.models import Meeting
 
 from mrt.meetings import Meetings, MeetingEdit, RecipientsCount
 from mrt.meetings import Registration, UserRegistration, UserRegistrationLogin
+from mrt.meetings import UserRegistrationLogout
 
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
@@ -49,7 +50,9 @@ meetings.add_url_rule('/<int:meeting_id>/registration/user',
 meetings.add_url_rule(
     '/<int:meeting_id>/registration/login',
     view_func=UserRegistrationLogin.as_view('registration_user_login'))
-
+meetings.add_url_rule(
+    '/<int:meeting_id>/registration/logout',
+    view_func=UserRegistrationLogout.as_view('registration_user_logout'))
 
 # participants
 meetings.add_url_rule('/<int:meeting_id>/participants',
