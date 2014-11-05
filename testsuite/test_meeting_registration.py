@@ -6,7 +6,7 @@ from py.path import local
 from mrt.mail import mail
 from mrt.models import Participant, ActivityLog, User
 from .factories import MeetingCategoryFactory, ParticipantFactory
-from .factories import StaffFactory, RoleUserMeetingFactory
+from .factories import StaffFactory, RoleUserMeetingFactory, UserFactory
 from .factories import UserNotificationFactory, CustomFieldFactory
 
 from testsuite.utils import add_participant_custom_fields
@@ -111,3 +111,26 @@ def test_meeting_online_registration_and_user_creation(app):
         assert resp.status_code == 200
         assert User.query.count() == 1
         assert participant.user is User.query.get(1)
+
+
+def test_meeting_online_registration_is_prepopulated(app):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    user = UserFactory()
+    part = ParticipantFactory(user=user, meeting=None, category=None)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_participant_custom_fields(meeting)
+        resp = client.get(url_for('meetings.registration',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        part.title.value = html('#title option[selected]').val()
+        part.first_name = html('#first_name').val()
+        part.last_name = html('#last_name').val()
+        part.email = html('#email').val()
+        part.language.value = html('#language option[selected]').val()
+        part.country.code = html('#country option[selected]').val()
