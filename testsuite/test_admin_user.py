@@ -62,3 +62,16 @@ def test_change_user_password_fail(app):
                            data=data)
         assert resp.status_code == 200
         assert 'error' in resp.data
+
+
+def test_user_disable_fail_on_own_user(app):
+    admin = RoleUserFactory(user__email='admin@eaudeweb.ro',
+                            role__permissions=('manage_default',))
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = admin.user.id
+        resp = client.post(url_for('admin.user_toggle', user_id=admin.user.id))
+        assert resp.status_code == 400
+        assert admin.user.active is True
