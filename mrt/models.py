@@ -310,6 +310,18 @@ class Participant(db.Model):
             return photo.value if photo else None
         return None
 
+    @staticmethod
+    def _clone_custom_field_value(participant, cfv):
+        cf_clone = copy_attributes(CustomField(), cfv.custom_field)
+        cf_clone.label = Translation(
+            english=cfv.custom_field.label.english)
+        db.session.add(cf_clone)
+        db.session.flush()
+        cfv_clone = copy_attributes(CustomFieldValue(), cfv)
+        cfv_clone.custom_field_id = cf_clone.id
+        cfv_clone.participant_id = participant.id
+        db.session.add(cfv_clone)
+
     def clone(self):
         participant = copy_attributes(
             Participant(), self, with_relations=True,
@@ -317,20 +329,19 @@ class Participant(db.Model):
         db.session.add(participant)
         db.session.flush()
         for cfv in self.custom_field_values.all():
-            cf_clone = copy_attributes(CustomField(), cfv.custom_field)
-            cf_clone.label = Translation(
-                english=cfv.custom_field.label.english)
-            db.session.add(cf_clone)
-            db.session.flush()
-            cfv_clone = copy_attributes(CustomFieldValue(), cfv)
-            cfv_clone.custom_field_id = cf_clone.id
-            cfv_clone.participant_id = participant.id
-            db.session.add(cfv_clone)
+            self._clone_custom_field_value(participant, cfv)
         return participant
 
     def update(self, source):
-        copy_attributes(self, source, with_relations=True,
-                        exclude=self.EXCLUDE_WHEN_COPYING)
+        participant = copy_attributes(self, source, with_relations=True,
+                                      exclude=self.EXCLUDE_WHEN_COPYING)
+        for cfv in source.custom_field_values.all():
+            cf_clone = CustomField.query.filter_by(
+                meeting=None, slug=cfv.custom_field.slug).scalar()
+            if not cf_clone:
+                self._clone_custom_field_value(participant, cfv)
+            else:
+                pass
 
 
 class CustomField(db.Model):
