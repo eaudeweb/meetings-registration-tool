@@ -15,9 +15,13 @@ from .factories import RoleUserMeetingFactory, CustomFieldFactory
 
 def test_meeting_list(app):
     MeetingFactory.create_batch(5)
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
 
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
         url = url_for('meetings.home')
         resp = client.get(url)
 
@@ -76,6 +80,7 @@ def test_meeting_add_custom_field_generation(app):
                   .filter_by(meeting_id=1, slug=field.name)
                   .filter(CustomField.label.has(english=field.label.text))
                   .one())
+
 
 def test_meeting_add_custom_field_choice_generation(app):
     role_user = RoleUserFactory()
