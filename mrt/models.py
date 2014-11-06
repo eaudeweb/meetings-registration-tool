@@ -20,7 +20,7 @@ from sqlalchemy_utils import generates
 from mrt.definitions import (
     MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
     CATEGORY_REPRESENTING)
-from mrt.utils import slugify, clone_sqlalchemy_object
+from mrt.utils import slugify, copy_attributes
 
 
 db = SQLAlchemy()
@@ -209,6 +209,8 @@ class Participant(db.Model):
         ('French', __('French')),
     )
 
+    EXCLUDE_WHEN_COPYING = ('meeting_id', 'category_id', 'registration_token',)
+
     id = db.Column(db.Integer, primary_key=True)
 
     meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'),
@@ -309,10 +311,14 @@ class Participant(db.Model):
         return None
 
     def clone(self):
-        participant = clone_sqlalchemy_object(
+        participant = copy_attributes(
             Participant(), self, with_relations=True,
-            exclude=('meeting_id', 'category_id', 'registration_token',))
+            exclude=self.EXCLUDE_WHEN_COPYING)
         return participant
+
+    def update(self, source):
+        copy_attributes(self, source, with_relations=True,
+                        exclude=self.EXCLUDE_WHEN_COPYING)
 
 
 class CustomField(db.Model):

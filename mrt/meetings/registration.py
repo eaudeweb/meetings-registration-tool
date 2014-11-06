@@ -31,8 +31,7 @@ class Registration(MethodView):
         form = Form()
         if current_user.is_authenticated():
             participant = current_user.participants.filter_by(
-                meeting=None,
-                category=None).first()
+                meeting=None, category=None).scalar()
             Object = custom_object_factory(participant)
             form = Form(obj=Object())
         return render_template('meetings/registration/form.html',
@@ -46,7 +45,13 @@ class Registration(MethodView):
             participant = form.save()
             if current_user.is_authenticated():
                 participant.user = current_user
+                default_participant = (
+                    current_user.participants
+                    .filter_by(meeting=None, category=None)
+                    .scalar())
+                default_participant.update(participant)
             db.session.commit()
+
             activity_signal.send(self, participant=participant,
                                  action='add')
             notification_signal.send(self, participant=participant)

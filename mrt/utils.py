@@ -177,7 +177,7 @@ def set_language(lang='english'):
     refresh()
 
 
-def clone_sqlalchemy_object(obj, source, with_relations=False, exclude=[]):
+def copy_attributes(obj, source, with_relations=False, exclude=[]):
     for c in obj.__table__.c:
         if c.name == 'id' or c.name in exclude:
             continue

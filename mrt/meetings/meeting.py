@@ -41,9 +41,10 @@ class PermissionRequiredMixin(object):
             *args, **kwargs)
 
 
-class Meetings(MethodView):
+class Meetings(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
+    permission_required = ('manage_meeting',)
 
     def get(self):
         meetings = Meeting.query.order_by(desc(Meeting.date_start))
