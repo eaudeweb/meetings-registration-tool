@@ -106,23 +106,24 @@ def custom_form_factory(field_types=[], field_slugs=[],
 def custom_object_factory(participant, field_type=[], obj=object):
     object_attrs = {}
 
-    query = CustomField.query
-    if participant.meeting:
-        query = query.filter_by(meeting=g.meeting)
+    if participant:
+        query = CustomField.query
+        if participant.meeting:
+            query = query.filter_by(meeting=g.meeting)
 
-    if field_type:
-        query = query.filter(CustomField.field_type.in_(field_type))
+        if field_type:
+            query = query.filter(CustomField.field_type.in_(field_type))
 
-    for cf in query:
-        if cf.is_primary:
-            value = getattr(participant, cf.slug, None)
-            if isinstance(value, Choice):
-                value = value.value
-            object_attrs[cf.slug] = value
-        else:
-            cfv = (cf.custom_field_values
-                   .filter_by(participant=participant)
-                   .first())
-            object_attrs[cf.slug] = cfv.value if cfv else None
+        for cf in query:
+            if cf.is_primary:
+                value = getattr(participant, cf.slug, None)
+                if isinstance(value, Choice):
+                    value = value.value
+                object_attrs[cf.slug] = value
+            else:
+                cfv = (cf.custom_field_values
+                       .filter_by(participant=participant)
+                       .first())
+                object_attrs[cf.slug] = cfv.value if cfv else None
 
     return type(obj)(obj.__name__, (obj,), object_attrs)
