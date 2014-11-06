@@ -314,6 +314,18 @@ class Participant(db.Model):
         participant = copy_attributes(
             Participant(), self, with_relations=True,
             exclude=self.EXCLUDE_WHEN_COPYING)
+        db.session.add(participant)
+        db.session.flush()
+        for cfv in self.custom_field_values.all():
+            cf_clone = copy_attributes(CustomField(), cfv.custom_field)
+            cf_clone.label = Translation(
+                english=cfv.custom_field.label.english)
+            db.session.add(cf_clone)
+            db.session.flush()
+            cfv_clone = copy_attributes(CustomFieldValue(), cfv)
+            cfv_clone.custom_field_id = cf_clone.id
+            cfv_clone.participant_id = participant.id
+            db.session.add(cfv_clone)
         return participant
 
     def update(self, source):
@@ -344,8 +356,7 @@ class CustomField(db.Model):
     slug = db.Column(db.String(255))
 
     meeting_id = db.Column(
-        db.Integer, db.ForeignKey('meeting.id'),
-        nullable=False)
+        db.Integer, db.ForeignKey('meeting.id'))
     meeting = db.relationship(
         'Meeting',
         foreign_keys=meeting_id,

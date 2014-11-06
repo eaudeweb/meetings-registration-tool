@@ -49,7 +49,8 @@ class Registration(MethodView):
                     current_user.participants
                     .filter_by(meeting=None, category=None)
                     .scalar())
-                default_participant.update(participant)
+                if default_participant:
+                    default_participant.update(participant)
             db.session.commit()
 
             activity_signal.send(self, participant=participant,
@@ -81,8 +82,7 @@ class UserRegistration(MethodView):
             session.pop('registration_token', None)
             participant.user = form.save()
             db.session.flush()
-            default_participant = participant.clone()
-            db.session.add(default_participant)
+            participant.clone()
             db.session.commit()
             return render_template('meetings/registration/user_success.html')
         return render_template('meetings/registration/success.html',

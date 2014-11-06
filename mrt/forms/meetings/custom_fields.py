@@ -105,7 +105,10 @@ def custom_form_factory(field_types=[], field_slugs=[],
 
 def custom_object_factory(participant, field_type=[], obj=object):
     object_attrs = {}
-    query = CustomField.query.filter_by(meeting=g.meeting)
+
+    query = CustomField.query
+    if participant.meeting:
+        query = query.filter_by(meeting=g.meeting)
 
     if field_type:
         query = query.filter(CustomField.field_type.in_(field_type))
