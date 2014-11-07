@@ -179,6 +179,59 @@ def test_meeting_registration_default_participant_custom_fields(app):
             assert cfv.value == participant_cfv.value
 
 
+def test_meeting_registration_default_participant_custom_fields_update(app):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    photo_field = CustomFieldFactory(meeting=meeting)
+    meeting.photo_field = photo_field
+    CustomFieldFactory(field_type='text', meeting=meeting,
+                       label__english='size')
+    CustomFieldFactory(field_type='checkbox', meeting=meeting,
+                       label__english='passport')
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[photo_field.slug] = (StringIO('Test'), 'test.png')
+    data['size'] = 40
+    data['passport'] = 'y'
+
+    client = app.test_client()
+    with app.test_request_context():
+        register_participant_online(client, data, meeting)
+        participant = Participant.query.filter_by(meeting=meeting).first()
+        create_user_after_registration(client, participant, meeting)
+
+    new_category = MeetingCategoryFactory(meeting__online_registration=True)
+    new_meeting = new_category.meeting
+    CustomFieldFactory(field_type='text', meeting=new_meeting,
+                       label__english='size')
+    CustomFieldFactory(field_type='checkbox', meeting=new_meeting,
+                       label__english='diet')
+    data.pop(photo_field.slug)
+    data['category_id'] = new_category.id
+    data['size'] = 42
+    data['diet'] = 'y'
+
+    with app.test_request_context():
+        resp = register_participant_online(client, data, new_meeting,
+                                           participant.user)
+
+        assert resp.status_code == 200
+        participant = Participant.query.filter_by(meeting=new_meeting).first()
+        default_participant = Participant.query.filter_by(
+            meeting=None, category=None, user=participant.user).first()
+        assert (default_participant.custom_field_values.count() ==
+                participant.custom_field_values.count() + 2)
+        for cfv in participant.custom_field_values:
+            default_participant_cfv = (
+                default_participant.custom_field_values
+                                   .filter(CustomFieldValue.custom_field
+                                           .has(slug=cfv.custom_field.slug))
+                                   .first())
+            assert default_participant_cfv.custom_field.meeting is None
+            assert cfv.value == default_participant_cfv.value
+
+
 def test_meeting_online_registration_is_prepopulated(app):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
