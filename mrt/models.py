@@ -522,6 +522,8 @@ class MediaParticipant(db.Model):
 
 class Meeting(db.Model):
 
+    DEFAULT_TYPE = 'def'
+
     id = db.Column(db.Integer, primary_key=True)
 
     title_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
