@@ -13,6 +13,7 @@ down_revision = '2a0c02c3cfc'
 from datetime import date
 from sqlalchemy_utils.types.country import Country
 from mrt.models import Meeting, Translation, db
+from mrt.forms.meetings.meeting import add_custom_fields_for_meeting
 
 
 def upgrade():
@@ -27,6 +28,7 @@ def upgrade():
                               venue_country=Country("RO"),
                               online_registration=False)
     db.session.add(default_meeting)
+    add_custom_fields_for_meeting(default_meeting)
     db.session.commit()
 
 
