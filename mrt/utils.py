@@ -172,7 +172,12 @@ def translate(text, lang_code='en'):
 
 
 def set_language(lang='english'):
-    iso = {'english': 'en', 'french': 'fr', 'spanish': 'es'}.get(lang, 'en')
+    if lang in ('english', 'french', 'spanish'):
+        iso = {'english': 'en',
+               'french': 'fr',
+               'spanish': 'es'}.get(lang, 'en')
+    if lang in ('en', 'fr', 'es'):
+        iso = lang
     g.language = iso
     refresh()
 

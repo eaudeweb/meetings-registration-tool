@@ -4,12 +4,14 @@ from flask import g, render_template, request, session, abort
 from flask import redirect, url_for
 from flask.ext.login import login_user, logout_user, current_user
 
-from mrt.models import Meeting, Participant, db
+from mrt.forms.auth import LoginForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
-from mrt.forms.auth import LoginForm
+from mrt.models import Meeting, Participant, db
+
 from mrt.signals import activity_signal, notification_signal
 from mrt.signals import registration_signal
+from mrt.utils import set_language
 
 
 def _render_if_closed(func):
@@ -26,6 +28,9 @@ class Registration(MethodView):
     decorators = (_render_if_closed,)
 
     def get(self):
+        lang = request.args.get('lang', 'en')
+        if lang in ('en', 'fr', 'es'):
+            set_language(lang)
         Form = custom_form_factory(registration_fields=True,
                                    form=RegistrationForm)
         form = Form()

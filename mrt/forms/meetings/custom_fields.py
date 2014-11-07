@@ -3,6 +3,7 @@ from uuid import uuid4
 from flask import g
 from flask.ext.uploads import UploadSet, IMAGES, TEXT, DOCUMENTS
 from flask_wtf.file import FileField, FileAllowed
+from flask.ext.babel import lazy_gettext as __
 
 from sqlalchemy_utils import Choice
 
@@ -75,7 +76,7 @@ def custom_form_factory(field_types=[], field_slugs=[],
         fields = fields.filter_by(visible_on_registration_form=True)
 
     for f in fields:
-        attrs = {'label': f.label, 'validators': []}
+        attrs = {'label': __(unicode(f.label)), 'validators': []}
         data = _CUSOMT_FIELDS_MAP[f.field_type.code]
         if f.required:
             attrs['validators'].append(DataRequired())
