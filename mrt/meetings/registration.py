@@ -7,7 +7,7 @@ from flask.ext.login import login_user, logout_user, current_user
 from mrt.forms.auth import LoginForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
-from mrt.models import Meeting, Participant, db
+from mrt.models import Participant, db
 
 from mrt.signals import activity_signal, notification_signal
 from mrt.signals import registration_signal
