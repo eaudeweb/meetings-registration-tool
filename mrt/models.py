@@ -90,6 +90,11 @@ class User(db.Model):
                 return True
         return False
 
+    def get_default(self):
+        return (self.participants.filter(
+            Participant.meeting.has(meeting_type=Meeting.DEFAULT_TYPE))
+            .scalar())
+
 
 class UserNotification(db.Model):
 
@@ -315,6 +320,7 @@ class Participant(db.Model):
         cf_clone = copy_attributes(CustomField(), cfv.custom_field)
         cf_clone.label = Translation(
             english=cfv.custom_field.label.english)
+        cf_clone.meeting = Meeting.get_default()
         db.session.add(cf_clone)
         db.session.flush()
         cfv_clone = copy_attributes(CustomFieldValue(), cfv)
@@ -326,6 +332,7 @@ class Participant(db.Model):
         participant = copy_attributes(
             Participant(), self, with_relations=True,
             exclude=self.EXCLUDE_WHEN_COPYING)
+        participant.meeting = Meeting.get_default()
         db.session.add(participant)
         db.session.flush()
         for cfv in self.custom_field_values.all():
@@ -335,9 +342,10 @@ class Participant(db.Model):
     def update(self, source):
         participant = copy_attributes(self, source, with_relations=True,
                                       exclude=self.EXCLUDE_WHEN_COPYING)
+        default_meeting = Meeting.get_default()
         for cfv in source.custom_field_values.all():
             cf_clone = CustomField.query.filter_by(
-                meeting=None, slug=cfv.custom_field.slug).scalar()
+                meeting=default_meeting, slug=cfv.custom_field.slug).scalar()
             if not cf_clone:
                 self._clone_custom_field_value(participant, cfv)
             else:
@@ -581,6 +589,10 @@ class Meeting(db.Model):
     @property
     def media_participant_enabled(self):
         return self.settings.get('media_participant_enabled', False)
+
+    @classmethod
+    def get_default(cls):
+        return cls.query.filter_by(meeting_type=Meeting.DEFAULT_TYPE).one()
 
     def __repr__(self):
         return self.title.english

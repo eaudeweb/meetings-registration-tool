@@ -4,7 +4,7 @@ from flask import g, render_template, request, session, abort
 from flask import redirect, url_for
 from flask.ext.login import login_user, logout_user, current_user
 
-from mrt.models import Participant, db
+from mrt.models import Meeting, Participant, db
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
 from mrt.forms.auth import LoginForm
@@ -30,8 +30,7 @@ class Registration(MethodView):
                                    form=RegistrationForm)
         form = Form()
         if current_user.is_authenticated():
-            participant = current_user.participants.filter_by(
-                meeting=None, category=None).scalar()
+            participant = current_user.get_default()
             Object = custom_object_factory(participant)
             form = Form(obj=Object())
         return render_template('meetings/registration/form.html',
@@ -45,10 +44,7 @@ class Registration(MethodView):
             participant = form.save()
             if current_user.is_authenticated():
                 participant.user = current_user
-                default_participant = (
-                    current_user.participants
-                    .filter_by(meeting=None, category=None)
-                    .scalar())
+                default_participant = current_user.get_default()
                 if default_participant:
                     default_participant.update(participant)
             db.session.commit()

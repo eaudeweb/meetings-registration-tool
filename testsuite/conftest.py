@@ -3,9 +3,9 @@ import jinja2
 
 from pytest import fixture
 from mrt.app import create_app
-from mrt.models import db
+from mrt.models import db, Meeting
 
-from .factories import RoleUserFactory, StaffFactory
+from .factories import RoleUserFactory, StaffFactory, MeetingFactory
 
 
 @fixture
@@ -48,3 +48,9 @@ def user():
     StaffFactory(user=role_user.user)
 
     return role_user.user
+
+
+@fixture
+def default_meeting():
+    default_meeting = MeetingFactory(meeting_type=Meeting.DEFAULT_TYPE)
+    return default_meeting

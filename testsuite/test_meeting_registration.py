@@ -13,7 +13,7 @@ from testsuite.utils import add_participant_custom_fields
 from testsuite.utils import populate_participant_form
 
 
-def test_meeting_online_resistration_open(app):
+def test_meeting_online_resistration_open(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
 
     client = app.test_client()
@@ -24,7 +24,7 @@ def test_meeting_online_resistration_open(app):
         assert PyQuery(resp.data)('form').length == 1
 
 
-def test_meeting_online_registration_closed(app):
+def test_meeting_online_registration_closed(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=False)
 
     client = app.test_client()
@@ -37,7 +37,7 @@ def test_meeting_online_registration_closed(app):
         assert html('.alert').length == 1
 
 
-def test_meeting_online_registration_add(app):
+def test_meeting_online_registration_add(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     role_user = RoleUserMeetingFactory(meeting=meeting)
@@ -58,7 +58,7 @@ def test_meeting_online_registration_add(app):
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
 
-def test_meeting_online_registration_with_meeting_photo(app):
+def test_meeting_online_registration_with_meeting_photo(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     photo_field = CustomFieldFactory(meeting=meeting)
@@ -78,7 +78,7 @@ def test_meeting_online_registration_with_meeting_photo(app):
         assert upload_dir.join(participant.photo).check()
 
 
-def test_meeting_online_registration_and_user_creation(app):
+def test_meeting_online_registration_and_user_creation(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
 
@@ -97,7 +97,7 @@ def test_meeting_online_registration_and_user_creation(app):
         assert participant.user is User.query.get(1)
 
 
-def test_meeting_online_registration_default_participant_creation(app):
+def test_meeting_online_registration_default_participant_creation(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     data = ParticipantFactory.attributes()
@@ -109,13 +109,12 @@ def test_meeting_online_registration_default_participant_creation(app):
         participant = Participant.query.filter_by(meeting=meeting).first()
         create_user_after_registration(client, participant, meeting)
 
-        default_participant = Participant.query.filter_by(
-            meeting=None, category=None, user=participant.user).first()
+        default_participant = participant.user.get_default()
         assert default_participant is not None
         assert_participants_fields_equal(participant, default_participant)
 
 
-def test_meeting_online_registration_default_participant_update(app):
+def test_meeting_online_registration_default_participant_update(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     data = ParticipantFactory.attributes()
@@ -127,8 +126,7 @@ def test_meeting_online_registration_default_participant_update(app):
         participant = Participant.query.filter_by(meeting=meeting).first()
         create_user_after_registration(client, participant, meeting)
 
-        default_participant = Participant.query.filter_by(
-            meeting=None, category=None, user=participant.user).first()
+        default_participant = participant.user.get_default()
 
     new_category = MeetingCategoryFactory(meeting__online_registration=True)
     new_meeting = new_category.meeting
@@ -144,7 +142,7 @@ def test_meeting_online_registration_default_participant_update(app):
         assert default_participant.first_name == 'Johny'
 
 
-def test_meeting_registration_default_participant_custom_fields(app):
+def test_meeting_registration_default_participant_custom_fields(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     photo_field = CustomFieldFactory(meeting=meeting)
@@ -166,12 +164,11 @@ def test_meeting_registration_default_participant_custom_fields(app):
         participant = Participant.query.filter_by(meeting=meeting).first()
         create_user_after_registration(client, participant, meeting)
 
-        default_participant = Participant.query.filter_by(
-            meeting=None, category=None, user=participant.user).first()
+        default_participant = participant.user.get_default()
         assert (default_participant.custom_field_values.count() ==
                 participant.custom_field_values.count())
         for cfv in default_participant.custom_field_values.all():
-            assert cfv.custom_field.meeting is None
+            assert cfv.custom_field.meeting is default_meeting
             participant_cfv = (participant.custom_field_values
                                .filter(CustomFieldValue.custom_field
                                        .has(slug=cfv.custom_field.slug))
@@ -179,7 +176,7 @@ def test_meeting_registration_default_participant_custom_fields(app):
             assert cfv.value == participant_cfv.value
 
 
-def test_meeting_registration_default_participant_custom_fields_update(app):
+def test_meeting_registration_default_participant_custom_fields_update(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     photo_field = CustomFieldFactory(meeting=meeting)
@@ -218,8 +215,7 @@ def test_meeting_registration_default_participant_custom_fields_update(app):
 
         assert resp.status_code == 200
         participant = Participant.query.filter_by(meeting=new_meeting).first()
-        default_participant = Participant.query.filter_by(
-            meeting=None, category=None, user=participant.user).first()
+        default_participant = participant.user.get_default()
         assert (default_participant.custom_field_values.count() ==
                 participant.custom_field_values.count() + 2)
         for cfv in participant.custom_field_values:
@@ -228,15 +224,16 @@ def test_meeting_registration_default_participant_custom_fields_update(app):
                                    .filter(CustomFieldValue.custom_field
                                            .has(slug=cfv.custom_field.slug))
                                    .first())
-            assert default_participant_cfv.custom_field.meeting is None
+            assert default_participant_cfv.custom_field.meeting is default_meeting
             assert cfv.value == default_participant_cfv.value
 
 
-def test_meeting_online_registration_is_prepopulated(app):
+def test_meeting_online_registration_is_prepopulated(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     user = UserFactory()
-    part = ParticipantFactory(user=user, meeting=None, category=None)
+    part = ParticipantFactory(user=user, meeting=default_meeting,
+                              category=None)
 
     client = app.test_client()
     with app.test_request_context():
