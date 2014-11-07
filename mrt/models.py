@@ -341,7 +341,17 @@ class Participant(db.Model):
             if not cf_clone:
                 self._clone_custom_field_value(participant, cfv)
             else:
-                pass
+                cfv_clone = (
+                    CustomFieldValue.query
+                    .filter_by(custom_field=cf_clone)
+                    .filter_by(participant=participant)
+                    .scalar())
+                if not cfv_clone:
+                    cfv_clone = CustomFieldValue(
+                        custom_field=cf_clone, participant=participant)
+                    db.session.add(cfv_clone)
+                copy_attributes(cfv_clone, cfv)
+        return participant
 
 
 class CustomField(db.Model):
