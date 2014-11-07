@@ -4,7 +4,7 @@ from flask import current_app as app
 from flask.views import MethodView
 from flask.ext.login import login_required, current_user
 
-from sqlalchemy import desc
+from sqlalchemy import desc, not_
 
 from mrt.models import Meeting, db
 from mrt.forms.meetings import MeetingEditForm
@@ -47,7 +47,9 @@ class Meetings(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting',)
 
     def get(self):
-        meetings = Meeting.query.order_by(desc(Meeting.date_start))
+        meetings = (Meeting.query
+                    .filter(Meeting.meeting_type != Meeting.DEFAULT_TYPE)
+                    .order_by(desc(Meeting.date_start)))
         return render_template('meetings/meeting/list.html',
                                meetings=meetings)
 
