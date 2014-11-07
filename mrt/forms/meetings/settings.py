@@ -69,6 +69,12 @@ class CustomFieldEditForm(BaseForm):
     class Meta:
         model = CustomField
 
+    def __init__(self, *args, **kwargs):
+        super(CustomFieldEditForm, self).__init__(*args, **kwargs)
+        self.field_type.choices = [
+            i for i in self.field_type.choices
+            if i[0] not in (CustomField.SELECT, CustomField.CATEGORY)]
+
     def save(self):
         custom_field = self.obj or CustomField()
         self.populate_obj(custom_field)
