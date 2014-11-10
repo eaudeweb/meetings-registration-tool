@@ -315,53 +315,70 @@ class Participant(db.Model):
             return photo.value if photo else None
         return None
 
-    @staticmethod
-    def _clone_custom_field_value(participant, cfv):
-        cf_clone = copy_attributes(CustomField(), cfv.custom_field)
-        cf_clone.label = Translation(
-            english=cfv.custom_field.label.english)
-        cf_clone.meeting = Meeting.get_default()
-        db.session.add(cf_clone)
-        db.session.flush()
-        cfv_clone = copy_attributes(CustomFieldValue(), cfv)
-        cfv_clone.custom_field_id = cf_clone.id
-        cfv_clone.participant_id = participant.id
-        db.session.add(cfv_clone)
+    def _clone_custom_field(self, custom_field):
+        cf = (CustomField.query
+              .filter_by(meeting=self.default_meeting)
+              .filter_by(slug=custom_field.slug)
+              .scalar())
+        if not cf:
+            cf = copy_attributes(CustomField(), custom_field)
+            cf.label = Translation(english=custom_field.label.english)
+            cf.meeting = self.default_meeting
+            db.session.add(cf)
+        return cf
+
+    def _clone_custom_field_value(self, participant, custom_field_clone,
+                                  custom_field_value):
+        cfv = (CustomFieldValue.query
+               .filter_by(custom_field=custom_field_clone)
+               .filter_by(participant=participant)
+               .scalar())
+        if cfv:
+            cfv = copy_attributes(cfv, custom_field_value)
+        else:
+            cfv = copy_attributes(CustomFieldValue(), custom_field_value)
+            cfv.custom_field_id = custom_field_clone.id
+            cfv.participant_id = participant.id
+            db.session.add(cfv)
+        return cfv
+
+    def _add_primary_custom_fields_for_default_meeting(self):
+        from mrt.forms.meetings import ParticipantDummyForm
+        from mrt.forms.meetings import add_custom_fields_for_meeting
+        nr_fields = len(list(ParticipantDummyForm()))
+        count = (
+            CustomField.query.filter_by(meeting=self.default_meeting)
+            .filter_by(is_primary=True)
+        ).count()
+        if not nr_fields == count:
+            add_custom_fields_for_meeting(self.default_meeting)
 
     def clone(self):
+        self.default_meeting = Meeting.get_default()
         participant = copy_attributes(
             Participant(), self, with_relations=True,
             exclude=self.EXCLUDE_WHEN_COPYING)
-        participant.meeting = Meeting.get_default()
+        participant.meeting = self.default_meeting
         db.session.add(participant)
         db.session.flush()
+
+        # add primary custom fields for default meeting
+        self._add_primary_custom_fields_for_default_meeting()
+
         for cfv in self.custom_field_values.all():
-            self._clone_custom_field_value(participant, cfv)
+            cf_clone = self._clone_custom_field(cfv.custom_field)
+            db.session.flush()
+            self._clone_custom_field_value(participant, cf_clone, cfv)
         return participant
 
     def update(self, source):
+        self.default_meeting = Meeting.get_default()
         participant = copy_attributes(self, source, with_relations=True,
                                       exclude=self.EXCLUDE_WHEN_COPYING)
-        default_meeting = Meeting.get_default()
         for cfv in source.custom_field_values.all():
-            cf_clone = (
-                CustomField.query
-                .filter_by(meeting=default_meeting)
-                .filter_by(slug=cfv.custom_field.slug)
-                .scalar())
-            if not cf_clone:
-                self._clone_custom_field_value(participant, cfv)
-            else:
-                cfv_clone = (
-                    CustomFieldValue.query
-                    .filter_by(custom_field=cf_clone)
-                    .filter_by(participant=participant)
-                    .scalar())
-                if not cfv_clone:
-                    cfv_clone = CustomFieldValue(custom_field=cf_clone,
-                                                 participant=participant)
-                    db.session.add(cfv_clone)
-                copy_attributes(cfv_clone, cfv)
+            cf_clone = self._clone_custom_field(cfv.custom_field)
+            db.session.flush()
+            self._clone_custom_field_value(participant, cf_clone, cfv)
         return participant
 
 
@@ -382,6 +399,9 @@ class CustomField(db.Model):
         (COUNTRY, 'Country Field'),
         (CATEGORY, 'Category Field'),
     )
+
+    __table_args__ = (
+        db.UniqueConstraint('meeting_id', 'slug'),)
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -483,7 +503,7 @@ class CustomFieldChoice(db.Model):
         nullable=False)
     value = db.relationship(
         'Translation',
-        backref=db.backref('custom_field_choices', lazy='dynamic'))
+        backref=db.backref('custom_field_choices', lazy='dynamic',))
 
     def __repr__(self):
         return self.value.english

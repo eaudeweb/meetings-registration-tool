@@ -114,6 +114,11 @@ def add_custom_fields_for_meeting(meeting):
     """Adds participants fields as CustomFields to meeting."""
     form = ParticipantDummyForm()
     for i, field in enumerate(form):
+        query = (
+            CustomField.query.filter_by(slug=field.name)
+            .filter_by(meeting=meeting))
+        if query.scalar():
+            continue
         custom_field = CustomField()
         custom_field.meeting = meeting
         custom_field.slug = field.name
