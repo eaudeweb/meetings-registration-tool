@@ -344,8 +344,11 @@ class Participant(db.Model):
                                       exclude=self.EXCLUDE_WHEN_COPYING)
         default_meeting = Meeting.get_default()
         for cfv in source.custom_field_values.all():
-            cf_clone = CustomField.query.filter_by(
-                meeting=default_meeting, slug=cfv.custom_field.slug).scalar()
+            cf_clone = (
+                CustomField.query
+                .filter_by(meeting=default_meeting)
+                .filter_by(slug=cfv.custom_field.slug)
+                .scalar())
             if not cf_clone:
                 self._clone_custom_field_value(participant, cfv)
             else:
@@ -355,8 +358,8 @@ class Participant(db.Model):
                     .filter_by(participant=participant)
                     .scalar())
                 if not cfv_clone:
-                    cfv_clone = CustomFieldValue(
-                        custom_field=cf_clone, participant=participant)
+                    cfv_clone = CustomFieldValue(custom_field=cf_clone,
+                                                 participant=participant)
                     db.session.add(cfv_clone)
                 copy_attributes(cfv_clone, cfv)
         return participant
