@@ -145,8 +145,6 @@ def test_meeting_online_registration_default_participant_update(app, default_mee
 def test_meeting_registration_default_participant_custom_fields(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
-    photo_field = CustomFieldFactory(meeting=meeting)
-    meeting.photo_field = photo_field
     CustomFieldFactory(field_type='text', meeting=meeting,
                        label__english='size')
     CustomFieldFactory(field_type='checkbox', meeting=meeting,
@@ -154,7 +152,6 @@ def test_meeting_registration_default_participant_custom_fields(app, default_mee
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
-    data[photo_field.slug] = (StringIO('Test'), 'test.png')
     data['size'] = 40
     data['passport'] = 'y'
 
@@ -175,6 +172,30 @@ def test_meeting_registration_default_participant_custom_fields(app, default_mee
                                .first())
             assert cfv.value == participant_cfv.value
 
+
+def test_meeting_registration_default_participant_photo(app, default_meeting):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    photo_field = CustomFieldFactory(meeting=meeting)
+    meeting.photo_field = photo_field
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[photo_field.slug] = (StringIO('Test'), 'test.png')
+
+    client = app.test_client()
+    with app.test_request_context():
+        register_participant_online(client, data, meeting)
+        participant = Participant.query.filter_by(meeting=meeting).first()
+        create_user_after_registration(client, participant, meeting)
+
+        default_participant = participant.user.get_default()
+        photo_field = participant.custom_field_values.scalar().value
+        default_photo_field = (default_participant.custom_field_values
+                               .scalar().value)
+        assert photo_field != default_photo_field
+        assert upload_dir.join(default_photo_field).check()
 
 def test_meeting_registration_default_participant_custom_fields_update(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)

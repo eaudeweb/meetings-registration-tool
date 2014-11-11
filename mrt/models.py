@@ -20,7 +20,7 @@ from sqlalchemy_utils import generates
 from mrt.definitions import (
     MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
     CATEGORY_REPRESENTING)
-from mrt.utils import slugify, copy_attributes
+from mrt.utils import slugify, copy_attributes, duplicate_uploaded_file
 
 
 db = SQLAlchemy()
@@ -340,6 +340,10 @@ class Participant(db.Model):
             cfv.custom_field_id = custom_field_clone.id
             cfv.participant_id = participant.id
             db.session.add(cfv)
+        if custom_field_clone.field_type == CustomField.IMAGE:
+            filename = duplicate_uploaded_file(custom_field_value.value,
+                                               'custom')
+            cfv.value = filename.basename()
         return cfv
 
     def _add_primary_custom_fields_for_default_meeting(self):
@@ -553,7 +557,7 @@ class MediaParticipant(db.Model):
 
 class Meeting(db.Model):
 
-    DEFAULT_TYPE = 'def'
+    DEFAULT_TYPE = 'default'
 
     id = db.Column(db.Integer, primary_key=True)
 
