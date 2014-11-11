@@ -114,19 +114,26 @@ def _configure_uploads(app):
     app.config['PATH_THUMB_KEY'] = path_thumb_key = 'thumbnails'
     app.config['PATH_PRINTOUTS_KEY'] = path_printouts_key = 'printouts'
 
-    app.config['UPLOADED_BACKGROUNDS_DEST'] = files_path / path_backgrounds_key
-    app.config['UPLOADED_CROP_DEST'] = files_path / path_crop_key
-    app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
-    app.config['UPLOADED_LOGOS_DEST'] = files_path / path_logos_key
-    app.config['UPLOADED_PRINTOUTS_DEST'] = files_path / path_printouts_key
+    if not 'UPLOADED_BACKGROUNDS_DEST' in app.config:
+        app.config['UPLOADED_BACKGROUNDS_DEST'] = (files_path /
+                                                   path_backgrounds_key)
+    if not 'UPLOADED_CROP_DEST' in app.config:
+        app.config['UPLOADED_CROP_DEST'] = files_path / path_crop_key
+    if not 'UPLOADED_CUSTOM_DEST' in app.config:
+        app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
+    if not 'UPLOADED_LOGOS_DEST' in app.config:
+        app.config['UPLOADED_LOGOS_DEST'] = files_path / path_logos_key
+    if not 'UPLOADED_PRINTOUTS_DEST' in app.config:
+        app.config['UPLOADED_PRINTOUTS_DEST'] = files_path / path_printouts_key
 
     # ensure logos and printouts folders exist
     app.config['UPLOADED_LOGOS_DEST'].makedirs_p()
     app.config['UPLOADED_PRINTOUTS_DEST'].makedirs_p()
 
     app.config['MEDIA_FOLDER'] = files_path
-    app.config['MEDIA_THUMBNAIL_FOLDER'] = \
-        app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
+    if not 'MEDIA_THUMBNAIL_FOLDER' in app.config:
+        app.config['MEDIA_THUMBNAIL_FOLDER'] = \
+            app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)

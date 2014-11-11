@@ -106,6 +106,7 @@ def test_participant_picture_remove_thumbnail(app):
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     thumb_dir = local(app.config['UPLOADED_THUMBNAIL_DEST'] /
                       app.config['PATH_CUSTOM_KEY'])
+    thumb_dir.ensure_dir()
     image = Image.new('RGB', (250, 250), 'red')
     image.save(str(upload_dir.join(pic.value)))
 

@@ -2,21 +2,29 @@
 import jinja2
 
 from pytest import fixture
+from path import path
+
 from mrt.app import create_app
 from mrt.models import db, Meeting
-
 from .factories import RoleUserFactory, StaffFactory, MeetingFactory
 
 
 @fixture
 def app(request, tmpdir):
     templates_path = tmpdir.ensure_dir('templates')
+    backgrounds_path = path(tmpdir.ensure_dir('backgrounds'))
+    custom_uploads_path = path(tmpdir.ensure_dir('custom_uploads'))
+    thumb_path = path(tmpdir.ensure_dir('thumbnails'))
+
     test_config = {
         'SECRET_KEY': 'test',
         'ASSETS_DEBUG': True,
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite://',
-        'UPLOADED_BACKGROUNDS_DEST': str(tmpdir.join('backgrounds')),
+        'UPLOADED_BACKGROUNDS_DEST': backgrounds_path,
+        'UPLOADED_CUSTOM_DEST': custom_uploads_path,
+        'UPLOADED_THUMBNAIL_DEST': thumb_path,
+        'MEDIA_THUMBNAIL_FOLDER': thumb_path,
         'HOSTNAME': 'http://meetings.edw.ro/',
         'DEFAULT_MAIL_SENDER': 'noreply',
         'TEMPLATES_PATH': templates_path,
@@ -46,7 +54,6 @@ def app(request, tmpdir):
 def user():
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
-
     return role_user.user
 
 
