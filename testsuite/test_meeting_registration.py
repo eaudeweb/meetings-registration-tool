@@ -249,6 +249,50 @@ def test_meeting_registration_default_participant_custom_fields_update(app, defa
             assert cfv.value == default_participant_cfv.value
 
 
+def test_meeting_registration_default_participant_photo_update(app, default_meeting):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    photo_field = CustomFieldFactory(meeting=meeting)
+    meeting.photo_field = photo_field
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[photo_field.slug] = (StringIO('Test'), 'test.png')
+
+    client = app.test_client()
+    with app.test_request_context():
+        register_participant_online(client, data, meeting)
+        participant = Participant.query.filter_by(meeting=meeting).first()
+        create_user_after_registration(client, participant, meeting)
+        default_participant = participant.user.get_default()
+        original_image = (default_participant.custom_field_values
+                          .scalar().value)
+
+    new_category = MeetingCategoryFactory(meeting__online_registration=True)
+    new_meeting = new_category.meeting
+    new_photo_field = CustomFieldFactory(meeting=new_meeting)
+    data.pop(photo_field.slug)
+    data[new_photo_field.slug] = (StringIO('Test'), 'test.png')
+    data['category_id'] = new_category.id
+
+    with app.test_request_context():
+        resp = register_participant_online(client, data, new_meeting,
+                                           participant.user)
+
+        assert resp.status_code == 200
+        participant = Participant.query.filter_by(meeting=new_meeting).first()
+        default_participant = participant.user.get_default()
+
+        photo_field = participant.custom_field_values.scalar().value
+        default_photo_field = (default_participant.custom_field_values
+                               .scalar().value)
+        assert photo_field != default_photo_field
+        assert default_photo_field != original_image
+        assert not upload_dir.join(original_image).check()
+        assert upload_dir.join(default_photo_field).check()
+
+
 def test_meeting_online_registration_is_prepopulated(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting

@@ -21,6 +21,7 @@ from mrt.definitions import (
     MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
     CATEGORY_REPRESENTING)
 from mrt.utils import slugify, copy_attributes, duplicate_uploaded_file
+from mrt.utils import unlink_participant_photo
 
 
 db = SQLAlchemy()
@@ -334,6 +335,8 @@ class Participant(db.Model):
                .filter_by(participant=participant)
                .scalar())
         if cfv:
+            if custom_field_clone.field_type == CustomField.IMAGE:
+                unlink_participant_photo(cfv.value)
             cfv = copy_attributes(cfv, custom_field_value)
         else:
             cfv = copy_attributes(CustomFieldValue(), custom_field_value)
