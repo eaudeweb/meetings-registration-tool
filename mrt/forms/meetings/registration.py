@@ -1,10 +1,11 @@
 from flask.ext.babel import gettext as _
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileAllowed
 from flask.ext.uploads import IMAGES
 
 from wtforms import Form, StringField, PasswordField, validators
 
 from mrt.forms.meetings import ParticipantEditForm
+from mrt.forms.base import FileField
 from mrt.models import db, User, CustomField
 
 

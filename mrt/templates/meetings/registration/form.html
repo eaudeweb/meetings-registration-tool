@@ -19,9 +19,6 @@
   <form method="POST" class="form-horizontal" enctype="multipart/form-data">
 
     {% for field in form %}
-      {% if field.type == 'FileField' %}
-        {{ field.data }}
-      {% endif %}
       {{ form_group(field, label_size="2", input_size="10") }}
     {% endfor %}
 

@@ -1,9 +1,12 @@
 from itertools import groupby
 
-from flask import request
-from werkzeug import MultiDict
+from flask import request, render_template
+from flask import current_app as app
+from werkzeug import MultiDict, FileStorage
 
+from flask_wtf.file import FileField as _FileField
 from sqlalchemy_utils import Country
+
 from wtforms import widgets, fields
 from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import ModelForm
@@ -130,3 +133,30 @@ class CountryField(_CountryField):
         if not self.flags.required:
             choices = [('', '---')] + choices
         return choices
+
+
+class FileInput(object):
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        return HTMLString(render_template(
+            'meetings/registration/_image_widget.html',
+            field=field))
+
+
+class FileField(_FileField):
+
+    widget = FileInput()
+
+    def process_formdata(self, valuelist):
+        use_current_file = request.form.get(self.name + '-use-current-file')
+        if use_current_file:
+            file_path = app.config['UPLOADED_CUSTOM_DEST'] / use_current_file
+            try:
+                self.data = FileStorage(stream=file_path.open(),
+                                        filename=use_current_file,
+                                        name=self.name)
+            except IOError:
+                self.data = None
+        else:
+            super(FileField, self).process_formdata(valuelist)
