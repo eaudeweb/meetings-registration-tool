@@ -124,6 +124,9 @@ def test_participant_picture_remove_thumbnail(app):
         thumb_name, thumb_fm = os.path.splitext(pic.value)
         thumb_full_name = Thumbnail._get_name(thumb_name, thumb_fm,
                                               '200x200', 85)
+        resp = client.get(url_for('meetings.participant_detail',
+                                  meeting_id=pic.custom_field.meeting.id,
+                                  participant_id=pic.participant.id))
         assert thumb_dir.join(thumb_full_name).check()
 
         url = url_for('meetings.custom_field_upload',

@@ -7,6 +7,7 @@ from path import path
 from mrt.app import create_app
 from mrt.models import db, Meeting
 from .factories import RoleUserFactory, StaffFactory, MeetingFactory
+from .utils import add_participant_custom_fields
 
 
 @fixture
@@ -15,6 +16,7 @@ def app(request, tmpdir):
     backgrounds_path = path(tmpdir.ensure_dir('backgrounds'))
     custom_uploads_path = path(tmpdir.ensure_dir('custom_uploads'))
     thumb_path = path(tmpdir.ensure_dir('thumbnails'))
+    crop_path = path(tmpdir.ensure_dir('crops'))
 
     test_config = {
         'SECRET_KEY': 'test',
@@ -24,7 +26,9 @@ def app(request, tmpdir):
         'UPLOADED_BACKGROUNDS_DEST': backgrounds_path,
         'UPLOADED_CUSTOM_DEST': custom_uploads_path,
         'UPLOADED_THUMBNAIL_DEST': thumb_path,
+        'UPLOADED_CROP_DEST': crop_path,
         'MEDIA_THUMBNAIL_FOLDER': thumb_path,
+        'MEDIA_FOLDER': path(tmpdir),
         'HOSTNAME': 'http://meetings.edw.ro/',
         'DEFAULT_MAIL_SENDER': 'noreply',
         'TEMPLATES_PATH': templates_path,

@@ -130,15 +130,18 @@ def _configure_uploads(app):
     app.config['UPLOADED_LOGOS_DEST'].makedirs_p()
     app.config['UPLOADED_PRINTOUTS_DEST'].makedirs_p()
 
-    app.config['MEDIA_FOLDER'] = files_path
+    if not 'MEDIA_FOLDER' in app.config:
+        app.config['MEDIA_FOLDER'] = files_path
     if not 'MEDIA_THUMBNAIL_FOLDER' in app.config:
         app.config['MEDIA_THUMBNAIL_FOLDER'] = \
             app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
+    app.add_url_rule('/static/brand/<filename>', 'brand', build_only=True)
     app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-        '/static/files': files_path
+        '/static/files': files_path,
+        '/static/brand': path(app.instance_path) / 'brand' / 'static'
     })
 
     # limit upload size to 1MB
@@ -149,6 +152,7 @@ def _configure_uploads(app):
 
 def _configure_brand(app):
     app.config['BRAND_PATH'] = brand_path = path(app.instance_path) / 'brand'
+
     if brand_path.exists() and brand_path.isdir():
         app.config.from_pyfile(brand_path / 'settings.py')
 

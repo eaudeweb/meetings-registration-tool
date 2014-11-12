@@ -2,7 +2,7 @@ import re
 import time
 
 from flask import current_app as app
-from flask import request
+from flask import request, g, url_for
 
 from babel import Locale
 from babel.dates import format_date
@@ -126,7 +126,9 @@ def pluralize(value, arg='s'):
 
 
 def url_for_brand_static_path(filename):
-    return app.config['BRAND_PATH'] / 'static' / filename
+    if g.get('is_pdf_process'):
+        return app.config['BRAND_PATH'] / 'static' / filename
+    return url_for('brand', filename=filename)
 
 
 def sort_by_tuple_element(value, position=0):

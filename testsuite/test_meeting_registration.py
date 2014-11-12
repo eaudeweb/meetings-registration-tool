@@ -304,6 +304,7 @@ def test_meeting_online_registration_is_prepopulated(app, default_meeting):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
+        add_participant_custom_fields(default_meeting)
         add_participant_custom_fields(meeting)
         resp = client.get(url_for('meetings.registration',
                                   meeting_id=meeting.id))

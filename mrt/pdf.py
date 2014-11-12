@@ -27,6 +27,7 @@ def render_pdf(template_name, title='', width=None, height=None,
                      (str(uuid.uuid4()) + '.html'))
     pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
                 (str(uuid.uuid4()) + '.pdf'))
+    g.is_pdf_process = True
 
     with open(template_path, 'w+') as f:
         for chunk in stream_template(template_name, **context):

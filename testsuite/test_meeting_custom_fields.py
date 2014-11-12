@@ -1,5 +1,6 @@
 from flask import url_for
 from pyquery import PyQuery
+from factory import Sequence
 
 from mrt.models import CustomField
 from .factories import CustomFieldFactory, MeetingFactory
@@ -11,7 +12,8 @@ def test_meeting_custom_fields_list(app):
     meeting = MeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=meeting,
                                        role__permissions=('manage_meeting',))
-    CustomFieldFactory.create_batch(5, meeting=meeting)
+    CustomFieldFactory.create_batch(
+        5, meeting=meeting, slug=Sequence(lambda n: 'custom_field_%d' % n))
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
