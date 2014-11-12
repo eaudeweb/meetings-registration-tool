@@ -560,7 +560,7 @@ class MediaParticipant(db.Model):
 
 class Meeting(db.Model):
 
-    DEFAULT_TYPE = 'default'
+    DEFAULT_TYPE = 'def'
 
     id = db.Column(db.Integer, primary_key=True)
 
