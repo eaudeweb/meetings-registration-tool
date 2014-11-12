@@ -9,6 +9,7 @@ from mrt.meetings import UserRegistrationLogout
 
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
+from mrt.meetings import DefaultParticipantDetail, DefaultParticipantEdit
 from mrt.meetings import ParticipantRestore, ParticipantLabel
 from mrt.meetings import ParticipantEnvelope, ParticipantsExport
 from mrt.meetings import ParticipantAcknowledgeEmail, ParticipantAcknowledgePDF
@@ -94,6 +95,14 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/export',
     view_func=ParticipantsExport.as_view('participants_export'))
+
+# default participants
+meetings.add_url_rule(
+    '/<int:meeting_id>/default_participant/<int:participant_id>/detail',
+    view_func=DefaultParticipantDetail.as_view('default_participant_detail'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/default_participant/<int:participant_id>/edit',
+    view_func=DefaultParticipantEdit.as_view('default_participant_edit'))
 
 # media participants
 meetings.add_url_rule(

@@ -110,7 +110,7 @@
                   {% for participant in
                           user.participants.filter_by(deleted=False) %}
                     {% if participant.meeting %}
-                      <li><a href="{{ url_for('meetings.participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
+                      <li><a href="{{ url_for('meetings.default_participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
                         {{ participant.meeting }}</a></li>
                     {% endif %}
                   {% else %}

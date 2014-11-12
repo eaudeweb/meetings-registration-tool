@@ -27,7 +27,7 @@ def _category_required(func):
     @wraps(func)
     def wrapper(**kwargs):
         query = Category.query.filter_by(meeting=g.meeting)
-        if query.count() == 0:
+        if (query.count() == 0):
             return render_template('meetings/category_required.html')
         return func(**kwargs)
     return wrapper
@@ -94,6 +94,38 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
             .active().first_or_404())
         field_types = [CustomField.TEXT, CustomField.SELECT,
                        CustomField.COUNTRY, CustomField.CATEGORY]
+        Form = custom_form_factory(field_types=field_types)
+        Object = custom_object_factory(participant, field_types)
+        form = Form(obj=Object())
+
+        field_types = [CustomField.CHECKBOX]
+        FlagsForm = custom_form_factory(field_types=field_types)
+        FlagsObject = custom_object_factory(participant, field_types)
+        flags_form = FlagsForm(obj=FlagsObject())
+
+        field_types = [CustomField.IMAGE]
+        ImagesForm = custom_form_factory(field_types=field_types)
+        ImagesObject = custom_object_factory(participant, field_types)
+        images_form = ImagesForm(obj=ImagesObject())
+
+        return render_template('meetings/participant/detail.html',
+                               participant=participant,
+                               form=form,
+                               flags_form=flags_form,
+                               images_form=images_form)
+
+
+class DefaultParticipantDetail(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_default', )
+
+    def get(self, participant_id):
+        participant = (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .active().first_or_404())
+        field_types = [CustomField.TEXT, CustomField.SELECT,
+                       CustomField.COUNTRY]
         Form = custom_form_factory(field_types=field_types)
         Object = custom_object_factory(participant, field_types)
         form = Form(obj=Object())
@@ -189,6 +221,66 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         db.session.commit()
         flash('Participant successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.participants'))
+
+
+class DefaultParticipantEdit(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_participant',)
+
+    def _get_object(self, participant_id=None):
+        return (Participant.query
+                .filter_by(meeting_id=g.meeting.id, id=participant_id)
+                .active()
+                .first_or_404()
+                if participant_id else None)
+
+    def get(self, participant_id=None):
+        participant = self._get_object(participant_id)
+        field_types = [CustomField.TEXT, CustomField.SELECT,
+                       CustomField.COUNTRY]
+        Form = custom_form_factory(field_types=field_types)
+        Object = custom_object_factory(participant, field_types)
+        form = Form(obj=Object())
+
+        field_types = [CustomField.CHECKBOX]
+        FlagsForm = custom_form_factory(field_types=field_types)
+        FlagsObject = custom_object_factory(participant, field_types)
+        flags_form = FlagsForm(obj=FlagsObject())
+
+        return render_template('meetings/participant/edit.html',
+                               form=form,
+                               flags_form=flags_form,
+                               participant=participant)
+
+    def post(self, participant_id=None):
+        participant = self._get_object(participant_id)
+        field_types = [CustomField.TEXT, CustomField.SELECT,
+                       CustomField.COUNTRY]
+        Form = custom_form_factory(field_types=field_types,
+                                   form=ParticipantEditForm)
+        Object = custom_object_factory(participant, field_types)
+        form = Form(obj=Object())
+
+        field_types = [CustomField.CHECKBOX]
+        FlagsForm = custom_form_factory(field_types=field_types)
+        FlagsObject = custom_object_factory(participant, field_types)
+        flags_form = FlagsForm(obj=FlagsObject())
+        if (form.validate() and flags_form.validate()):
+            participant = form.save(participant)
+            flags_form.save(participant)
+            flash('Person information saved', 'success')
+            staff = Staff.query.filter_by(user=user).first()
+            if participant_id:
+                activity_signal.send(self, participant=participant,
+                                     action='edit', staff=staff)
+                url = url_for('.default_participant_detail',
+                              participant_id=participant.id)
+            return redirect(url)
+
+        return render_template('meetings/participant/edit.html',
+                               form=form,
+                               flags_form=flags_form,
+                               participant=participant)
 
 
 class ParticipantRestore(PermissionRequiredMixin, MethodView):

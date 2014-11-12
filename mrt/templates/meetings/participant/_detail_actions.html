@@ -1,0 +1,45 @@
+<span class="dropdown">
+<a class="btn btn-sm btn-default dropdown-toggle"
+    data-toggle="dropdown">
+  Print items <span class="caret"></span></a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="{{ url_for('.participant_acknowledge_pdf',
+                            participant_id=participant.id) }}">
+       Acknowledge details</a>
+    </li>
+    <li>
+      <a href="{{ url_for('.participant_badge',
+                           participant_id=participant.id) }}">
+        Badge</a>
+    </li>
+    <li>
+      <a href="{{ url_for('.participant_badge',
+                           participant_id=participant.id,
+                           nostripe=1) }}">
+        Badge (no stripe)</a>
+    </li>
+    <li>
+      <a href="{{ url_for('.participant_label',
+                            participant_id=participant.id) }}">
+        Label</a>
+    </li>
+    <li>
+      <a href="{{ url_for('.participant_envelope',
+                            participant_id=participant.id) }}">
+        Envelope</a>
+    </li>
+  </ul>
+</span>
+
+{% set acknowledge_url = url_for(
+    '.participant_acknowledge',
+    participant_id=participant.id) %}
+<a class="btn btn-default btn-sm"
+    href="{{ acknowledge_url }}">Acknowledge Email</a>
+
+<a class="btn btn-danger btn-sm pull-right" data-toggle="delete"
+   data-href="{{ url }}"
+   data-message="Are you sure you want to delete this participant?">
+  <span class="glyphicon glyphicon-remove"></span> &nbsp;
+  Delete participant</a>
