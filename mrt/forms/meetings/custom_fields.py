@@ -22,7 +22,7 @@ from mrt.utils import unlink_participant_photo
 custom_upload = UploadSet('custom', TEXT + DOCUMENTS + IMAGES)
 
 
-_CUSOMT_FIELDS_MAP = {
+_CUSTOM_FIELDS_MAP = {
     CustomField.TEXT: {'field': fields.StringField},
     CustomField.CHECKBOX: {'field': BooleanField},
     CustomField.IMAGE: {'field': FileField,
@@ -77,7 +77,17 @@ def custom_form_factory(field_types=[], field_slugs=[],
 
     for f in fields:
         attrs = {'label': __(unicode(f.label)), 'validators': []}
-        data = _CUSOMT_FIELDS_MAP[f.field_type.code]
+
+        data = _CUSTOM_FIELDS_MAP[f.field_type.code]
+
+        # overwrite data if _CUSTOM_FIELDS_MAP attribute is present on form
+        form_fields_map = getattr(form, '_CUSTOM_FIELDS_MAP', None)
+        if form_fields_map:
+            try:
+                data = form_fields_map[f.field_type.code]
+            except KeyError:
+                pass
+
         if f.required:
             attrs['validators'].append(DataRequired())
         attrs['validators'].extend(data.get('validators', []))

@@ -1,12 +1,21 @@
 from flask.ext.babel import gettext as _
+from flask_wtf.file import FileField, FileAllowed
+from flask.ext.uploads import IMAGES
+
 from wtforms import Form, StringField, PasswordField, validators
 
 from mrt.forms.meetings import ParticipantEditForm
-from mrt.models import db, User
+from mrt.models import db, User, CustomField
 
 
 class RegistrationForm(ParticipantEditForm):
-    pass
+
+    _CUSTOM_FIELDS_MAP = {
+        CustomField.IMAGE: {
+            'field': FileField,
+            'validators': [FileAllowed(IMAGES)]
+        },
+    }
 
 
 class RegistrationUserForm(Form):
