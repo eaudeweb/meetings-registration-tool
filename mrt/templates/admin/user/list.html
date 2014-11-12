@@ -108,10 +108,13 @@
               <td>
                 <ul class="list-unstyled">
                   {% for participant in
-                          user.participants.filter_by(deleted=False) %}
+                          user.participants.filter_by(deleted=False)|sort(attribute='meeting_id') %}
                     {% if participant.meeting %}
-                      <li><a href="{{ url_for('meetings.default_participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
-                        {{ participant.meeting }}</a></li>
+
+                      <li {% if loop.first %}class="text-danger"{% endif %}>
+                        <a href="{{ url_for('meetings.default_participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
+                        {{ participant.meeting }}</a>
+                      </li>
                     {% endif %}
                   {% else %}
                     <p>-</p>
