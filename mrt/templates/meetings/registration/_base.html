@@ -16,6 +16,11 @@
     <div class="container content">
       {% block content %}{% endblock %}
     </div>
+
+    {% assets "js" %}
+      <script src="{{ ASSET_URL }}"></script>>
+    {% endassets %}
+    {% block scripts %}{% endblock %}
   </body>
 
 </html>

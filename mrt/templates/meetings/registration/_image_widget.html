@@ -1,18 +1,18 @@
 
 {% set url = url_for(
     'files',
-    filename=config['PATH_CUSTOM_KEY'] ~ '/' ~ field.data) %}
+    filename=config['PATH_CUSTOM_KEY'] ~ '/' ~ field.data.filename) %}
 
 <div class="file-field-container">
 
-  {% if field.data %}
+  {% if field.data and field._use_current_file %}
     <div class="bg-info" style="margin-bottom: 10px;">
       <label>
       <input name="{{ field.name }}-use-current-file"
              type="checkbox" checked="checked"
-             value="{{ field.data }}">
+             value="{{ field.data.filename }}">
       {{ gettext('Use this photo for registration') }}:</label>
-      <a href="{{ url }}" target="_blank">{{ field.data }}</a>
+      <a href="{{ url }}" target="_blank">{{ field.data.filename }}</a>
     </div>
   {% endif %}
 

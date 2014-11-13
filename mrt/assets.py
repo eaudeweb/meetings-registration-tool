@@ -55,10 +55,13 @@ _BUNDLE_UPLOAD_CSS = (
 )
 
 
-_BUNDLE_REGISTRATION = (
+_BUNDLE_REGISTRATION_CSS = (
     'css/bootstrap.min.css',
     'css/bootstrap-theme.min.css',
     'css/registration.css',
+)
+_BUNDLE_REGISTRATION_JS = (
+    'js/lib/jquery.min.js',
 )
 
 
@@ -73,8 +76,11 @@ colorpicker_js = Bundle(*_BUNDLE_COLORPICKER_JS,
                         output='gen/spectrum.min.js')
 colorpicker_css = Bundle(*_BUNDLE_COLORPICKER_CSS,
                          output='gen/spectrum.min.css')
-registration_css = Bundle(*_BUNDLE_REGISTRATION,
+registration_css = Bundle(*_BUNDLE_REGISTRATION_CSS,
                           output='gen/registration.min.css')
+registration_js = Bundle(*_BUNDLE_REGISTRATION_JS,
+                         output='gen/registration.min.js')
+
 
 assets_env = Environment()
 assets_env.register('css', css)
@@ -87,3 +93,4 @@ assets_env.register('colorpicker_js', colorpicker_js)
 assets_env.register('colorpicker_css', colorpicker_css)
 
 assets_env.register('registration_css', registration_css)
+assets_env.register('registration_js', registration_js)

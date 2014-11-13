@@ -148,9 +148,14 @@ class FileField(_FileField):
 
     widget = FileInput()
 
+    def __init__(self, *args, **kwargs):
+        super(FileField, self).__init__(*args, **kwargs)
+        self._use_current_file = False
+
     def process_formdata(self, valuelist):
         use_current_file = request.form.get(self.name + '-use-current-file')
         if use_current_file:
+            self._use_current_file = True
             file_path = app.config['UPLOADED_CUSTOM_DEST'] / use_current_file
             try:
                 self.data = FileStorage(stream=file_path.open(),
@@ -160,3 +165,15 @@ class FileField(_FileField):
                 self.data = None
         else:
             super(FileField, self).process_formdata(valuelist)
+
+    def process_data(self, value):
+        super(FileField, self).process_data(value)
+        if isinstance(value, basestring):
+            self._use_current_file = True
+            file_path = app.config['UPLOADED_CUSTOM_DEST'] / value
+            try:
+                self.data = FileStorage(stream=file_path.open(),
+                                        filename=file_path.basename(),
+                                        name=self.name)
+            except IOError:
+                self.data = None
