@@ -4,19 +4,20 @@
     filename=config['PATH_CUSTOM_KEY'] ~ '/' ~ field.data.filename) %}
 
 <div class="file-field-container">
-
-  {% if field.data and field._use_current_file %}
+  {% set show = field.data and field._use_current_file %}
+  {% if show %}
     <div class="bg-info" style="margin-bottom: 10px;">
       <label>
       <input name="{{ field.name }}-use-current-file"
              type="checkbox" checked="checked"
+             class="use-current-file"
              value="{{ field.data.filename }}">
       {{ gettext('Use this photo for registration') }}:</label>
       <a href="{{ url }}" target="_blank">{{ field.data.filename }}</a>
     </div>
   {% endif %}
 
-  <div class="file-field-input">
+  <div class="file-field-input {% if show %}hide{% endif %}">
     <input type="file" name="{{ field.name }}">
   </div>
 

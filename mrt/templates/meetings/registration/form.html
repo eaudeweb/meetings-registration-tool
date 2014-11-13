@@ -2,6 +2,25 @@
 {% from "_bits.html" import form_group, flashed_messages %}
 
 
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('.use-current-file').on('change', function () {
+        var is_checked = $(this).prop('checked');
+        var parents = $(this).parents('.file-field-container');
+        if(is_checked) {
+          parents.find('.file-field-input').removeClass('show');
+        } else {
+          parents.find('.file-field-input').addClass('show');
+        }
+      }).change();
+    });
+  </script>
+
+{% endblock %}
+
+
 {% block content %}
 
   {{ flashed_messages() }}
