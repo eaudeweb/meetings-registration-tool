@@ -18,7 +18,7 @@ class Login(MethodView):
         return render_template('auth/login.html', form=form, next=next)
 
     def post(self):
-        form = auth.LoginForm(request.form)
+        form = auth.LoginForm(request.form, staff_only=True)
         next = request.values.get('next')
         if form.validate():
             user = form.get_user()

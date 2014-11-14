@@ -6,7 +6,7 @@ from flask.ext.login import current_user
 from wtforms import Form
 from wtforms import StringField, PasswordField, validators
 
-from mrt.models import db, User
+from mrt.models import db, User, Staff
 from .base import BaseForm
 
 
@@ -14,6 +14,10 @@ class LoginForm(Form):
 
     email = StringField('Email', [validators.Email()])
     password = PasswordField('Password')
+
+    def __init__(self, *args, **kwargs):
+        self.staff_only = kwargs.pop('staff_only', False)
+        super(LoginForm, self).__init__(*args, **kwargs)
 
     def validate_email(self, field):
         user = self.get_user()
@@ -29,7 +33,10 @@ class LoginForm(Form):
             raise validators.ValidationError('Invalid password')
 
     def get_user(self):
-        return User.query.filter_by(email=self.email.data).first()
+        query = User.query.filter_by(email=self.email.data)
+        if self.staff_only:
+            query = query.join(Staff)
+        return query.scalar()
 
 
 class UserForm(BaseForm):

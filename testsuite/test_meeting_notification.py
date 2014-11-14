@@ -3,7 +3,7 @@ from flask import url_for
 from mrt.mail import mail
 from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import UserNotificationFactory, RoleUserMeetingFactory
-from .factories import StaffFactory, MediaParticipantFactory
+from .factories import MediaParticipantFactory
 
 from .utils import add_participant_custom_fields, populate_participant_form
 
@@ -15,7 +15,6 @@ def test_send_notification_add_participant(app):
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
     RoleUserMeetingFactory(meeting=category.meeting,
                            user__email='test@email.com')
-    StaffFactory(user=role_user.user)
     UserNotificationFactory(user=role_user.user, meeting=category.meeting)
 
     data = ParticipantFactory.attributes()
@@ -39,7 +38,6 @@ def test_send_notification_add_media_participant(app):
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
     RoleUserMeetingFactory(meeting=category.meeting,
                            user__email='test@email.com')
-    StaffFactory(user=role_user.user)
     UserNotificationFactory(user=role_user.user, meeting=category.meeting,
                             notification_type='notify_media_participant')
 

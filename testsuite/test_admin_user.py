@@ -1,12 +1,13 @@
 from flask import url_for
 
-from .factories import UserFactory, RoleUserFactory
+from .factories import UserFactory, RoleUserFactory, StaffFactory
 
 
 def test_login_fail_user_inactive(app):
     admin = RoleUserFactory(user__email='admin@eaudeweb.ro',
                             role__permissions=('manage_default',))
     user = UserFactory()
+    StaffFactory(user=user)
     data = UserFactory.attributes()
 
     user_client = app.test_client()

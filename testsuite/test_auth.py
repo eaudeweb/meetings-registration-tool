@@ -3,11 +3,12 @@ from flask import url_for
 from pyquery import PyQuery
 
 from mrt.mail import mail
-from .factories import UserFactory
+from .factories import UserFactory, StaffFactory
 
 
-def test_login_succesfull(app):
-    UserFactory()
+def test_login_for_staff_succesfull(app):
+    user = UserFactory()
+    StaffFactory(user=user)
     data = UserFactory.attributes()
 
     client = app.test_client()
@@ -16,6 +17,17 @@ def test_login_succesfull(app):
         resp = client.post(url, data=data)
 
     assert resp.status_code == 302
+
+
+def test_login_failed_for_users_failed(app):
+    UserFactory()
+    data = UserFactory.attributes()
+    client = app.test_client()
+    with app.test_request_context():
+        url = url_for('auth.login')
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 200
 
 
 def test_recover_password(app):
@@ -40,6 +52,7 @@ def test_recover_password(app):
 
 def test_recover_password_fail_after_using_token(app):
     user = UserFactory()
+    StaffFactory(user=user)
     data = UserFactory.attributes()
 
     client = app.test_client()
@@ -64,7 +77,9 @@ def test_recover_password_fail_after_using_token(app):
 
 def test_change_password_succesfully(app):
     user = UserFactory()
+    StaffFactory(user=user)
     data = {'email': user.email}
+    data['new_password'] = data['confirm'] = passwd = str(uuid4())
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
@@ -82,7 +97,9 @@ def test_change_password_succesfully(app):
 
 def test_change_password_fail(app):
     user = UserFactory()
+    StaffFactory(user=user)
     data = {'email': user.email}
+    data['new_password'] = data['confirm'] = 'webdeeau'
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:

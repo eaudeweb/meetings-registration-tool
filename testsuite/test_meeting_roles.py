@@ -45,7 +45,7 @@ def test_meeting_role_add(app):
 def test_meeting_role_edit(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
     staff = StaffFactory(user__email='test@email.com')
-    role_user = RoleUserMeetingFactory(user=staff.user)
+    role_user = RoleUserMeetingFactory(staff=staff, user=staff.user)
     new_role = RoleFactory(name='Inspector')
     data = {
         'role_id': new_role.id,

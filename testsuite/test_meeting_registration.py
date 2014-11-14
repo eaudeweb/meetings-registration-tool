@@ -43,7 +43,6 @@ def test_meeting_online_registration_add(app, default_meeting):
     role_user = RoleUserMeetingFactory(meeting=meeting)
     RoleUserMeetingFactory(meeting=meeting,
                            user__email='test@email.com')
-    StaffFactory(user=role_user.user)
     UserNotificationFactory(user=role_user.user, meeting=meeting)
 
     data = ParticipantFactory.attributes()

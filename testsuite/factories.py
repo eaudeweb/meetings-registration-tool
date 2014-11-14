@@ -1,5 +1,6 @@
 from factory.alchemy import SQLAlchemyModelFactory as BaseModelFactory
-from factory import SubFactory, SelfAttribute
+from factory import SubFactory, SelfAttribute, Sequence
+from factory import post_generation
 from sqlalchemy_utils import CountryType, Choice
 from werkzeug.security import generate_password_hash
 
@@ -20,6 +21,7 @@ class SQLAlchemyModelFactory(BaseModelFactory):
 
 
 class UserFactory(SQLAlchemyModelFactory):
+
     class Meta:
         model = models.User
         sqlalchemy_session = models.db.session
@@ -94,6 +96,7 @@ class RoleFactory(SQLAlchemyModelFactory):
 
 
 class StaffFactory(SQLAlchemyModelFactory):
+
     class Meta:
         model = models.Staff
         sqlalchemy_session = models.db.session
@@ -174,6 +177,7 @@ class RoleUserFactory(SQLAlchemyModelFactory):
 
 
 class RoleUserMeetingFactory(SQLAlchemyModelFactory):
+
     class Meta:
         model = models.RoleUser
         sqlalchemy_session = models.db.session
@@ -181,6 +185,13 @@ class RoleUserMeetingFactory(SQLAlchemyModelFactory):
     role = SubFactory(RoleFactory)
     user = SubFactory(UserFactory)
     meeting = SubFactory(MeetingFactory)
+
+    @post_generation
+    def staff(self, create, extracted, **kwargs):
+        if not create:
+            return
+        staff = extracted or StaffFactory(user=self.user)
+        return staff
 
 
 class ParticipantFactory(SQLAlchemyModelFactory):

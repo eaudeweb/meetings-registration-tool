@@ -19,7 +19,6 @@ from testsuite.utils import populate_participant_form
 def test_meeting_participant_detail(app):
     category = MeetingCategoryFactory()
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
-    StaffFactory(user=role_user.user)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
@@ -67,7 +66,6 @@ def test_meeting_participant_detail(app):
 def test_meeting_participant_add_success(app):
     category = MeetingCategoryFactory()
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
-    StaffFactory(user=role_user.user)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
@@ -95,7 +93,6 @@ def test_meeting_participant_add_success(app):
 def test_meeting_participant_add_with_custom_field(app):
     category = MeetingCategoryFactory()
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
-    StaffFactory(user=role_user.user)
     CustomFieldFactory(field_type='text', meeting=category.meeting,
                        required=True, label__english='size')
     CustomFieldFactory(field_type='checkbox', meeting=category.meeting,
@@ -121,7 +118,6 @@ def test_meeting_participant_add_with_custom_field(app):
 def test_meeting_participant_add_fail(app):
     category = MeetingCategoryFactory()
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
-    StaffFactory(user=role_user.user)
     CustomFieldFactory(field_type='checkbox', meeting=category.meeting,
                        required=True, label__english='passport')
 
@@ -143,7 +139,6 @@ def test_meeting_participant_add_fail(app):
 def test_meeting_participant_add_form_field_order(app):
     category = MeetingCategoryFactory()
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
-    StaffFactory(user=role_user.user)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
@@ -187,7 +182,6 @@ def test_meeting_participant_add_form_field_order(app):
 def test_meeting_participant_edit_form_populated(app):
     category = MeetingCategoryFactory()
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
-    StaffFactory(user=role_user.user)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
