@@ -30,8 +30,9 @@
 {% block content %}
 
   {{ super() }}
-  <h3 class="page-title">{{ title }}</h3>
-  <h4>List of staff members who can manage this meeting</h4>
+  <h3 class="page-title">{{ title }}
+  </br>
+  <small>List of staff members who can manage this meeting</small></h3>
   <p>The owner of this meeting is: {{ g.meeting.owner }}</p>
 
   <div class="actions">
