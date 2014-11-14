@@ -383,7 +383,7 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
         if form.validate():
             context = {
                 'participant': participant,
-                'template': 'meetings/printouts/_acknowledge_detail.html'}
+                'template': 'meetings/printouts/acknowledge_detail.html'}
             attachement = render_pdf('meetings/printouts/printout.html',
                                      height='11.7in',
                                      width='8.26in',

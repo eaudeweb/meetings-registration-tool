@@ -36,9 +36,11 @@
 
 {% endblock %}
 
-{% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
-  {% block messages %}{{ flashed_messages() }}{% endblock %}
-{% endif %}
+{% block messages %}
+  {% if g.meeting.meeting_type == g.meeting.DEFAULT_TYPE %}
+    {{ flashed_messages() }}
+  {% endif %}
+{% endblock %}
 
 
 {% block content %}

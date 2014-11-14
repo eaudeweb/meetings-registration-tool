@@ -8,6 +8,7 @@ from .factories import ParticipantFactory, RoleUserFactory, StaffFactory
 from .factories import MeetingCategoryFactory, RoleUserMeetingFactory
 from .factories import CustomFieldFactory
 
+from mrt.mail import mail
 from mrt.models import Participant, CustomField
 from mrt.utils import translate
 
@@ -296,3 +297,25 @@ def test_meeting_participant_representing_region_translated(app):
     with app.test_request_context():
         assert (translate(participant.represented_region.value, 'fr') ==
                 participant.representing)
+
+
+def test_meeting_participant_acknowledge_email(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    part = ParticipantFactory()
+
+    data = {
+        'to': part.email,
+        'message': 'AckMessage',
+        'subject': 'AckSubject',
+    }
+
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.participant_acknowledge',
+                                   meeting_id=part.meeting.id,
+                                   participant_id=part.id), data=data)
+        assert resp.status_code == 302
+        assert len(outbox) == 1
