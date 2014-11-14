@@ -195,7 +195,9 @@ def test_meeting_registration_default_participant_photo(app, default_meeting):
         default_photo_field = (default_participant.custom_field_values
                                .scalar().value)
         assert photo_field != default_photo_field
+        assert len(upload_dir.listdir()) == 2
         assert upload_dir.join(default_photo_field).check()
+
 
 def test_meeting_registration_default_participant_custom_fields_update(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
@@ -291,6 +293,7 @@ def test_meeting_registration_default_participant_photo_update(app, default_meet
         assert default_photo_field != original_image
         assert not upload_dir.join(original_image).check()
         assert upload_dir.join(default_photo_field).check()
+        assert len(upload_dir.listdir()) == 3
 
 
 def test_meeting_online_registration_is_prepopulated(app, default_meeting):
