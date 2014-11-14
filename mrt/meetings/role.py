@@ -42,7 +42,7 @@ class RoleUserEdit(PermissionRequiredMixin, MethodView):
                 flash('RoleUser successfully added', 'success')
             return redirect(url_for('.roles'))
         flash('RoleUser was not saved. Plase see the errors bellow', 'danger')
-        return render_template('admin/role/edit.html',
+        return render_template('meetings/role/edit.html',
                                form=form,
                                role_user=role_user)
 

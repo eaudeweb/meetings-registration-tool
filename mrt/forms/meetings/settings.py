@@ -102,6 +102,13 @@ class RoleUserEditForm(BaseForm):
                                  validators=[DataRequired()],
                                  coerce=int)
 
+    def validate_user_id(self, field):
+        obj = RoleUser.query.filter_by(user_id=field.data,
+                                       meeting_id=g.meeting.id,
+                                       role_id=self.role_id.data).first()
+        if obj and obj != self.obj:
+            raise ValidationError('Role already exists')
+
     def __init__(self, *args, **kwargs):
         if kwargs['obj']:
             kwargs.setdefault('user_id', kwargs['obj'].user.id)
@@ -113,8 +120,9 @@ class RoleUserEditForm(BaseForm):
 
     def save(self):
         user_role = self.obj or self.meta.model()
-        user_role.user = User.query.get_or_404(self.user_id.data)
-        user_role.role = Role.query.get_or_404(self.role_id.data)
+        with db.session.no_autoflush:
+            user_role.user = User.query.get_or_404(self.user_id.data)
+            user_role.role = Role.query.get_or_404(self.role_id.data)
         user_role.meeting = g.meeting
         if user_role.id is None:
             db.session.add(user_role)
