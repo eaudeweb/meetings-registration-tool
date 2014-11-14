@@ -313,3 +313,25 @@ def test_meeting_participant_acknowledge_email(app):
                                    participant_id=part.id), data=data)
         assert resp.status_code == 302
         assert len(outbox) == 1
+
+
+def test_meeting_participant_acknowledge_email_with_no_language(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    part = ParticipantFactory(language='')
+
+    data = {
+        'to': part.email,
+        'message': 'AckMessage',
+        'subject': 'AckSubject',
+    }
+
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.participant_acknowledge',
+                                   meeting_id=part.meeting.id,
+                                   participant_id=part.id), data=data)
+        assert resp.status_code == 302
+        assert len(outbox) == 1

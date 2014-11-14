@@ -367,13 +367,14 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
                                       group=Phrase.ACK_EMAIL,
                                       name=Phrase.BODY).scalar()
         form = AcknowledgeEmailForm(to=participant.email)
+        language = getattr(participant, 'lang', 'english')
         if subject:
             form.subject.data = getattr(subject.description,
-                                        participant.lang, None)
+                                        language, None)
         if body:
             form.message.data = getattr(body.description,
-                                        participant.lang, None)
-        set_language(participant.lang)
+                                        language, None)
+        set_language(language)
         return render_template(self.template_name, participant=participant,
                                form=form)
 
@@ -413,7 +414,8 @@ class ParticipantAcknowledgePDF(MethodView):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
         context = {'participant': participant}
-        set_language(participant.lang)
+        language = getattr(participant, 'lang', 'english')
+        set_language(language)
         return render_pdf('meetings/printouts/acknowledge_detail.html',
                           height='11.7in', width='8.26in',
                           orientation='portrait', footer=False,
