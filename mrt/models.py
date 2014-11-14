@@ -58,6 +58,7 @@ class User(db.Model):
     recover_token = db.Column(db.String(64))
     recover_time = db.Column(db.DateTime)
     active = db.Column(db.Boolean, nullable=False, default=True)
+    is_superuser = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return '%s' % self.email

@@ -68,6 +68,27 @@ def create_user(ctx):
 
 
 @cli.command()
+@click.pass_context
+def create_superuser(ctx):
+    email = click.prompt('Enter email', type=str)
+    password = click.prompt('Enter password', type=str, hide_input=True)
+    confirm = click.prompt('Enter password again', type=str, hide_input=True)
+
+    if password == confirm:
+        app = ctx.obj['app']
+        with app.app_context():
+            user = User(email=email, is_superuser=True)
+            user.set_password(password)
+            db.session.add(user)
+            staff = Staff(user=user, full_name='')
+            db.session.add(staff)
+            db.session.commit()
+            click.echo('Superuser has been created')
+    else:
+        click.echo('Passwords differ')
+
+
+@cli.command()
 @click.argument('alembic_args', nargs=-1, type=click.Path())
 @click.pass_context
 def alembic(ctx, alembic_args):

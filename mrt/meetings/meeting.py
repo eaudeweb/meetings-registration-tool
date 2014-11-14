@@ -22,6 +22,8 @@ class PermissionRequiredMixin(object):
     def check_permissions(self):
         perms = self.get_permission_required()
         admin_perms = [x.replace('view', 'manage', 1) for x in perms]
+        if current_user.is_superuser:
+            return True
         if g.get('meeting'):
             return (
                 current_user.has_perms(perms) or
