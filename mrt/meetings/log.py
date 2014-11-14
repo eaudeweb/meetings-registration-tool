@@ -81,7 +81,8 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
         action = request.args.get('action', None)
 
         if staff_id:
-            activities = activities.filter_by(staff_id=int(staff_id))
+            staff_id = None if int(staff_id) == 0 else int(staff_id)
+            activities = activities.filter_by(staff_id=staff_id)
 
         if seconds:
             relative_date = datetime.now() - timedelta(seconds=int(seconds))
