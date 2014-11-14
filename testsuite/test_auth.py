@@ -76,42 +76,31 @@ def test_recover_password_fail_after_using_token(app):
 
 
 def test_change_password_succesfully(app):
-    user = UserFactory()
-    StaffFactory(user=user)
-    data = {'email': user.email}
+    user, data = UserFactory(), UserFactory.attributes()
     data['new_password'] = data['confirm'] = passwd = str(uuid4())
 
     client = app.test_client()
-    with app.test_request_context(), mail.record_messages() as outbox:
+    with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
+        client.post(url_for('auth.login'), data=data)
         resp = client.post(url_for('auth.change_password'), data=data)
         assert resp.status_code == 302
-        assert len(outbox) == 1
 
-        data['password'] = data['confirm'] = passwd = str(uuid4())
-        client.post(url_for('auth.reset', token=user.recover_token), data=data)
-        assert resp.status_code == 302
-        assert user.check_password(passwd)
+    assert user.check_password(passwd)
 
 
 def test_change_password_fail(app):
     user = UserFactory()
-    StaffFactory(user=user)
-    data = {'email': user.email}
+    data = UserFactory.attributes()
     data['new_password'] = data['confirm'] = 'webdeeau'
 
     client = app.test_client()
-    with app.test_request_context(), mail.record_messages() as outbox:
+    with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
+        client.post(url_for('auth.login'), data=data)
+        data['password'] = 'baddpass'
         resp = client.post(url_for('auth.change_password'), data=data)
-        assert resp.status_code == 302
-        assert len(outbox) == 1
-
-        data['password'] = str(uuid4())
-        data['confirm'] = 'badpass'
-        resp = client.post(url_for('auth.reset', token=user.recover_token),
-                           data=data)
         assert resp.status_code == 200
         assert len(PyQuery(resp.data)('.alert-danger')) == 1
