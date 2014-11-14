@@ -4,6 +4,7 @@ from flask.views import MethodView
 
 from blinker import ANY
 from datetime import datetime, timedelta
+from sqlalchemy import or_
 
 from mrt.models import db, Participant, MediaParticipant
 from mrt.models import ActivityLog, MailLog, RoleUser
@@ -67,8 +68,12 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', )
 
     def get(self):
-        staffs = RoleUser.query.filter_by(meeting=g.meeting)
-        activities = ActivityLog.query.filter_by(meeting=g.meeting)
+        staffs = (
+            RoleUser.query
+            .filter(or_(RoleUser.meeting == g.meeting,
+                        RoleUser.meeting == None))
+            .distinct(RoleUser.user_id).all())
+        activities = g.meeting.activities.order_by(ActivityLog.date.desc())
 
         staff_id = request.args.get('staff_id', None)
         seconds = request.args.get('time', None)
