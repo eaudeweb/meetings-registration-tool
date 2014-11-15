@@ -4,9 +4,10 @@ from flask import g, abort
 from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
+from mrt.mail import send_reset_mail
 from mrt.meetings import PermissionRequiredMixin
 from mrt.models import User, db
-from mrt.forms.auth import AdminChangePasswordForm
+from mrt.forms.auth import RecoverForm
 
 
 class Users(PermissionRequiredMixin, MethodView):
@@ -41,16 +42,17 @@ class UserPasswordChange(PermissionRequiredMixin, MethodView):
 
     def get(self, user_id):
         user = User.query.get_or_404(user_id)
-        form = AdminChangePasswordForm(request.form, user=user)
+        form = RecoverForm(email=user.email)
         return render_template('admin/user/password_form.html', form=form,
                                user=user)
 
     def post(self, user_id):
         user = User.query.get_or_404(user_id)
-        form = AdminChangePasswordForm(request.form, user=user)
+        form = RecoverForm(email=user.email)
         if form.validate():
-            form.save()
-            flash('Password changed successfully', 'success')
+            user = form.save()
+            send_reset_mail(user.email, user.recover_token)
+            flash('The reset email has been sent successfully', 'success')
             return jsonify(status="success")
         data = render_template('admin/user/password_form.html', form=form,
                                user=user)

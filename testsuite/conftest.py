@@ -32,6 +32,7 @@ def app(request, tmpdir):
         'HOSTNAME': 'http://meetings.edw.ro/',
         'DEFAULT_MAIL_SENDER': 'noreply',
         'TEMPLATES_PATH': templates_path,
+        'MAIL_SUPPRESS_SEND': True,
     }
 
     app = create_app(test_config)
