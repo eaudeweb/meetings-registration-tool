@@ -33,16 +33,17 @@
         stateSave: true
       });
 
-      $("[data-toggle=enable]").on("click", function () {
-        var url = $(this).data("href");
-        var row = $(this).parents("tr");
-        var icon = row.find(".glyphicon");
+      $('[data-toggle=enable]').on('click', function () {
+        var url = $(this).data('href');
+        var row = $(this).parents('tr');
+        var icon = row.find('.glyphicon');
         var button = $(this);
           $.post(url, function (resp) {
-            row.effect("highlight");
-            if (icon.hasClass("glyphicon-ok")) {
-              icon.removeClass("glyphicon-ok").addClass("glyphicon-minus");
-              button.text(button.data("enable"));
+            row.effect('highlight');
+            if (icon.hasClass('glyphicon-ok')) {
+              icon.removeClass('glyphicon-ok')
+                  .addClass('glyphicon-minus');
+              button.text(button.data('enable'));
             }
             else {
               icon.removeClass("glyphicon-minus").addClass("glyphicon-ok");
@@ -51,18 +52,15 @@
           });
       });
 
-      $("#modal-password").on("submit", "form", function(e) {
-        e.preventDefault();
-        var url = $(this).attr("action");
-        $.post(url, $(this).serialize(), function (resp) {
-          if (resp.status == "success") {
-            location.reload();
-          }
-          else if(resp.status == "error") {
-            $('.modal-content').html(resp.data);
-          }
-        });
+      $('[data-toggle=reset]').on('click', function () {
+        if(confirm('Are you sure you want to reset the password for this user?')) {
+          var url = $(this).data('href');
+          $.post(url).done(function (resp) {
+            window.location.replace(resp.url);
+          });
+        }
       });
+
     });
   </script>
 
@@ -131,7 +129,7 @@
               <td class="text-center">
                 <div class="options">
                   <small>
-                    <a href="{{ url_for('admin.user_edit', user_id=user.id) }}" data-toggle="modal" data-target=".modal-password">Reset Password</a>
+                    <a data-href="{{ url_for('admin.user_edit', user_id=user.id) }}" data-toggle="reset">Reset Password</a>
                   </small>&nbsp;
 
                   {% set text = 'Disable' if user.active else 'Enable' %}
@@ -146,12 +144,6 @@
         </tbody>
 
       </table>
-    </div>
-
-    <div id="modal-password" class="modal fade modal-password" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content"></div>
-      </div>
     </div>
 
 {% endblock %}

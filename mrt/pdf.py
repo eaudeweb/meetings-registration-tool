@@ -44,7 +44,7 @@ def render_pdf(template_name, title='', width=None, height=None,
                    '-L', margin['left'],
                    '-R', margin['right'],
                    '--orientation', orientation]
-        if footer:
+        if footer and not app.config['DEBUG']:
             footer_url = url_for('meetings.printouts_footer', _external=True)
             command += ['--footer-html', footer_url]
         command += [str(template_path), str(pdf_path)]

@@ -376,7 +376,7 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
                                         language, None)
         set_language(language)
         return render_template(self.template_name, participant=participant,
-                               form=form)
+                               form=form, language=language)
 
     def post(self, participant_id):
         participant = self.get_participant(participant_id)
