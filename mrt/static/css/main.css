@@ -125,9 +125,10 @@ li.separator {
 .row-link {
     position: absolute;
     margin-right: -15px;
-    margin-top: -20px;
+    margin-top: -10px;
     display: none;
     right: 0;
+    top: 50%;
 }
 .table tr:hover .row-link {
     display: block;
