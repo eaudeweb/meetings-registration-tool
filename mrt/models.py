@@ -12,6 +12,7 @@ from flask_redis import Redis
 
 from jinja2.exceptions import TemplateNotFound
 
+from wtforms.fields import DateField
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
@@ -580,10 +581,12 @@ class Meeting(db.Model):
     meeting_type = db.Column(db.String(3), nullable=False)
 
     date_start = db.Column(db.Date, nullable=False,
-                           info={'label': 'Start Date'})
+                           info={'label': 'Start Date',
+                                 'form_field_class': DateField})
 
     date_end = db.Column(db.Date, nullable=False,
-                         info={'label': 'End Date'})
+                         info={'label': 'End Date',
+                               'form_field_class': DateField})
 
     venue_address = db.Column(db.String(128),
                               info={'label': 'Address'})

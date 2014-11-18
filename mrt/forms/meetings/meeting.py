@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask.ext.login import current_user
 from wtforms import fields, widgets
-from wtforms.validators import ValidationError, DataRequired
+from wtforms.validators import ValidationError, InputRequired
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import db, Meeting, Staff, Participant
@@ -33,10 +33,10 @@ class MeetingEditForm(BaseForm):
                 'widget': widgets.TextArea()
             },
             'date_start': {
-                'format': '%d.%m.%Y'
+                'format': '%d.%m.%Y',
             },
             'date_end': {
-                'format': '%d.%m.%Y'
+                'format': '%d.%m.%Y',
             }
         }
 
@@ -98,7 +98,7 @@ class MeetingEditForm(BaseForm):
 
 class ParticipantDummyForm(BaseForm):
 
-    category_id = CategoryField('Category', validators=[DataRequired()],
+    category_id = CategoryField('Category', validators=[InputRequired()],
                                 coerce=int, choices=[])
 
     class Meta:
