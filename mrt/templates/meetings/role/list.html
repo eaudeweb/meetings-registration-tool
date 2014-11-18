@@ -35,12 +35,6 @@
   <small>List of staff members who can manage this meeting</small></h3>
   <p>The owner of this meeting is: {{ g.meeting.owner }}</p>
 
-  <div class="actions">
-    <a href="{{ url_for('.role_user_edit') }}" class="btn btn-primary btn-sm">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add a new role</a>
-  </div>
-
   <div class="table-responsive">
     <table id="roles" class="table table-bordered table-condensed">
 
