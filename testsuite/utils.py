@@ -1,3 +1,5 @@
+from flask import Response
+
 from mrt.forms.meetings.meeting import ParticipantDummyForm
 from mrt.forms.meetings.meeting import _CUSTOM_FIELD_MAPPER
 from mrt.models import CustomField, CustomFieldChoice, Translation, db
@@ -41,3 +43,23 @@ def populate_participant_form(meeting, data={}):
         data[custom_field.slug] = (
             custom_field.custom_field_choices.first().value)
     data['represented_country'] = 'RO'
+
+
+class PdfRendererMock(object):
+    """Use this class to mock mrt.pdf.PdfRenderer"""
+    text = 'empty_pdf'
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def as_attachement(self):
+        class _MockFile(object):
+            def read(*args, **kwargs):
+                return self.text
+        return _MockFile()
+
+    def as_response(self):
+        return Response('empty pdf', mimetype='application/pdf')
+
+    def as_rq(self):
+        return self.text
