@@ -40,16 +40,6 @@
 
   {{ super() }}
 
-  <div class="actions">
-    <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add a new participant
-    </a>
-    <a href="{{ url_for('.participants_export') }}" class="btn btn-default btn-sm">
-      Export to excel
-    </a>
-  </div>
-
   <div class="table-responsive">
 
     <table id="participants"
@@ -66,5 +56,15 @@
     </table>
 
   </div> {# table-responsive #}
+
+  <div class="actions">
+    <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new participant
+    </a>
+    <a href="{{ url_for('.participants_export') }}" class="btn btn-default btn-sm">
+      Export to excel
+    </a>
+  </div>
 
 {% endblock %}
