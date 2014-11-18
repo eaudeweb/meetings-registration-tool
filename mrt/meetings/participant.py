@@ -53,6 +53,15 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
     def process_category_id(self, participant, val):
         return str(participant.category)
 
+    def process_attended(self, participant, val):
+        return '<span class="glyphicon glyphicon-ok"></span>' if val else ''
+
+    def process_verified(self, participant, val):
+        return '<span class="glyphicon glyphicon-ok"></span>' if val else ''
+
+    def process_credentials(self, participant, val):
+        return '<span class="glyphicon glyphicon-ok"></span>' if val else ''
+
     def get_queryset(self, **opt):
         participants = (
             Participant.query.filter_by(meeting_id=g.meeting.id).active())

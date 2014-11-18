@@ -498,3 +498,7 @@ li.separator {
     text-decoration: none;
 }
 
+.dataTable td {
+    padding-left: 20px!important;
+}
+
