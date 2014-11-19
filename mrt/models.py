@@ -430,6 +430,8 @@ class CustomField(db.Model):
 
     label = db.relationship('Translation')
 
+    description = db.Column(db.String(512), info={'label': 'Description'})
+
     field_type = db.Column(ChoiceType(CUSTOM_FIELDS), nullable=False,
                            info={'label': 'Field type'})
 

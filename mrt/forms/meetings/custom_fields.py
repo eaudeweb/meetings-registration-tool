@@ -76,7 +76,8 @@ def custom_form_factory(field_types=[], field_slugs=[],
         fields = fields.filter_by(visible_on_registration_form=True)
 
     for f in fields:
-        attrs = {'label': __(unicode(f.label)), 'validators': []}
+        attrs = {'label': __(unicode(f.label)), 'validators': [],
+                 'description': f.description}
 
         data = _CUSTOM_FIELDS_MAP[f.field_type.code]
 
