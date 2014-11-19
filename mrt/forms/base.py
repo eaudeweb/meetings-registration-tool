@@ -1,18 +1,18 @@
 from itertools import groupby
 
-from flask import request, render_template
+from flask import request, render_template, g
 from flask import current_app as app
 from werkzeug import MultiDict, FileStorage
 
 from flask_wtf.file import FileField as _FileField
 from sqlalchemy_utils import Country
 
-from wtforms import widgets, fields
+from wtforms import widgets, fields, validators
 from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import ModelForm
 from wtforms_alchemy import CountryField as _CountryField
 
-from mrt.models import db, Translation
+from mrt.models import db, Translation, Category
 
 
 class BaseForm(ModelForm):
@@ -33,6 +33,8 @@ class BaseForm(ModelForm):
 
 class TranslationInputForm(BaseForm):
 
+    duplicate_message = 'A category with this title exists'
+
     class Meta:
         model = Translation
         field_args = {
@@ -46,6 +48,24 @@ class TranslationInputForm(BaseForm):
                 'widget': widgets.TextInput()
             }
         }
+
+
+class DefaultCategoryTitleInputForm(TranslationInputForm):
+
+    def validate_english(self, field):
+        title = Translation.query.filter_by(english=field.data).first()
+        if ((not self.obj and title) or
+           (self.obj and title and self.obj != title)):
+            raise validators.ValidationError(self.duplicate_message)
+
+
+class CategoryTitleInputForm(TranslationInputForm):
+
+    def validate_english(self, field):
+        category = (g.meeting.categories
+                    .filter(Category.title.has(english=field.data)).first())
+        if category and category.title != self.obj:
+            raise validators.ValidationError(self.duplicate_message)
 
 
 class DescriptionInputForm(BaseForm):

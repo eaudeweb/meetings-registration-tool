@@ -11,6 +11,7 @@ from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
 from .factories import PhraseMeetingFactory, RoleUserFactory, StaffFactory
 from .factories import RoleUserMeetingFactory, CustomFieldFactory
+from .factories import MeetingCategoryFactory
 
 
 def test_meeting_list(app):
@@ -280,6 +281,26 @@ def test_meeting_category_edit_name(app):
         categories = PyQuery(resp.data)('option')
         assert len(categories) == 1
         assert category.title.english == title
+
+
+def test_meeting_category_edit_with_same_title_fails(app):
+    category = MeetingCategoryFactory(title__english='Reporter')
+    member_category = MeetingCategoryFactory(meeting=category.meeting)
+
+    role_user = RoleUserMeetingFactory(meeting=category.meeting,
+                                       role__permissions=('manage_meeting',))
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        data = normalize_data(MeetingCategoryFactory.attributes())
+        data['title-english'] = member_category.title.english
+        url = url_for('meetings.category_edit', meeting_id=category.meeting.id,
+                      category_id=category.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 200
+        assert category.title.english != member_category.title.english
 
 
 def test_meeting_category_delete(app):

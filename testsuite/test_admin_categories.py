@@ -38,6 +38,20 @@ def test_category_add_without_file(app):
         assert CategoryDefault.query.count() == 1
 
 
+def test_category_add_with_same_title_fails(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
+    category = CategoryDefaultFactory()
+    data = normalize_data(CategoryDefaultFactory.attributes())
+    data['title-english'] = category.title.english
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('admin.category_edit'), data=data)
+        assert resp.status_code == 200
+        assert CategoryDefault.query.count() == 1
+
+
 def test_category_edit_without_file(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
     category = CategoryDefaultFactory()
