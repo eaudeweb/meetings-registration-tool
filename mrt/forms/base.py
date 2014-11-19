@@ -12,7 +12,7 @@ from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import ModelForm
 from wtforms_alchemy import CountryField as _CountryField
 
-from mrt.models import db, Translation, Category
+from mrt.models import db, Translation, Category, CategoryDefault
 
 
 class BaseForm(ModelForm):
@@ -53,18 +53,20 @@ class TranslationInputForm(BaseForm):
 class DefaultCategoryTitleInputForm(TranslationInputForm):
 
     def validate_english(self, field):
-        title = Translation.query.filter_by(english=field.data).first()
-        if ((not self.obj and title) or
-           (self.obj and title and self.obj != title)):
+        category = CategoryDefault.query.filter(
+            CategoryDefault.title.has(english=field.data)).first()
+        if category and self.obj != category.title:
             raise validators.ValidationError(self.duplicate_message)
 
 
 class CategoryTitleInputForm(TranslationInputForm):
 
     def validate_english(self, field):
-        category = (g.meeting.categories
-                    .filter(Category.title.has(english=field.data)).first())
-        if category and category.title != self.obj:
+        category = Category.query.filter(
+            Category.meeting == g.meeting,
+            Category.title.has(english=field.data)).first()
+
+        if category and self.obj != category.title:
             raise validators.ValidationError(self.duplicate_message)
 
 
