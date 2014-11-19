@@ -13,6 +13,7 @@ from flask_redis import Redis
 from jinja2.exceptions import TemplateNotFound
 
 from wtforms.fields import DateField
+from sqlalchemy import cast
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
@@ -871,10 +872,16 @@ def get_or_create_role(name):
 
 def search_for_participant(search, queryset=None):
     queryset = queryset or Participant.query.active()
+    if not isinstance(search, basestring):
+        search = str(search)
     return queryset.filter(
+        (cast(Participant.id, String) == search) |
         Participant.first_name.contains(search) |
         Participant.last_name.contains(search) |
-        Participant.email.contains(search)
+        Participant.email.contains(search) |
+        Participant.category.has(
+            Category.title.has(Translation.english.contains(search))
+        )
     )
 
 
