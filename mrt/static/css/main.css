@@ -498,7 +498,17 @@ li.separator {
     text-decoration: none;
 }
 
+.dataTables_wrapper {
+    position: relative;
+}
+.dataTables_processing_mrt {
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 170px;
+    top: 3px;
+}
 .dataTable td {
-    padding-left: 20px!important;
+    padding-left: 18px!important;
 }
 

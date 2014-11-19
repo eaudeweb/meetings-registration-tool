@@ -175,4 +175,15 @@ $(function () {
 
 
     $('[data-toggle=tooltip]').tooltip();
+
+    // datatables default settings
+    $.extend($.fn.dataTable.defaults, {
+        'language': {
+            'processing': '<img src="/static/images/ajax.gif" width=16 height=16>'
+        }
+    });
+    $.extend($.fn.dataTable.ext.classes, {
+        'sProcessing': 'dataTables_processing_mrt'
+    });
+
 });
