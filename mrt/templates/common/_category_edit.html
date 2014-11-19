@@ -27,7 +27,7 @@
       {{ form_group(form.color, label_size="2", input_size="3") }}
       {{ form_group(form.representing, label_size="2", input_size="4") }}
       {{ form_group(form.background) }}
-      {% if form.background.data %}
+      {% if form.background.data and not form.background.data.filename %}
         <div class="checkbox">
           {% set url = url_for("files",
               filename="backgrounds/" ~ form.background.data) %}
