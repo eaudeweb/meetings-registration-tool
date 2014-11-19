@@ -108,6 +108,9 @@ class ParticipantDummyForm(BaseForm):
             'title', 'first_name', 'last_name', 'email', 'category_id',
             'language', 'country', 'represented_country',
             'represented_organization',)
+        field_args = {
+            'language': {'validators': [InputRequired()]}
+        }
 
 
 def add_custom_fields_for_meeting(meeting):

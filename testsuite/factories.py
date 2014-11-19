@@ -204,7 +204,7 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     title = 'Mr'
     first_name = 'John'
     last_name = 'Doe'
-    email = 'john@doe.com'
+    email = Sequence(lambda n: 'john%d@doe.com' % n)
     language = 'English'
     country = 'FR'
     represented_region = 'Asia'

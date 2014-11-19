@@ -439,11 +439,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
 
         participants = get_participants_full(g.meeting.id)
 
-        #TODO Add the rest of the necessary fields
-        columns = [
-            'title', 'first_name', 'last_name', 'country', 'email',
-            'language'
-        ]
+        columns = []
 
         custom_fields = g.meeting.custom_fields.filter_by(is_primary=True)
         cfs = [cf.slug for cf in custom_fields

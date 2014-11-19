@@ -3,6 +3,7 @@ from pyquery import PyQuery
 from jinja2 import FileSystemLoader
 from werkzeug.datastructures import MultiDict
 from sqlalchemy_utils import types
+import xlrd
 
 from .factories import ParticipantFactory, RoleUserFactory, StaffFactory
 from .factories import MeetingCategoryFactory, RoleUserMeetingFactory
@@ -335,3 +336,33 @@ def test_meeting_participant_acknowledge_email_with_no_language(app):
                                    participant_id=part.id), data=data)
         assert resp.status_code == 302
         assert len(outbox) == 1
+
+
+def test_meeting_participants_export_excel(app):
+    role_user = RoleUserFactory()
+    cat = MeetingCategoryFactory()
+    participants = ParticipantFactory.stub_batch(10, meeting=cat.meeting,
+                                                 category=cat)
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(cat.meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        for participant in participants:
+            data = vars(participant)
+            data['category_id'] = cat.id
+            populate_participant_form(cat.meeting, data)
+            resp = client.post(url_for('meetings.participant_edit',
+                                       meeting_id=cat.meeting.id), data=data)
+            assert resp.status_code == 302
+
+        resp = client.get(url_for('meetings.participants_export',
+                                  meeting_id=cat.meeting.id))
+        assert resp.status_code == 200
+        excel_filename = app.config['MEDIA_FOLDER'] / 'participants.xls'
+        with open(excel_filename, 'wb') as excel_file:
+            excel_file.write(resp.data)
+        workbook = xlrd.open_workbook(excel_filename)
+        for sheet_name in workbook.sheet_names():
+            worksheet = workbook.sheet_by_name(sheet_name)
+            assert worksheet.nrows == 11
