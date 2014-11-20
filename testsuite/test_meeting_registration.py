@@ -6,14 +6,14 @@ from py.path import local
 from mrt.mail import mail
 from mrt.models import Participant, ActivityLog, User, CustomFieldValue
 from .factories import MeetingCategoryFactory, ParticipantFactory
-from .factories import StaffFactory, RoleUserMeetingFactory, UserFactory
+from .factories import RoleUserMeetingFactory, UserFactory
 from .factories import UserNotificationFactory, CustomFieldFactory
 
 from testsuite.utils import add_participant_custom_fields
 from testsuite.utils import populate_participant_form
 
 
-def test_meeting_online_resistration_open(app, default_meeting):
+def test_meeting_resistration_open(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
 
     client = app.test_client()
@@ -24,7 +24,7 @@ def test_meeting_online_resistration_open(app, default_meeting):
         assert PyQuery(resp.data)('form').length == 1
 
 
-def test_meeting_online_registration_closed(app, default_meeting):
+def test_meeting_registration_closed(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=False)
 
     client = app.test_client()
@@ -37,7 +37,7 @@ def test_meeting_online_registration_closed(app, default_meeting):
         assert html('.alert').length == 1
 
 
-def test_meeting_online_registration_add(app, default_meeting):
+def test_meeting_registration_add(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     role_user = RoleUserMeetingFactory(meeting=meeting)
@@ -57,7 +57,7 @@ def test_meeting_online_registration_add(app, default_meeting):
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
 
-def test_meeting_online_registration_with_meeting_photo(app, default_meeting):
+def test_meeting_registration_with_meeting_photo(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     photo_field = CustomFieldFactory(meeting=meeting)
@@ -77,7 +77,7 @@ def test_meeting_online_registration_with_meeting_photo(app, default_meeting):
         assert upload_dir.join(participant.photo).check()
 
 
-def test_meeting_online_registration_and_user_creation(app, default_meeting):
+def test_meeting_registration_and_user_creation(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
 
@@ -96,7 +96,28 @@ def test_meeting_online_registration_and_user_creation(app, default_meeting):
         assert participant.user is User.query.get(1)
 
 
-def test_meeting_online_registration_default_participant_creation(app, default_meeting):
+def test_meeting_registration_with_multiple_emails(app, default_meeting):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['email'] = 'john@test.com, johny@test.com'
+    client = app.test_client()
+    with app.test_request_context():
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+
+        participant = Participant.query.filter_by(meeting=meeting).first()
+        resp = create_user_after_registration(client, participant, meeting)
+        assert resp.status_code == 200
+        assert User.query.count() == 0
+        html = PyQuery(resp.data)
+        assert html('.text-danger small').length == 1
+
+
+def test_meeting_registration_default_participant_creation(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     data = ParticipantFactory.attributes()
@@ -113,7 +134,7 @@ def test_meeting_online_registration_default_participant_creation(app, default_m
         assert_participants_fields_equal(participant, default_participant)
 
 
-def test_meeting_online_registration_default_participant_update(app, default_meeting):
+def test_meeting_registration_default_participant_update(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     data = ParticipantFactory.attributes()
@@ -295,7 +316,7 @@ def test_meeting_registration_default_participant_photo_update(app, default_meet
         assert len(upload_dir.listdir()) == 3
 
 
-def test_meeting_online_registration_is_prepopulated(app, default_meeting):
+def test_meeting_registration_is_prepopulated(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     user = UserFactory()
@@ -318,6 +339,22 @@ def test_meeting_online_registration_is_prepopulated(app, default_meeting):
         assert part.email == html('#email').val()
         assert part.language.value == html('#language option[selected]').val()
         assert part.country.code == html('#country option[selected]').val()
+
+
+def test_meeting_registration_multiple_email_user_form_prepopuluted(app, default_meeting):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['email'] = 'john@test.com, johny@test.com'
+    client = app.test_client()
+    with app.test_request_context():
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+        populated_email = PyQuery(resp.data)('#email')[0].value
+        assert populated_email == 'john@test.com'
 
 
 def register_participant_online(client, participant_data, meeting, user=None):

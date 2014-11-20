@@ -45,6 +45,23 @@ def test_staff_add(app):
         assert Staff.query.get(1).user.is_superuser is True
 
 
+def test_staff_add_fail_with_multiple_emails(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION)
+    data = StaffFactory.attributes()
+    data['user-email'] = 'test@email.com , test@test.com'
+    data['user-is_superuser'] = 'y'
+
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('admin.staff_edit')
+        resp = client.post(url, data=data)
+        assert len(outbox) == 0
+        assert resp.status_code == 200
+        assert Staff.query.count() == 0
+
+
 def test_staff_add_with_existing_user(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
     user = UserFactory(email='test@email.com')

@@ -190,3 +190,19 @@ def copy_attributes(obj, source, with_relations=False, exclude=[]):
             continue
         setattr(obj, c.name, getattr(source, c.name))
     return obj
+
+
+def validate_email(email):
+    """Email validation function used by create_user command"""
+    if re.match("^[a-zA-Z0-9._%-+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$", email):
+        return True
+    return False
+
+
+def clean_email(emails):
+    """Returns the first email from a string containing multiple emails"""
+    for email in emails.split(','):
+        email = email.strip()
+        if validate_email(email):
+            return email
+    return None

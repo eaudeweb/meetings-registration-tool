@@ -7,6 +7,7 @@ from wtforms import Form, StringField, PasswordField, validators
 from mrt.forms.meetings import ParticipantEditForm
 from mrt.forms.base import FileField
 from mrt.models import db, User, CustomField
+from mrt import utils
 
 
 class RegistrationForm(ParticipantEditForm):
@@ -26,6 +27,9 @@ class RegistrationUserForm(Form):
     confirm = PasswordField('Confirm Password', [validators.DataRequired()])
 
     def validate_email(self, field):
+        if not utils.validate_email(field.data):
+            raise validators.ValidationError(
+                _('Invalid email. Enter another email.'))
         user = User.query.filter_by(email=field.data).scalar()
         if user:
             raise validators.ValidationError(

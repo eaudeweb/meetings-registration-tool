@@ -11,7 +11,7 @@ from mrt.models import Participant, db
 
 from mrt.signals import activity_signal, notification_signal
 from mrt.signals import registration_signal
-from mrt.utils import set_language
+from mrt.utils import set_language, clean_email
 
 
 def _render_if_closed(func):
@@ -59,7 +59,8 @@ class Registration(MethodView):
             notification_signal.send(self, participant=participant)
             registration_signal.send(self, participant=participant)
 
-            user_form = RegistrationUserForm(email=participant.email)
+            email = clean_email(participant.email)
+            user_form = RegistrationUserForm(email=email)
             session['registration_token'] = participant.registration_token
 
             return render_template('meetings/registration/success.html',

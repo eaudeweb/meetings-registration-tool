@@ -8,10 +8,11 @@ from alembic.config import CommandLine
 from rq import Queue, Connection, Worker
 from rq import get_failed_queue
 
-from mrt.models import get_or_create_role, redis_store
-from mrt.models import User, db, Staff, RoleUser, Job
+from mrt.models import redis_store
+from mrt.models import User, db, Staff, Job
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
+from mrt.utils import validate_email
 
 
 @click.group()
@@ -47,6 +48,8 @@ def shell(ctx):
 @click.pass_context
 def create_user(ctx):
     email = click.prompt('Enter email', type=str)
+    while not validate_email(email):
+        email = click.prompt('Invalid email. Enter another email', type=str)
     password = click.prompt('Enter password', type=str, hide_input=True)
     confirm = click.prompt('Enter password again', type=str, hide_input=True)
 
@@ -56,9 +59,6 @@ def create_user(ctx):
             user = User(email=email)
             user.set_password(password)
             db.session.add(user)
-            role = get_or_create_role('Admin')
-            role_user = RoleUser(role=role, user=user)
-            db.session.add(role_user)
             staff = Staff(user=user, full_name='')
             db.session.add(staff)
             db.session.commit()
@@ -71,6 +71,8 @@ def create_user(ctx):
 @click.pass_context
 def create_superuser(ctx):
     email = click.prompt('Enter email', type=str)
+    while not validate_email(email):
+        email = click.prompt('Invalid email. Enter another email', type=str)
     password = click.prompt('Enter password', type=str, hide_input=True)
     confirm = click.prompt('Enter password again', type=str, hide_input=True)
 
