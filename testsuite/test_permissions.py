@@ -4,7 +4,6 @@ from testsuite.factories import RoleUserMeetingFactory, ParticipantFactory
 from testsuite.factories import MeetingCategoryFactory, MediaParticipantFactory
 from testsuite.factories import CustomFieldFactory, UserNotificationFactory
 from testsuite.factories import PhraseMeetingFactory
-from testsuite.utils import PdfRendererMock
 
 
 STATUS_OK = 200
@@ -47,8 +46,9 @@ def _login_user(client, user, password='eaudeweb'):
     ('meetings.participant_envelope', ('view_participant',), STATUS_OK),
     ('meetings.participant_envelope', ('manage_participant',), STATUS_OK),
 ])
-def test_permissions_participant(app, monkeypatch, url_name, perms, status):
-    monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', PdfRendererMock)
+def test_permissions_participant(app, monkeypatch, pdf_renderer,
+                                 url_name, perms, status):
+    monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
     role = RoleUserMeetingFactory(role__permissions=perms)
     participant = ParticipantFactory(category__meeting=role.meeting)
     client = app.test_client()

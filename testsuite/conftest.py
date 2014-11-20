@@ -1,13 +1,14 @@
 
 import jinja2
+import shutil
 
 from pytest import fixture
 from path import path
 
 from mrt.app import create_app
 from mrt.models import db, Meeting
+from mrt.pdf import PdfRenderer
 from .factories import RoleUserFactory, StaffFactory, MeetingFactory
-from .utils import add_participant_custom_fields
 
 
 @fixture
@@ -17,6 +18,7 @@ def app(request, tmpdir):
     custom_uploads_path = path(tmpdir.ensure_dir('custom_uploads'))
     thumb_path = path(tmpdir.ensure_dir('thumbnails'))
     crop_path = path(tmpdir.ensure_dir('crops'))
+    printouts_path = path(tmpdir.ensure_dir('printouts'))
 
     test_config = {
         'SECRET_KEY': 'test',
@@ -25,6 +27,7 @@ def app(request, tmpdir):
         'SQLALCHEMY_DATABASE_URI': 'sqlite://',
         'UPLOADED_BACKGROUNDS_DEST': backgrounds_path,
         'UPLOADED_CUSTOM_DEST': custom_uploads_path,
+        'UPLOADED_PRINTOUTS_DEST': printouts_path,
         'UPLOADED_THUMBNAIL_DEST': thumb_path,
         'UPLOADED_CROP_DEST': crop_path,
         'MEDIA_THUMBNAIL_FOLDER': thumb_path,
@@ -66,3 +69,18 @@ def user():
 def default_meeting():
     default_meeting = MeetingFactory(meeting_type=Meeting.DEFAULT_TYPE)
     return default_meeting
+
+
+@fixture
+def pdf_renderer(app):
+    path = app.config['TEMPLATES_PATH'] / 'template.html'
+    output = 'Lorem ipsum dolor sit amet'
+    with path.open('w+') as f:
+        f.write(output)
+
+    # Mock _generate_pdf to not use external commands
+    class RendererMock(PdfRenderer):
+        def _generate_pdf(self):
+            shutil.copy2(self.template_path, self.pdf_path)
+
+    return RendererMock
