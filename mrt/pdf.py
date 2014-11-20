@@ -30,10 +30,10 @@ class PdfRenderer(object):
         self.footer = kwargs.get('footeer', True)
         self.context = kwargs.get('context', {})
 
-        self.template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] +
-                              str(uuid.uuid4()) + '.html')
-        self.pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] +
-                         str(uuid.uuid4()) + '.pdf')
+        self.template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
+                              (str(uuid.uuid4()) + '.html'))
+        self.pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
+                         (str(uuid.uuid4()) + '.pdf'))
         g.is_pdf_process = True
 
     def _generate(self):
