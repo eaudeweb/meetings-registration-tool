@@ -37,6 +37,10 @@ def test_pdf_renderer_as_response(app, pdf_renderer):
     res = renderer.as_response()
     assert isinstance(res, Response)
 
+    # Assert content is the same
+    content = ''.join([chunk for chunk in res.response])
+    assert pdf_renderer.content == content
+
     # Assert template and pdf file deleted
     assert not (app.config['UPLOADED_PRINTOUTS_DEST'] /
                 renderer.pdf_path).exists()
@@ -49,6 +53,9 @@ def test_pdf_renderer_as_attachement(app, pdf_renderer):
     renderer = pdf_renderer('template.html')
     res = renderer.as_attachement()
     assert isinstance(res, file)
+
+    # Assert content is the same
+    assert pdf_renderer.content == res.read()
 
     # Assert template and pdf file deleted
     assert not (app.config['UPLOADED_PRINTOUTS_DEST'] /

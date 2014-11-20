@@ -80,6 +80,8 @@ def pdf_renderer(app):
 
     # Mock _generate_pdf to not use external commands
     class RendererMock(PdfRenderer):
+        content = output
+
         def _generate_pdf(self):
             shutil.copy2(self.template_path, self.pdf_path)
 
