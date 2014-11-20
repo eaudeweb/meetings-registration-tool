@@ -36,11 +36,12 @@ class PdfRenderer(object):
                          (str(uuid.uuid4()) + '.pdf'))
         g.is_pdf_process = True
 
-    def _generate(self):
+    def _render_template(self):
         with open(self.template_path, 'w+') as f:
             for chunk in stream_template(self.template_name, **self.context):
                 f.write(chunk.encode('utf-8'))
 
+    def _generate_pdf(self):
         command = ['wkhtmltopdf', '-q',
                    '--encoding', 'utf-8',
                    '--page-height', self.height,
@@ -59,6 +60,9 @@ class PdfRenderer(object):
         FNULL = open(os.devnull, 'w')
         subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)
 
+    def _generate(self):
+        self._render_template()
+        self._generate_pdf()
         self.template_path.unlink_p()
 
     def as_rq(self):
