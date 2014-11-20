@@ -62,8 +62,10 @@ class PdfRenderer(object):
 
     def _generate(self):
         self._render_template()
-        self._generate_pdf()
-        self.template_path.unlink_p()
+        try:
+            self._generate_pdf()
+        finally:
+            self.template_path.unlink_p()
 
     def as_rq(self):
         self._generate()
@@ -77,9 +79,11 @@ class PdfRenderer(object):
         return Response(read_file(self._pdf_file()), mimetype='application/pdf')
 
     def _pdf_file(self):
-        self._generate()
-        pdf = open(self.pdf_path, 'rb')
-        self.pdf_path.unlink_p()
+        try:
+            self._generate()
+            pdf = open(self.pdf_path, 'rb')
+        finally:
+            self.pdf_path.unlink_p()
         return pdf
 
 

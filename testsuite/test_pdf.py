@@ -1,3 +1,5 @@
+import pytest
+
 from flask import Response
 from flask import g
 
@@ -58,6 +60,25 @@ def test_pdf_renderer_as_attachement(app, pdf_renderer):
     assert pdf_renderer.content == res.read()
 
     # Assert template and pdf file deleted
+    assert not (app.config['UPLOADED_PRINTOUTS_DEST'] /
+                renderer.pdf_path).exists()
+
+    assert not (app.config['UPLOADED_PRINTOUTS_DEST'] /
+                renderer.template_path).exists()
+
+
+def test_pdf_renderer_deletes_on_error(app, pdf_renderer, monkeypatch):
+    def _new_generate(self):
+        with open(self.pdf_path, 'w') as f:
+            f.write('dummy')
+        raise Exception()
+
+    monkeypatch.setattr(pdf_renderer, '_generate_pdf', _new_generate)
+    renderer = pdf_renderer('template.html')
+
+    with pytest.raises(Exception):
+        renderer.as_attachement()
+
     assert not (app.config['UPLOADED_PRINTOUTS_DEST'] /
                 renderer.pdf_path).exists()
 
