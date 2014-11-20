@@ -70,10 +70,6 @@
           <a href="{{ url_for('.mail_logs') }}">
             Emails sent</a>
         </li>
-        <li class="{{ active('/statistics') }}">
-          <a href="{{ url_for('.statistics') }}">
-            Statistics</a>
-        </li>
       </ul>
     </li>
 
@@ -107,6 +103,10 @@
         <li>
           <a href="{{ url_for('.edit') }}">
             Edit this meeting</a>
+        </li>
+        <li class="{{ active('/statistics') }}">
+          <a href="{{ url_for('.statistics') }}">
+            Overview</a>
         </li>
       </ul>
     </li>
