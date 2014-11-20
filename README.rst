@@ -97,6 +97,13 @@ Configure deploy
 - configure staging and production settings
 - run ``fab staging deploy`` or ``fab production deploy``
 
+To clean printout jobs older than one month and delete the files,
+run this command::
+
+    ./manage.py rq cleanup --hook clean_printouts
+
+To keep the printout files remove the `--hook` parameter
+
 
 Running unit tests
 ------------------
