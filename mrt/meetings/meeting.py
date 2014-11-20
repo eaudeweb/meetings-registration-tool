@@ -4,10 +4,10 @@ from flask import current_app as app
 from flask.views import MethodView
 from flask.ext.login import login_required, current_user
 
-from sqlalchemy import desc, not_
+from sqlalchemy import desc
 
 from mrt.models import Meeting, db
-from mrt.forms.meetings import MeetingEditForm
+from mrt.forms.meetings import MeetingEditForm, MeetingFilterForm
 
 
 class PermissionRequiredMixin(object):
@@ -52,15 +52,13 @@ class Meetings(PermissionRequiredMixin, MethodView):
         meetings = (Meeting.query
                     .filter(Meeting.meeting_type != Meeting.DEFAULT_TYPE)
                     .order_by(desc(Meeting.date_start)))
-        meeting_types = app.config.get('MEETING_TYPES', [])
-
         meeting_type = request.args.get('meeting_type', None)
         if meeting_type:
             meetings = meetings.filter_by(meeting_type=meeting_type)
-
+        filter_form = MeetingFilterForm(request.args)
         return render_template('meetings/meeting/list.html',
                                meetings=meetings,
-                               meeting_types=meeting_types)
+                               filter_form=filter_form)
 
 
 class MeetingEdit(PermissionRequiredMixin, MethodView):

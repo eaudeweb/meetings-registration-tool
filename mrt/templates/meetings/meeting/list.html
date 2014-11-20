@@ -9,15 +9,9 @@
 
   <script>
     $(function () {
-      $("#meetings").dataTable({"order": []});
-
-      var params = $.utils.getParams();
-      if (params["meeting_type"])
-        $("select[name=meeting_type]").find("option[value=" + params["meeting_type"] + "]").attr("selected", "selected");
-
-      $(".filter").on("change", function () {
-        var filter = $(this);
-        document.location = "?" + filter.attr("name") + "=" + filter.val();
+      $('#meetings').dataTable({'order': []});
+      $('#meeting_type').on('change', function () {
+        $(this).parents('form').submit();
       });
     });
   </script>
@@ -40,12 +34,12 @@
 
   <div class="table-responsive">
 
-    <select class="filter" name="meeting_type">
-      <option value="">---</option>
-      {% for (meeting_type_value, meeting_type_name) in meeting_types %}
-        <option value="{{ meeting_type_value }}">{{ meeting_type_name }}</option>
-      {% endfor %}
-    </select>
+    <form class="form-inline meeting-filter">
+      <div class="form-group">
+        {{ filter_form.meeting_type.label }}
+        {{ filter_form.meeting_type(class_="form-control input-sm") }}
+      </div>
+    </form>
 
     <table id="meetings" class="table table-bordered table-condensed">
 

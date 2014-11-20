@@ -144,6 +144,14 @@ li.separator {
 }
 
 /* Meeting */
+.meeting-filter {
+    position: absolute;
+    z-index: 9999;
+    left: 200px;
+}
+.meeting-filter select {
+    margin-left: 10px;
+}
 .meeting-container .field-i18nstring li {
     margin-bottom: 15px;
 }
@@ -247,6 +255,10 @@ li.separator {
 .mail-container textarea {
     height: 300px;
     width: 100%;
+}
+
+.table-responsive {
+    position: relative;
 }
 
 .table .handler {

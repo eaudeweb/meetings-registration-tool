@@ -113,6 +113,16 @@ class ParticipantDummyForm(BaseForm):
         }
 
 
+class MeetingFilterForm(BaseForm):
+
+    meeting_type = fields.SelectField('Filter by type', choices=[])
+
+    def __init__(self, *args, **kwargs):
+        super(MeetingFilterForm, self).__init__(*args, **kwargs)
+        choices = [(i[0], i[1]) for i in app.config['MEETING_TYPES']]
+        self.meeting_type.choices = [('', 'All')] + choices
+
+
 def add_custom_fields_for_meeting(meeting):
     """Adds participants fields as CustomFields to meeting."""
     form = ParticipantDummyForm()
