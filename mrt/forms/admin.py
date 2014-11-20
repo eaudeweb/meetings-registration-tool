@@ -11,7 +11,7 @@ from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
-from mrt.models import Staff, User, Role, RoleUser
+from mrt.models import Staff, User, Role
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
 from mrt.utils import unlink_uploaded_file
@@ -41,7 +41,7 @@ class UserForm(BaseForm):
 
     class Meta:
         model = User
-        only = ('email',)
+        only = ('email', 'is_superuser')
         unique_validator = _staff_user_unique
 
 
@@ -51,14 +51,6 @@ class StaffEditForm(BaseForm):
         model = Staff
 
     user = ModelFormField(UserForm)
-    role_id = fields.SelectField('Role', coerce=int)
-
-    def __init__(self, *args, **kwargs):
-        if kwargs['obj']:
-            kwargs.setdefault('role_id', RoleUser.query.filter_by(
-                user=kwargs['obj'].user, meeting=None).first().role.id)
-        super(StaffEditForm, self).__init__(*args, **kwargs)
-        self.role_id.choices = [(x.id, x) for x in Role.query.all()]
 
     def save(self):
         staff = self.obj or Staff()
@@ -72,18 +64,13 @@ class StaffEditForm(BaseForm):
             except NoResultFound:
                 staff.user = User(email=self.user.email.data,
                                   recover_token=str(uuid4()),
-                                  recover_time=datetime.now())
-
-            role_user = RoleUser(role=Role.query.get_or_404(self.role_id.data),
-                                 user=staff.user)
-            db.session.add(role_user)
+                                  recover_time=datetime.now(),
+                                  is_superuser=self.user.is_superuser.data)
+                send_activation_mail(staff.user.email,
+                                     staff.user.recover_token)
         else:
-            role_user = RoleUser.query.filter_by(user=staff.user,
-                                                 meeting=None).first()
-            role_user.role = Role.query.get_or_404(self.role_id.data)
-        if not staff.user.password:
-            send_activation_mail(
-                staff.user.email, staff.user.recover_token)
+            staff.user.email = self.user.email.data
+            staff.user.is_superuser = self.user.is_superuser.data
 
         if staff.id is None:
             db.session.add(staff)

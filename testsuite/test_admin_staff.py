@@ -3,7 +3,7 @@ from pyquery import PyQuery
 
 from mrt.models import Staff
 from mrt.mail import mail
-from .factories import StaffFactory, UserFactory, RoleFactory, RoleUserFactory
+from .factories import StaffFactory, UserFactory, RoleUserFactory
 
 
 PERMISSION = ('manage_staff', )
@@ -29,10 +29,9 @@ def test_staff_list(app):
 
 def test_staff_add(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
-    RoleFactory()
     data = StaffFactory.attributes()
     data['user-email'] = 'test@email.com'
-    data['role_id'] = 1
+    data['user-is_superuser'] = 'y'
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
@@ -43,15 +42,14 @@ def test_staff_add(app):
         assert len(outbox) == 1
         assert resp.status_code == 302
         assert Staff.query.count() == 1
+        assert Staff.query.get(1).user.is_superuser is True
 
 
 def test_staff_add_with_existing_user(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
-    RoleFactory()
     user = UserFactory(email='test@email.com')
     data = StaffFactory.attributes()
     data['user-email'] = user.email
-    data['role_id'] = 1
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
@@ -66,11 +64,9 @@ def test_staff_add_with_existing_user(app):
 
 def test_staff_add_fail_with_existing_staff(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
-    RoleFactory()
     staff = StaffFactory(user__email='test@email.com')
     data = StaffFactory.attributes()
     data['user-email'] = staff.user.email
-    data['role_id'] = 1
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
@@ -87,9 +83,9 @@ def test_staff_edit(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION,
                                 user__email='test@email.com')
     staff = StaffFactory()
-    RoleUserFactory(user=staff.user)
     data = StaffFactory.attributes()
     data['user-email'] = data.pop('user')
+    data['user-is_superuser'] = 'y'
     data['title'] = title = 'CEO'
 
     client = app.test_client()
@@ -101,14 +97,13 @@ def test_staff_edit(app):
         assert resp.status_code == 302
         assert len(outbox) == 0
         assert staff.title == title
+        assert staff.user.is_superuser is True
 
 
 def test_staff_delete(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION,
                                 user__email='test@email.com')
     staff = StaffFactory()
-    RoleUserFactory(user=staff.user)
-
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:

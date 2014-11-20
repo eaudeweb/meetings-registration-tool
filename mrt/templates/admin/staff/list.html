@@ -36,7 +36,7 @@
         <tr>
           <th>Name</th>
           <th>Email</th>
-          <th>Role</th>
+          <th>Is superuser</th>
         </tr>
       </thead>
 
@@ -46,7 +46,13 @@
           <tr>
             <td><a href="{{ url }}">{{ member.full_name or 'Unknown' }}</a></td>
             <td>{{ member.user.email }}</td>
-            <td>{{ member.user_role.role }}</td>
+            <td class="text-center">
+              {% if member.user.is_superuser %}
+                <span class="glyphicon glyphicon-ok"></span>
+              {% else %}
+                <span class="glyphicon glyphicon-minus"></span>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
       </tbody>
