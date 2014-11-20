@@ -18,7 +18,7 @@ from sqlalchemy.orm import joinedload
 from mrt.forms.meetings import BadgeCategories
 from mrt.models import Participant, Category, Meeting, Job
 from mrt.models import redis_store, db
-from mrt.pdf import render_pdf
+from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
 
 
@@ -93,10 +93,10 @@ def _process_badges(meeting_id, category_ids):
             Participant.category.has(Category.id.in_(category_ids))
         )
     context = {'participants': participants}
-    return render_pdf('meetings/printouts/badges_pdf.html',
-                      height='2.15in', width='3.4in',
-                      orientation='portrait',
-                      context=context)
+    return PdfRenderer('meetings/printouts/badges_pdf.html',
+                       height='2.15in', width='3.4in',
+                       orientation='portrait',
+                       context=context).as_rq()
 
 
 class JobStatus(MethodView):
@@ -232,11 +232,11 @@ def _process_short_list(meeting_id, title):
                'count': count,
                'title': title,
                'template': 'meetings/printouts/_short_list_table.html'}
-    return render_pdf('meetings/printouts/printout.html',
-                      title=title,
-                      height='11.693in', width='8.268in',
-                      margin=_PRINTOUT_MARGIN, orientation='landscape',
-                      context=context)
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
 
 
 def _process_delegation_list(meeting_id, title):
@@ -247,8 +247,8 @@ def _process_delegation_list(meeting_id, title):
                'title': title,
                'template': 'meetings/printouts/_delegation_list_table.html'}
 
-    return render_pdf('meetings/printouts/printout.html',
-                      title=title,
-                      height='11.693in', width='8.268in',
-                      margin=_PRINTOUT_MARGIN, orientation='landscape',
-                      context=context)
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()

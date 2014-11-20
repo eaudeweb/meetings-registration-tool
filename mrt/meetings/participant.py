@@ -18,7 +18,7 @@ from mrt.models import db, Participant, CustomField, Staff, Category
 from mrt.models import Phrase
 from mrt.models import search_for_participant, get_participants_full
 
-from mrt.pdf import render_pdf
+from mrt.pdf import PdfRenderer
 from mrt.signals import activity_signal, notification_signal
 from mrt.utils import generate_excel, set_language
 
@@ -322,10 +322,10 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
             .first_or_404())
         nostripe = request.args.get('nostripe')
         context = {'participant': participant, 'nostripe': nostripe}
-        return render_pdf('meetings/participant/badge.html',
-                          width='3.4in', height='2.15in',
-                          footer=False, orientation='portrait',
-                          context=context)
+        return PdfRenderer('meetings/participant/badge.html',
+                           width='3.4in', height='2.15in',
+                           footer=False, orientation='portrait',
+                           context=context).as_response()
 
 
 class ParticipantLabel(PermissionRequiredMixin, MethodView):
@@ -336,10 +336,10 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
         context = {'participant': participant}
-        return render_pdf('meetings/participant/label.html',
-                          height="8.3in", width="11.7in",
-                          orientation="landscape", footer=False,
-                          context=context)
+        return PdfRenderer('meetings/participant/label.html',
+                           height="8.3in", width="11.7in",
+                           orientation="landscape", footer=False,
+                           context=context).as_response()
 
 
 class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
@@ -350,10 +350,10 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
         participant = Participant.query.filter_by(
             meeting_id=g.meeting.id, id=participant_id).active().first_or_404()
         context = {'participant': participant}
-        return render_pdf('meetings/participant/envelope.html',
-                          height='6.4in', width='9.0in',
-                          orientation="portrait", footer=False,
-                          context=context)
+        return PdfRenderer('meetings/participant/envelope.html',
+                           height='6.4in', width='9.0in',
+                           orientation="portrait", footer=False,
+                           context=context).as_response()
 
 
 class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
@@ -394,12 +394,12 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
             context = {
                 'participant': participant,
                 'template': 'meetings/printouts/acknowledge_detail.html'}
-            attachement = render_pdf('meetings/printouts/printout.html',
-                                     height='11.7in',
-                                     width='8.26in',
-                                     orientation='portrait',
-                                     as_attachement=True,
-                                     context=context)
+            attachement = PdfRenderer('meetings/printouts/printout.html',
+                                      height='11.7in',
+                                      width='8.26in',
+                                      orientation='portrait',
+                                      as_attachement=True,
+                                      context=context).as_attachement()
             if send_single_message(form.to.data, form.subject.data,
                                    form.message.data,
                                    attachement=attachement,
@@ -425,10 +425,10 @@ class ParticipantAcknowledgePDF(MethodView):
         context = {'participant': participant}
         language = getattr(participant, 'lang', 'english')
         set_language(language)
-        return render_pdf('meetings/printouts/acknowledge_detail.html',
-                          height='11.7in', width='8.26in',
-                          orientation='portrait', footer=False,
-                          context=context)
+        return PdfRenderer('meetings/printouts/acknowledge_detail.html',
+                           height='11.7in', width='8.26in',
+                           orientation='portrait', footer=False,
+                           context=context).as_response()
 
 
 class ParticipantsExport(PermissionRequiredMixin, MethodView):

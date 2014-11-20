@@ -46,7 +46,9 @@ def _login_user(client, user, password='eaudeweb'):
     ('meetings.participant_envelope', ('view_participant',), STATUS_OK),
     ('meetings.participant_envelope', ('manage_participant',), STATUS_OK),
 ])
-def test_permissions_participant(app, url_name, perms, status):
+def test_permissions_participant(app, monkeypatch, pdf_renderer,
+                                 url_name, perms, status):
+    monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
     role = RoleUserMeetingFactory(role__permissions=perms)
     participant = ParticipantFactory(category__meeting=role.meeting)
     client = app.test_client()

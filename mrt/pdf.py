@@ -19,56 +19,72 @@ def stream_template(template_name, **context):
     return rv
 
 
-def render_pdf(template_name, title='', width=None, height=None,
-               margin=_PAGE_DEFAULT_MARGIN, orientation="portrait",
-               as_attachement=False, footer=True,
-               context={}):
-    template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
-                     (str(uuid.uuid4()) + '.html'))
-    pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
-                (str(uuid.uuid4()) + '.pdf'))
-    g.is_pdf_process = True
+class PdfRenderer(object):
+    def __init__(self, template_name, **kwargs):
+        self.template_name = template_name
+        self.title = kwargs.get('title', '')
+        self.width = kwargs.get('width', None)
+        self.height = kwargs.get('height', None)
+        self.margin = kwargs.get('margin', _PAGE_DEFAULT_MARGIN)
+        self.orientation = kwargs.get('orientation', 'portrait')
+        self.footer = kwargs.get('footeer', True)
+        self.context = kwargs.get('context', {})
 
-    with open(template_path, 'w+') as f:
-        for chunk in stream_template(template_name, **context):
-            f.write(chunk.encode('utf-8'))
+        self.template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
+                              (str(uuid.uuid4()) + '.html'))
+        self.pdf_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /
+                         (str(uuid.uuid4()) + '.pdf'))
+        g.is_pdf_process = True
 
-    def generate():
+    def _render_template(self):
+        with open(self.template_path, 'w+') as f:
+            for chunk in stream_template(self.template_name, **self.context):
+                f.write(chunk.encode('utf-8'))
+
+    def _generate_pdf(self):
         command = ['wkhtmltopdf', '-q',
                    '--encoding', 'utf-8',
-                   '--page-height', height,
-                   '--page-width', width,
-                   '--title', title,
-                   '-B', margin['bottom'],
-                   '-T', margin['top'],
-                   '-L', margin['left'],
-                   '-R', margin['right'],
-                   '--orientation', orientation]
-        if footer and not app.config['DEBUG']:
+                   '--page-height', self.height,
+                   '--page-width', self.width,
+                   '--title', self.title,
+                   '-B', self.margin['bottom'],
+                   '-T', self.margin['top'],
+                   '-L', self.margin['left'],
+                   '-R', self.margin['right'],
+                   '--orientation', self.orientation]
+        if self.footer and not app.config['DEBUG']:
             footer_url = url_for('meetings.printouts_footer', _external=True)
             command += ['--footer-html', footer_url]
-        command += [str(template_path), str(pdf_path)]
+        command += [str(self.template_path), str(self.pdf_path)]
 
         FNULL = open(os.devnull, 'w')
         subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)
 
-    if g.get('is_rq_process'):
-        generate()
-        template_path.unlink_p()
+    def _generate(self):
+        self._render_template()
+        try:
+            self._generate_pdf()
+        finally:
+            self.template_path.unlink_p()
+
+    def as_rq(self):
+        self._generate()
         return url_for('meetings.printouts_download',
-                       filename=str(pdf_path.name))
+                       filename=str(self.pdf_path.name))
 
-    try:
-        generate()
-        template_path.unlink_p()
-        pdf = open(pdf_path, 'rb')
-    finally:
-        pdf_path.unlink_p()
+    def as_attachement(self):
+        return self._pdf_file()
 
-    if as_attachement:
+    def as_response(self):
+        return Response(read_file(self._pdf_file()), mimetype='application/pdf')
+
+    def _pdf_file(self):
+        try:
+            self._generate()
+            pdf = open(self.pdf_path, 'rb')
+        finally:
+            self.pdf_path.unlink_p()
         return pdf
-
-    return Response(read_file(pdf), mimetype='application/pdf')
 
 
 def _clean_printouts(results):

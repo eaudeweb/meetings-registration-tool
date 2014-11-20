@@ -294,7 +294,10 @@ def test_meeting_participant_representing_region_translated(app):
                 participant.representing)
 
 
-def test_meeting_participant_acknowledge_email(app):
+def test_meeting_participant_acknowledge_email(monkeypatch,
+                                               pdf_renderer,
+                                               app):
+    monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
     part = ParticipantFactory()
@@ -316,7 +319,10 @@ def test_meeting_participant_acknowledge_email(app):
         assert len(outbox) == 1
 
 
-def test_meeting_participant_acknowledge_email_with_no_language(app):
+def test_meeting_participant_acknowledge_email_with_no_language(monkeypatch,
+                                                                pdf_renderer,
+                                                                app):
+    monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
     part = ParticipantFactory(language='')
