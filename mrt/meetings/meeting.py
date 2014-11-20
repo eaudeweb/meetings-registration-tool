@@ -52,8 +52,15 @@ class Meetings(PermissionRequiredMixin, MethodView):
         meetings = (Meeting.query
                     .filter(Meeting.meeting_type != Meeting.DEFAULT_TYPE)
                     .order_by(desc(Meeting.date_start)))
+        meeting_types = app.config.get('MEETING_TYPES', [])
+
+        meeting_type = request.args.get('meeting_type', None)
+        if meeting_type:
+            meetings = meetings.filter_by(meeting_type=meeting_type)
+
         return render_template('meetings/meeting/list.html',
-                               meetings=meetings)
+                               meetings=meetings,
+                               meeting_types=meeting_types)
 
 
 class MeetingEdit(PermissionRequiredMixin, MethodView):

@@ -9,7 +9,16 @@
 
   <script>
     $(function () {
-      $('#meetings').dataTable({"order": []});
+      $("#meetings").dataTable({"order": []});
+
+      var params = $.utils.getParams();
+      if (params["meeting_type"])
+        $("select[name=meeting_type]").find("option[value=" + params["meeting_type"] + "]").attr("selected", "selected");
+
+      $(".filter").on("change", function () {
+        var filter = $(this);
+        document.location = "?" + filter.attr("name") + "=" + filter.val();
+      });
     });
   </script>
 
@@ -30,6 +39,13 @@
   </div>
 
   <div class="table-responsive">
+
+    <select class="filter" name="meeting_type">
+      <option value="">---</option>
+      {% for (meeting_type_value, meeting_type_name) in meeting_types %}
+        <option value="{{ meeting_type_value }}">{{ meeting_type_name }}</option>
+      {% endfor %}
+    </select>
 
     <table id="meetings" class="table table-bordered table-condensed">
 

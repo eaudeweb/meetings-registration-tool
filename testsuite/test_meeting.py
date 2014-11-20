@@ -33,6 +33,32 @@ def test_meeting_list(app):
     assert row_count == 5
 
 
+def test_meeting_list_filter(app):
+    MeetingFactory.create_batch(3)
+    MeetingFactory.create_batch(6, meeting_type='sc')
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.get(url_for('meetings.home'))
+
+        assert resp.status_code == 200
+        table = PyQuery(resp.data)('#meetings')
+        tbody = table('tbody')
+        row_count = len(tbody('tr'))
+        assert row_count == 9
+
+        resp = client.get(url_for('meetings.home', meeting_type='sc'))
+        assert resp.status_code == 200
+        table = PyQuery(resp.data)('#meetings')
+        tbody = table('tbody')
+        row_count = len(tbody('tr'))
+        assert row_count == 6
+
+
 def test_meeting_add(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
