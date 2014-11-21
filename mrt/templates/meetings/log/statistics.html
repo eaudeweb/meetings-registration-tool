@@ -25,10 +25,14 @@
 
   <div class="row bg-warning">
     <div class="col-sm-3"><h4>Online registration form</h4></div>
-    <div class="col-sm-9">
-      {% set url = url_for('meetings.registration', _external=True) %}
-      <h4><a href="{{ url }}">{{ url }}</a></h4>
-    </div>
+    {% if g.meeting.online_registration %}
+      <div class="col-sm-9">
+        {% set url = url_for('meetings.registration', _external=True) %}
+        <h4><a href="{{ url }}">{{ url }}</a></h4>
+      </div>
+    {% else %}
+      <div class="col-sm-9 text-danger"><h4>CLOSED</h4></div>
+    {% endif %}
   </div>
   </br>
 
