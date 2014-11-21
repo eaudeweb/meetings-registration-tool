@@ -11,7 +11,7 @@ from werkzeug import FileStorage, OrderedMultiDict
 from wtforms import fields
 from wtforms.validators import DataRequired
 
-from mrt.forms.base import BaseForm
+from mrt.forms.base import BaseForm, EmailField, EmailRequired
 from mrt.forms.base import BooleanField, CategoryField, CountryField
 from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import Category
@@ -30,6 +30,8 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.SELECT: {'field': fields.SelectField},
     CustomField.COUNTRY: {'field': CountryField},
     CustomField.CATEGORY: {'field': CategoryField},
+    CustomField.EMAIL: {'field': EmailField,
+                        'validators': [EmailRequired()]},
 }
 
 
@@ -88,7 +90,6 @@ def custom_form_factory(field_types=[], field_slugs=[],
                 data = form_fields_map[f.field_type.code]
             except KeyError:
                 pass
-
         if f.required:
             attrs['validators'].append(DataRequired())
         attrs['validators'].extend(data.get('validators', []))

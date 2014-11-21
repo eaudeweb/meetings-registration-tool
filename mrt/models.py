@@ -397,6 +397,7 @@ class CustomField(db.Model):
 
     TEXT = 'text'
     IMAGE = 'image'
+    EMAIL = 'email'
     CHECKBOX = 'checkbox'
     SELECT = 'select'
     COUNTRY = 'country'
@@ -405,6 +406,7 @@ class CustomField(db.Model):
     CUSTOM_FIELDS = (
         (TEXT, 'Text Field'),
         (IMAGE, 'Image Field'),
+        (EMAIL, 'Email Field'),
         (CHECKBOX, 'Checkbox Field'),
         (SELECT, 'Select Field'),
         (COUNTRY, 'Country Field'),

@@ -26,7 +26,6 @@ _BUNDLE_JS = (
     'js/lib/jquery.typeahead.js',
     'js/lib/jquery.ba-dotimeout.js',
     'js/lib/jquery.infinitescroll.min.js',
-    'js/lib/jquery.utils.js',
     'js/main.js',
     'js/printouts.js',
 )

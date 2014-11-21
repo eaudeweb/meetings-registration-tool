@@ -41,6 +41,24 @@ def test_meeting_custom_field_add(app):
         assert CustomField.query.scalar()
 
 
+def test_meeting_custom_field_add_with_same_slug_fails(app):
+    meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_meeting',))
+    CustomFieldFactory(meeting=meeting)
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data['label'].english
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.custom_field_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('.text-danger small')) == 1
+        assert CustomField.query.filter_by(meeting=meeting).count() == 1
+
+
 def test_meeting_custom_field_add_sort_init(app):
     meeting = MeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=meeting,

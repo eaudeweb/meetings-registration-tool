@@ -101,7 +101,7 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .active().first_or_404())
-        field_types = [CustomField.TEXT, CustomField.SELECT,
+        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_types=field_types)
         Object = custom_object_factory(participant, field_types)
@@ -133,7 +133,7 @@ class DefaultParticipantDetail(PermissionRequiredMixin, MethodView):
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .active().first_or_404())
-        field_types = [CustomField.TEXT, CustomField.SELECT,
+        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY]
         Form = custom_form_factory(field_types=field_types)
         Object = custom_object_factory(participant, field_types)
@@ -170,7 +170,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id=None):
         participant = self._get_object(participant_id)
-        field_types = [CustomField.TEXT, CustomField.SELECT,
+        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_types=field_types)
         Object = custom_object_factory(participant, field_types)
@@ -188,7 +188,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def post(self, participant_id=None):
         participant = self._get_object(participant_id)
-        field_types = [CustomField.TEXT, CustomField.SELECT,
+        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_types=field_types,
                                    form=ParticipantEditForm)
@@ -245,7 +245,7 @@ class DefaultParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id=None):
         participant = self._get_object(participant_id)
-        field_types = [CustomField.TEXT, CustomField.SELECT,
+        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY]
         Form = custom_form_factory(field_types=field_types)
         Object = custom_object_factory(participant, field_types)
@@ -263,7 +263,7 @@ class DefaultParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def post(self, participant_id=None):
         participant = self._get_object(participant_id)
-        field_types = [CustomField.TEXT, CustomField.SELECT,
+        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY]
         Form = custom_form_factory(field_types=field_types,
                                    form=ParticipantEditForm)

@@ -14,7 +14,7 @@ from mrt.models import Translation, UserNotification
 from mrt.definitions import NOTIFICATION_TYPES
 from mrt.utils import copy_model_fields, duplicate_uploaded_file
 
-from mrt.forms.base import BaseForm, TranslationInputForm
+from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
 
 
 class MeetingCategoryAddForm(BaseForm):
@@ -64,7 +64,7 @@ class MeetingCategoryAddForm(BaseForm):
 
 class CustomFieldEditForm(BaseForm):
 
-    label = ModelFormField(TranslationInputForm, label='Field label')
+    label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
 
     class Meta:
         model = CustomField

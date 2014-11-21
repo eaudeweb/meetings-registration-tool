@@ -9,7 +9,7 @@ from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.models import CustomField, CustomFieldChoice
 
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
-from mrt.forms.base import CategoryField
+from mrt.forms.base import CategoryField, EmailRequired, EmailField
 
 from mrt.utils import copy_model_fields
 from mrt.definitions import MEETING_SETTINGS
@@ -21,6 +21,7 @@ _CUSTOM_FIELD_MAPPER = {
     'SelectField': CustomField.SELECT,
     'CountryField': CustomField.COUNTRY,
     'CategoryField': CustomField.CATEGORY,
+    'EmailField': CustomField.EMAIL,
 }
 
 
@@ -100,6 +101,7 @@ class ParticipantDummyForm(BaseForm):
 
     category_id = CategoryField('Category', validators=[InputRequired()],
                                 coerce=int, choices=[])
+    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
 
     class Meta:
         model = Participant

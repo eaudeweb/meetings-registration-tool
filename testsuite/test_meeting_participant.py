@@ -9,6 +9,7 @@ from .factories import ParticipantFactory, RoleUserFactory, StaffFactory
 from .factories import MeetingCategoryFactory, RoleUserMeetingFactory
 from .factories import CustomFieldFactory
 
+from mrt.forms.base import EmailRequired
 from mrt.mail import mail
 from mrt.models import Participant, CustomField
 from mrt.utils import translate
@@ -114,6 +115,48 @@ def test_meeting_participant_add_with_custom_field(app):
                                    meeting_id=category.meeting.id), data=data)
         assert resp.status_code == 302
         assert Participant.query.filter_by(meeting=category.meeting).first()
+
+
+def test_meeting_participant_add_with_multiple_emails_success(app):
+    category = MeetingCategoryFactory()
+    role_user = RoleUserMeetingFactory(meeting=category.meeting)
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['email'] = 'test@email.com , test2@email.com, test@email.com'
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+
+        assert resp.status_code == 302
+        assert Participant.query.filter_by(meeting=category.meeting).first()
+
+
+def test_meeting_participant_add_with_multiple_emails_bad_format_fails(app):
+    category = MeetingCategoryFactory()
+    role_user = RoleUserMeetingFactory(meeting=category.meeting)
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['email'] = 'te st@email.com , test2 @email.com, test@em ail.com'
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_participant_custom_fields(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+
+        assert resp.status_code == 200
+        error = PyQuery(resp.data)('.text-danger small').text()
+        assert error == EmailRequired().message
+        assert Participant.query.count() == 0
 
 
 def test_meeting_participant_add_fail(app):

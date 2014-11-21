@@ -12,7 +12,8 @@ from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import ModelForm
 from wtforms_alchemy import CountryField as _CountryField
 
-from mrt.models import db, Translation, Category, CategoryDefault
+from mrt.models import db, Translation, Category, CategoryDefault, CustomField
+from mrt.utils import validate_email, slugify
 
 
 class BaseForm(ModelForm):
@@ -67,6 +68,19 @@ class CategoryTitleInputForm(TranslationInputForm):
             Category.title.has(english=field.data)).first()
 
         if category and self.obj != category.title:
+            raise validators.ValidationError(self.duplicate_message)
+
+
+class CustomFieldLabelInputForm(TranslationInputForm):
+
+    duplicate_message = 'A field with this label already exists'
+
+    def validate_english(self, field):
+        custom_field = CustomField.query.filter(
+            CustomField.slug == slugify(field.data),
+            CustomField.meeting == g.meeting).first()
+
+        if custom_field:
             raise validators.ValidationError(self.duplicate_message)
 
 
@@ -199,3 +213,23 @@ class FileField(_FileField):
                                         name=self.name)
             except IOError:
                 self.data = None
+
+
+class EmailRequired(object):
+    """Participant email validator. Multiple emails are allowed, separated by
+    comma, but have to be well formated."""
+
+    def __init__(self):
+        self.message = 'Invalid email address'
+        self.split_char = ','
+
+    def __call__(self, form, field):
+        emails = field.data.split(self.split_char)
+        for email in emails:
+            if not validate_email(email.strip()):
+                raise validators.ValidationError(self.message)
+
+
+class EmailField(fields.StringField):
+
+    validators = [EmailRequired()]
