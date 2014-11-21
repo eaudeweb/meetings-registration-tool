@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>
+     File too large!
+    </title>
+
+    {% assets "registration_css" %}
+      <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+
+  </head>
+
+  <body>
+  <div class="container content">
+    <div class="alert alert-danger">
+      <h2> You tried to upload a file larger than {{ max_size }}MB. </h2>
+      <h3> Please go <a href="{{ url }}">back</a> and try again! </h3>
+    </div>
+  </body>
+
+</html>

@@ -64,6 +64,10 @@ _BUNDLE_REGISTRATION_JS = (
     'js/lib/jquery.min.js',
 )
 
+_BUNDLE_ERROR_CSS = (
+    'css/bootstrap.min.css',
+    'css/error.css',
+)
 
 css = Bundle(*_BUNDLE_CSS, filters='cssmin', output='gen/static.css')
 js = Bundle(*_BUNDLE_JS, filters='jsmin', output='gen/static.js')
@@ -80,7 +84,8 @@ registration_css = Bundle(*_BUNDLE_REGISTRATION_CSS,
                           output='gen/registration.min.css')
 registration_js = Bundle(*_BUNDLE_REGISTRATION_JS,
                          output='gen/registration.min.js')
-
+error_css = Bundle(*_BUNDLE_REGISTRATION_CSS,
+                   output='gen/error.min.css')
 
 assets_env = Environment()
 assets_env.register('css', css)
@@ -94,3 +99,5 @@ assets_env.register('colorpicker_css', colorpicker_css)
 
 assets_env.register('registration_css', registration_css)
 assets_env.register('registration_js', registration_js)
+
+assets_env.register('error_css', error_css)
