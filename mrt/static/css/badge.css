@@ -18,7 +18,8 @@ h2 {
 
 .badge-container {
     position: relative;
-    height:2.104in;
+    height:2in;
+    page-break-after: always !important;
 }
 
 .stripe {

@@ -46,12 +46,14 @@ class PdfRenderer(object):
                    '--encoding', 'utf-8',
                    '--page-height', self.height,
                    '--page-width', self.width,
-                   '--title', self.title,
                    '-B', self.margin['bottom'],
                    '-T', self.margin['top'],
                    '-L', self.margin['left'],
                    '-R', self.margin['right'],
                    '--orientation', self.orientation]
+        if self.title:
+            command += ['--title', self.title]
+
         if self.footer and not app.config['DEBUG']:
             footer_url = url_for('meetings.printouts_footer', _external=True)
             command += ['--footer-html', footer_url]
