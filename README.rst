@@ -79,6 +79,42 @@ After that, run alembic upgrade to have the tables created::
     ./manage.py rq workers printouts
 
 
+Configure wkhtmltopdf in virtualenv
+-----------------------------------
+
+Printouts work using `wkhtmltopdf 0.12.1`. Using another version may cause
+problems in rendering pdfs.
+
+If you don't have this version installed, add it to your virtualenv.
+
+1. Go to http://sourceforge.net/projects/wkhtmltopdf/files/0.12.1/ and select the build
+   corresponding with your system. Copy the direct link into your clipboard
+
+2. Install it locally in your virtualenv
+   * For RedHat-based systems in production::
+
+         wget $PASTE_URL_COPIED_AT_STEP_1
+         # $PACKAGE is the file downloaded with wget
+         sudo rpm -i --prefix=/var/local/wkhtmltox-0.12.1 $PACKAGE.rpm
+         # If the command fails because the file is already installed
+         # copy `wkhtmltopdf` from the installation directory and skip
+         # the next command
+         cp /var/local/wkhtmltox-0.12.1/bin/wkhmtltopdf sandbox/bin/
+
+   * For RedHat-based development systems::
+
+         # If you don't work on projects that require other versions
+         # Install this version globally
+         wget $PASTE_URL_COPIED_AT_STEP_1
+         sudo rpm -i $PACKAGE.rpm
+
+    * For Debian based systems::
+
+         wget $PASTE_URL_COPIED_AT_STEP_1
+         dpkg-deb -x wkhtmltox-0.12.1_<your_distro>.deb sandbox
+         cp sandbox/usr/local/bin/wkhtmltopdf sandbox/bin
+
+
 Development hints
 =================
 
