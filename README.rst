@@ -91,7 +91,8 @@ If you don't have this version installed, add it to your virtualenv.
    corresponding with your system. Copy the direct link into your clipboard
 
 2. Install it locally in your virtualenv
-   * For RedHat-based systems in production::
+    
+    * For RedHat-based systems in production::
 
          wget $PASTE_URL_COPIED_AT_STEP_1
          # $PACKAGE is the file downloaded with wget
@@ -101,7 +102,7 @@ If you don't have this version installed, add it to your virtualenv.
          # the next command
          cp /var/local/wkhtmltox-0.12.1/bin/wkhmtltopdf sandbox/bin/
 
-   * For RedHat-based development systems::
+    * For RedHat-based development systems::
 
          # If you don't work on projects that require other versions
          # Install this version globally
