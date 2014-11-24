@@ -37,6 +37,12 @@ class ParticipantQuery(BaseQuery):
         return self.filter(Participant.deleted == False)
 
 
+class CustomFieldQuery(BaseQuery):
+
+    def for_registration(self):
+        return self.filter_by(visible_on_registration_form=True)
+
+
 class JSONEncodedDict(TypeDecorator):
     impl = String
 
@@ -411,6 +417,8 @@ class CustomField(db.Model):
         (COUNTRY, 'Country Field'),
         (CATEGORY, 'Category Field'),
     )
+
+    query_class = CustomFieldQuery
 
     __table_args__ = (
         db.UniqueConstraint('meeting_id', 'slug'),)

@@ -75,7 +75,7 @@ def custom_form_factory(field_types=[], field_slugs=[],
         fields = fields.filter(CustomField.slug.in_(field_slugs))
 
     if registration_fields:
-        fields = fields.filter_by(visible_on_registration_form=True)
+        fields = fields.for_registration()
 
     for f in fields:
         attrs = {'label': __(unicode(f.label)), 'validators': [],
