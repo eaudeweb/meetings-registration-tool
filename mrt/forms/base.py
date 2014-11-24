@@ -137,7 +137,10 @@ class CategoryWidget(widgets.ListWidget):
             for subfield in subfields:
                 label = subfield.label.text
                 html.append('<li><label>%s %s</label></li>' % (
-                    subfield(), label))
+                    subfield(),
+                    label)
+                )
+            html.append('<li class="group-%s"></li>' % group)
             html.append('<li class="separator"></li>')
 
         html.append('</%s>' % self.html_tag)
