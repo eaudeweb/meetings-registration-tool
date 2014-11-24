@@ -14,7 +14,7 @@ class StaffList(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_staff', )
 
     def get(self):
-        staff = Staff.query.all()
+        staff = Staff.query.order_by(Staff.id)
         return render_template('admin/staff/list.html', staff=staff)
 
 

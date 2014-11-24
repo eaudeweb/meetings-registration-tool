@@ -163,9 +163,8 @@ class Role(db.Model):
                      info={'label': 'Name'})
     permissions = db.Column(JSONEncodedDict, nullable=False)
 
-    @property
-    def permissions_details(self):
-        return ', '.join(dict(PERMISSIONS).get(k, k) for k in self.permissions)
+    def get_permissions(self):
+        return [dict(PERMISSIONS).get(k, k) for k in self.permissions]
 
     def __repr__(self):
         return self.name

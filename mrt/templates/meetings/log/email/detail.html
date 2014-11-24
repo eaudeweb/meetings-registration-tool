@@ -7,11 +7,23 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block head %}
+
+  <style type="text/css">
+    textarea {
+      height: 200px;
+      width: 100%;
+    }
+  </style>
+
+{% endblock %}
+
+
 {% block breadcrumb %}
 
   {{ breadcrumb( [
       (url_for('.mail_logs'), 'Mails sent'),
-      ('', mail.to.email)
+      ('', 'Mail log #' ~ mail.id)
   ] ) }}
 
 {% endblock %}
@@ -21,28 +33,28 @@
 
   {{ super() }}
 
-  <h3 class="page-title">{{ mail.to.email }}</h3>
+  <h3 class="page-title">Mail log #{{ mail.id }}</h3>
 
-  <div class="mail-container well">
-    <div class="control-group">
-      <label class="control-label">To</label>
-      <div class="controls">{{ mail.to.email }}</div>
-    </div>
+  <table class="table table-bordered">
 
-    <div class="control-group">
-      <label class="control-label">Subject</label>
-      <div class="controls">{{ mail.subject }}</div>
-    </div>
+    <tr>
+      <th>To</th>
+      <td>{{ mail.to.email }}</td>
+    </tr>
 
-    <div class="control-group">
-      <label class="control-label">Message</label>
-      <div class="controls">
-        <textarea readonly="">{{ mail.message }}</textarea>
-      </div>
-    </div>
-  </div>
+    <tr>
+      <th>Subject</th>
+      <td>{{ mail.subject }}</td>
+    </tr>
 
-  <div class="mail-container row">
+    <tr>
+      <th>Message</th>
+      <td><textarea readonly="">{{ mail.message }}</textarea></td>
+    </tr>
+
+  </table>
+
+  <div class="form-actions row">
     <div class="col-sm-6">
       <form action="{{ url_for('.mail_resend', mail_id=mail.id) }}" method="post">
         <button type="submit" class="btn btn-primary">Resend</button>

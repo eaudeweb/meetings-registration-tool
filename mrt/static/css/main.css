@@ -237,26 +237,6 @@ li.separator {
     margin: auto;
 }
 
-.mail-container {
-    font-size: 16px;
-    line-height: 20px;
-}
-
-.mail-container label {
-    margin-top: 10px;
-}
-
-.mail-container .delete {
-    color: #A94442;
-    font-size: 12px;
-    position: relative;
-}
-
-.mail-container textarea {
-    height: 300px;
-    width: 100%;
-}
-
 .table-responsive {
     position: relative;
 }

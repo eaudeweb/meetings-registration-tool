@@ -44,7 +44,13 @@
           {% set url = url_for('.role_edit', role_id=role.id) %}
           <tr>
             <td><a href="{{ url }}">{{ role.name }}</a></td>
-            <td>{{ role.permissions_details }}</td>
+            <td>
+              <ul class="list-unstyled">
+                {% for perm in role.get_permissions() %}
+                  <li>- {{ perm }}</li>
+                {% endfor %}
+              </ul>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
