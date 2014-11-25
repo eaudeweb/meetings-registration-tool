@@ -20,10 +20,21 @@ class CustomFields(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', )
 
     def get(self):
-        custom_fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
-                         .order_by(CustomField.sort))
-        return render_template('meetings/custom_field/list.html',
-                               custom_fields=custom_fields)
+        query = (CustomField.query.filter_by(meeting_id=g.meeting.id)
+                 .order_by(CustomField.sort))
+        custom_fields_for_participants = (
+            query.filter_by(custom_field_type=CustomField.PARTICIPANT))
+
+        if g.meeting.media_participant_enabled:
+            custom_fields_for_media = (
+                query.filter_by(custom_field_type=CustomField.MEDIA))
+        else:
+            custom_fields_for_media = None
+
+        return render_template(
+            'meetings/custom_field/list.html',
+            custom_fields_for_participants=custom_fields_for_participants,
+            custom_fields_for_media=custom_fields_for_media)
 
 
 class CustomFieldEdit(PermissionRequiredMixin, MethodView):

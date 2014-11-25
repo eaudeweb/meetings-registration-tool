@@ -226,8 +226,8 @@ class Participant(db.Model):
     PARTICIPANT = 'participant'
     MEDIA = 'media'
     PARTICIPANT_TYPE_CHOICES = (
-        ('participant', __('Participant')),
-        ('media', __('Media')),
+        (PARTICIPANT, __('Participant')),
+        (MEDIA, __('Media')),
     )
 
     EXCLUDE_WHEN_COPYING = ('meeting_id', 'category_id', 'registration_token',)
@@ -429,10 +429,17 @@ class CustomField(db.Model):
         (CATEGORY, 'Category Field'),
     )
 
+    PARTICIPANT = 'participant'
+    MEDIA = 'media'
+    CUSTOM_FIELD_TYPE_CHOICES = (
+        (PARTICIPANT, 'Participant'),
+        (MEDIA, 'Media'),
+    )
+
     query_class = CustomFieldQuery
 
     __table_args__ = (
-        db.UniqueConstraint('meeting_id', 'slug'),)
+        db.UniqueConstraint('meeting_id', 'slug', 'custom_field_type'),)
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -466,6 +473,11 @@ class CustomField(db.Model):
     visible_on_registration_form = db.Column(
         db.Boolean, default=False,
         info={'label': 'Visible on registration form'})
+
+    custom_field_type = db.Column(
+        ChoiceType(CUSTOM_FIELD_TYPE_CHOICES),
+        nullable=False, default=PARTICIPANT,
+        info={'label': 'Custom field type'})
 
     def __repr__(self):
         return self.label.english

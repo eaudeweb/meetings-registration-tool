@@ -14,12 +14,20 @@
 {% endblock %}
 
 
-{% block content %}
+{% block head %}
 
-  {{ super() }}
+  <style type="text/css">
+    .tab-content {
+      margin-top: 15px;
+    }
+  </style>
 
-  <h3 class="page-title">{{ title }}</h3>
+{% endblock %}
 
+
+{% macro render_fields(fields) %}
+
+  <p class="text-right"><small>{{ fields.count() }} fields</small></p>
   <table class="table table-bordered table-condensed sortable"
          data-url="{{ url_for('.custom_field_update_position') }}">
 
@@ -32,7 +40,7 @@
     </thead>
 
     <tbody>
-      {% for field in custom_fields %}
+      {% for field in fields %}
         {% set url = url_for('.custom_field_edit',
                              custom_field_id=field.id)%}
         <tr id="items-{{ field.id }}"
@@ -56,11 +64,47 @@
 
   </table>
 
+{% endmacro %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+
+  <div role="tabpanel">
+
+    <ul class="nav nav-tabs">
+      <li class="active">
+        <a href="#participant" data-toggle="tab">Participant fields</a>
+      </li>
+      {% if custom_fields_for_media %}
+      <li>
+        <a href="#media" data-toggle="tab">Media participant fields</a>
+      </li>
+      {% endif %}
+    </ul>
+
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="participant">
+        {{ render_fields(custom_fields_for_participants) }}
+      </div>
+      {% if custom_fields_for_media %}
+      <div role="tabpanel" class="tab-pane" id="media">
+        {{ render_fields(custom_fields_for_media) }}
+      </div>
+      {% endif %}
+    </div> {# tab-content #}
+
+  </div> {# tabpanel #}
+
   <div class="actions">
     {% set url = url_for('.custom_field_edit') %}
     <a href="{{ url }}" class="btn btn-primary btn-sm">
       <span class="glyphicon glyphicon-pencil"></span> &nbsp;
       Add a new field</a>
-  </div>
+  </div> {# actions #}
 
 {% endblock %}
