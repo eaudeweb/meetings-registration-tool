@@ -223,6 +223,12 @@ class Participant(db.Model):
         ('Spanish', __('Spanish')),
         ('French', __('French')),
     )
+    PARTICIPANT = 'participant'
+    MEDIA = 'media'
+    PARTICIPANT_TYPE_CHOICES = (
+        ('participant', __('Participant')),
+        ('media', __('Media')),
+    )
 
     EXCLUDE_WHEN_COPYING = ('meeting_id', 'category_id', 'registration_token',)
 
@@ -290,6 +296,11 @@ class Participant(db.Model):
                             info={'label': _('Credentials')})
 
     registration_token = db.Column(db.String(64), nullable=True)
+
+    participant_type = db.Column(
+        ChoiceType(PARTICIPANT_TYPE_CHOICES),
+        nullable=False, default=PARTICIPANT,
+        info={'label': _('Participant type')})
 
     def __repr__(self):
         return self.name

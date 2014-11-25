@@ -105,7 +105,7 @@ class ParticipantDummyForm(BaseForm):
 
     class Meta:
         model = Participant
-        exclude = ('deleted', 'registration_token',)
+        exclude = ('deleted', 'registration_token', 'participant_type')
         visible_on_registration_form = (
             'title', 'first_name', 'last_name', 'email', 'category_id',
             'language', 'country', 'represented_country',
