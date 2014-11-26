@@ -89,15 +89,23 @@ class MeetingEditForm(BaseForm):
     def save(self):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
+
         if meeting.id is None:
             db.session.add(meeting)
             self._save_phrases(meeting)
-            add_custom_fields_for_meeting(meeting)
+            add_custom_fields_for_meeting(
+                meeting, form_class=ParticipantDummyForm)
+        if meeting.media_participant_enabled:
+            add_custom_fields_for_meeting(
+                meeting, form_class=MediaParticipantDummyForm)
+
         db.session.commit()
         return meeting
 
 
 class ParticipantDummyForm(BaseForm):
+
+    CUSTOM_FIELD_TYPE = 'participant'
 
     category_id = CategoryField('Category', validators=[InputRequired()],
                                 coerce=int, choices=[])
@@ -115,6 +123,20 @@ class ParticipantDummyForm(BaseForm):
         }
 
 
+class MediaParticipantDummyForm(BaseForm):
+
+    CUSTOM_FIELD_TYPE = 'media'
+
+    category_id = CategoryField('Category', validators=[InputRequired()],
+                                coerce=int, choices=[])
+    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
+
+    class Meta:
+        model = Participant
+        only = ('title', 'first_name', 'last_name',)
+        visible_on_registration_form = ('title', 'first_name', 'last_name')
+
+
 class MeetingFilterForm(BaseForm):
 
     meeting_type = fields.SelectField('Filter by type', choices=[])
@@ -125,13 +147,15 @@ class MeetingFilterForm(BaseForm):
         self.meeting_type.choices = [('', 'All')] + choices
 
 
-def add_custom_fields_for_meeting(meeting):
+def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
     """Adds participants fields as CustomFields to meeting."""
-    form = ParticipantDummyForm()
+    form = form_class()
     for i, field in enumerate(form):
         query = (
-            CustomField.query.filter_by(slug=field.name)
-            .filter_by(meeting=meeting))
+            CustomField.query
+            .filter_by(slug=field.name, meeting=meeting)
+            .filter_by(custom_field_type=form.CUSTOM_FIELD_TYPE)
+        )
         if query.scalar():
             continue
         custom_field = CustomField()
@@ -141,6 +165,7 @@ def add_custom_fields_for_meeting(meeting):
         custom_field.required = field.flags.required
         custom_field.field_type = _CUSTOM_FIELD_MAPPER[field.type]
         custom_field.is_primary = True
+        custom_field.custom_field_type = form.CUSTOM_FIELD_TYPE
         if field.name in form.meta.visible_on_registration_form:
             custom_field.visible_on_registration_form = True
         else:
