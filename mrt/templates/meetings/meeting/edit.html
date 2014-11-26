@@ -19,6 +19,12 @@
   <script>
     $(function () {
       $(".picker").datetimepicker({pickTime: false});
+
+      $("[data-toggle=add]").on('click', function () {
+        $(".badge-label").removeClass("hide");
+        $(".badge-body").removeClass("hide");
+        $(".badge-add").addClass("hide");
+      });
     });
   </script>
 
@@ -59,10 +65,16 @@
     <div class="panel panel-default">
 
       <div class="panel-heading">
-        <b>{{ form.badge_header.label.text }}</b>
+        <div class="badge-label hide">
+          <b>{{ form.badge_header.label.text }}</b>
+        </div>
+        <div class="badge-add">
+          <a data-toggle="add" href="#"><span class="glyphicon glyphicon-plus"></span>
+            Add badge header</a>
+        </div>
       </div>
 
-      <div class="panel-body">
+      <div class="badge-body panel-body hide">
         {{ form_group(form.badge_header.english) }}
         {{ form_group(form.badge_header.french) }}
         {{ form_group(form.badge_header.spanish) }}
