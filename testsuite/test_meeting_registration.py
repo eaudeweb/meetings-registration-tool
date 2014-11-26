@@ -53,6 +53,8 @@ def test_meeting_registration_add(app, default_meeting):
         resp = register_participant_online(client, data, meeting)
         assert resp.status_code == 200
         assert Participant.query.filter_by(meeting=meeting).count() == 1
+        participant = Participant.query.get(1)
+        assert participant.participant_type.code == Participant.PARTICIPANT
         assert len(outbox) == 2
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
@@ -75,6 +77,7 @@ def test_meeting_registration_with_meeting_photo(app, default_meeting):
         participant = Participant.query.filter_by(meeting=meeting).first()
         assert participant.photo is not None
         assert upload_dir.join(participant.photo).check()
+        assert participant.participant_type.code == Participant.PARTICIPANT
 
 
 def test_meeting_registration_and_user_creation(app, default_meeting):
@@ -132,6 +135,7 @@ def test_meeting_registration_default_participant_creation(app, default_meeting)
         default_participant = participant.user.get_default()
         assert default_participant is not None
         assert_participants_fields_equal(participant, default_participant)
+        assert default_participant.participant_type.code == Participant.PARTICIPANT
 
 
 def test_meeting_registration_default_participant_update(app, default_meeting):

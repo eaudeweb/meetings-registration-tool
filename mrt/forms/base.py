@@ -78,7 +78,8 @@ class CustomFieldLabelInputForm(TranslationInputForm):
     def validate_english(self, field):
         custom_field = CustomField.query.filter(
             CustomField.slug == slugify(field.data),
-            CustomField.meeting == g.meeting).first()
+            CustomField.meeting == g.meeting,
+            CustomField.custom_field_type == self.custom_field_type).first()
 
         if custom_field:
             raise validators.ValidationError(self.duplicate_message)

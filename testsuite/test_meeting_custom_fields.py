@@ -38,10 +38,52 @@ def test_meeting_custom_field_add(app):
         resp = client.post(url_for('meetings.custom_field_edit',
                                    meeting_id=meeting.id), data=data)
         assert resp.status_code == 302
-        assert CustomField.query.scalar()
+        assert CustomField.query.count() == 1
+        custom_field = CustomField.query.get(1)
+        assert custom_field.custom_field_type.code == CustomField.PARTICIPANT
 
 
-def test_meeting_custom_field_add_with_same_slug_fails(app):
+def test_meeting_custom_field_add_for_media_participant(app):
+    meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_meeting',))
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data['label'].english
+    data['custom_field_type'] = CustomField.MEDIA
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.custom_field_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 302
+        assert CustomField.query.count() == 1
+        custom_field = CustomField.query.get(1)
+        assert custom_field.custom_field_type.code == CustomField.MEDIA
+
+
+def test_meeting_custom_field_add_with_same_slug_and_different_type(app):
+    meeting = MeetingFactory()
+    role_user = RoleUserMeetingFactory(meeting=meeting,
+                                       role__permissions=('manage_meeting',))
+    participant_field = CustomFieldFactory(meeting=meeting)
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data['label'].english
+    data['custom_field_type'] = CustomField.MEDIA
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.custom_field_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 302
+        assert meeting.custom_fields.count() == 2
+        media_field = CustomField.query.get(2)
+        assert participant_field.slug == media_field.slug
+        assert participant_field.meeting == media_field.meeting
+
+
+def test_meeting_custom_field_add_with_same_slug_and_type_fails(app):
     meeting = MeetingFactory()
     role_user = RoleUserMeetingFactory(meeting=meeting,
                                        role__permissions=('manage_meeting',))

@@ -658,7 +658,8 @@ class Meeting(db.Model):
 
     @property
     def media_participant_enabled(self):
-        return self.settings.get('media_participant_enabled', False)
+        return (self.settings and
+                self.settings.get('media_participant_enabled', False))
 
     @classmethod
     def get_default(cls):

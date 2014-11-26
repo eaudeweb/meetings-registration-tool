@@ -5,7 +5,6 @@ from py.path import local
 from mrt.models import Meeting, Category, Phrase, CustomField
 from mrt.models import CustomFieldChoice
 from mrt.forms.meetings.meeting import ParticipantDummyForm
-from mrt.utils import slugify
 
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data

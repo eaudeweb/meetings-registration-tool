@@ -83,6 +83,7 @@ def test_meeting_participant_add_success(app):
         assert resp.status_code == 302
         assert Participant.query.filter_by(meeting=category.meeting).first()
         part = Participant.query.filter_by(meeting=category.meeting).first()
+        assert part.participant_type.code == Participant.PARTICIPANT
         assert part.category
         assert part.title
         assert part.language

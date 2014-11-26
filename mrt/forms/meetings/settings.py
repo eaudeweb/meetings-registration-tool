@@ -74,6 +74,9 @@ class CustomFieldEditForm(BaseForm):
         self.field_type.choices = [
             i for i in self.field_type.choices
             if i[0] not in (CustomField.SELECT, CustomField.CATEGORY)]
+        if self.custom_field_type.data:
+            setattr(self.label.form, 'custom_field_type',
+                    self.custom_field_type.data)
 
     def save(self):
         custom_field = self.obj or CustomField()

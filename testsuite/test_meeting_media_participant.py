@@ -1,6 +1,6 @@
 from flask import url_for
 
-from mrt.models import Category
+from mrt.models import Category, Participant
 from .factories import MediaParticipantFactory, MeetingCategoryFactory
 
 
@@ -14,7 +14,9 @@ def test_meeting_media_participant_add(app, user):
         resp = app.client.post(url_for('meetings.media_participant_edit',
                                        meeting_id=cat.meeting.id), data=data)
         assert resp.status_code == 302
-        assert cat.meeting.media_participants.scalar()
+        assert cat.meeting.media_participants.count() == 1
+        media_participant = cat.meeting.media_participants.first()
+        assert media_participant.participant_type.code == Participant.MEDIA
 
 
 def test_meeting_media_participant_edit(app, user):

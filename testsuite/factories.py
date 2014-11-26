@@ -252,6 +252,7 @@ class CustomFieldFactory(SQLAlchemyModelFactory):
     field_type = 'image'
     required = True
     visible_on_registration_form = True
+    custom_field_type = models.CustomField.PARTICIPANT
 
 
 class ProfilePictureFactory(SQLAlchemyModelFactory):
