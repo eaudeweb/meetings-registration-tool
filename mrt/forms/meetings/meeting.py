@@ -51,6 +51,7 @@ class MeetingEditForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(MeetingEditForm, self).__init__(*args, **kwargs)
+        self.badge_header.form.english.validators = []
         self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
         self.owner_id.choices = [
             (x.id, x.full_name or x.user.email) for x in Staff.query.all()]
@@ -72,6 +73,12 @@ class MeetingEditForm(BaseForm):
             if key not in settings:
                 raise ValidationError("Setting doesn's exist")
 
+    def _clean_badge_header(self, meeting):
+        if not self.badge_header.data['english']:
+            old_badge_header, meeting.badge_header = meeting.badge_header, None
+            if old_badge_header.id:
+                db.session.delete(old_badge_header)
+
     def _save_phrases(self, meeting):
         phrases_default = PhraseDefault.query.filter(
             PhraseDefault.meeting_type == meeting.meeting_type)
@@ -89,7 +96,7 @@ class MeetingEditForm(BaseForm):
     def save(self):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
-
+        self._clean_badge_header(meeting)
         if meeting.id is None:
             db.session.add(meeting)
             self._save_phrases(meeting)
