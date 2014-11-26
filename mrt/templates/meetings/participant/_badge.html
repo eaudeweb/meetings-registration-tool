@@ -23,7 +23,11 @@
   <div class="stripe {% if nostripe %}nostripe{% endif %}"
        style="background: {{ participant.category.color }}">
     <h1>
-      {{ g.meeting.badge_header[participant.lang] }}
+      {% if g.meeting.badge_header %}
+        {{ g.meeting.badge_header[participant.lang] }}
+      {% else %}
+        {{ g.meeting.title[participant.lang] }}
+      {% endif %}
     </h1>
     <img src="{{ product_logo }}" class="logo" alt="">
     <img src="{{ product_side_logo }}" class="side-logo" alt="">

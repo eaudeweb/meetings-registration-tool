@@ -51,7 +51,7 @@ class MeetingEditForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(MeetingEditForm, self).__init__(*args, **kwargs)
-        self.badge_header.form.english.validators = []
+        self.badge_header.english.validators = []
         self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
         self.owner_id.choices = [
             (x.id, x.full_name or x.user.email) for x in Staff.query.all()]
