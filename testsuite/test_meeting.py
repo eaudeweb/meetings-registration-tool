@@ -5,6 +5,7 @@ from py.path import local
 from mrt.models import Meeting, Category, Phrase, CustomField
 from mrt.models import CustomFieldChoice, Translation
 from mrt.forms.meetings.meeting import ParticipantDummyForm
+from mrt.forms.meetings.meeting import MediaParticipantDummyForm
 
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
@@ -101,7 +102,7 @@ def test_meeting_add_without_badge_header(app):
     assert meeting.badge_header is None
 
 
-def test_meeting_add_custom_field_generation(app):
+def test_meeting_add_participant_custom_field_generation(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
     data = MeetingFactory.attributes()
@@ -126,6 +127,95 @@ def test_meeting_add_custom_field_generation(app):
         for field in fields.values():
             cf = (CustomField.query
                   .filter_by(meeting_id=1, slug=field.name)
+                  .filter(CustomField.label.has(english=field.label.text))
+                  .one())
+
+
+def test_meeting_add_media_participant_custom_field_generation(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['settings'] = 'media_participant_enabled'
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.edit'), data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+
+        fields = MediaParticipantDummyForm()._fields
+        query = CustomField.query.filter_by(custom_field_type=CustomField.MEDIA,
+                                            meeting_id=1)
+        assert query.count() == len(fields)
+
+        for field in fields.values():
+            cf = (CustomField.query
+                  .filter_by(meeting_id=1, slug=field.name,
+                             custom_field_type=CustomField.MEDIA)
+                  .filter(CustomField.label.has(english=field.label.text))
+                  .one())
+
+
+def test_meeting_add_with_media_participants_disabled(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.edit'), data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        query = CustomField.query.filter_by(custom_field_type=CustomField.MEDIA,
+                                            meeting_id=1)
+        assert query.count() == 0
+
+        resp = client.get(url_for('meetings.custom_fields', meeting_id=1))
+        tabs = PyQuery(resp.data)('div [role=tabpanel]')
+        assert len(tabs) == 2
+
+
+def test_meeting_edit_media_participant_custom_field_generation(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    meeting = MeetingFactory()
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = 'Sixtieth meeting of the Standing Committee'
+    data['venue_city-english'] = data.pop('venue_city')
+    data['settings'] = 'media_participant_enabled'
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        fields = MediaParticipantDummyForm()._fields
+        query = CustomField.query.filter_by(custom_field_type=CustomField.MEDIA,
+                                            meeting_id=1)
+        assert query.count() == len(fields)
+
+        for field in fields.values():
+            cf = (CustomField.query
+                  .filter_by(meeting_id=1, slug=field.name,
+                             custom_field_type=CustomField.MEDIA)
                   .filter(CustomField.label.has(english=field.label.text))
                   .one())
 

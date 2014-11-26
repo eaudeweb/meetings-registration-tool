@@ -2,9 +2,9 @@ from flask import url_for
 from pyquery import PyQuery
 from factory import Sequence
 
-from mrt.models import CustomField
-from .factories import CustomFieldFactory, MeetingFactory
-from .factories import RoleUserMeetingFactory
+from mrt.models import CustomField, Meeting
+from .factories import CustomFieldFactory, MeetingFactory, normalize_data
+from .factories import RoleUserMeetingFactory, RoleUserFactory, StaffFactory
 from .utils import add_participant_custom_fields
 
 
@@ -151,3 +151,39 @@ def test_meeting_custom_field_delete(app):
         assert resp.status_code == 200
         assert 'success' in resp.data
         assert not CustomField.query.first()
+
+
+def test_meeting_custom_fields_list_with_media_participant_enabled(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    data = MeetingFactory.attributes()
+    data = normalize_data(data)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['settings'] = 'media_participant_enabled'
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.edit'), data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+
+        resp = client.get(url_for('meetings.custom_fields', meeting_id=1))
+        html = PyQuery(resp.data)
+        tabs = html('div [role=tabpanel]')
+        assert len(tabs) == 3
+        participant_list = html('div#participant table tbody tr')
+        participant_fields = (CustomField.query
+                              .filter_by(meeting_id=1,
+                                         custom_field_type=CustomField.PARTICIPANT))
+        assert len(participant_list) == participant_fields.count()
+
+        media_list = html('div#media table tbody tr')
+        media_fields = (CustomField.query
+                        .filter_by(meeting_id=1,
+                                   custom_field_type=CustomField.MEDIA))
+        assert len(media_list) == media_fields.count()
