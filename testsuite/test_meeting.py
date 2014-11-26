@@ -3,7 +3,7 @@ from pyquery import PyQuery
 from py.path import local
 
 from mrt.models import Meeting, Category, Phrase, CustomField
-from mrt.models import CustomFieldChoice
+from mrt.models import CustomFieldChoice, Translation
 from mrt.forms.meetings.meeting import ParticipantDummyForm
 
 from .factories import MeetingFactory, CategoryDefaultFactory
@@ -235,6 +235,29 @@ def test_meeting_edit_with_photo_field(app):
 
     assert resp.status_code == 302
     assert meeting.photo_field == photo_field
+
+
+def test_meeting_edit_removes_badge_header(app):
+    role_user = RoleUserFactory()
+    StaffFactory(user=role_user.user)
+    meeting = MeetingFactory()
+    badge_header = meeting.badge_header.english
+    assert Translation.query.filter_by(english=badge_header).count() == 1
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = 'Sixtieth meeting of the Standing Committee'
+    data['venue_city-english'] = 'Rome'
+    data['photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert meeting.badge_header is None
+        assert Translation.query.filter_by(english=badge_header).count() == 0
 
 
 def test_meeting_delete(app):
