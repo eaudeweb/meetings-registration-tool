@@ -125,7 +125,6 @@ def test_meeting_add_media_participant_custom_field_generation(app, user):
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
-
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
