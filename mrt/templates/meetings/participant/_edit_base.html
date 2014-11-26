@@ -2,40 +2,14 @@
 {% from "_bits.html" import breadcrumb, form_group %}
 
 
-{% set title = "Edit participant" if participant else "Add a new participant" %}
-
-
 {% block title %} {{ title }} {% endblock %}
-
-
-{% block breadcrumb %}
-
-  {% if participant and g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
-    {{ breadcrumb( [
-        (url_for('meetings.participants'), 'Participants'),
-        (url_for('meetings.participant_detail', participant_id=participant.id), participant),
-        ('', 'Edit')
-    ] ) }}
-  {% elif g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
-   {{ breadcrumb( [
-        (url_for('meetings.participants'), 'Participants'),
-        ('', title)
-    ] ) }}
-  {% endif %}
-
-{% endblock %}
 
 
 {% block content %}
 
-  {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
-    {{ super() }}
-    <h3 class="page-title">{{ title }}</h3>
-  {% else %}
-    <div class="page-header">
-      <h2>{{ title }} - Default Participant</h2>
-    </div>
-  {% endif %}
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
 
   <form class="form-horizontal" method="post">
 
@@ -77,17 +51,9 @@
     <div class="form-actions">
       <button type="submit" class="btn btn-primary">
         Save changes</button>
-      <small>or
-        {% if participant and g.meeting.meeting_type != g.meeting.DEFAULT_TYPE%}
-          {% set url = url_for('.participant_detail',
-                               participant_id=participant.id) %}
-        {% elif g.meeting.meeting_type != g.meeting.DEFAULT_TYPE%}
-          {% set url = url_for('.participants') %}
-        {% else %}
-          {% set url = url_for('.default_participant_detail',
-                               participant_id=participant.id) %}
-        {% endif %}
-        <a href="{{ url }}">Cancel</a></small>
+
+      {% block footer_cancel %}{% endblock %}
+
     </div>
 
   </form>

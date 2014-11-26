@@ -116,10 +116,10 @@ media_participant_edit_func = MediaParticipantEdit.as_view(
 meetings.add_url_rule('/<int:meeting_id>/media_participants/add',
                       view_func=media_participant_edit_func)
 meetings.add_url_rule(
-    '/<int:meeting_id>/media_participants/<int:media_participant_id>/edit',
+    '/<int:meeting_id>/media_participants/<int:participant_id>/edit',
     view_func=media_participant_edit_func)
 meetings.add_url_rule(
-    '/<int:meeting_id>/media_participants/<int:media_participant_id>/detail',
+    '/<int:meeting_id>/media_participants/<int:participant_id>/detail',
     view_func=MediaParticipantDetail.as_view('media_participant_detail'))
 
 

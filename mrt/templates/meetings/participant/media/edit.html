@@ -1,0 +1,38 @@
+{% extends 'meetings/participant/_edit_base.html' %}
+
+
+{% set title = "Edit media participant" if participant else "Add a new media participant" %}
+
+
+{% block breadcrumb %}
+
+  {% if participant  %}
+    {{ breadcrumb( [
+        (url_for('.media_participants'), 'Media participants'),
+        (url_for('.media_participant_detail', participant_id=participant.id), participant),
+        ('', 'Edit')
+    ] ) }}
+  {% else %}
+   {{ breadcrumb( [
+        (url_for('.media_participants'), 'Media participants'),
+        ('', title)
+    ] ) }}
+  {% endif %}
+
+{% endblock %}
+
+
+{% block footer_cancel %}
+
+<small>
+  or
+  {% if participant %}
+    {% set url = url_for('.media_participant_detail',
+                         participant_id=participant.id) %}
+  {% else %}
+    {% set url = url_for('.media_participants') %}
+  {% endif %}
+  <a href="{{ url }}">Cancel</a>
+</small>
+
+{% endblock %}

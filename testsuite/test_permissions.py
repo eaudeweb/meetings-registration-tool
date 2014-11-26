@@ -83,7 +83,7 @@ def test_permissions_media_participant(app, url_name, perms, status):
     with app.test_request_context():
         _login_user(client, role.user)
         _test(client, url_for(url_name,
-                              media_participant_id=participant.id,
+                              participant_id=participant.id,
                               meeting_id=role.meeting.id), status)
 
 

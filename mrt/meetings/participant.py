@@ -8,6 +8,7 @@ from flask.ext.login import current_user as user
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
+from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.forms.meetings import AcknowledgeEmailForm
 
 from mrt.meetings import PermissionRequiredMixin
@@ -38,7 +39,15 @@ class Participants(PermissionRequiredMixin, MethodView):
     permission_required = ('view_participant', )
 
     def get(self):
-        return render_template('meetings/participant/list.html')
+        return render_template('meetings/participant/participant/list.html')
+
+
+class MediaParticipants(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_media_participant',)
+
+    def get(self):
+        return render_template('meetings/participant/media/list.html')
 
 
 class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
@@ -64,7 +73,10 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
     def get_queryset(self, **opt):
         participants = (
-            Participant.query.filter_by(meeting_id=g.meeting.id).active())
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id)
+            .filter_by(participant_type=Participant.PARTICIPANT)
+            .active())
         total = participants.count()
 
         for item in opt['order']:
@@ -74,6 +86,45 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
         if opt['search']:
             participants = search_for_participant(opt['search'], participants)
         participants = participants.limit(opt['limit']).offset(opt['start'])
+        return participants, total
+
+
+class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
+
+    permission_required = ('view_media_participant',)
+
+    def process_last_name(self, participant, val):
+        html = HTMLBuilder('html')
+        url = url_for('.media_participant_detail',
+                      participant_id=participant.id)
+        return html.a(participant.name, href=url)
+
+    def process_category_id(self, participant, val):
+        return str(participant.category)
+
+    def get_queryset(self, **opt):
+        participants = (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id)
+            .filter_by(participant_type=Participant.MEDIA)
+            .active())
+        total = participants.count()
+
+        for item in opt['order']:
+            participants = participants.order_by(
+                '%s %s' % (item['column'], item['dir']))
+
+        if opt['search']:
+            participants = (
+                participants.filter(
+                    Participant.first_name.contains(opt['search']) |
+                    Participant.last_name.contains(opt['search']) |
+                    Participant.email.contains(opt['search'])
+                )
+            )
+
+        participants = (
+            participants.limit(opt['limit']).offset(opt['start']))
         return participants, total
 
 
@@ -96,11 +147,16 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     permission_required = ('view_participant', )
 
-    def get(self, participant_id):
-        participant = (
+    def _get_queryset(self, participant_id):
+        return (
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
-            .active().first_or_404())
+            .filter_by(participant_type=Participant.PARTICIPANT)
+            .active()
+            .first_or_404())
+
+    def get(self, participant_id):
+        participant = self._get_queryset(participant_id)
         field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_types=field_types)
@@ -117,11 +173,24 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
         ImagesObject = custom_object_factory(participant, field_types)
         images_form = ImagesForm(obj=ImagesObject())
 
-        return render_template('meetings/participant/detail.html',
+        return render_template('meetings/participant/participant/detail.html',
                                participant=participant,
                                form=form,
                                flags_form=flags_form,
                                images_form=images_form)
+
+
+class MediaParticipantDetail(ParticipantDetail):
+
+    permission_required = ('view_media_participant',)
+
+    def _get_queryset(self, participant_id):
+        return (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .filter_by(participant_type=Participant.Media)
+            .active()
+            .first_or_404())
 
 
 class DefaultParticipantDetail(PermissionRequiredMixin, MethodView):
@@ -149,7 +218,7 @@ class DefaultParticipantDetail(PermissionRequiredMixin, MethodView):
         ImagesObject = custom_object_factory(participant, field_types)
         images_form = ImagesForm(obj=ImagesObject())
 
-        return render_template('meetings/participant/detail.html',
+        return render_template('meetings/participant/participant/detail.html',
                                participant=participant,
                                form=form,
                                flags_form=flags_form,
@@ -160,10 +229,13 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_participant',)
     decorators = (_category_required,)
+    template = 'meetings/participant/participant/edit.html'
+    form_class = ParticipantEditForm
 
     def _get_object(self, participant_id=None):
         return (Participant.query
                 .filter_by(meeting_id=g.meeting.id, id=participant_id)
+                .filter_by(participant_type=Participant.PARTICIPANT)
                 .active()
                 .first_or_404()
                 if participant_id else None)
@@ -172,7 +244,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         participant = self._get_object(participant_id)
         field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_types=field_types)
+        Form = custom_form_factory(field_types=field_types,
+                                   form=self.form_class)
         Object = custom_object_factory(participant, field_types)
         form = Form(obj=Object())
 
@@ -181,9 +254,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
 
-        return render_template('meetings/participant/edit.html',
-                               form=form,
-                               flags_form=flags_form,
+        return render_template(self.template, form=form, flags_form=flags_form,
                                participant=participant)
 
     def post(self, participant_id=None):
@@ -191,7 +262,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY, CustomField.CATEGORY]
         Form = custom_form_factory(field_types=field_types,
-                                   form=ParticipantEditForm)
+                                   form=self.form_class)
         Object = custom_object_factory(participant, field_types)
         form = Form(obj=Object())
 
@@ -216,9 +287,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                 url = url_for('.participants')
             return redirect(url)
 
-        return render_template('meetings/participant/edit.html',
-                               form=form,
-                               flags_form=flags_form,
+        return render_template(self.template, form=form, flags_form=flags_form,
                                participant=participant)
 
     def delete(self, participant_id):
@@ -230,6 +299,22 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         db.session.commit()
         flash('Participant successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.participants'))
+
+
+class MediaParticipantEdit(ParticipantEdit):
+
+    permission_required = ('manage_media_participant',)
+    template = 'meetings/participant/media/edit.html'
+    form_class = MediaParticipantEditForm
+
+    def _get_object(self, participant_id=None):
+        return (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .filter_by(participant_type=Participant.MEDIA)
+            .active()
+            .first_or_404()
+            if participant_id else None)
 
 
 class DefaultParticipantEdit(PermissionRequiredMixin, MethodView):

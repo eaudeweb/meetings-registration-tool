@@ -1,0 +1,38 @@
+{% extends 'meetings/participant/_edit_base.html' %}
+
+
+{% set title = "Edit participant" if participant else "Add a new participant" %}
+
+
+{% block breadcrumb %}
+
+  {% if participant  %}
+    {{ breadcrumb( [
+        (url_for('.participants'), 'Participants'),
+        (url_for('.participant_detail', participant_id=participant.id), participant),
+        ('', 'Edit')
+    ] ) }}
+  {% else %}
+   {{ breadcrumb( [
+        (url_for('.participants'), 'Participants'),
+        ('', title)
+    ] ) }}
+  {% endif %}
+
+{% endblock %}
+
+
+{% block footer_cancel %}
+
+<small>
+  or
+  {% if participant %}
+    {% set url = url_for('.participant_detail',
+                         participant_id=participant.id) %}
+  {% else %}
+    {% set url = url_for('.participants') %}
+  {% endif %}
+  <a href="{{ url }}">Cancel</a>
+</small>
+
+{% endblock %}

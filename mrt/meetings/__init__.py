@@ -1,7 +1,6 @@
 from .meeting import *
 from .registration import *
 from .participant import *
-from .media_participant import *
 from .category import *
 from .phrase import *
 from .custom_field import *

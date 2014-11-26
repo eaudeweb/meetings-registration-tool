@@ -17,6 +17,8 @@ custom_upload = UploadSet('custom', IMAGES)
 
 class ParticipantEditForm(BaseForm):
 
+    _CUSTOM_FIELDS_TYPE = 'participant'
+
     def save(self, participant=None, commit=True):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
@@ -45,29 +47,9 @@ class ParticipantEditForm(BaseForm):
         return participant
 
 
-class MediaParticipantEditForm(BaseForm):
+class MediaParticipantEditForm(ParticipantEditForm):
 
-    category_id = fields.SelectField('Category',
-                                     validators=[DataRequired()],
-                                     coerce=int, choices=[])
-
-    class Meta:
-        model = MediaParticipant
-
-    def __init__(self, *args, **kwargs):
-        super(MediaParticipantEditForm, self).__init__(*args, **kwargs)
-        query = Category.query.filter_by(meeting_id=g.meeting.id,
-                                         category_type=Category.MEDIA)
-        self.category_id.choices = [(c.id, c.title) for c in query]
-
-    def save(self):
-        media_participant = self.obj or MediaParticipant()
-        self.populate_obj(media_participant)
-        media_participant.meeting_id = g.meeting.id
-        if media_participant.id is None:
-            db.session.add(media_participant)
-        db.session.commit()
-        return media_participant
+    _CUSTOM_FIELDS_TYPE = 'media'
 
 
 class BadgeCategories(BaseForm):

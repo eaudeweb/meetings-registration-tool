@@ -36,27 +36,7 @@ _CUSTOM_FIELDS_MAP = {
 
 
 class _MagicForm(BaseForm):
-
-    def save(self, participant):
-        items = []
-        for field_name, field in self._fields.items():
-            cf = self._custom_fields[field.name]
-            cfv = cf.get_or_create_value(participant)
-            if isinstance(field.data, FileStorage):
-                current_filename = cfv.value
-                cfv.value = custom_upload.save(field.data,
-                                               name=str(uuid4()) + '.')
-                unlink_participant_photo(current_filename)
-            else:
-                cfv.value = field.data
-            cfv.participant = participant
-            if cf.is_primary:
-                setattr(participant, cf.slug, cfv.value)
-            if not cfv.id:
-                db.session.add(cfv)
-            items.append(cfv)
-        db.session.commit()
-        return items
+    pass
 
 
 def custom_form_factory(field_types=[], field_slugs=[],
@@ -76,6 +56,9 @@ def custom_form_factory(field_types=[], field_slugs=[],
 
     if registration_fields:
         fields = fields.for_registration()
+
+    if getattr(form, '_CUSTOM_FIELDS_TYPE', None):
+        fields = fields.filter_by(custom_field_type=form._CUSTOM_FIELDS_TYPE)
 
     for f in fields:
         attrs = {'label': __(unicode(f.label)), 'validators': [],
