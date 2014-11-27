@@ -36,7 +36,27 @@ _CUSTOM_FIELDS_MAP = {
 
 
 class _MagicForm(BaseForm):
-    pass
+
+    def save(self, participant):
+        items = []
+        for field_name, field in self._fields.items():
+            cf = self._custom_fields[field.name]
+            cfv = cf.get_or_create_value(participant)
+            if isinstance(field.data, FileStorage):
+                current_filename = cfv.value
+                cfv.value = custom_upload.save(field.data,
+                                               name=str(uuid4()) + '.')
+                unlink_participant_photo(current_filename)
+            else:
+                cfv.value = field.data
+            cfv.participant = participant
+            if cf.is_primary:
+                setattr(participant, cf.slug, cfv.value)
+            if not cfv.id:
+                db.session.add(cfv)
+            items.append(cfv)
+        db.session.commit()
+        return items
 
 
 def custom_form_factory(field_types=[], field_slugs=[],
@@ -86,7 +106,7 @@ def custom_form_factory(field_types=[], field_slugs=[],
 
         if f.field_type.code == CustomField.CATEGORY:
             query = (Category.query.filter_by(meeting=g.meeting)
-                     .filter_by(category_type=Category.PARTICIPANT)
+                     .filter_by(category_type=form._CUSTOM_FIELDS_TYPE)
                      .order_by(Category.group, Category.sort))
             if registration_fields:
                 query = query.filter_by(visible_on_registration_form=True)

@@ -267,9 +267,10 @@ class Participant(db.Model):
         backref=db.backref('participants', lazy='dynamic'))
 
     language = db.Column(ChoiceType(LANGUAGE_CHOICES), nullable=False,
-                         info={'label': _('Working language')}, default=u'en')
+                         info={'label': _('Working language')},
+                         default=u'English')
 
-    country = db.Column(CountryType, nullable=False,
+    country = db.Column(CountryType, nullable=True,
                         info={'label': _('Country')})
 
     deleted = db.Column(db.Boolean, default=False)
@@ -552,48 +553,6 @@ class CustomFieldChoice(db.Model):
 
     def __repr__(self):
         return self.value.english
-
-
-class MediaParticipant(db.Model):
-
-    TITLE_CHOICES = (
-        ('Ms', 'Ms'),
-        ('Mr', 'Mr'),
-    )
-
-    id = db.Column(db.Integer, primary_key=True)
-
-    meeting_id = db.Column(
-        db.Integer, db.ForeignKey('meeting.id'),
-        nullable=False)
-    meeting = db.relationship(
-        'Meeting',
-        backref=db.backref('media_participants', lazy='dynamic',
-                           cascade="delete"))
-
-    title = db.Column(ChoiceType(TITLE_CHOICES), nullable=False,
-                      info={'label': 'Title'})
-    first_name = db.Column(db.String(64), nullable=False,
-                           info={'label': 'Given name'})
-    last_name = db.Column(db.String(64), nullable=False,
-                          info={'label': 'Family name'})
-    email = db.Column(db.String(64), nullable=False,
-                      info={'label': 'Email'})
-
-    category_id = db.Column(
-        db.Integer, db.ForeignKey('category.id'),
-        nullable=False)
-    category = db.relationship(
-        'Category',
-        backref=db.backref('media_participants', lazy='dynamic'))
-
-    def __repr__(self):
-        return '%s %s' % (self.first_name, self.last_name)
-
-    @property
-    def name(self):
-        return '%s %s %s' % (self.title.value, self.first_name,
-                             self.last_name)
 
 
 class Meeting(db.Model):

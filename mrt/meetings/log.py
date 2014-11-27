@@ -6,7 +6,7 @@ from blinker import ANY
 from datetime import datetime, timedelta
 from sqlalchemy import or_
 
-from mrt.models import db, Participant, MediaParticipant
+from mrt.models import db, Participant
 from mrt.models import ActivityLog, MailLog, RoleUser
 from mrt.meetings import PermissionRequiredMixin
 from mrt.signals import activity_signal
@@ -27,10 +27,12 @@ class Statistics(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', )
 
     def get(self):
-        participants = (
-            Participant.query.filter_by(meeting_id=g.meeting.id).active())
-        media_participants = (
-            MediaParticipant.query.filter_by(meeting_id=g.meeting.id))
+        participants = (Participant.query
+                        .filter_by(participant_type=Participant.PARTICIPANT,
+                                   meeting_id=g.meeting.id).active())
+        media_participants = (Participant.query
+                              .filter_by(participant_type=Participant.MEDIA,
+                                         meeting_id=g.meeting.id).active())
         return render_template('meetings/log/statistics.html',
                                participants=participants,
                                media_participants=media_participants)

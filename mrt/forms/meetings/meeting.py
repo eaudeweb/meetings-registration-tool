@@ -127,7 +127,8 @@ class ParticipantDummyForm(BaseForm):
             'language', 'country', 'represented_country',
             'represented_organization',)
         field_args = {
-            'language': {'validators': [InputRequired()]}
+            'language': {'validators': [InputRequired()]},
+            'country': {'validators': [InputRequired()]}
         }
 
 

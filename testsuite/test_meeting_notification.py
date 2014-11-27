@@ -1,13 +1,14 @@
 from flask import url_for
 
+from mrt.models import RoleUser, Category
 from mrt.mail import mail
+from mrt.forms.meetings import (add_custom_fields_for_meeting,
+                                MediaParticipantDummyForm)
 from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import UserNotificationFactory, RoleUserMeetingFactory
 from .factories import MediaParticipantFactory
 
 from .utils import add_participant_custom_fields, populate_participant_form
-
-from mrt.models import RoleUser, Category
 
 
 def test_send_notification_add_participant(app):
@@ -34,7 +35,9 @@ def test_send_notification_add_participant(app):
 
 
 def test_send_notification_add_media_participant(app):
-    category = MeetingCategoryFactory(category_type=Category.MEDIA)
+    category = (
+        MeetingCategoryFactory(meeting__settings='media_participant_enabled',
+                               category_type=Category.MEDIA))
     role_user = RoleUserMeetingFactory(meeting=category.meeting)
     RoleUserMeetingFactory(meeting=category.meeting,
                            user__email='test@email.com')
@@ -46,6 +49,8 @@ def test_send_notification_add_media_participant(app):
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
+        add_custom_fields_for_meeting(category.meeting,
+                                      form_class=MediaParticipantDummyForm)
         with client.session_transaction() as sess:
             sess['user_id'] = role_user.user.id
         resp = client.post(url_for('meetings.media_participant_edit',

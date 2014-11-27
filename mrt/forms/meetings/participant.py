@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired
 
 from mrt.forms.base import BaseForm
 from mrt.models import db
-from mrt.models import Participant, Category, MediaParticipant
+from mrt.models import Participant, Category
 from mrt.definitions import PRINTOUT_TYPES
 
 
@@ -22,9 +22,9 @@ class ParticipantEditForm(BaseForm):
     def save(self, participant=None, commit=True):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
-
         if participant.id is None:
             participant.registration_token = str(uuid4())
+            participant.participant_type = self._CUSTOM_FIELDS_TYPE
             db.session.add(participant)
 
         for field_name, field in self._fields.items():

@@ -5,7 +5,7 @@ from datetime import datetime
 from blinker import ANY
 
 from mrt.models import db, Participant, MailLog, Phrase
-from mrt.models import UserNotification, MediaParticipant
+from mrt.models import UserNotification
 from mrt.signals import notification_signal, registration_signal
 
 
@@ -87,7 +87,7 @@ def send_bulk_message(recipients, subject, message):
 @notification_signal.connect_via(ANY)
 def send_notification_message(recipients, participant):
     sender = app.config['DEFAULT_MAIL_SENDER']
-    if isinstance(participant, Participant):
+    if participant.participant_type.code == Participant.PARTICIPANT:
         model_class = 'Participant'
         url = url_for('meetings.participant_detail',
                       meeting_id=participant.meeting.id,
@@ -96,11 +96,11 @@ def send_notification_message(recipients, participant):
             meeting=participant.meeting,
             notification_type='notify_participant')
 
-    elif isinstance(participant, MediaParticipant):
+    elif participant.participant_type.code == Participant.MEDIA:
         model_class = 'Media Participant'
         url = url_for('meetings.media_participant_detail',
                       meeting_id=participant.meeting.id,
-                      media_participant_id=participant.id)
+                      participant_id=participant.id)
         recipients = get_recipients(
             meeting=participant.meeting,
             notification_type='notify_media_participant')

@@ -146,6 +146,7 @@ class ParticipantSearch(PermissionRequiredMixin, MethodView):
 class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     permission_required = ('view_participant', )
+    form_class = ParticipantEditForm
 
     def _get_queryset(self, participant_id):
         return (
@@ -159,7 +160,8 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
         participant = self._get_queryset(participant_id)
         field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                        CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_types=field_types)
+        Form = custom_form_factory(field_types=field_types,
+                                   form=self.form_class)
         Object = custom_object_factory(participant, field_types)
         form = Form(obj=Object())
 
@@ -183,12 +185,13 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 class MediaParticipantDetail(ParticipantDetail):
 
     permission_required = ('view_media_participant',)
+    form_class = MediaParticipantEditForm
 
     def _get_queryset(self, participant_id):
         return (
             Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
-            .filter_by(participant_type=Participant.Media)
+            .filter_by(participant_type=Participant.MEDIA)
             .active()
             .first_or_404())
 

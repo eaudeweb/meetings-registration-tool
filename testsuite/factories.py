@@ -135,6 +135,7 @@ class MeetingCategoryFactory(SQLAlchemyModelFactory):
     representing = 'region.html'
     group = 'country'
     visible_on_registration_form = True
+    category_type = models.Category.PARTICIPANT
 
 
 class PhraseDescriptionFactory(SQLAlchemyModelFactory):
@@ -223,7 +224,7 @@ class MailLogFactory(SQLAlchemyModelFactory):
 
 class MediaParticipantFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = models.MediaParticipant
+        model = models.Participant
         sqlalchemy_session = models.db.session
 
     category = SubFactory(MeetingCategoryFactory)
@@ -232,6 +233,8 @@ class MediaParticipantFactory(SQLAlchemyModelFactory):
     first_name = 'Jane'
     last_name = 'Doe'
     email = 'jane@doe.com'
+    country = 'BR'
+    participant_type = models.Participant.MEDIA
 
 
 class CustomFieldLabelFactory(SQLAlchemyModelFactory):
