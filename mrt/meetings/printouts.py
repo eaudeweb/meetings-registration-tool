@@ -66,7 +66,7 @@ class Badges(MethodView):
     def get(self):
         category_ids = request.args.getlist('categories')
         page = request.args.get('page', 1, type=int)
-        participants = Participant.query.filter_by(meeting=g.meeting)
+        participants = Participant.query.current_meeting().participants()
         if category_ids:
             participants = participants.filter(
                 Participant.category.has(Category.id.in_(category_ids))
@@ -87,7 +87,7 @@ class Badges(MethodView):
 
 def _process_badges(meeting_id, category_ids):
     g.meeting = Meeting.query.get(meeting_id)
-    participants = Participant.query.filter_by(meeting=g.meeting)
+    participants = Participant.query.current_meeting().participants()
     if category_ids:
         participants = participants.filter(
             Participant.category.has(Category.id.in_(category_ids))
@@ -157,11 +157,10 @@ class ShortList(MethodView):
     @staticmethod
     def _get_query():
         return (
-            Participant.query
+            Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
-            .filter(Participant.meeting == g.meeting)
             .order_by(Category.sort, Participant.last_name, Participant.id)
         )
 
@@ -194,11 +193,10 @@ class DelegationsList(MethodView):
     @staticmethod
     def _get_query():
         return (
-            Participant.query
+            Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
-            .filter(Participant.meeting == g.meeting)
             .order_by(Category.sort, Participant.last_name, Participant.id)
         )
 

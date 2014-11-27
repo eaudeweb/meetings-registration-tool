@@ -36,6 +36,16 @@ class ParticipantQuery(BaseQuery):
     def active(self):
         return self.filter(Participant.deleted == False)
 
+    def participants(self):
+        return self.filter(
+            Participant.participant_type == Participant.PARTICIPANT)
+
+    def media_participants(self):
+        return self.filter(Participant.participant_type == Participant.MEDIA)
+
+    def current_meeting(self):
+        return self.filter(Participant.meeting == g.meeting).active()
+
 
 class CustomFieldQuery(BaseQuery):
 
@@ -62,7 +72,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(EmailType, unique=True, nullable=False,
                       info={'label': 'Email'})
-    password = db.Column(db.String(128), nullable=True)
+    password = db.Column(db.String(128))
     recover_token = db.Column(db.String(64))
     recover_time = db.Column(db.DateTime)
     active = db.Column(db.Boolean, nullable=False, default=True)
@@ -143,7 +153,7 @@ class UserNotification(db.Model):
 class Staff(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(64), nullable=True, info={'label': 'Title'})
+    title = db.Column(db.String(64), info={'label': 'Title'})
     full_name = db.Column(db.String(128), nullable=False,
                           info={'label': 'Full Name'})
 
@@ -179,8 +189,7 @@ class Role(db.Model):
 class RoleUser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(
-        db.Integer, db.ForeignKey('meeting.id'),
-        nullable=True)
+        db.Integer, db.ForeignKey('meeting.id'))
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('role_users', lazy='dynamic', cascade="delete"))
@@ -234,8 +243,7 @@ class Participant(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'),
-                           nullable=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'))
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('participants', lazy='dynamic', cascade="delete"))
@@ -252,16 +260,12 @@ class Participant(db.Model):
     email = db.Column(db.String(64), nullable=False,
                       info={'label': _('Email')})
 
-    user_id = db.Column(
-        db.Integer, db.ForeignKey('user.id'),
-        nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship(
         'User',
         backref=db.backref('participants', lazy='dynamic'))
 
-    category_id = db.Column(
-        db.Integer, db.ForeignKey('category.id'),
-        nullable=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship(
         'Category',
         backref=db.backref('participants', lazy='dynamic'))
@@ -270,8 +274,7 @@ class Participant(db.Model):
                          info={'label': _('Working language')},
                          default=u'English')
 
-    country = db.Column(CountryType, nullable=True,
-                        info={'label': _('Country')})
+    country = db.Column(CountryType, info={'label': _('Country')})
 
     deleted = db.Column(db.Boolean, default=False)
 
@@ -296,7 +299,7 @@ class Participant(db.Model):
     credentials = db.Column(db.Boolean, default=False,
                             info={'label': _('Credentials')})
 
-    registration_token = db.Column(db.String(64), nullable=True)
+    registration_token = db.Column(db.String(64))
 
     participant_type = db.Column(
         ChoiceType(PARTICIPANT_TYPE_CHOICES),
@@ -522,8 +525,7 @@ class CustomFieldValue(db.Model):
     value = db.Column(db.String(64), nullable=False)
 
     choice_id = db.Column(
-        db.Integer, db.ForeignKey('custom_field_choice.id'),
-        nullable=True)
+        db.Integer, db.ForeignKey('custom_field_choice.id'))
     choice = db.relationship(
         'CustomFieldChoice',
         backref=db.backref('custom_field_values', lazy='dynamic'))
@@ -602,14 +604,13 @@ class Meeting(db.Model):
         db.Boolean, nullable=False, default=True,
         info={'label': 'Allow Online Registration'})
 
-    settings = db.Column(JSONEncodedDict, nullable=True)
+    settings = db.Column(JSONEncodedDict)
 
-    photo_field_id = db.Column(db.Integer,
-                               db.ForeignKey('custom_field.id',
-                                             ondelete="SET NULL",
-                                             use_alter=True,
-                                             name='fk_photo_field'),
-                               nullable=True)
+    photo_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id',
+                                  ondelete="SET NULL",
+                                  use_alter=True,
+                                  name='fk_photo_field'),)
 
     photo_field = db.relationship('CustomField',
                                   foreign_keys=photo_field_id,
@@ -730,7 +731,7 @@ class PhraseMixin(object):
     def description(cls):
         return db.relationship('Translation')
 
-    group = db.Column(db.String(32), nullable=True)
+    group = db.Column(db.String(32))
     sort = db.Column(db.Integer, default=0)
 
     def __repr__(self):
@@ -787,9 +788,7 @@ class ActivityLog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    staff_id = db.Column(
-        db.Integer, db.ForeignKey('staff.id'),
-        nullable=True)
+    staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'))
     staff = db.relationship(
         'Staff',
         backref=db.backref('activities', lazy='dynamic', cascade='delete'))
@@ -866,7 +865,7 @@ def get_or_create_role(name):
 
 
 def search_for_participant(search, queryset=None):
-    queryset = queryset or Participant.query.active()
+    queryset = queryset or Participant.query.current_meeting().participants()
     if not isinstance(search, basestring):
         search = str(search)
     return queryset.filter(
@@ -883,12 +882,10 @@ def search_for_participant(search, queryset=None):
 def get_participants_full(meeting_id):
     qs = (
         Participant.query
-        .join(Participant.custom_field_values)
-        .join(CustomFieldValue.custom_field)
-        .with_entities(Participant,
-                       CustomField.slug,
-                       CustomFieldValue.value)
-        .filter_by(meeting_id=meeting_id).active()
+        .join(Participant.custom_field_values, CustomFieldValue.custom_field)
+        .with_entities(Participant, CustomField.slug, CustomFieldValue.value)
+        .current_meeting()
+        .participants()
         .order_by(Participant.id.desc())
     )
 

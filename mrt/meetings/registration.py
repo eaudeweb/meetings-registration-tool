@@ -76,8 +76,10 @@ class UserRegistration(MethodView):
         registration_token = session.get('registration_token', None)
         if not registration_token:
             abort(400)
-        participant = Participant.query.filter_by(
-            registration_token=registration_token).first_or_404()
+        participant = (
+            Participant.query.participants()
+            .filter_by(registration_token=registration_token)
+            .first_or_404())
 
         form = RegistrationUserForm(request.form)
         if form.validate():

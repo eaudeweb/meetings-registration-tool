@@ -27,12 +27,9 @@ class Statistics(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', )
 
     def get(self):
-        participants = (Participant.query
-                        .filter_by(participant_type=Participant.PARTICIPANT,
-                                   meeting_id=g.meeting.id).active())
-        media_participants = (Participant.query
-                              .filter_by(participant_type=Participant.MEDIA,
-                                         meeting_id=g.meeting.id).active())
+        query = Participant.query.current_meeting()
+        participants = query.participants()
+        media_participants = query.media_participants()
         return render_template('meetings/log/statistics.html',
                                participants=participants,
                                media_participants=media_participants)

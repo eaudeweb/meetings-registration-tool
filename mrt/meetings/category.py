@@ -73,8 +73,10 @@ class CategoryEdit(PermissionRequiredMixin, MethodView):
         category = Category.query.filter_by(
             id=category_id,
             meeting_id=g.meeting.id).first_or_404()
-        count = Participant.query.filter_by(meeting=g.meeting,
-                                            category=category).count()
+        count = (
+            Participant.query.current_meeting().participants()
+            .filter_by(category=category)
+            .count())
         if count:
             msg = ("Unable to remove the category. There are %s participants "
                    "in this category. Please assign them to another category "

@@ -83,8 +83,8 @@ class CustomFieldEdit(PermissionRequiredMixin, MethodView):
 
 def _get_participant(participant_id):
     return (
-        Participant.query.active()
-        .filter_by(meeting_id=g.meeting.id, id=participant_id)
+        Participant.query.current_meeting().participants()
+        .filter_by(id=participant_id)
         .first_or_404())
 
 

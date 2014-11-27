@@ -37,7 +37,8 @@ def send_single_message(to, subject, message, sender=None, attachement=None,
         msg.attach(attachement_name, "application/pdf", attachement.read())
     mail.send(msg)
     if g.get('meeting'):
-        participant = Participant.query.filter_by(email=to).first()
+        participant = (Participant.query.filter_by(email=to)
+                       .participants().first())
         mail_log = MailLog(meeting=g.meeting, to=participant,
                            subject=subject, message=message,
                            date_sent=datetime.now())
