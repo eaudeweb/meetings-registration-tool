@@ -4,7 +4,7 @@ from py.path import local
 
 from mrt.models import Meeting, Category, Phrase, CustomField
 from mrt.models import CustomFieldChoice, Translation
-from mrt.forms.meetings.meeting import ParticipantDummyForm
+from mrt.forms.meetings import ParticipantDummyForm, MediaParticipantDummyForm
 
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
@@ -13,15 +13,13 @@ from .factories import RoleUserMeetingFactory, CustomFieldFactory
 from .factories import MeetingCategoryFactory
 
 
-def test_meeting_list(app):
+def test_meeting_list(app, user):
     MeetingFactory.create_batch(5)
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.home')
         resp = client.get(url)
 
@@ -32,16 +30,14 @@ def test_meeting_list(app):
     assert row_count == 5
 
 
-def test_meeting_list_filter(app):
+def test_meeting_list_filter(app, user):
     MeetingFactory.create_batch(3)
     MeetingFactory.create_batch(6, meeting_type='sc')
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.get(url_for('meetings.home'))
 
         assert resp.status_code == 200
@@ -58,11 +54,8 @@ def test_meeting_list_filter(app):
         assert row_count == 6
 
 
-def test_meeting_add(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
-    data = MeetingFactory.attributes()
-    data = normalize_data(data)
+def test_meeting_add(app, user):
+    data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
@@ -71,7 +64,7 @@ def test_meeting_add(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit')
         resp = client.post(url, data=data)
 
@@ -79,11 +72,8 @@ def test_meeting_add(app):
     assert Meeting.query.count() == 1
 
 
-def test_meeting_add_without_badge_header(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
-    data = MeetingFactory.attributes()
-    data = normalize_data(data)
+def test_meeting_add_without_badge_header(app, user):
+    data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = '0'
@@ -91,7 +81,7 @@ def test_meeting_add_without_badge_header(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit')
         resp = client.post(url, data=data)
 
@@ -101,11 +91,8 @@ def test_meeting_add_without_badge_header(app):
     assert meeting.badge_header is None
 
 
-def test_meeting_add_custom_field_generation(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
-    data = MeetingFactory.attributes()
-    data = normalize_data(data)
+def test_meeting_add_participant_custom_field_generation(app, user):
+    data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
@@ -114,7 +101,7 @@ def test_meeting_add_custom_field_generation(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
@@ -125,16 +112,43 @@ def test_meeting_add_custom_field_generation(app):
 
         for field in fields.values():
             cf = (CustomField.query
-                  .filter_by(meeting_id=1, slug=field.name)
+                  .filter_by(meeting_id=1, slug=field.name,
+                             custom_field_type=CustomField.PARTICIPANT)
                   .filter(CustomField.label.has(english=field.label.text))
                   .one())
 
 
-def test_meeting_add_custom_field_choice_generation(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
-    data = MeetingFactory.attributes()
-    data = normalize_data(data)
+def test_meeting_add_media_participant_custom_field_generation(app, user):
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['settings'] = 'media_participant_enabled'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.edit'), data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+
+        participant_fields = ParticipantDummyForm()._fields
+        media_fields = MediaParticipantDummyForm()._fields
+        query = CustomField.query.filter_by(meeting_id=1)
+        assert query.count() == len(participant_fields) + len(media_fields)
+
+        for field in media_fields.values():
+            cf = (CustomField.query
+                  .filter_by(meeting_id=1, slug=field.name,
+                             custom_field_type=CustomField.MEDIA)
+                  .filter(CustomField.label.has(english=field.label.text))
+                  .one())
+
+
+def test_meeting_add_custom_field_choice_generation(app, user):
+    data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
@@ -143,7 +157,7 @@ def test_meeting_add_custom_field_choice_generation(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
@@ -160,20 +174,18 @@ def test_meeting_add_custom_field_choice_generation(app):
             assert query.count() == len(field.choices)
 
 
-def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
-    data = MeetingFactory.attributes()
-    data = normalize_data(data)
+def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app, user):
+    data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['settings'] = 'media_participant_enabled'
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit')
         resp = client.post(url, data=data)
 
@@ -192,9 +204,7 @@ def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app):
             assert resp.status_code == 404
 
 
-def test_meeting_edit(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_edit(app, user):
     meeting = MeetingFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
@@ -205,7 +215,7 @@ def test_meeting_edit(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
@@ -215,9 +225,7 @@ def test_meeting_edit(app):
     assert meeting.photo_field is None
 
 
-def test_meeting_edit_with_photo_field(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_edit_with_photo_field(app, user):
     meeting = MeetingFactory()
     photo_field = CustomFieldFactory(meeting=meeting)
     data = normalize_data(MeetingFactory.attributes())
@@ -229,7 +237,7 @@ def test_meeting_edit_with_photo_field(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
@@ -237,9 +245,7 @@ def test_meeting_edit_with_photo_field(app):
     assert meeting.photo_field == photo_field
 
 
-def test_meeting_edit_removes_badge_header(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_edit_removes_badge_header(app, user):
     meeting = MeetingFactory()
     badge_header = meeting.badge_header.english
     assert Translation.query.filter_by(english=badge_header).count() == 1
@@ -251,7 +257,7 @@ def test_meeting_edit_removes_badge_header(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
@@ -260,14 +266,13 @@ def test_meeting_edit_removes_badge_header(app):
         assert Translation.query.filter_by(english=badge_header).count() == 0
 
 
-def test_meeting_delete(app):
-    role_user = RoleUserFactory()
+def test_meeting_delete(app, user):
     meeting = MeetingFactory()
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.delete(url)
 
@@ -275,16 +280,14 @@ def test_meeting_delete(app):
     assert Meeting.query.count() == 0
 
 
-def test_meeting_category_add_list(app):
+def test_meeting_category_add_list(app, user):
     CategoryDefaultFactory.create_batch(5)
     meeting = MeetingFactory()
-    role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_meeting',))
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.get(url)
 
@@ -293,20 +296,18 @@ def test_meeting_category_add_list(app):
         assert len(categories) == 5
 
 
-def test_meeting_category_add_successfully(app):
+def test_meeting_category_add_successfully(app, user):
     category = CategoryDefaultFactory()
     category.background = filename = 'image.jpg'
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
-    role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_meeting',))
     data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
@@ -316,20 +317,18 @@ def test_meeting_category_add_successfully(app):
         assert upload_dir.join(category.background).check()
 
 
-def test_meeting_category_edit_name(app):
+def test_meeting_category_edit_name(app, user):
     category = CategoryDefaultFactory()
     category.background = filename = 'image.jpg'
     upload_dir = local(app.config['UPLOADED_BACKGROUNDS_DEST'])
     upload_dir.ensure(filename)
     meeting = MeetingFactory()
-    role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_meeting',))
     data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -353,17 +352,14 @@ def test_meeting_category_edit_name(app):
         assert category.title.english == title
 
 
-def test_meeting_category_edit_with_same_title_fails(app):
+def test_meeting_category_edit_with_same_title_fails(app, user):
     category = MeetingCategoryFactory(title__english='Reporter')
     member_category = MeetingCategoryFactory(meeting=category.meeting)
-
-    role_user = RoleUserMeetingFactory(meeting=category.meeting,
-                                       role__permissions=('manage_meeting',))
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         data = normalize_data(MeetingCategoryFactory.attributes())
         data['title-english'] = member_category.title.english
         url = url_for('meetings.category_edit', meeting_id=category.meeting.id,
@@ -373,17 +369,15 @@ def test_meeting_category_edit_with_same_title_fails(app):
         assert category.title.english != member_category.title.english
 
 
-def test_meeting_category_delete(app):
+def test_meeting_category_delete(app, user):
     category = CategoryDefaultFactory()
     meeting = MeetingFactory()
-    role_user = RoleUserMeetingFactory(meeting=meeting,
-                                       role__permissions=('manage_meeting',))
     data = {'categories': category.id}
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.categories', meeting_id=meeting.id)
         resp = client.post(url, data=data)
         assert resp.status_code == 302
@@ -397,16 +391,14 @@ def test_meeting_category_delete(app):
         assert Category.query.filter_by(meeting_id=meeting.id).count() == 0
 
 
-def test_meeting_phrase_edit_successfully(app):
+def test_meeting_phrase_edit_successfully(app, user):
     phrase = PhraseMeetingFactory()
-    role_user = RoleUserMeetingFactory(meeting=phrase.meeting,
-                                       role__permissions=('manage_meeting',))
     data = {'description-english': 'Credentials'}
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.phrase_edit',
                       meeting_id=phrase.meeting.id,
                       meeting_type=phrase.meeting.meeting_type,
@@ -416,9 +408,7 @@ def test_meeting_phrase_edit_successfully(app):
         assert phrase.description.english == 'Credentials'
 
 
-def test_meeting_add_phrase_edit(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_add_phrase_edit(app, user):
     default_phrase = PhraseDefaultFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
@@ -429,7 +419,7 @@ def test_meeting_add_phrase_edit(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
@@ -445,9 +435,7 @@ def test_meeting_add_phrase_edit(app):
         assert default_phrase.description.english != phrase.description.english
 
 
-def test_meeting_add_default_phrase_edit(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_add_default_phrase_edit(app, user):
     default_phrase = PhraseDefaultFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
@@ -458,7 +446,7 @@ def test_meeting_add_default_phrase_edit(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
@@ -475,9 +463,7 @@ def test_meeting_add_default_phrase_edit(app):
         assert default_phrase.description.english != phrase.description.english
 
 
-def test_meeting_add_default_phrase_copies(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_add_default_phrase_copies(app, user):
     PhraseDefaultFactory.create_batch(10)
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
@@ -488,16 +474,14 @@ def test_meeting_add_default_phrase_copies(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.edit'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
         assert Phrase.query.filter_by(meeting_id=1).count() == 10
 
 
-def test_meeting_add_with_meeting_settings(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_add_with_meeting_settings(app, user):
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
@@ -509,7 +493,7 @@ def test_meeting_add_with_meeting_settings(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit')
         resp = client.post(url, data=data)
 
@@ -518,9 +502,7 @@ def test_meeting_add_with_meeting_settings(app):
     assert Meeting.query.get(1).media_participant_enabled
 
 
-def test_meeting_edit_with_meeting_settings(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_edit_with_meeting_settings(app, user):
     meeting = MeetingFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
@@ -532,7 +514,7 @@ def test_meeting_edit_with_meeting_settings(app):
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('meetings.edit', meeting_id=meeting.id)
         resp = client.post(url, data=data)
 
