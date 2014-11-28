@@ -1,19 +1,45 @@
 from flask import url_for
 from pyquery import PyQuery
+from urllib import urlencode
+import json
 
 from mrt.models import Category, Participant
 from mrt.forms.meetings import (add_custom_fields_for_meeting,
                                 MediaParticipantDummyForm)
 from .factories import MediaParticipantFactory, MeetingCategoryFactory
-from .factories import MeetingFactory
+from .factories import MeetingFactory, ParticipantFactory
 
 
 MEDIA_ENABLED = {'media_participant_enabled': True}
 
 
 def test_meeting_media_participant_list(app, user):
-    category = MeetingCategoryFactory(meeting__settings=MEDIA_ENABLED)
-    pass
+    category = MeetingCategoryFactory(meeting__settings=MEDIA_ENABLED,
+                                      category_type=Category.MEDIA)
+    MediaParticipantFactory.create_batch(7, category=category)
+    ParticipantFactory.create_batch(5, meeting=category.meeting)
+    with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting,
+                                      form_class=MediaParticipantDummyForm)
+        with app.client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        data = {
+            'columns[0][data]': 'id',
+            'columns[1][data]': 'last_name',
+            'columns[2][data]': 'category_id',
+            'order[0][column]': 0,
+            'order[0][dir]': 'asc'
+        }
+        url = url_for('meetings.media_participants_filter',
+                      meeting_id=category.meeting.id)
+        url = url + '?' + urlencode(data)
+        resp = app.client.get(url)
+        assert resp.status_code == 200
+        resp_data = json.loads(resp.data)
+        assert resp_data['recordsTotal'] == 7
+        for participant in resp_data['data']:
+            assert (Participant.query.get(participant['id']).participant_type
+                    == Participant.MEDIA)
 
 
 def test_meeting_media_participant_add(app, user):

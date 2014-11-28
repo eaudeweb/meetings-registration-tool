@@ -3,19 +3,56 @@ from pyquery import PyQuery
 from jinja2 import FileSystemLoader
 from werkzeug.datastructures import MultiDict
 from sqlalchemy_utils import types
+from urllib import urlencode
 import xlrd
+import json
 
 from .factories import ParticipantFactory, RoleUserFactory, StaffFactory
 from .factories import MeetingCategoryFactory, RoleUserMeetingFactory
-from .factories import CustomFieldFactory
+from .factories import CustomFieldFactory, MediaParticipantFactory
 
 from mrt.forms.base import EmailRequired
+from mrt.forms.meetings import (add_custom_fields_for_meeting,
+                                MediaParticipantDummyForm,
+                                ParticipantDummyForm)
 from mrt.mail import mail
-from mrt.models import Participant, CustomField
+from mrt.models import Participant, CustomField, Category
 from mrt.utils import translate
 
 from testsuite.utils import add_participant_custom_fields
 from testsuite.utils import populate_participant_form
+
+
+def test_meeting_participant_list(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    category = MeetingCategoryFactory(meeting__settings=MEDIA_ENABLED,
+                                      category_type=Category.MEDIA)
+    MediaParticipantFactory.create_batch(7, category=category)
+    ParticipantFactory.create_batch(5, meeting=category.meeting)
+    with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting,
+                                      form_class=MediaParticipantDummyForm)
+        add_custom_fields_for_meeting(category.meeting,
+                                      form_class=ParticipantDummyForm)
+        with app.client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        data = {
+            'columns[0][data]': 'id',
+            'columns[1][data]': 'last_name',
+            'columns[2][data]': 'category_id',
+            'order[0][column]': 0,
+            'order[0][dir]': 'asc'
+        }
+        url = url_for('meetings.participants_filter',
+                      meeting_id=category.meeting.id)
+        url = url + '?' + urlencode(data)
+        resp = app.client.get(url)
+        assert resp.status_code == 200
+        resp_data = json.loads(resp.data)
+        assert resp_data['recordsTotal'] == 5
+        for participant in resp_data['data']:
+            assert (Participant.query.get(participant['id']).participant_type
+                    == Participant.PARTICIPANT)
 
 
 def test_meeting_participant_detail(app):
