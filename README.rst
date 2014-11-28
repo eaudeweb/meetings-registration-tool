@@ -17,7 +17,8 @@ Debian based systems
 Install these before setting up an environment::
 
     apt-get install python-setuptools python-dev python-virtualenv git \
-    postgresql-9.1 postgresql-contrib-9.1 postgresql-server-dev-9.1
+    postgresql-9.1 postgresql-contrib-9.1 postgresql-server-dev-9.1 \
+    libxml2-dev libxslt1-dev
 
 
 Install dependencies
@@ -30,6 +31,8 @@ be run as an unprivileged user in the product directory::
     git clone git@github.com:eaudeweb/meetings-registration-tool.git
 
 2. Create & activate a virtual environment::
+
+    cd meetings-registration-tool
 
     virtualenv --no-site-packages sandbox
     echo '*' > sandbox/.gitignore
