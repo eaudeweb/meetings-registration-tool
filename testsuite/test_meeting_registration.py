@@ -5,11 +5,11 @@ from py.path import local
 
 from mrt.mail import mail
 from mrt.models import Participant, ActivityLog, User, CustomFieldValue
+from mrt.forms.meetings import add_custom_fields_for_meeting
 from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import RoleUserMeetingFactory, UserFactory
 from .factories import UserNotificationFactory, CustomFieldFactory
 
-from testsuite.utils import add_participant_custom_fields
 from testsuite.utils import populate_participant_form
 
 
@@ -18,7 +18,7 @@ def test_meeting_resistration_open(app, default_meeting):
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
+        add_custom_fields_for_meeting(category.meeting)
         resp = client.get(url_for('meetings.registration',
                                   meeting_id=category.meeting.id))
         assert PyQuery(resp.data)('form').length == 1
@@ -29,7 +29,7 @@ def test_meeting_registration_closed(app, default_meeting):
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
+        add_custom_fields_for_meeting(category.meeting)
         resp = client.get(url_for('meetings.registration',
                                   meeting_id=category.meeting.id))
         html = PyQuery(resp.data)
@@ -331,8 +331,8 @@ def test_meeting_registration_is_prepopulated(app, default_meeting):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        add_participant_custom_fields(default_meeting)
-        add_participant_custom_fields(meeting)
+        add_custom_fields_for_meeting(default_meeting)
+        add_custom_fields_for_meeting(meeting)
         resp = client.get(url_for('meetings.registration',
                                   meeting_id=meeting.id))
         assert resp.status_code == 200
@@ -366,7 +366,7 @@ def register_participant_online(client, participant_data, meeting, user=None):
     if user:
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-    add_participant_custom_fields(meeting)
+    add_custom_fields_for_meeting(meeting)
     populate_participant_form(meeting, participant_data)
     resp = client.post(url_for('meetings.registration',
                        meeting_id=meeting.id), data=participant_data)

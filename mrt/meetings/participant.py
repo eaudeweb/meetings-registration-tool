@@ -139,6 +139,8 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     permission_required = ('view_participant', )
     form_class = ParticipantEditForm
+    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
+                   CustomField.COUNTRY, CustomField.CATEGORY]
 
     def _get_queryset(self, participant_id):
         return (
@@ -148,11 +150,9 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id):
         participant = self._get_queryset(participant_id)
-        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                       CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_types=field_types,
+        Form = custom_form_factory(field_types=self.field_types,
                                    form=self.form_class)
-        Object = custom_object_factory(participant, field_types)
+        Object = custom_object_factory(participant, self.field_types)
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
@@ -184,37 +184,11 @@ class MediaParticipantDetail(ParticipantDetail):
             .first_or_404())
 
 
-class DefaultParticipantDetail(PermissionRequiredMixin, MethodView):
+class DefaultParticipantDetail(ParticipantDetail):
 
     permission_required = ('manage_default', )
-
-    def get(self, participant_id):
-        pass
-        # participant = (
-        #     Participant.query.
-        #     .filter_by(meeting_id=g.meeting.id, id=participant_id)
-        #     .active().first_or_404())
-        # field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-        #                CustomField.COUNTRY]
-        # Form = custom_form_factory(field_types=field_types)
-        # Object = custom_object_factory(participant, field_types)
-        # form = Form(obj=Object())
-
-        # field_types = [CustomField.CHECKBOX]
-        # FlagsForm = custom_form_factory(field_types=field_types)
-        # FlagsObject = custom_object_factory(participant, field_types)
-        # flags_form = FlagsForm(obj=FlagsObject())
-
-        # field_types = [CustomField.IMAGE]
-        # ImagesForm = custom_form_factory(field_types=field_types)
-        # ImagesObject = custom_object_factory(participant, field_types)
-        # images_form = ImagesForm(obj=ImagesObject())
-
-        # return render_template('meetings/participant/participant/detail.html',
-        #                        participant=participant,
-        #                        form=form,
-        #                        flags_form=flags_form,
-        #                        images_form=images_form)
+    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
+                   CustomField.COUNTRY]
 
 
 class ParticipantEdit(PermissionRequiredMixin, MethodView):
