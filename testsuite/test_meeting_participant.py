@@ -7,19 +7,16 @@ from urllib import urlencode
 import xlrd
 import json
 
-from .factories import ParticipantFactory, RoleUserFactory, StaffFactory
-from .factories import MeetingCategoryFactory, RoleUserMeetingFactory
+from .factories import ParticipantFactory, MeetingCategoryFactory
 from .factories import CustomFieldFactory, MediaParticipantFactory
 
 from mrt.forms.base import EmailRequired
 from mrt.forms.meetings import (add_custom_fields_for_meeting,
-                                MediaParticipantDummyForm,
-                                ParticipantDummyForm)
+                                MediaParticipantDummyForm)
 from mrt.mail import mail
 from mrt.models import Participant, CustomField, Category
 from mrt.utils import translate
 
-from testsuite.utils import add_participant_custom_fields
 from testsuite.utils import populate_participant_form
 
 
@@ -32,8 +29,7 @@ def test_meeting_participant_list(app, user):
     with app.test_request_context():
         add_custom_fields_for_meeting(category.meeting,
                                       form_class=MediaParticipantDummyForm)
-        add_custom_fields_for_meeting(category.meeting,
-                                      form_class=ParticipantDummyForm)
+        add_custom_fields_for_meeting(category.meeting)
         with app.client.session_transaction() as sess:
             sess['user_id'] = user.id
         data = {
@@ -55,23 +51,26 @@ def test_meeting_participant_list(app, user):
                     == Participant.PARTICIPANT)
 
 
-def test_meeting_participant_detail(app):
-    category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
+def test_meeting_participant_detail(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    category = MeetingCategoryFactory(meeting__settings=MEDIA_ENABLED)
+    meeting = category.meeting
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
+        add_custom_fields_for_meeting(meeting)
+        add_custom_fields_for_meeting(meeting,
+                                      form_class=MediaParticipantDummyForm)
         populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
-                                   meeting_id=category.meeting.id), data=data)
+                                   meeting_id=meeting.id), data=data)
 
         assert resp.status_code == 302
-        assert Participant.query.filter_by(meeting=category.meeting).first()
+        assert Participant.query.current_meeting().participants().first()
         participant = Participant.query.get(1)
         participant.attended = True
         resp = client.get(url_for('meetings.participant_detail',
@@ -82,7 +81,8 @@ def test_meeting_participant_detail(app):
         details = PyQuery(resp.data)('tr')
         custom_fields = (
             CustomField.query
-            .filter_by(meeting=category.meeting, is_primary=True)
+            .filter_by(meeting=meeting, is_primary=True,
+                       custom_field_type=CustomField.PARTICIPANT)
             .order_by(CustomField.sort).all())
         for i, custom_field in enumerate(custom_fields):
             detail_label = details[i].find('th').text_content().strip()
@@ -102,24 +102,26 @@ def test_meeting_participant_detail(app):
                 assert str(participant_data) == detail_data
 
 
-def test_meeting_participant_add_success(app):
+def test_meeting_participant_add_success(app, user):
     category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
+    meeting = category.meeting
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
-        populate_participant_form(category.meeting, data)
+        add_custom_fields_for_meeting(meeting)
+        add_custom_fields_for_meeting(meeting,
+                                      form_class=MediaParticipantDummyForm)
+        populate_participant_form(meeting, data)
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
-                                   meeting_id=category.meeting.id), data=data)
+                                   meeting_id=meeting.id), data=data)
 
         assert resp.status_code == 302
-        assert Participant.query.filter_by(meeting=category.meeting).first()
-        part = Participant.query.filter_by(meeting=category.meeting).first()
+        assert Participant.query.current_meeting().participants().first()
+        part = Participant.query.current_meeting().participants().first()
         assert part.participant_type.code == Participant.PARTICIPANT
         assert part.category
         assert part.title
@@ -130,9 +132,8 @@ def test_meeting_participant_add_success(app):
         assert part.country
 
 
-def test_meeting_participant_add_with_custom_field(app):
+def test_meeting_participant_add_with_custom_field(app, user):
     category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
     CustomFieldFactory(field_type='text', meeting=category.meeting,
                        required=True, label__english='size')
     CustomFieldFactory(field_type='checkbox', meeting=category.meeting,
@@ -145,49 +146,48 @@ def test_meeting_participant_add_with_custom_field(app):
 
     client = app.test_client()
     with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting)
+        populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
-            add_participant_custom_fields(category.meeting)
-            populate_participant_form(category.meeting, data)
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
                                    meeting_id=category.meeting.id), data=data)
         assert resp.status_code == 302
-        assert Participant.query.filter_by(meeting=category.meeting).first()
+        assert Participant.query.current_meeting().participants().first()
 
 
-def test_meeting_participant_add_with_multiple_emails_success(app):
+def test_meeting_participant_add_with_multiple_emails_success(app, user):
     category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
     data['email'] = 'test@email.com , test2@email.com, test@email.com'
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
+        add_custom_fields_for_meeting(category.meeting)
         populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
                                    meeting_id=category.meeting.id), data=data)
 
         assert resp.status_code == 302
-        assert Participant.query.filter_by(meeting=category.meeting).first()
+        assert Participant.query.current_meeting().participants().first()
 
 
-def test_meeting_participant_add_with_multiple_emails_bad_format_fails(app):
+def test_meeting_participant_add_with_multiple_emails_bad_format_fails(app,
+                                                                       user):
     category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
     data['email'] = 'te st@email.com , test2 @email.com, test@em ail.com'
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
+        add_custom_fields_for_meeting(category.meeting)
         populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
                                    meeting_id=category.meeting.id), data=data)
 
@@ -197,9 +197,8 @@ def test_meeting_participant_add_with_multiple_emails_bad_format_fails(app):
         assert Participant.query.count() == 0
 
 
-def test_meeting_participant_add_fail(app):
+def test_meeting_participant_add_fail(app, user):
     category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
     CustomFieldFactory(field_type='checkbox', meeting=category.meeting,
                        required=True, label__english='passport')
 
@@ -208,28 +207,29 @@ def test_meeting_participant_add_fail(app):
 
     client = app.test_client()
     with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting)
+        populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
-            add_participant_custom_fields(category.meeting)
-            populate_participant_form(category.meeting, data)
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
                                    meeting_id=category.meeting.id), data=data)
         assert resp.status_code == 200
-        assert not category.meeting.participants.first()
+        assert not Participant.query.current_meeting().participants().first()
 
 
-def test_meeting_participant_add_form_field_order(app):
+def test_meeting_participant_add_form_field_order(app, user):
     category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
+        add_custom_fields_for_meeting(category.meeting)
+        add_custom_fields_for_meeting(category.meeting,
+                                      form_class=MediaParticipantDummyForm)
         populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
 
         #CHECK ORDER
         resp = client.get(url_for('meetings.participant_edit',
@@ -237,7 +237,8 @@ def test_meeting_participant_add_form_field_order(app):
         form_fields = PyQuery(resp.data)('.control-label')
         custom_fields = (
             CustomField.query
-            .filter_by(meeting=category.meeting, is_primary=True)
+            .filter_by(meeting=category.meeting, is_primary=True,
+                       custom_field_type=CustomField.PARTICIPANT)
             .order_by(CustomField.sort).all())
         for i, custom_field in enumerate(custom_fields):
             assert custom_field.label.english == form_fields[i].text.strip()
@@ -255,30 +256,30 @@ def test_meeting_participant_add_form_field_order(app):
         form_fields = PyQuery(resp.data)('.control-label')
         custom_fields = (
             CustomField.query
-            .filter_by(meeting=category.meeting, is_primary=True)
+            .filter_by(meeting=category.meeting, is_primary=True,
+                       custom_field_type=CustomField.PARTICIPANT)
             .order_by(CustomField.sort))
         for i, custom_field in enumerate(custom_fields):
             assert custom_field.label.english == form_fields[i].text.strip()
 
 
-def test_meeting_participant_edit_form_populated(app):
+def test_meeting_participant_edit_form_populated(app, user):
     category = MeetingCategoryFactory()
-    role_user = RoleUserMeetingFactory(meeting=category.meeting)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(category.meeting)
+        add_custom_fields_for_meeting(category.meeting)
         populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
                                    meeting_id=category.meeting.id), data=data)
 
         assert resp.status_code == 302
-        assert Participant.query.filter_by(meeting=category.meeting).first()
-        part = Participant.query.filter_by(meeting=category.meeting).first()
+        assert Participant.query.current_meeting().participants().first()
+        part = Participant.query.current_meeting().participants().first()
 
         resp = client.get(url_for('meetings.participant_edit',
                                   meeting_id=category.meeting.id,
@@ -305,42 +306,38 @@ def test_meeting_participant_edit_form_populated(app):
         assert part.represented_region.code == form_repr_region
 
 
-def test_meeting_participant_delete(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_participant_delete(app, user):
     part = ParticipantFactory()
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.delete(url_for('meetings.participant_edit',
                                      meeting_id=part.meeting.id,
                                      participant_id=part.id))
         assert resp.status_code == 200
-        assert part.meeting.participants.filter_by(deleted=False).count() == 0
+        assert Participant.query.current_meeting().participants().count() == 0
 
 
-def test_meeting_participant_restore_after_delete(app):
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
+def test_meeting_participant_restore_after_delete(app, user):
     part = ParticipantFactory()
 
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.delete(url_for('meetings.participant_edit',
                                      meeting_id=part.meeting.id,
                                      participant_id=part.id))
         assert resp.status_code == 200
-        assert part.meeting.participants.filter_by(deleted=True).count() == 1
+        assert Participant.query.filter_by(deleted=True).count() == 1
 
         resp = client.post(url_for('meetings.participant_restore',
                                    meeting_id=part.meeting.id,
                                    participant_id=part.id))
         assert resp.status_code == 200
-        assert part.meeting.participants.filter_by(deleted=True).count() == 0
+        assert Participant.query.filter_by(deleted=True).count() == 0
 
 
 def test_meeting_participant_representing_region(app):
@@ -377,10 +374,9 @@ def test_meeting_participant_representing_region_translated(app):
 
 def test_meeting_participant_acknowledge_email(monkeypatch,
                                                pdf_renderer,
-                                               app):
+                                               app,
+                                               user):
     monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
     part = ParticipantFactory()
 
     data = {
@@ -392,7 +388,7 @@ def test_meeting_participant_acknowledge_email(monkeypatch,
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_acknowledge',
                                    meeting_id=part.meeting.id,
                                    participant_id=part.id), data=data)
@@ -402,10 +398,9 @@ def test_meeting_participant_acknowledge_email(monkeypatch,
 
 def test_meeting_participant_acknowledge_email_with_no_language(monkeypatch,
                                                                 pdf_renderer,
-                                                                app):
+                                                                app,
+                                                                user):
     monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
     part = ParticipantFactory(language='')
 
     data = {
@@ -417,7 +412,7 @@ def test_meeting_participant_acknowledge_email_with_no_language(monkeypatch,
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_acknowledge',
                                    meeting_id=part.meeting.id,
                                    participant_id=part.id), data=data)
@@ -425,16 +420,15 @@ def test_meeting_participant_acknowledge_email_with_no_language(monkeypatch,
         assert len(outbox) == 1
 
 
-def test_meeting_participants_export_excel(app):
-    role_user = RoleUserFactory()
+def test_meeting_participants_export_excel(app, user):
     cat = MeetingCategoryFactory()
     participants = ParticipantFactory.stub_batch(10, meeting=cat.meeting,
                                                  category=cat)
     client = app.test_client()
     with app.test_request_context():
-        add_participant_custom_fields(cat.meeting)
+        add_custom_fields_for_meeting(cat.meeting)
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         for participant in participants:
             data = vars(participant)
             data['category_id'] = cat.id

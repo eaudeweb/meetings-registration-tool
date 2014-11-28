@@ -1,16 +1,16 @@
 from flask import url_for
 from pyquery import PyQuery
 from py.path import local
+import json
 
 from mrt.models import Meeting, Category, Phrase, CustomField
-from mrt.models import CustomFieldChoice, Translation
+from mrt.models import CustomFieldChoice, Translation, Participant
 from mrt.forms.meetings import ParticipantDummyForm, MediaParticipantDummyForm
 
 from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
-from .factories import PhraseMeetingFactory, RoleUserFactory, StaffFactory
-from .factories import RoleUserMeetingFactory, CustomFieldFactory
-from .factories import MeetingCategoryFactory
+from .factories import PhraseMeetingFactory, ParticipantFactory
+from .factories import CustomFieldFactory, MeetingCategoryFactory
 
 
 def test_meeting_list(app, user):
@@ -389,6 +389,41 @@ def test_meeting_category_delete(app, user):
         resp = client.delete(url)
         assert resp.status_code == 200
         assert Category.query.filter_by(meeting_id=meeting.id).count() == 0
+
+
+def test_meeting_category_delete_with_participants(app, user):
+    participant = ParticipantFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.delete(url_for('meetings.category_edit',
+                                     meeting_id=participant.meeting.id,
+                                     category_id=participant.category.id))
+        assert resp.status_code == 200
+        resp_data = json.loads(resp.data)
+        assert resp_data['status'] == 'error'
+        assert Category.query.filter_by(meeting=participant.meeting).first()
+
+
+def test_meeting_category_delete_with_media_participants(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    med_part = ParticipantFactory(category__meeting__settings=MEDIA_ENABLED,
+                                  category__category_type=Category.MEDIA,
+                                  participant_type=Participant.MEDIA)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.delete(url_for('meetings.category_edit',
+                                     meeting_id=med_part.meeting.id,
+                                     category_id=med_part.category.id))
+        assert resp.status_code == 200
+        resp_data = json.loads(resp.data)
+        assert resp_data['status'] == 'error'
+        assert Category.query.filter_by(meeting=med_part.meeting).first()
 
 
 def test_meeting_phrase_edit_successfully(app, user):
