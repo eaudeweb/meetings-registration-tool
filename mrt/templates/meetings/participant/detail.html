@@ -27,7 +27,7 @@
 
 
 {% block breadcrumb %}
-  {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
+  {% if g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE %}
     {{ breadcrumb( [
         (url_for('meetings.participants'), 'Participants'),
         ('', title)
@@ -37,14 +37,14 @@
 {% endblock %}
 
 {% block messages %}
-  {% if g.meeting.meeting_type == g.meeting.DEFAULT_TYPE %}
+  {% if g.meeting.meeting_type_slug == g.meeting.DEFAULT_TYPE %}
     {{ flashed_messages() }}
   {% endif %}
 {% endblock %}
 
 
 {% block content %}
-  {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
+  {% if g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE %}
     {{ super() }}
     <h3 class="page-title" style="margin: 0">{{ title }}</h3>
     {% set edit_url = url_for('.participant_edit',
@@ -63,7 +63,7 @@
       <span class="glyphicon glyphicon-pencil"></span> &nbsp;
       Edit participant</a>
 
-    {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
+    {% if g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE %}
       {% include "meetings/participant/_detail_actions.html" %}
     {% endif %}
   </div>

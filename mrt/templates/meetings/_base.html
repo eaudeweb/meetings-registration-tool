@@ -91,7 +91,7 @@
             Subscribers</a>
         </li>
         <li class="{{ active('/phrases') }}">
-          <a href="{{ url_for('.phrase_edit', meeting_type=g.meeting.meeting_type) }}">
+          <a href="{{ url_for('.phrase_edit', meeting_type=g.meeting.meeting_type_slug) }}">
             Phrases</a>
         </li>
         <li class="{{ active('/custom') }}">

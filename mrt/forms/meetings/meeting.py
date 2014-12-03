@@ -1,4 +1,3 @@
-from flask import current_app as app
 from flask.ext.login import current_user
 from wtforms import fields, widgets
 from wtforms.validators import ValidationError, InputRequired
@@ -7,6 +6,7 @@ from wtforms_alchemy import ModelFormField
 from mrt.models import db, Meeting, Staff, Participant
 from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.models import CustomField, CustomFieldChoice
+from mrt.models import MeetingType
 
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
 from mrt.forms.base import CategoryField, EmailRequired, EmailField
@@ -44,7 +44,7 @@ class MeetingEditForm(BaseForm):
     title = ModelFormField(TranslationInputForm, label='Description')
     badge_header = ModelFormField(TranslationInputForm, label='Badge header')
     venue_city = ModelFormField(TranslationInputForm, label='City')
-    meeting_type = fields.SelectField('Meeting Type')
+    meeting_type_slug = fields.SelectField('Meeting Type')
     owner_id = fields.SelectField('Owner', coerce=int)
     photo_field_id = fields.SelectField('Photo Field', coerce=int)
     settings = MultiCheckboxField('Settings', choices=MEETING_SETTINGS)
@@ -53,7 +53,8 @@ class MeetingEditForm(BaseForm):
         super(MeetingEditForm, self).__init__(*args, **kwargs)
         self.badge_header.english.validators = []
         delattr(self.badge_header.english.flags, 'required')
-        self.meeting_type.choices = app.config.get('MEETING_TYPES', [])
+        self.meeting_type_slug.choices = [
+            (mt.slug, mt.label) for mt in MeetingType.query.ignore_def()]
         self.owner_id.choices = [
             (x.id, x.full_name or x.user.email) for x in Staff.query.all()]
         self.photo_field_id.choices = [(0, '-----')]
@@ -81,8 +82,10 @@ class MeetingEditForm(BaseForm):
                 db.session.delete(old_badge_header)
 
     def _save_phrases(self, meeting):
-        phrases_default = PhraseDefault.query.filter(
-            PhraseDefault.meeting_type == meeting.meeting_type)
+        phrases_default = (
+            PhraseDefault.query
+            .filter_by(meeting_type_slug=meeting.meeting_type_slug)
+        )
         for phrase_default in phrases_default:
             phrase = copy_model_fields(Phrase, phrase_default, exclude=(
                 'id', 'description_id', 'meeting_type'))
@@ -151,7 +154,7 @@ class MeetingFilterForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(MeetingFilterForm, self).__init__(*args, **kwargs)
-        choices = [(i[0], i[1]) for i in app.config['MEETING_TYPES']]
+        choices = [(m.slug, m.label) for m in MeetingType.query.ignore_def()]
         self.meeting_type.choices = [('', 'All')] + choices
 
 

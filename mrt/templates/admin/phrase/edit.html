@@ -1,7 +1,7 @@
 {% extends "_layout.html" %}
 {% from "_bits.html" import breadcrumb %}
 
-{% set title = phrase.meeting_type.value ~ " Phrases" %}
+{% set title = phrase.meeting_type.label ~ " Phrases" %}
 
 
 {% block title %} {{ title }} {% endblock %}
@@ -23,7 +23,7 @@
     <h2>{{ title }}</h2>
   </div>
 
-  {% with meeting_type = phrase.meeting_type.code %}
+  {% with meeting_type = phrase.meeting_type.slug %}
     {% include "common/_phrase_edit.html" %}
   {% endwith %}
 

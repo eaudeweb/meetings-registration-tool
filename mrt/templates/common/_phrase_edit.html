@@ -14,7 +14,7 @@
 
           {% set url = url_for('.phrase_edit', meeting_type=meeting_type, phrase_id=phrase.id) %}
 
-            <li class="{{ active(url +'$') }}">
+            <li class="{{ active(url + '$') }}">
               <a href="{{ url }}">{{ phrase }}</a>
             </li>
 

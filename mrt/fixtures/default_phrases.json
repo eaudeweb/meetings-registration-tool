@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Body",
+        "group": "Acknowledge email",
+        "sort": 1
+    },
+    {
+        "name": "Credentials",
+        "group": "Acknowledge details",
+        "sort": 3
+    },
+    {
+        "name": "Approval",
+        "group": "Acknowledge details",
+        "sort": 5
+    },
+    {
+        "name": "Invitation",
+        "group": "Acknowledge details",
+        "sort": 6
+    },
+    {
+        "name": "Fee",
+        "group": "Acknowledge details",
+        "sort": 7
+    },
+    {
+        "name": "Payment",
+        "group": "Acknowledge details",
+        "sort": 8
+    },
+    {
+        "name": "Subject",
+        "group": "Acknowledge email",
+        "sort": 0
+    },
+    {
+        "name": "for participants",
+        "group": "Online registration confirmation",
+        "sort": 9
+    },
+    {
+        "name": "for media",
+        "group": "Online registration confirmation",
+        "sort": 10
+    },
+    {
+        "name": "Footer",
+        "group": "Acknowledge details",
+        "sort": 10
+    },
+    {
+        "name": "Statutes",
+        "group": "Acknowledge details",
+        "sort": 4
+    },
+    {
+        "name": "for participants",
+        "group": "Email registration confirmation",
+        "sort": 14
+    }
+]

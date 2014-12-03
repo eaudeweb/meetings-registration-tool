@@ -10,13 +10,13 @@
 
 {% block breadcrumb %}
 
-  {% if participant and g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
+  {% if participant and g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE %}
     {{ breadcrumb( [
         (url_for('meetings.participants'), 'Participants'),
         (url_for('meetings.participant_detail', participant_id=participant.id), participant),
         ('', 'Edit')
     ] ) }}
-  {% elif g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
+  {% elif g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE %}
    {{ breadcrumb( [
         (url_for('meetings.participants'), 'Participants'),
         ('', title)
@@ -28,7 +28,7 @@
 
 {% block content %}
 
-  {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
+  {% if g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE %}
     {{ super() }}
     <h3 class="page-title">{{ title }}</h3>
   {% else %}
@@ -78,10 +78,10 @@
       <button type="submit" class="btn btn-primary">
         Save changes</button>
       <small>or
-        {% if participant and g.meeting.meeting_type != g.meeting.DEFAULT_TYPE%}
+        {% if participant and g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE%}
           {% set url = url_for('.participant_detail',
                                participant_id=participant.id) %}
-        {% elif g.meeting.meeting_type != g.meeting.DEFAULT_TYPE%}
+        {% elif g.meeting.meeting_type_slug != g.meeting.DEFAULT_TYPE%}
           {% set url = url_for('.participants') %}
         {% else %}
           {% set url = url_for('.default_participant_detail',

@@ -168,6 +168,10 @@ To create a user run the following command::
 
     ./manage.py create_user
 
+To create a superuser, use::
+
+    ./manage.py create_superuser
+
 
 Setup Git Pre-Commit Lint
 -------------------------

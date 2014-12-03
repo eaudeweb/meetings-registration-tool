@@ -20,7 +20,7 @@ from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy_utils import generates
 
 from mrt.definitions import (
-    MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
+    PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
     CATEGORY_REPRESENTING)
 from mrt.utils import slugify, copy_attributes, duplicate_uploaded_file
 from mrt.utils import unlink_participant_photo
@@ -41,6 +41,15 @@ class CustomFieldQuery(BaseQuery):
 
     def for_registration(self):
         return self.filter_by(visible_on_registration_form=True)
+
+
+class MeetingTypeQuery(BaseQuery):
+
+    def default(self):
+        return self.filter_by(default=True).one()
+
+    def ignore_def(self):
+        return self.filter(MeetingType.default != True)
 
 
 class JSONEncodedDict(TypeDecorator):
@@ -103,7 +112,7 @@ class User(db.Model):
 
     def get_default(self):
         return (self.participants.filter(
-            Participant.meeting.has(meeting_type=Meeting.DEFAULT_TYPE))
+            Participant.meeting.has(meeting_type=MeetingType.query.default()))
             .scalar())
 
 
@@ -223,7 +232,7 @@ class Participant(db.Model):
         ('Spanish', __('Spanish')),
         ('French', __('French')),
     )
-    PARTICIPANT = 'participant'
+    PARTICIPANT = u'participant'
     MEDIA = 'media'
     PARTICIPANT_TYPE_CHOICES = (
         (PARTICIPANT, __('Participant')),
@@ -429,7 +438,7 @@ class CustomField(db.Model):
         (CATEGORY, 'Category Field'),
     )
 
-    PARTICIPANT = 'participant'
+    PARTICIPANT = u'participant'
     MEDIA = 'media'
     CUSTOM_FIELD_TYPE_CHOICES = (
         (PARTICIPANT, 'Participant'),
@@ -598,6 +607,7 @@ class MediaParticipant(db.Model):
 
 class Meeting(db.Model):
 
+    # TODO Remove this line
     DEFAULT_TYPE = 'def'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -614,7 +624,11 @@ class Meeting(db.Model):
     acronym = db.Column(db.String(16), nullable=False,
                         info={'label': 'Acronym'})
 
-    meeting_type = db.Column(db.String(3), nullable=False)
+    meeting_type_slug = db.Column(
+        'meeting_type', db.String(16), db.ForeignKey('meeting_type.slug'),
+        nullable=False)
+    meeting_type = db.relationship(
+        'MeetingType', backref=db.backref('meetings', lazy='dynamic'))
 
     date_start = db.Column(db.Date, nullable=False,
                            info={'label': 'Start Date',
@@ -663,7 +677,8 @@ class Meeting(db.Model):
 
     @classmethod
     def get_default(cls):
-        return cls.query.filter_by(meeting_type=Meeting.DEFAULT_TYPE).one()
+        return cls.query.filter_by(
+            meeting_type=MeetingType.query.default()).one()
 
     def __repr__(self):
         return self.title.english
@@ -794,8 +809,28 @@ class PhraseDefault(PhraseMixin, db.Model):
 
     __tablename__ = 'phrase_default'
 
-    meeting_type = db.Column(ChoiceType(MEETING_TYPES), nullable=False,
-                             info={'label': 'Meeting Type'})
+    meeting_type_slug = db.Column(
+        'meeting_type', db.String(16), db.ForeignKey('meeting_type.slug'),
+        nullable=False)
+    meeting_type = db.relationship(
+        'MeetingType', backref=db.backref(
+            'default_phrases', cascade='all,delete'))
+
+
+class MeetingType(db.Model):
+
+    __tablename__ = 'meeting_type'
+
+    query_class = MeetingTypeQuery
+
+    slug = db.Column(db.String(16), primary_key=True, info={'label': 'Slug'})
+    label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
+    default = db.Column(db.Boolean, nullable=False, default=False)
+
+    def load_default_phrases(self):
+        with open(app.config['DEFAULT_PHRASES_PATH'], 'r') as f:
+            default_phrases = json.load(f)
+        self.default_phrases += [PhraseDefault(**d) for d in default_phrases]
 
 
 class MailLog(db.Model):
