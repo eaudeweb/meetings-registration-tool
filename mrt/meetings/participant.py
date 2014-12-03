@@ -7,6 +7,7 @@ from flask.views import MethodView
 from flask.ext.login import current_user as user
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
+from mrt.forms.meetings import ParticipantMagicForm, MediaMagicForm
 from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
 from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.forms.meetings import AcknowledgeEmailForm
@@ -139,6 +140,7 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     permission_required = ('view_participant', )
     form_class = ParticipantEditForm
+    magic_form_class = ParticipantMagicForm
     field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                    CustomField.COUNTRY, CustomField.CATEGORY]
 
@@ -156,12 +158,14 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_types=field_types)
+        FlagsForm = custom_form_factory(field_types=field_types,
+                                        form=self.magic_form_class)
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
 
         field_types = [CustomField.IMAGE]
-        ImagesForm = custom_form_factory(field_types=field_types)
+        ImagesForm = custom_form_factory(field_types=field_types,
+                                         form=self.magic_form_class)
         ImagesObject = custom_object_factory(participant, field_types)
         images_form = ImagesForm(obj=ImagesObject())
 
@@ -176,6 +180,7 @@ class MediaParticipantDetail(ParticipantDetail):
 
     permission_required = ('view_media_participant',)
     form_class = MediaParticipantEditForm
+    magic_form_class = MediaMagicForm
 
     def _get_queryset(self, participant_id):
         return (
@@ -205,6 +210,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     decorators = (_category_required,)
     template = 'meetings/participant/participant/edit.html'
     form_class = ParticipantEditForm
+    magic_form_class = ParticipantMagicForm
 
     def _get_object(self, participant_id=None):
         return (Participant.query.current_meeting().participants()
@@ -222,7 +228,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_types=field_types)
+        FlagsForm = custom_form_factory(field_types=field_types,
+                                        form=self.magic_form_class)
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
 
@@ -239,7 +246,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_types=field_types)
+        FlagsForm = custom_form_factory(field_types=field_types,
+                                        form=self.magic_form_class)
         FlagsObject = custom_object_factory(participant, field_types)
         flags_form = FlagsForm(obj=FlagsObject())
         if (form.validate() and flags_form.validate()):
@@ -278,6 +286,7 @@ class MediaParticipantEdit(ParticipantEdit):
     permission_required = ('manage_media_participant',)
     template = 'meetings/participant/media/edit.html'
     form_class = MediaParticipantEditForm
+    magic_form_class = MediaMagicForm
 
     def _get_object(self, participant_id=None):
         return (

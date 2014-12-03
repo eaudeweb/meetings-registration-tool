@@ -59,6 +59,16 @@ class _MagicForm(BaseForm):
         return items
 
 
+class ParticipantMagicForm(_MagicForm):
+
+    _CUSTOM_FIELDS_TYPE = 'participant'
+
+
+class MediaMagicForm(_MagicForm):
+
+    _CUSTOM_FIELDS_TYPE = 'media'
+
+
 def custom_form_factory(field_types=[], field_slugs=[],
                         registration_fields=False,
                         form=_MagicForm):

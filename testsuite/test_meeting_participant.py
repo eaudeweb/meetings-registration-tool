@@ -57,12 +57,18 @@ def test_meeting_participant_detail(app, user):
     meeting = category.meeting
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
+    data['diet'] = 'y'
 
     client = app.test_client()
     with app.test_request_context():
         add_custom_fields_for_meeting(meeting)
         add_custom_fields_for_meeting(meeting,
                                       form_class=MediaParticipantDummyForm)
+        CustomFieldFactory(custom_field_type=CustomField.PARTICIPANT,
+                           meeting=meeting, field_type='checkbox',
+                           label__english='diet', required=False, sort=30)
+        CustomFieldFactory(custom_field_type=CustomField.MEDIA,
+                           meeting=meeting, field_type='checkbox')
         populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
@@ -81,13 +87,17 @@ def test_meeting_participant_detail(app, user):
         details = PyQuery(resp.data)('tr')
         custom_fields = (
             CustomField.query
-            .filter_by(meeting=meeting, is_primary=True,
+            .filter_by(meeting=meeting,
                        custom_field_type=CustomField.PARTICIPANT)
             .order_by(CustomField.sort).all())
         for i, custom_field in enumerate(custom_fields):
             detail_label = details[i].find('th').text_content().strip()
             detail_data = details[i].find('td').text_content().strip()
-            participant_data = getattr(participant, custom_field.slug)
+            try:
+                participant_data = getattr(participant, custom_field.slug)
+            except AttributeError:
+                value = int(custom_field.custom_field_values.first().value)
+                participant_data = True if value else False
             assert custom_field.label.english == detail_label
             if isinstance(participant_data, types.choice.Choice):
                 assert participant_data.value == detail_data
