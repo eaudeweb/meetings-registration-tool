@@ -1,7 +1,61 @@
-{% extends 'meetings/participant/_edit_base.html' %}
-
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import form_group %}
 
 {% set title = "Edit default participant" %}
 
+{% block title %} {{ title }} {% endblock %}
 
-{% block breadcrumb %}{% endblock %}
+
+{% block content %}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <form class="form-horizontal" method="post">
+
+    <div class="row">
+
+      <div class="col-sm-9">
+        <div class="panel panel-default">
+          <div class="panel-heading"><b>Participant details</b></div>
+          <div class="panel-body">
+            {% for field in form %}
+              {% if loop.first %}
+                {% set options = {'autofocus': '' } %}
+              {% else %}
+                {% set options = {} %}
+              {% endif %}
+              {{ form_group(field, label_size="3", input_size="8",
+                            options=options) }}
+            {% endfor %}
+          </div>
+        </div>
+
+      </div> {# col-sm-9 #}
+
+      <div class="col-sm-3">
+
+        <div class="panel panel-default">
+          <div class="panel-heading"><b>Meeting flags</b></div>
+          <div class="panel-body">
+            {% for field in flags_form %}
+              {{ form_group(field, label_size="6", input_size="6") }}
+            {% endfor %}
+          </div>
+        </div> {# panel #}
+
+      </div> {# col-sm-3 #}
+
+    </div> {# row #}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        Save changes</button>
+
+      <small>or
+        <a href="{{ url_for('.default_participant_detail', participant_id=participant.id) }}">Cancel</a>
+      </small>
+    </div>
+
+  </form>
+
+{% endblock %}

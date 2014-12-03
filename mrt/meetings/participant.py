@@ -35,6 +35,15 @@ def _category_required(func):
     return wrapper
 
 
+def _default_meeting_required(func):
+    @wraps(func)
+    def wrapper(**kwargs):
+        if g.meeting.meeting_type != Meeting.DEFAULT_TYPE:
+            abort(404)
+        return func(**kwargs)
+    return wrapper
+
+
 class Participants(PermissionRequiredMixin, MethodView):
 
     permission_required = ('view_participant', )
@@ -191,17 +200,16 @@ class MediaParticipantDetail(ParticipantDetail):
 
 class DefaultParticipantDetail(ParticipantDetail):
 
+    permission_required = ('manage_default', )
+    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
+                   CustomField.COUNTRY]
+    decorators = (_default_meeting_required,)
+
     def _get_queryset(self, participant_id):
-        if g.meeting.meeting_type != Meeting.DEFAULT_TYPE:
-            abort(404)
         return (
             Participant.query.current_meeting().participants()
             .filter_by(id=participant_id)
             .first_or_404())
-
-    permission_required = ('manage_default', )
-    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                   CustomField.COUNTRY]
 
 
 class ParticipantEdit(PermissionRequiredMixin, MethodView):
@@ -211,6 +219,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     template = 'meetings/participant/participant/edit.html'
     form_class = ParticipantEditForm
     magic_form_class = ParticipantMagicForm
+    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
+                   CustomField.COUNTRY, CustomField.CATEGORY]
 
     def _get_object(self, participant_id=None):
         return (Participant.query.current_meeting().participants()
@@ -218,13 +228,25 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                 .first_or_404()
                 if participant_id else None)
 
+    def _get_success_url(self, participant_id, participant):
+        staff = Staff.query.filter_by(user=user).first()
+        if participant_id:
+            activity_signal.send(self, participant=participant,
+                                 action='edit', staff=staff)
+            url = url_for('.participant_detail',
+                          participant_id=participant.id)
+        else:
+            activity_signal.send(self, participant=participant,
+                                 action='add', staff=staff)
+            notification_signal.send(self, participant=participant)
+            url = url_for('.participants')
+        return url
+
     def get(self, participant_id=None):
         participant = self._get_object(participant_id)
-        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                       CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_types=field_types,
+        Form = custom_form_factory(field_types=self.field_types,
                                    form=self.form_class)
-        Object = custom_object_factory(participant, field_types)
+        Object = custom_object_factory(participant, self.field_types)
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
@@ -238,11 +260,9 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
 
     def post(self, participant_id=None):
         participant = self._get_object(participant_id)
-        field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                       CustomField.COUNTRY, CustomField.CATEGORY]
-        Form = custom_form_factory(field_types=field_types,
+        Form = custom_form_factory(field_types=self.field_types,
                                    form=self.form_class)
-        Object = custom_object_factory(participant, field_types)
+        Object = custom_object_factory(participant, self.field_types)
         form = Form(obj=Object())
 
         field_types = [CustomField.CHECKBOX]
@@ -254,19 +274,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
             participant = form.save(participant)
             flags_form.save(participant)
             flash('Person information saved', 'success')
-            staff = Staff.query.filter_by(user=user).first()
-            if participant_id:
-                activity_signal.send(self, participant=participant,
-                                     action='edit', staff=staff)
-                url = url_for('.participant_detail',
-                              participant_id=participant.id)
-            else:
-                activity_signal.send(self, participant=participant,
-                                     action='add', staff=staff)
-                notification_signal.send(self, participant=participant)
-                url = url_for('.participants')
-            return redirect(url)
-
+            return redirect(self._get_success_url(participant_id,
+                                                  participant))
         return render_template(self.template, form=form, flags_form=flags_form,
                                participant=participant)
 
@@ -296,66 +305,22 @@ class MediaParticipantEdit(ParticipantEdit):
             if participant_id else None)
 
 
-class DefaultParticipantEdit(PermissionRequiredMixin, MethodView):
+class DefaultParticipantEdit(ParticipantEdit):
 
     permission_required = ('manage_participant',)
+    decorators = (_default_meeting_required,)
+    template = 'meetings/participant/default/edit.html'
+    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
+                   CustomField.COUNTRY]
 
-    def _get_object(self, participant_id=None):
-        return (Participant.query
-                .filter_by(meeting_id=g.meeting.id, id=participant_id)
-                .active()
-                .first_or_404()
-                if participant_id else None)
+    def _get_object(self, participant_id):
+        return (Participant.query.current_meeting().participants()
+                .filter_by(id=participant_id)
+                .first_or_404())
 
-    def get(self, participant_id=None):
-        pass
-        # participant = self._get_object(participant_id)
-        # field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-        #                CustomField.COUNTRY]
-        # Form = custom_form_factory(field_types=field_types)
-        # Object = custom_object_factory(participant, field_types)
-        # form = Form(obj=Object())
-
-        # field_types = [CustomField.CHECKBOX]
-        # FlagsForm = custom_form_factory(field_types=field_types)
-        # FlagsObject = custom_object_factory(participant, field_types)
-        # flags_form = FlagsForm(obj=FlagsObject())
-
-        # return render_template('meetings/participant/edit.html',
-        #                        form=form,
-        #                        flags_form=flags_form,
-        #                        participant=participant)
-
-    def post(self, participant_id=None):
-        pass
-        # participant = self._get_object(participant_id)
-        # field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-        #                CustomField.COUNTRY]
-        # Form = custom_form_factory(field_types=field_types,
-        #                            form=ParticipantEditForm)
-        # Object = custom_object_factory(participant, field_types)
-        # form = Form(obj=Object())
-
-        # field_types = [CustomField.CHECKBOX]
-        # FlagsForm = custom_form_factory(field_types=field_types)
-        # FlagsObject = custom_object_factory(participant, field_types)
-        # flags_form = FlagsForm(obj=FlagsObject())
-        # if (form.validate() and flags_form.validate()):
-        #     participant = form.save(participant)
-        #     flags_form.save(participant)
-        #     flash('Person information saved', 'success')
-        #     staff = Staff.query.filter_by(user=user).first()
-        #     if participant_id:
-        #         activity_signal.send(self, participant=participant,
-        #                              action='edit', staff=staff)
-        #         url = url_for('.default_participant_detail',
-        #                       participant_id=participant.id)
-        #     return redirect(url)
-
-        # return render_template('meetings/participant/edit.html',
-        #                        form=form,
-        #                        flags_form=flags_form,
-        #                        participant=participant)
+    def _get_success_url(self, participant_id, participant):
+        return url_for('.default_participant_detail',
+                       participant_id=participant.id)
 
 
 class ParticipantRestore(PermissionRequiredMixin, MethodView):
