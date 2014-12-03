@@ -1,7 +1,9 @@
 from flask import url_for
 from pyquery import PyQuery
 
-from .factories import PhraseDefaultFactory, RoleUserFactory
+from .factories import (
+    PhraseDefaultFactory, RoleUserFactory, MeetingTypeFactory,
+)
 from mrt.definitions import MEETING_TYPES
 
 
@@ -22,7 +24,8 @@ def test_default_phrase_types_list(app):
 
 def test_default_phrase_category_list(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
-    PhraseDefaultFactory.create_batch(5)
+    meeting_type = MeetingTypeFactory()
+    PhraseDefaultFactory.create_batch(5, meeting_type=meeting_type)
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:

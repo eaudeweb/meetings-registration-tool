@@ -28,7 +28,7 @@ class PhraseEdit(PermissionRequiredMixin, MethodView):
     def get(self, meeting_type, phrase_id=None):
         phrases = (
             PhraseDefault.query
-            .filter_by(meeting_type=meeting_type)
+            .filter_by(meeting_type_slug=meeting_type)
             .order_by(PhraseDefault.group, PhraseDefault.sort))
         if phrase_id:
             phrase = PhraseDefault.query.get_or_404(phrase_id)
@@ -41,7 +41,7 @@ class PhraseEdit(PermissionRequiredMixin, MethodView):
     def post(self, meeting_type, phrase_id=None):
         phrases = (
             PhraseDefault.query
-            .filter_by(meeting_type=meeting_type)
+            .filter_by(meeting_type_slug=meeting_type)
             .order_by(PhraseDefault.group, PhraseDefault.sort))
         if phrase_id:
             phrase = PhraseDefault.query.get_or_404(phrase_id)
