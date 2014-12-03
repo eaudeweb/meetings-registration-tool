@@ -103,7 +103,7 @@ class User(db.Model):
 
     def get_default(self):
         return (self.participants.filter(
-            Participant.meeting.has(meeting_type=Meeting.DEFAULT_TYPE))
+            Participant.meeting.has(meeting_type_slug=Meeting.DEFAULT_TYPE))
             .scalar())
 
 
@@ -666,7 +666,7 @@ class Meeting(db.Model):
 
     @classmethod
     def get_default(cls):
-        return cls.query.filter_by(meeting_type=Meeting.DEFAULT_TYPE).one()
+        return cls.query.filter_by(meeting_type_slug=Meeting.DEFAULT_TYPE).one()
 
     def __repr__(self):
         return self.title.english

@@ -9,6 +9,7 @@ from mrt.app import create_app
 from mrt.models import db, Meeting
 from mrt.pdf import PdfRenderer
 from .factories import RoleUserFactory, StaffFactory, MeetingFactory
+from .factories import MeetingTypeFactory
 
 
 @fixture
@@ -67,7 +68,8 @@ def user():
 
 @fixture
 def default_meeting():
-    default_meeting = MeetingFactory(meeting_type=Meeting.DEFAULT_TYPE)
+    meeting_type = MeetingTypeFactory(slug=Meeting.DEFAULT_TYPE)
+    default_meeting = MeetingFactory(meeting_type=meeting_type)
     return default_meeting
 
 
