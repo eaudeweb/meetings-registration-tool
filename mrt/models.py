@@ -223,7 +223,7 @@ class Participant(db.Model):
         ('Spanish', __('Spanish')),
         ('French', __('French')),
     )
-    PARTICIPANT = 'participant'
+    PARTICIPANT = u'participant'
     MEDIA = 'media'
     PARTICIPANT_TYPE_CHOICES = (
         (PARTICIPANT, __('Participant')),
@@ -429,7 +429,7 @@ class CustomField(db.Model):
         (CATEGORY, 'Category Field'),
     )
 
-    PARTICIPANT = 'participant'
+    PARTICIPANT = u'participant'
     MEDIA = 'media'
     CUSTOM_FIELD_TYPE_CHOICES = (
         (PARTICIPANT, 'Participant'),
