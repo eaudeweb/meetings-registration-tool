@@ -11,7 +11,7 @@ from .factories import MeetingFactory, CategoryDefaultFactory
 from .factories import PhraseDefaultFactory, normalize_data
 from .factories import PhraseMeetingFactory, RoleUserFactory, StaffFactory
 from .factories import RoleUserMeetingFactory, CustomFieldFactory
-from .factories import MeetingCategoryFactory
+from .factories import MeetingCategoryFactory, MeetingTypeFactory
 
 
 def test_meeting_list(app):
@@ -35,7 +35,8 @@ def test_meeting_list(app):
 
 def test_meeting_list_filter(app):
     MeetingFactory.create_batch(3)
-    MeetingFactory.create_batch(6, meeting_type='sc')
+    meeting_type = MeetingTypeFactory(slug='sc')
+    MeetingFactory.create_batch(6, meeting_type=meeting_type)
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
 
@@ -62,12 +63,14 @@ def test_meeting_list_filter(app):
 def test_meeting_add(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -83,11 +86,13 @@ def test_meeting_add(app):
 def test_meeting_add_without_badge_header(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -105,12 +110,14 @@ def test_meeting_add_without_badge_header(app):
 def test_meeting_add_participant_custom_field_generation(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -134,6 +141,7 @@ def test_meeting_add_participant_custom_field_generation(app):
 def test_meeting_add_media_participant_custom_field_generation(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
@@ -141,6 +149,7 @@ def test_meeting_add_media_participant_custom_field_generation(app):
     data['badge_header-english'] = data.pop('badge_header')
     data['settings'] = 'media_participant_enabled'
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -166,12 +175,14 @@ def test_meeting_add_media_participant_custom_field_generation(app):
 def test_meeting_add_with_media_participants_disabled(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -223,12 +234,14 @@ def test_meeting_edit_media_participant_custom_field_generation(app):
 def test_meeting_add_custom_field_choice_generation(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -253,12 +266,14 @@ def test_meeting_add_custom_field_choice_generation(app):
 def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -515,6 +530,7 @@ def test_meeting_add_phrase_edit(app):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -544,6 +560,7 @@ def test_meeting_add_default_phrase_edit(app):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -568,12 +585,14 @@ def test_meeting_add_default_phrase_edit(app):
 def test_meeting_add_default_phrase_copies(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
-    PhraseDefaultFactory.create_batch(10)
+    meeting_type = MeetingTypeFactory()
+    PhraseDefaultFactory.create_batch(10, meeting_type=meeting_type)
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -588,6 +607,7 @@ def test_meeting_add_default_phrase_copies(app):
 def test_meeting_add_with_meeting_settings(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
@@ -595,6 +615,7 @@ def test_meeting_add_with_meeting_settings(app):
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
