@@ -13,6 +13,7 @@ PERMISSION = ('manage_default', )
 def test_default_phrase_types_list(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
     client = app.test_client()
+    MeetingTypeFactory.create_batch(5)
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = role_user.user.id
@@ -24,7 +25,7 @@ def test_default_phrase_types_list(app):
 
 def test_default_phrase_category_list(app):
     role_user = RoleUserFactory(role__permissions=PERMISSION)
-    meeting_type = MeetingTypeFactory()
+    meeting_type = MeetingTypeFactory(slug='cop')
     PhraseDefaultFactory.create_batch(5, meeting_type=meeting_type)
     client = app.test_client()
     with app.test_request_context():

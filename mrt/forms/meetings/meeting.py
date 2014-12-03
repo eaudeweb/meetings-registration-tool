@@ -1,4 +1,3 @@
-from flask import current_app as app
 from flask.ext.login import current_user
 from wtforms import fields, widgets
 from wtforms.validators import ValidationError, InputRequired
@@ -155,7 +154,7 @@ class MeetingFilterForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(MeetingFilterForm, self).__init__(*args, **kwargs)
-        choices = [(i[0], i[1]) for i in app.config['MEETING_TYPES']]
+        choices = [(mt.slug, mt.label) for mt in MeetingType.query.all()]
         self.meeting_type.choices = [('', 'All')] + choices
 
 

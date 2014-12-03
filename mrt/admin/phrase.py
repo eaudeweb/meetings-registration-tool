@@ -4,8 +4,7 @@ from flask import request
 from flask.views import MethodView
 from flask.ext.login import login_required
 
-from mrt.models import PhraseDefault
-from mrt.definitions import MEETING_TYPES
+from mrt.models import PhraseDefault, MeetingType
 from mrt.forms.admin import PhraseDefaultEditForm
 from mrt.meetings import PermissionRequiredMixin
 
@@ -16,8 +15,8 @@ class PhrasesTypes(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_default', )
 
     def get(self):
-        return render_template('admin/phrase/list.html',
-                               meeting_types=MEETING_TYPES)
+        m_types = [(mt.slug, mt.label) for mt in MeetingType.query.all()]
+        return render_template('admin/phrase/list.html', meeting_types=m_types)
 
 
 class PhraseEdit(PermissionRequiredMixin, MethodView):
