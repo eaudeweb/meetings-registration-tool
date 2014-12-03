@@ -20,7 +20,7 @@ from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy_utils import generates
 
 from mrt.definitions import (
-    MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
+    PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
     CATEGORY_REPRESENTING)
 from mrt.utils import slugify, copy_attributes, duplicate_uploaded_file
 from mrt.utils import unlink_participant_photo
@@ -614,7 +614,10 @@ class Meeting(db.Model):
     acronym = db.Column(db.String(16), nullable=False,
                         info={'label': 'Acronym'})
 
-    meeting_type = db.Column(db.String(3), nullable=False)
+    meeting_type_slug = db.Column(
+        'meeting_type', db.String(16), db.ForeignKey('meeting_type.slug'),
+        nullable=False)
+    meeting_type = db.relationship('MeetingType')
 
     date_start = db.Column(db.Date, nullable=False,
                            info={'label': 'Start Date',
@@ -794,8 +797,17 @@ class PhraseDefault(PhraseMixin, db.Model):
 
     __tablename__ = 'phrase_default'
 
-    meeting_type = db.Column(ChoiceType(MEETING_TYPES), nullable=False,
-                             info={'label': 'Meeting Type'})
+    meeting_type_slug = db.Column(
+        'meeting_type', db.String(16), db.ForeignKey('meeting_type.slug'),
+        nullable=False)
+    meeting_type = db.relationship('MeetingType',
+                                   backref=db.backref('default_phrases'))
+
+
+class MeetingType(db.Model):
+    __tablename__ = 'meeting_type'
+    slug = db.Column(db.String(16), primary_key=True)
+    label = db.Column(db.String(128), nullable=False)
 
 
 class MailLog(db.Model):
