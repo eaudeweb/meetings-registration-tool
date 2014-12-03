@@ -2,7 +2,7 @@ from functools import wraps
 
 from werkzeug.utils import HTMLBuilder
 from flask import g, request, redirect, url_for, jsonify, json
-from flask import render_template, flash, Response
+from flask import render_template, flash, Response, abort
 from flask.views import MethodView
 from flask.ext.login import current_user as user
 
@@ -16,7 +16,7 @@ from mrt.mixins import FilterView
 
 from mrt.mail import send_single_message
 from mrt.models import db, Participant, CustomField, Staff, Category
-from mrt.models import Phrase
+from mrt.models import Phrase, Meeting
 from mrt.models import search_for_participant, get_participants_full
 
 from mrt.pdf import PdfRenderer
@@ -185,6 +185,14 @@ class MediaParticipantDetail(ParticipantDetail):
 
 
 class DefaultParticipantDetail(ParticipantDetail):
+
+    def _get_queryset(self, participant_id):
+        if g.meeting.meeting_type != Meeting.DEFAULT_TYPE:
+            abort(404)
+        return (
+            Participant.query.current_meeting().participants()
+            .filter_by(id=participant_id)
+            .first_or_404())
 
     permission_required = ('manage_default', )
     field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,

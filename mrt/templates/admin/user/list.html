@@ -109,9 +109,13 @@
                           user.participants.filter_by(deleted=False)|sort(attribute='meeting_id') %}
                     {% if participant.meeting %}
 
-                      <li {% if loop.first %}class="text-danger"{% endif %}>
-                        <a href="{{ url_for('meetings.default_participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
-                        {{ participant.meeting }}</a>
+                      <li>
+                        {% if loop.first %}
+                          <a class="text-danger" href="{{ url_for('meetings.default_participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
+                        {% else %}
+                          <a href="{{ url_for('meetings.participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
+                        {% endif %}
+                          {{ participant.meeting }}</a>
                       </li>
                     {% endif %}
                   {% else %}
