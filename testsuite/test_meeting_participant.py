@@ -2,6 +2,7 @@ from flask import url_for
 from pyquery import PyQuery
 from jinja2 import FileSystemLoader
 from werkzeug.datastructures import MultiDict
+from sqlalchemy import not_
 from sqlalchemy_utils import types
 from urllib import urlencode
 import xlrd
@@ -64,11 +65,14 @@ def test_meeting_participant_detail(app, user):
         add_custom_fields_for_meeting(meeting)
         add_custom_fields_for_meeting(meeting,
                                       form_class=MediaParticipantDummyForm)
-        CustomFieldFactory(custom_field_type=CustomField.PARTICIPANT,
-                           meeting=meeting, field_type='checkbox',
+        CustomFieldFactory(meeting=meeting, field_type='checkbox',
                            label__english='diet', required=False, sort=30)
         CustomFieldFactory(custom_field_type=CustomField.MEDIA,
                            meeting=meeting, field_type='checkbox')
+        CustomFieldFactory(meeting=meeting)
+        CustomFieldFactory(meeting=meeting, label__english='photo')
+        CustomFieldFactory(custom_field_type=CustomField.MEDIA,
+                           meeting=meeting, label__english='photo')
         populate_participant_form(category.meeting, data)
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
@@ -86,9 +90,9 @@ def test_meeting_participant_detail(app, user):
         assert resp.status_code == 200
         details = PyQuery(resp.data)('tr')
         custom_fields = (
-            CustomField.query
-            .filter_by(meeting=meeting,
-                       custom_field_type=CustomField.PARTICIPANT)
+            meeting.custom_fields
+            .filter_by(custom_field_type=CustomField.PARTICIPANT)
+            .filter(not_(CustomField.field_type == 'image'))
             .order_by(CustomField.sort).all())
         for i, custom_field in enumerate(custom_fields):
             detail_label = details[i].find('th').text_content().strip()
@@ -110,6 +114,16 @@ def test_meeting_participant_detail(app, user):
                 assert participant.category.title.english == detail_data
             else:
                 assert str(participant_data) == detail_data
+
+        image_custom_fields = (
+            meeting.custom_fields
+            .filter_by(custom_field_type=CustomField.PARTICIPANT,
+                       field_type='image')
+            .order_by(CustomField.sort).all())
+        image_details = PyQuery(resp.data)('.image-widget h4.text-center')
+        for i, custom_field in enumerate(image_custom_fields):
+            image_label = image_details[i].text_content().strip()
+            assert custom_field.label.english == image_label
 
 
 def test_meeting_participant_add_success(app, user):

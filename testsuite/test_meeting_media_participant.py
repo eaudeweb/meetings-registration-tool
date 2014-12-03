@@ -1,13 +1,15 @@
 from flask import url_for
 from pyquery import PyQuery
 from urllib import urlencode
+from sqlalchemy import not_
+from sqlalchemy_utils import types
 import json
 
-from mrt.models import Category, Participant
+from mrt.models import Category, Participant, CustomField
 from mrt.forms.meetings import (add_custom_fields_for_meeting,
                                 MediaParticipantDummyForm)
 from .factories import MediaParticipantFactory, MeetingCategoryFactory
-from .factories import MeetingFactory, ParticipantFactory
+from .factories import MeetingFactory, ParticipantFactory, CustomFieldFactory
 
 
 MEDIA_ENABLED = {'media_participant_enabled': True}
@@ -40,6 +42,78 @@ def test_meeting_media_participant_list(app, user):
         for participant in resp_data['data']:
             assert (Participant.query.get(participant['id']).participant_type
                     == Participant.MEDIA)
+
+
+def test_meeting_media_participant_detail_list(app, user):
+    category = MeetingCategoryFactory(meeting__settings=MEDIA_ENABLED,
+                                      category_type=Category.MEDIA)
+    meeting = category.meeting
+    data = MediaParticipantFactory.attributes()
+    data['category_id'] = category.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        add_custom_fields_for_meeting(meeting,
+                                      form_class=MediaParticipantDummyForm)
+        CustomFieldFactory(meeting=meeting, field_type='checkbox',
+                           label__english='diet')
+        CustomFieldFactory(custom_field_type=CustomField.MEDIA,
+                           meeting=meeting, field_type='checkbox', sort=30,
+                           required=False)
+        CustomFieldFactory(meeting=meeting)
+        CustomFieldFactory(meeting=meeting, label__english='photo')
+        CustomFieldFactory(custom_field_type=CustomField.MEDIA,
+                           meeting=meeting, label__english='photo',
+                           required=False, sort=31)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.media_participant_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().media_participants().first()
+        participant = Participant.query.get(1)
+        resp = client.get(url_for('meetings.media_participant_detail',
+                                  meeting_id=meeting.id,
+                                  participant_id=1))
+
+        assert resp.status_code == 200
+        details = PyQuery(resp.data)('tr')
+        custom_fields = (
+            meeting.custom_fields
+            .filter_by(custom_field_type=CustomField.MEDIA)
+            .filter(not_(CustomField.field_type == 'image'))
+            .order_by(CustomField.sort).all())
+        for i, custom_field in enumerate(custom_fields):
+            detail_label = details[i].find('th').text_content().strip()
+            detail_data = details[i].find('td').text_content().strip()
+            try:
+                participant_data = getattr(participant, custom_field.slug)
+            except AttributeError:
+                value = int(custom_field.custom_field_values.first().value)
+                participant_data = True if value else False
+            assert custom_field.label.english == detail_label
+            if isinstance(participant_data, types.choice.Choice):
+                assert participant_data.value == detail_data
+            elif isinstance(participant_data, types.country.Country):
+                assert participant_data.name == detail_data
+            elif isinstance(participant_data, bool):
+                if participant_data:
+                    assert details[i].find('td').find('span') is not None
+            elif custom_field.slug == 'category_id':
+                assert participant.category.title.english == detail_data
+            else:
+                assert str(participant_data) == detail_data
+
+        image_custom_fields = (
+            meeting.custom_fields
+            .filter_by(custom_field_type=CustomField.MEDIA,
+                       field_type='image')
+            .order_by(CustomField.sort).all())
+        image_details = PyQuery(resp.data)('.image-widget h4.text-center')
+        for i, custom_field in enumerate(image_custom_fields):
+            image_label = image_details[i].text_content().strip()
+            assert custom_field.label.english == image_label
 
 
 def test_meeting_media_participant_add(app, user):
