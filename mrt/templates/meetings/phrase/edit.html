@@ -29,7 +29,7 @@
 
   <h3 class="page-title">{{ title }}</h3>
 
-  {% with meeting_type = g.meeting.meeting_type %}
+  {% with meeting_type = g.meeting.meeting_type_slug %}
     {% include "common/_phrase_edit.html" %}
   {% endwith %}
 

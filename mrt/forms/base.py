@@ -6,13 +6,16 @@ from werkzeug import MultiDict, FileStorage
 
 from flask_wtf.file import FileField as _FileField
 from sqlalchemy_utils import Country
+from sqlalchemy.orm.exc import NoResultFound
 
+from wtforms import ValidationError
 from wtforms import widgets, fields, validators
 from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import ModelForm
 from wtforms_alchemy import CountryField as _CountryField
 
-from mrt.models import db, Translation, Category, CategoryDefault, CustomField
+from mrt.models import (
+    db, Translation, Category, CategoryDefault, CustomField, MeetingType)
 from mrt.utils import validate_email, slugify
 
 
@@ -237,3 +240,17 @@ class EmailRequired(object):
 class EmailField(fields.StringField):
 
     validators = [EmailRequired()]
+
+
+class SlugUnique(object):
+    def __call__(self, form, field):
+        if form.obj:
+            if form.obj.slug == field.data:
+                return True
+            else:
+                raise ValidationError('Meeting type slug is not editable')
+        try:
+            MeetingType.query.filter_by(slug=field.data).one()
+            raise ValidationError('Another meeting type with this slug exists')
+        except NoResultFound:
+            pass

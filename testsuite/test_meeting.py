@@ -7,13 +7,14 @@ from mrt.models import Meeting, Category, Phrase, CustomField
 from mrt.models import CustomFieldChoice, Translation, Participant
 from mrt.forms.meetings import ParticipantDummyForm, MediaParticipantDummyForm
 
-from .factories import MeetingFactory, CategoryDefaultFactory
+from .factories import CategoryDefaultFactory
+from .factories import MeetingFactory, MeetingTypeFactory
 from .factories import PhraseDefaultFactory, normalize_data
 from .factories import PhraseMeetingFactory, ParticipantFactory
 from .factories import CustomFieldFactory, MeetingCategoryFactory
 
 
-def test_meeting_list(app, user):
+def test_meeting_list(app, user, default_meeting):
     MeetingFactory.create_batch(5)
 
     client = app.test_client()
@@ -26,13 +27,13 @@ def test_meeting_list(app, user):
     table = PyQuery(resp.data)('#meetings')
     tbody = table('tbody')
     row_count = len(tbody('tr'))
-
     assert row_count == 5
 
 
-def test_meeting_list_filter(app, user):
+def test_meeting_list_filter(app, user, default_meeting):
     MeetingFactory.create_batch(3)
-    MeetingFactory.create_batch(6, meeting_type='sc')
+    meeting_type = MeetingTypeFactory(slug='sc')
+    MeetingFactory.create_batch(6, meeting_type=meeting_type)
 
     client = app.test_client()
     with app.test_request_context():
@@ -56,10 +57,12 @@ def test_meeting_list_filter(app, user):
 
 def test_meeting_add(app, user):
     data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -74,9 +77,11 @@ def test_meeting_add(app, user):
 
 def test_meeting_add_without_badge_header(app, user):
     data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -93,10 +98,12 @@ def test_meeting_add_without_badge_header(app, user):
 
 def test_meeting_add_participant_custom_field_generation(app, user):
     data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -111,20 +118,23 @@ def test_meeting_add_participant_custom_field_generation(app, user):
         assert query.count() == len(fields)
 
         for field in fields.values():
-            cf = (CustomField.query
-                  .filter_by(meeting_id=1, slug=field.name,
-                             custom_field_type=CustomField.PARTICIPANT)
-                  .filter(CustomField.label.has(english=field.label.text))
-                  .one())
+            (CustomField.query
+             .filter_by(meeting_id=1, slug=field.name,
+                        custom_field_type=CustomField.PARTICIPANT)
+             .filter(CustomField.label.has(english=field.label.text))
+             .one())
 
 
-def test_meeting_add_media_participant_custom_field_generation(app, user):
+def test_meeting_add_with_media_participants_disabled(app, user):
     data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
+    data['meeting_type_slug'] = meeting_type.slug
+
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -139,19 +149,21 @@ def test_meeting_add_media_participant_custom_field_generation(app, user):
         assert query.count() == len(participant_fields) + len(media_fields)
 
         for field in media_fields.values():
-            cf = (CustomField.query
-                  .filter_by(meeting_id=1, slug=field.name,
-                             custom_field_type=CustomField.MEDIA)
-                  .filter(CustomField.label.has(english=field.label.text))
-                  .one())
+            (CustomField.query
+             .filter_by(meeting_id=1, slug=field.name,
+                        custom_field_type=CustomField.MEDIA)
+             .filter(CustomField.label.has(english=field.label.text))
+             .one())
 
 
 def test_meeting_add_custom_field_choice_generation(app, user):
     data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -175,11 +187,13 @@ def test_meeting_add_custom_field_choice_generation(app, user):
 
 def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app, user):
     data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -449,6 +463,7 @@ def test_meeting_add_phrase_edit(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -476,6 +491,7 @@ def test_meeting_add_default_phrase_edit(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -498,12 +514,14 @@ def test_meeting_add_default_phrase_edit(app, user):
 
 
 def test_meeting_add_default_phrase_copies(app, user):
-    PhraseDefaultFactory.create_batch(10)
+    meeting_type = MeetingTypeFactory()
+    PhraseDefaultFactory.create_batch(10, meeting_type=meeting_type)
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():
@@ -516,13 +534,14 @@ def test_meeting_add_default_phrase_copies(app, user):
 
 
 def test_meeting_add_with_meeting_settings(app, user):
-    data = MeetingFactory.attributes()
-    data = normalize_data(data)
+    data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():

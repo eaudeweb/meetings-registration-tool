@@ -3,7 +3,7 @@ from mrt.admin import StaffList, StaffEdit
 from mrt.admin import Categories, CategoryEdit, CategoryUpdatePosition
 from mrt.admin import PhrasesTypes, PhraseEdit, Roles, RoleEdit
 from mrt.admin import Users, UserToggle, UserPasswordChange
-from mrt.admin import SettingsOverview
+from mrt.admin import SettingsOverview, MeetingTypes, MeetingTypeEdit
 
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -49,3 +49,11 @@ admin.add_url_rule('/users/<int:user_id>/toggle',
                    view_func=UserToggle.as_view('user_toggle'))
 admin.add_url_rule('/users/<int:user_id>/edit',
                    view_func=UserPasswordChange.as_view('user_edit'))
+
+# Meeting Types
+admin.add_url_rule('/meeting-types',
+                   view_func=MeetingTypes.as_view('meeting_types'))
+meeting_type_func = MeetingTypeEdit.as_view('meeting_type_edit')
+admin.add_url_rule('/meeting-types/add', view_func=meeting_type_func)
+admin.add_url_rule('/meeting-types/<string:meeting_type_slug>/edit',
+                   view_func=meeting_type_func)

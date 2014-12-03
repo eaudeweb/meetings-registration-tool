@@ -5,6 +5,7 @@ from factory import Sequence
 from mrt.models import CustomField, Meeting
 from .factories import CustomFieldFactory, MeetingFactory, normalize_data
 from .factories import RoleUserMeetingFactory, RoleUserFactory, StaffFactory
+from .factories import MeetingTypeFactory
 from .utils import add_participant_custom_fields
 
 
@@ -158,6 +159,7 @@ def test_meeting_custom_field_delete(app):
 def test_meeting_custom_fields_list_with_media_participant_enabled(app):
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
+    meeting_type = MeetingTypeFactory()
     data = MeetingFactory.attributes()
     data = normalize_data(data)
     data['title-english'] = data.pop('title')
@@ -165,6 +167,7 @@ def test_meeting_custom_fields_list_with_media_participant_enabled(app):
     data['badge_header-english'] = data.pop('badge_header')
     data['settings'] = 'media_participant_enabled'
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
     with app.test_request_context():

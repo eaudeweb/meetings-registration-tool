@@ -1,10 +1,11 @@
 from factory.alchemy import SQLAlchemyModelFactory as BaseModelFactory
 from factory import SubFactory, SelfAttribute, Sequence
-from factory import post_generation
+from factory import post_generation, sequence
 from sqlalchemy_utils import CountryType, Choice
 from werkzeug.security import generate_password_hash
 
 from mrt import models
+from mrt.definitions import MEETING_TYPES
 
 from datetime import date
 
@@ -69,6 +70,18 @@ class BadgeHaderFactory(SQLAlchemyModelFactory):
     english = 'Meeting Badge Header'
 
 
+class MeetingTypeFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.MeetingType
+        sqlalchemy_session = models.db.session
+
+    label = 'Conference of the Parties'
+
+    @sequence
+    def slug(n):
+        return MEETING_TYPES[n - 1][0] if n <= len(MEETING_TYPES) else str(n)
+
+
 class MeetingFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Meeting
@@ -77,7 +90,7 @@ class MeetingFactory(SQLAlchemyModelFactory):
     title = SubFactory(MeetingTitleFactory)
     badge_header = SubFactory(BadgeHaderFactory)
     acronym = 'MOTPC'
-    meeting_type = 'cop'
+    meeting_type = SubFactory(MeetingTypeFactory)
     date_start = date.today()
     date_end = date.today()
     venue_city = SubFactory(MeetingVenueCityFactory)
@@ -153,7 +166,7 @@ class PhraseDefaultFactory(SQLAlchemyModelFactory):
 
     name = 'Credentials'
     group = 'Acknowledge details'
-    meeting_type = 'cop'
+    meeting_type = SubFactory(MeetingTypeFactory)
     description = SubFactory(PhraseDescriptionFactory)
 
 

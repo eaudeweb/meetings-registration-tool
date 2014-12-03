@@ -36,8 +36,8 @@ DEFAULT_CONFIG = {
     # Branding defaults
     'PRODUCT_LOGO': '',
     'PRODUCT_SIDE_LOGO': '',
-    # MRT specifics
-    'MEETING_TYPES': [],
+    'DEFAULT_PHRASES_PATH': (
+        path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
 }
 
 
@@ -71,7 +71,6 @@ def create_app(config={}):
     app.add_template_filter(pluralize)
     app.add_template_filter(slugify)
     app.add_template_filter(sort_by_tuple_element)
-    app.add_template_global(active)
     app.add_template_global(active)
     app.add_template_global(url_for_brand_static_path)
     app.add_template_global(date_processor)

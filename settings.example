@@ -1,17 +1,7 @@
 SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
 SECRET_KEY = 'secret'
 
-
 UPLOAD_SIZE = 1 * 1024 * 1024
-
-MEETING_TYPES = (
-    ('cop', 'Conference of the Parties'),
-    ('ac', 'Animals Committee'),
-    ('scc', 'Scientific Council'),
-    ('sc', 'Standing Committee'),
-    ('pc', 'Plants Committee'),
-)
-
 
 # Mail used for sending reset tokens
 DEFAULT_MAIL_SENDER = ''

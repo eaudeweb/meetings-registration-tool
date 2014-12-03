@@ -14,10 +14,11 @@ from mrt.models import db
 from mrt.models import Staff, User, Role
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
+from mrt.models import MeetingType
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import PERMISSIONS
 
-from .base import BaseForm, DescriptionInputForm
+from .base import BaseForm, DescriptionInputForm, SlugUnique
 from .base import DefaultCategoryTitleInputForm, CategoryTitleInputForm
 
 
@@ -139,7 +140,7 @@ class PhraseDefaultEditForm(PhraseEditBaseForm):
 
     class Meta:
         model = PhraseDefault
-        exclude = ('name', 'meeting_type', 'group', 'sort')
+        exclude = ('name', 'group', 'sort')
 
 
 class PhraseEditForm(PhraseEditBaseForm):
@@ -166,4 +167,27 @@ class RoleEditForm(BaseForm):
         self.populate_obj(role)
         if role.id is None:
             db.session.add(role)
+        db.session.commit()
+
+
+class MeetingTypeEditForm(BaseForm):
+
+    class Meta:
+        model = MeetingType
+        only = ('slug', 'label')
+        field_args = {
+            'slug': {'validators': [SlugUnique()]}
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(MeetingTypeEditForm, self).__init__(*args, **kwargs)
+        if self.obj:
+            del self._fields['slug']
+
+    def save(self):
+        meeting_type = self.obj or MeetingType()
+        self.populate_obj(meeting_type)
+        db.session.add(meeting_type)
+        if not meeting_type.default_phrases:
+            meeting_type.load_default_phrases()
         db.session.commit()
