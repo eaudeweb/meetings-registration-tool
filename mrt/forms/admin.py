@@ -139,7 +139,7 @@ class PhraseDefaultEditForm(PhraseEditBaseForm):
 
     class Meta:
         model = PhraseDefault
-        exclude = ('name', 'meeting_type', 'group', 'sort')
+        exclude = ('name', 'group', 'sort')
 
 
 class PhraseEditForm(PhraseEditBaseForm):
