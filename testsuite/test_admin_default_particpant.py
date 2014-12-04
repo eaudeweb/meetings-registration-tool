@@ -1,7 +1,9 @@
 from flask import url_for
 from pyquery import PyQuery
+from py.path import local
 from sqlalchemy import not_
 from sqlalchemy_utils import types
+from StringIO import StringIO
 
 from mrt.models import Meeting, CustomField, CustomFieldValue
 
@@ -108,6 +110,37 @@ def test_default_participant_edit(app, user, default_meeting):
                .filter(CustomFieldValue.custom_field
                        .has(slug='diet')).first())
         assert cfv.value != diet
+
+
+def test_default_participant_edit_photo_field(app, user, default_meeting):
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        meeting = add_new_meeting(client)
+        category = MeetingCategoryFactory(meeting=meeting)
+        CustomFieldFactory(meeting=meeting)
+
+        data = ParticipantFactory.attributes()
+        data['category_id'] = category.id
+        data['picture'] = (StringIO('Test'), 'test.png')
+        populate_participant_form(meeting, data)
+        resp = client.post(url_for('meetings.registration',
+                           meeting_id=meeting.id), data=data)
+        assert resp.status_code == 200
+        assert meeting.participants.count() == 1
+        participant = meeting.participants.first()
+        photo_field_value = participant.custom_field_values.first().value
+        assert upload_dir.join(photo_field_value).check() is True
+
+        create_user_after_registration(client, participant, meeting)
+        assert default_meeting.participants.count() == 1
+        default_participant = default_meeting.participants.first()
+        default_photo_field_value = (default_participant.custom_field_values
+                                     .first().value)
+        assert upload_dir.join(default_photo_field_value).check() is True
+        assert photo_field_value != default_photo_field_value
 
 
 def add_new_meeting(client):
