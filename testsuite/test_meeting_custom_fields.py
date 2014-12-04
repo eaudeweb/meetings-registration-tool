@@ -125,16 +125,18 @@ def test_meeting_custom_field_edit(app):
     role_user = RoleUserMeetingFactory(meeting=field.meeting,
                                        role__permissions=('manage_meeting',))
     data = CustomFieldFactory.attributes()
-    data['label-english'] = label = 'Approval'
+    data['label-english'] = field.label.english
+    data.pop('required')
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = role_user.user.id
+        assert field.required is True
         resp = client.post(url_for('meetings.custom_field_edit',
                                    meeting_id=field.meeting.id,
                                    custom_field_id=field.id), data=data)
         assert resp.status_code == 302
-        assert field.label.english == label
+        assert field.required is False
 
 
 def test_meeting_custom_field_delete(app):

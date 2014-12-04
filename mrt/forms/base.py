@@ -81,7 +81,7 @@ class CustomFieldLabelInputForm(TranslationInputForm):
             CustomField.meeting == g.meeting,
             CustomField.custom_field_type == self.custom_field_type).first()
 
-        if custom_field:
+        if custom_field and self.obj != custom_field.label:
             raise validators.ValidationError(self.duplicate_message)
 
 

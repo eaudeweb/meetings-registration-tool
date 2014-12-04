@@ -3,7 +3,7 @@ from pyquery import PyQuery
 from sqlalchemy import not_
 from sqlalchemy_utils import types
 
-from mrt.models import Meeting, CustomField
+from mrt.models import Meeting, CustomField, CustomFieldValue
 
 from testsuite.test_meeting_registration import create_user_after_registration
 from testsuite.factories import MeetingFactory, normalize_data
@@ -66,6 +66,48 @@ def test_default_participant_detail(app, user, default_meeting):
         assert len(html('.breadcrumb')) == 0
         assert len(html('.meeting-navs')) == 0
         assert len(html('.actions')) == 1
+
+
+def test_default_participant_edit(app, user, default_meeting):
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        meeting = add_new_meeting(client)
+        category = MeetingCategoryFactory(meeting=meeting)
+        CustomFieldFactory(meeting=meeting, field_type='text',
+                           label__english='diet')
+
+        data = ParticipantFactory.attributes()
+        data['category_id'] = category.id
+        data['diet'] = 'Vegetarian'
+        populate_participant_form(meeting, data)
+        resp = client.post(url_for('meetings.registration',
+                           meeting_id=meeting.id), data=data)
+        assert resp.status_code == 200
+        assert meeting.participants.count() == 1
+        participant = meeting.participants.first()
+        create_user_after_registration(client, participant, meeting)
+        assert default_meeting.participants.count() == 1
+        default_participant = default_meeting.participants.first()
+
+        data['first_name'] = first_name = 'Johnathan'
+        data['diet'] = diet = 'Low fat'
+        resp = client.post(url_for('meetings.default_participant_edit',
+                                   participant_id=default_participant.id,
+                                   meeting_id=default_meeting.id), data=data)
+        assert resp.status_code == 302
+        assert default_participant.first_name == first_name
+        assert participant.first_name != first_name
+        cfv = (default_participant.custom_field_values
+               .filter(CustomFieldValue.custom_field
+                       .has(slug='diet')).first())
+        assert cfv.value == diet
+        cfv = (participant.custom_field_values
+               .filter(CustomFieldValue.custom_field
+                       .has(slug='diet')).first())
+        assert cfv.value != diet
 
 
 def add_new_meeting(client):
