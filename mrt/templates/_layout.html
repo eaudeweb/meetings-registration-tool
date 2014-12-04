@@ -66,6 +66,10 @@
                 <a href="{{ url_for('admin.phrases') }}">
                   Default Phrases</a>
               </li>
+              <li class="{{ active('/admin/meeting-types') }}">
+                <a href="{{ url_for('admin.meeting_types') }}">
+                  Meeting Types</a>
+              </li>
               <li class="{{ active('/admin/staff') }}">
                 <a href="{{ url_for('admin.staff') }}">
                   Staff</a>

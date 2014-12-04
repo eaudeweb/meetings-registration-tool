@@ -1,0 +1,60 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% block title %}Meeting Types{% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#meeting-types').dataTable({"order": []});
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [('', 'Meeting Types')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Meeting Types</h2>
+  </div>
+
+  <div class="category-container">
+    <div class="table-responsive">
+      <table id="meeting-types"
+          class="table table-bordered table-condensed sortable table-hover">
+        <thead>
+          <tr>
+            <th>Slug</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for meeting_type in meeting_types %}
+            <tr>
+              <td>{{ meeting_type.slug }}</td>
+              <td>{{ meeting_type.label }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div> {# table-responsive #}
+  </div> {# category-container #}
+
+  <div class="actions">
+    <a href="{{ url_for('.meeting_type_edit') }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new meeting type</a>
+  </div>
+
+{% endblock %}

@@ -3,6 +3,7 @@ from .category import *
 from .phrase import *
 from .role import *
 from .user import *
+from .meeting_type import *
 from mrt import __version__ as VERSION
 
 

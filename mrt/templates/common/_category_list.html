@@ -3,7 +3,8 @@
 
   <div class="table-responsive">
 
-    <table id="categories" class="table table-bordered table-condensed sortable table-hover" data-url="{{ url_for('.category_update_position') }}">
+    <table id="categories" class="table table-bordered table-condensed sortable table-hover"
+        data-url="{{ url_for('.category_update_position') }}">
 
       <thead>
         <tr>
@@ -18,15 +19,13 @@
 
       <tbody>
         {% for category in categories %}
-          {% set url = url_for('.category_edit',
-                               category_id=category.id) %}
+          {% set url = url_for('.category_edit', category_id=category.id) %}
           <tr id="items-{{ category.id }}">
             <td class="handler">
               <span class="glyphicon glyphicon-align-justify"></span>
             </td>
             <td>
-              <a href="{{ url_for('.category_edit', category_id=category.id) }}">
-                {{ category.title.english }}</a>
+              <a href="{{ url }}">{{ category.title.english }}</a>
             </td>
             <td>{{ category.category_type }}</td>
             <td>{{ category.group }}</td>
