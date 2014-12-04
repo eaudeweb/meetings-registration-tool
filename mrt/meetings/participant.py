@@ -152,6 +152,7 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
     magic_form_class = ParticipantMagicForm
     field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                    CustomField.COUNTRY, CustomField.CATEGORY]
+    template = 'meetings/participant/participant/detail.html'
 
     def _get_queryset(self, participant_id):
         return (
@@ -178,7 +179,7 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
         ImagesObject = custom_object_factory(participant, field_types)
         images_form = ImagesForm(obj=ImagesObject())
 
-        return render_template('meetings/participant/participant/detail.html',
+        return render_template(self.template,
                                participant=participant,
                                form=form,
                                flags_form=flags_form,
@@ -190,6 +191,7 @@ class MediaParticipantDetail(ParticipantDetail):
     permission_required = ('view_media_participant',)
     form_class = MediaParticipantEditForm
     magic_form_class = MediaMagicForm
+    template = 'meetings/participant/media/detail.html'
 
     def _get_queryset(self, participant_id):
         return (
@@ -303,6 +305,20 @@ class MediaParticipantEdit(ParticipantEdit):
             .filter_by(id=participant_id)
             .first_or_404()
             if participant_id else None)
+
+    def _get_success_url(self, participant_id, participant):
+        staff = Staff.query.filter_by(user=user).first()
+        if participant_id:
+            activity_signal.send(self, participant=participant,
+                                 action='edit', staff=staff)
+            url = url_for('.media_participant_detail',
+                          participant_id=participant.id)
+        else:
+            activity_signal.send(self, participant=participant,
+                                 action='add', staff=staff)
+            notification_signal.send(self, participant=participant)
+            url = url_for('.media_participants')
+        return url
 
 
 class DefaultParticipantEdit(ParticipantEdit):

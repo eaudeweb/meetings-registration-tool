@@ -1,0 +1,41 @@
+<div class="row">
+
+  <div class="col-sm-7">
+
+    <h5>Participant details</h5>
+
+    <div class="table-responsive">
+
+      <table class="table table-bordered table-condensed table-striped">
+        <tbody>
+          {% for field in form %}
+            <tr>
+              <th class="col-sm-3">{{ field.label.text }}</th>
+              <td>
+                {% if field.type == 'CategoryField' %}
+                  {% set choices = field.choices|dict %}
+                  {{ choices[field.data] }}
+                {% elif field.name == 'email' %}
+                  <a href="mailto:{{ field.data }}">{{ field.data }}</a>
+                {% else %}
+                  {{ field.data }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div> {# table-responsive #}
+
+  </div> {# cols-#}
+
+  <div class="col-sm-5">
+    <h5>Photo Files</h5>
+    {% for field in images_form %}
+      {% include "meetings/participant/_image_widget.html" %}
+    {% endfor %}
+    {% include "meetings/participant/_detail_flags.html" %}
+  </div>
+
+</div>

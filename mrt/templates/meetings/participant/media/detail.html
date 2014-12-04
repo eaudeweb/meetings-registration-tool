@@ -29,7 +29,7 @@
 {% block breadcrumb %}
   {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
     {{ breadcrumb( [
-        (url_for('meetings.participants'), 'Participants'),
+        (url_for('meetings.media_participants'), 'Media Participants'),
         ('', title)
     ] ) }}
   {% endif %}
@@ -47,7 +47,7 @@
   {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
     {{ super() }}
     <h3 class="page-title" style="margin: 0">{{ title }}</h3>
-    {% set edit_url = url_for('.participant_edit',
+    {% set edit_url = url_for('.media_participant_edit',
                          participant_id=participant.id) %}
   {% else %}
     <div class="page-header">
@@ -64,12 +64,12 @@
       Edit participant</a>
 
     {% if g.meeting.meeting_type != g.meeting.DEFAULT_TYPE %}
-      {% with delete_url = url_for('.participant_edit', participant_id=participant.id) %}
+      {% with delete_url = url_for('.media_participant_edit', participant_id=participant.id) %}
         {% include "meetings/participant/_detail_actions.html" %}
       {% endwith %}
     {% endif %}
   </div>
 
-  {% include "meetings/participant/_detail_forms.html" %}
+    {% include "meetings/participant/_detail_forms.html" %}
 
 {% endblock %}
