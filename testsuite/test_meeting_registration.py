@@ -5,10 +5,13 @@ from py.path import local
 
 from mrt.mail import mail
 from mrt.models import Participant, ActivityLog, User, CustomFieldValue
+from mrt.models import Category
 from mrt.forms.meetings import add_custom_fields_for_meeting
+from mrt.forms.meetings import MediaParticipantDummyForm
 from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import RoleUserMeetingFactory, UserFactory
 from .factories import UserNotificationFactory, CustomFieldFactory
+from .factories import MediaParticipantFactory
 
 from testsuite.utils import populate_participant_form
 
@@ -55,6 +58,31 @@ def test_meeting_registration_add(app, default_meeting):
         assert Participant.query.filter_by(meeting=meeting).count() == 1
         participant = Participant.query.get(1)
         assert participant.participant_type.code == Participant.PARTICIPANT
+        assert len(outbox) == 2
+        assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
+
+
+def test_meeting_registration_media_add(app, default_meeting):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    category = MeetingCategoryFactory(meeting__online_registration=True,
+                                      meeting__settings=MEDIA_ENABLED,
+                                      category_type=Category.MEDIA)
+    meeting = category.meeting
+    role_user = RoleUserMeetingFactory(meeting=meeting)
+    RoleUserMeetingFactory(meeting=meeting,
+                           user__email='test@email.com')
+    UserNotificationFactory(user=role_user.user, meeting=meeting,
+                            notification_type='notify_media_participant')
+
+    data = MediaParticipantFactory.attributes()
+    data['category_id'] = category.id
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        resp = register_media_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+        participant = Participant.query.get(1)
+        assert participant.participant_type.code == Participant.MEDIA
         assert len(outbox) == 2
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
@@ -369,6 +397,19 @@ def register_participant_online(client, participant_data, meeting, user=None):
     add_custom_fields_for_meeting(meeting)
     populate_participant_form(meeting, participant_data)
     resp = client.post(url_for('meetings.registration',
+                       meeting_id=meeting.id), data=participant_data)
+    return resp
+
+
+def register_media_participant_online(client, participant_data, meeting,
+                                      user=None):
+    if user:
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+    add_custom_fields_for_meeting(meeting,
+                                  form_class=MediaParticipantDummyForm)
+    populate_participant_form(meeting, participant_data)
+    resp = client.post(url_for('meetings.media_registration',
                        meeting_id=meeting.id), data=participant_data)
     return resp
 
