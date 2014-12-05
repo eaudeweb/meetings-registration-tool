@@ -3,7 +3,7 @@ import json
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from flask import g, render_template, current_app as app
+from flask import g, render_template, current_app as app, url_for
 from flask.ext.babel import get_locale, Locale
 from flask.ext.babel import gettext as _
 from flask.ext.babel import lazy_gettext as __
@@ -312,6 +312,16 @@ class Participant(db.Model):
 
     def __repr__(self):
         return self.name
+
+    def get_detail_url(self):
+        if self.participant_type.code == self.PARTICIPANT:
+            return url_for('meetings.participant_detail',
+                           participant_id=self.id,
+                           meeting_id=self.meeting.id)
+        else:
+            return url_for('meetings.media_participant_detail',
+                           participant_id=self.id,
+                           meeting_id=self.meeting.id)
 
     @property
     def name(self):

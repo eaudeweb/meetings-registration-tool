@@ -5,7 +5,7 @@ from mrt.models import Meeting
 
 from mrt.meetings import Meetings, MeetingEdit, RecipientsCount
 from mrt.meetings import Registration, UserRegistration, UserRegistrationLogin
-from mrt.meetings import UserRegistrationLogout
+from mrt.meetings import UserRegistrationLogout, MediaRegistration
 
 from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
 from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
@@ -43,7 +43,7 @@ meeting_edit_func = MeetingEdit.as_view('edit')
 meetings.add_url_rule('/add', view_func=meeting_edit_func)
 meetings.add_url_rule('/<int:meeting_id>/edit', view_func=meeting_edit_func)
 
-
+# participant registration
 meetings.add_url_rule('/<int:meeting_id>/registration',
                       view_func=Registration.as_view('registration'))
 meetings.add_url_rule('/<int:meeting_id>/registration/user',
@@ -54,6 +54,11 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/registration/logout',
     view_func=UserRegistrationLogout.as_view('registration_user_logout'))
+
+# media participant registration
+meetings.add_url_rule(
+    '/<int:meeting_id>/media_registration',
+    view_func=MediaRegistration.as_view('media_registration'))
 
 # participants
 meetings.add_url_rule('/<int:meeting_id>/participants',

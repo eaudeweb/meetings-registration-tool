@@ -7,6 +7,7 @@ from flask.ext.login import login_user, logout_user, current_user
 from mrt.forms.auth import LoginForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
+from mrt.forms.meetings import MediaRegistrationForm
 from mrt.models import Participant, db
 
 from mrt.signals import activity_signal, notification_signal
@@ -23,16 +24,26 @@ def _render_if_closed(func):
     return wrapper
 
 
+def _render_if_media_disabled(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not g.meeting.media_participant_enabled:
+            return render_template('meetings/registration/media_closed.html')
+        return func(*args, **kwargs)
+    return wrapper
+
+
 class Registration(MethodView):
 
     decorators = (_render_if_closed,)
+    form_class = RegistrationForm
 
     def get(self):
         lang = request.args.get('lang', 'en')
         if lang in ('en', 'fr', 'es'):
             set_language(lang)
         Form = custom_form_factory(registration_fields=True,
-                                   form=RegistrationForm)
+                                   form=self.form_class)
         form = Form()
         if current_user.is_authenticated():
             participant = current_user.get_default()
@@ -43,7 +54,7 @@ class Registration(MethodView):
 
     def post(self):
         Form = custom_form_factory(registration_fields=True,
-                                   form=RegistrationForm)
+                                   form=self.form_class)
         form = Form(request.form)
         if form.validate():
             participant = form.save()
@@ -70,6 +81,12 @@ class Registration(MethodView):
                                form=form)
 
 
+class MediaRegistration(Registration):
+
+    decorators = (_render_if_closed, _render_if_media_disabled)
+    form_class = MediaRegistrationForm
+
+
 class UserRegistration(MethodView):
 
     def post(self):
@@ -77,7 +94,7 @@ class UserRegistration(MethodView):
         if not registration_token:
             abort(400)
         participant = (
-            Participant.query.participants()
+            Participant.query
             .filter_by(registration_token=registration_token)
             .first_or_404())
 

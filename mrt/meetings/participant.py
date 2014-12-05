@@ -146,7 +146,7 @@ class ParticipantDetail(PermissionRequiredMixin, MethodView):
 
     def _get_queryset(self, participant_id):
         return (
-            Participant.query.current_meeting().participants()
+            Participant.query.current_meeting()
             .filter_by(id=participant_id)
             .first_or_404())
 

@@ -142,8 +142,9 @@ class MediaParticipantDummyForm(BaseForm):
 
     class Meta:
         model = Participant
-        only = ('title', 'first_name', 'last_name',)
-        visible_on_registration_form = ('title', 'first_name', 'last_name')
+        only = ('title', 'first_name', 'last_name', 'email', 'category_id')
+        visible_on_registration_form = (
+            'title', 'first_name', 'last_name', 'email', 'category_id')
 
 
 class MeetingFilterForm(BaseForm):

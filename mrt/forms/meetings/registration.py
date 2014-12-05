@@ -20,6 +20,11 @@ class RegistrationForm(ParticipantEditForm):
     }
 
 
+class MediaRegistrationForm(RegistrationForm):
+
+    _CUSTOM_FIELDS_TYPE = 'media'
+
+
 class RegistrationUserForm(Form):
 
     email = StringField('Email', [validators.Email()])
