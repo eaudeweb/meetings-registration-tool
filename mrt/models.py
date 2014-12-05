@@ -802,8 +802,9 @@ class PhraseDefault(PhraseMixin, db.Model):
     meeting_type_slug = db.Column(
         'meeting_type', db.String(16), db.ForeignKey('meeting_type.slug'),
         nullable=False)
-    meeting_type = db.relationship('MeetingType',
-                                   backref=db.backref('default_phrases'))
+    meeting_type = db.relationship(
+        'MeetingType', backref=db.backref(
+            'default_phrases', cascade='all,delete'))
 
 
 class MeetingType(db.Model):

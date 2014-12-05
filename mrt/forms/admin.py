@@ -15,7 +15,7 @@ from mrt.models import Staff, User, Role
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
 from mrt.models import MeetingType
-from mrt.utils import unlink_uploaded_file
+from mrt.utils import unlink_uploaded_file, get_default_phrases
 from mrt.definitions import PERMISSIONS
 
 from .base import BaseForm, DescriptionInputForm
@@ -194,6 +194,11 @@ class MeetingTypeEditForm(BaseForm):
         meeting_type = self.obj or self.meta.model()
         self.populate_obj(meeting_type)
         db.session.add(meeting_type)
+        if not meeting_type.default_phrases:
+            for phrase_data in get_default_phrases():
+                phrase_data['meeting_type_slug'] = meeting_type.slug
+                phrase_default = PhraseDefault(**phrase_data)
+                db.session.add(phrase_default)
         db.session.commit()
 
 
