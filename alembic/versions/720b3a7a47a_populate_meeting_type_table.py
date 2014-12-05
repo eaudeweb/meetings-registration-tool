@@ -26,6 +26,7 @@ def upgrade():
             {'slug': 'scc', 'label': 'Scientific Council'},
             {'slug': 'sc',  'label': 'Standing Committee'},
             {'slug': 'pc',  'label': 'Plants Committee'},
+            {'slug': 'def',  'label': 'Default Meeting'},
         ])
     ### end Alembic commands ###
 
