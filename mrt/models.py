@@ -617,7 +617,8 @@ class Meeting(db.Model):
     meeting_type_slug = db.Column(
         'meeting_type', db.String(16), db.ForeignKey('meeting_type.slug'),
         nullable=False)
-    meeting_type = db.relationship('MeetingType')
+    meeting_type = db.relationship('MeetingType',
+                                   backref=db.backref('meetings'))
 
     date_start = db.Column(db.Date, nullable=False,
                            info={'label': 'Start Date',
@@ -666,7 +667,8 @@ class Meeting(db.Model):
 
     @classmethod
     def get_default(cls):
-        return cls.query.filter_by(meeting_type_slug=Meeting.DEFAULT_TYPE).one()
+        return cls.query.filter_by(
+            meeting_type_slug=Meeting.DEFAULT_TYPE).one()
 
     def __repr__(self):
         return self.title.english
@@ -806,8 +808,9 @@ class PhraseDefault(PhraseMixin, db.Model):
 
 class MeetingType(db.Model):
     __tablename__ = 'meeting_type'
-    slug = db.Column(db.String(16), primary_key=True)
-    label = db.Column(db.String(128), nullable=False)
+    slug = db.Column(db.String(16), primary_key=True, unique=True,
+                     info={'label': 'Slug'})
+    label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
 
 
 class MailLog(db.Model):

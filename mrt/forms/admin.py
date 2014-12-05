@@ -14,6 +14,7 @@ from mrt.models import db
 from mrt.models import Staff, User, Role
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
+from mrt.models import MeetingType
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import PERMISSIONS
 
@@ -32,6 +33,21 @@ def _staff_user_unique(*args, **kwargs):
             Staff.query.filter(Staff.user.has(email=field.data)).one()
             raise ValidationError(
                 'Another staff with this email already exists')
+        except NoResultFound:
+            pass
+    return validate
+
+
+def _meeting_type_unique(*args, **kwargs):
+    def validate(form, field):
+        if form.obj:
+            if form.obj.slug == field.data:
+                return True
+            else:
+                raise ValidationError('Meeting type slug is not editable')
+        try:
+            MeetingType.query.filter_by(slug=field.data).one()
+            raise ValidationError('Another meeting type with this slug exists')
         except NoResultFound:
             pass
     return validate
@@ -167,3 +183,23 @@ class RoleEditForm(BaseForm):
         if role.id is None:
             db.session.add(role)
         db.session.commit()
+
+
+class MeetingTypeEditForm(BaseForm):
+
+    class Meta:
+        model = MeetingType
+
+    def save(self):
+        meeting_type = self.obj or self.meta.model()
+        self.populate_obj(meeting_type)
+        db.session.add(meeting_type)
+        db.session.commit()
+
+
+class MeetingTypeAddForm(MeetingTypeEditForm):
+
+    class Meta:
+        model = MeetingType
+        include = ('slug',)
+        unique_validator = _meeting_type_unique

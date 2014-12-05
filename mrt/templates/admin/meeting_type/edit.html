@@ -1,0 +1,66 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb, form_group, static_form_group %}
+
+{% set title = "Edit meeting type" if meeting_type else "Add a new meeting type" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.meeting_types'), 'Meeting Types'),
+      ('', title)]
+  ) }}
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>{{ title }}</h2>
+  </div>
+
+  <div class="meeting-type-container">
+    <form class="form-horizontal" role="form" method="POST">
+      {{ form.csrf_token }}
+
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <b>Meeting type details</b>
+        </div>
+
+        <div class="panel-body">
+          {% if meeting_type %}
+            {{ static_form_group('Slug', meeting_type.slug) }}
+          {% else %}
+            {{ form_group(form.slug) }}
+          {% endif %}
+
+          {{ form_group(form.label) }}
+        </div>
+      </div>
+
+      <div class="form-actions row">
+        <div class="col-sm-6">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <small>or <a href="{{ url_for('.meeting_types') }}">Cancel</a></small>
+        </div>
+        {% if meeting_type %}
+          {% set url = url_for('.meeting_type_edit', meeting_type_slug=meeting_type.slug)%}
+          <div class="col-sm-6 text-right">
+            <a class="delete" data-toggle="delete"
+               data-href="{{ url }}"
+               data-message="Are you sure you want to delete this meeting type?">
+              <span class="glyphicon glyphicon-remove"></span>
+              Delete this meeting type</a>
+          </div>
+        {% endif %}
+      </div>
+
+    </form>
+  </div> {# meeting-type-container #}
+
+{% endblock %}

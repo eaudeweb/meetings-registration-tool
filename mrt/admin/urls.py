@@ -54,4 +54,6 @@ admin.add_url_rule('/users/<int:user_id>/edit',
 admin.add_url_rule('/meeting-types',
                    view_func=MeetingTypes.as_view('meeting_types'))
 meeting_type_func = MeetingTypeEdit.as_view('meeting_type_edit')
-admin.add_url_rule('meeting-types/add', view_func=meeting_type_func)
+admin.add_url_rule('/meeting-types/add', view_func=meeting_type_func)
+admin.add_url_rule('/meeting-types/<string:meeting_type_slug>/edit',
+                   view_func=meeting_type_func)
