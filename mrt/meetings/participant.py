@@ -2,7 +2,7 @@ from functools import wraps
 
 from werkzeug.utils import HTMLBuilder
 from flask import g, request, redirect, url_for, jsonify, json
-from flask import render_template, flash, Response, abort
+from flask import render_template, flash, Response
 from flask.views import MethodView
 from flask.ext.login import current_user as user
 
@@ -16,8 +16,7 @@ from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 
 from mrt.mail import send_single_message
-from mrt.models import db, Participant, CustomField, Staff, Category
-from mrt.models import Phrase, Meeting
+from mrt.models import db, Participant, CustomField, Staff, Category, Phrase
 from mrt.models import search_for_participant, get_participants_full
 
 from mrt.pdf import PdfRenderer
@@ -31,15 +30,6 @@ def _category_required(func):
         query = Category.query.filter_by(meeting=g.meeting)
         if (query.count() == 0):
             return render_template('meetings/category_required.html')
-        return func(**kwargs)
-    return wrapper
-
-
-def _default_meeting_required(func):
-    @wraps(func)
-    def wrapper(**kwargs):
-        if g.meeting.meeting_type != Meeting.DEFAULT_TYPE:
-            abort(404)
         return func(**kwargs)
     return wrapper
 
@@ -205,11 +195,10 @@ class DefaultParticipantDetail(ParticipantDetail):
     permission_required = ('manage_default', )
     field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                    CustomField.COUNTRY]
-    decorators = (_default_meeting_required,)
 
     def _get_queryset(self, participant_id):
         return (
-            Participant.query.current_meeting().participants()
+            Participant.query.default_meeting().participants()
             .filter_by(id=participant_id)
             .first_or_404())
 
@@ -328,13 +317,13 @@ class MediaParticipantEdit(ParticipantEdit):
 class DefaultParticipantEdit(ParticipantEdit):
 
     permission_required = ('manage_participant',)
-    decorators = (_default_meeting_required,)
+    decorators = []
     template = 'meetings/participant/default/edit.html'
     field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
                    CustomField.COUNTRY]
 
     def _get_object(self, participant_id):
-        return (Participant.query.current_meeting().participants()
+        return (Participant.query.default_meeting().participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
