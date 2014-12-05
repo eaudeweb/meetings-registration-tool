@@ -74,7 +74,7 @@ class CategoryEdit(PermissionRequiredMixin, MethodView):
             id=category_id,
             meeting_id=g.meeting.id).first_or_404()
         count = (
-            Participant.query.current_meeting().participants()
+            Participant.query.current_meeting()
             .filter_by(category=category)
             .count())
         if count:
