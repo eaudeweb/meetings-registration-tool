@@ -33,12 +33,13 @@
 
       </div> {# col-sm-9 #}
 
+
       <div class="col-sm-3">
 
         <div class="panel panel-default">
           <div class="panel-heading"><b>Meeting flags</b></div>
           <div class="panel-body">
-            {% for field in flags_form %}
+            {% for field in form.filter(CustomField.CHECKBOX) %}
               {{ form_group(field, label_size="6", input_size="6") }}
             {% endfor %}
           </div>

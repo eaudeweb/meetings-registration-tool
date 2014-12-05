@@ -17,7 +17,7 @@ from mrt.forms.admin import backgrounds
 from mrt.forms.meetings import custom_upload
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
-from mrt.models import db, User, redis_store
+from mrt.models import db, redis_store, User, CustomField
 
 from mrt.template import country_in, region_in
 from mrt.template import nl2br, active, date_processor, countries, crop
@@ -74,6 +74,20 @@ def create_app(config={}):
     app.add_template_global(url_for_brand_static_path)
     app.add_template_global(date_processor)
     app.add_template_global(inject_static_file)
+
+    @app.context_processor
+    def inject_context():
+        return {
+            'CustomField': {
+                'TEXT': CustomField.TEXT,
+                'IMAGE': CustomField.IMAGE,
+                'EMAIL': CustomField.EMAIL,
+                'CHECKBOX': CustomField.CHECKBOX,
+                'SELECT': CustomField.SELECT,
+                'COUNTRY': CustomField.COUNTRY,
+                'CATEGORY': CustomField.CATEGORY,
+            }
+        }
 
     login_manager = LoginManager()
     login_manager.init_app(app)

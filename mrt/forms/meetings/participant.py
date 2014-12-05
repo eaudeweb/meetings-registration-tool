@@ -1,14 +1,13 @@
+from collections import OrderedDict
 from uuid import uuid4
 
 from flask import g
 from flask.ext.uploads import UploadSet, IMAGES
 from werkzeug import FileStorage
-from wtforms import fields
-from wtforms.validators import DataRequired
+from wtforms import fields, compat
 
 from mrt.forms.base import BaseForm
-from mrt.models import db
-from mrt.models import Participant, Category
+from mrt.models import db, Participant, Category
 from mrt.definitions import PRINTOUT_TYPES
 
 
@@ -18,6 +17,13 @@ custom_upload = UploadSet('custom', IMAGES)
 class ParticipantEditForm(BaseForm):
 
     _CUSTOM_FIELDS_TYPE = 'participant'
+
+    def filter(self, field_type):
+        fields = OrderedDict([
+            (slug, field) for slug, field in self._fields.items()
+            if self._custom_fields[slug].field_type == field_type
+        ])
+        return iter(compat.itervalues(fields))
 
     def save(self, participant=None, commit=True):
         participant = participant or Participant()

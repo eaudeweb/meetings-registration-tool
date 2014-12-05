@@ -211,7 +211,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
     form_class = ParticipantEditForm
     magic_form_class = ParticipantMagicForm
     field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                   CustomField.COUNTRY, CustomField.CATEGORY]
+                   CustomField.COUNTRY, CustomField.CATEGORY,
+                   CustomField.CHECKBOX]
 
     def _get_object(self, participant_id=None):
         return (Participant.query.current_meeting().participants()
@@ -239,13 +240,7 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                                    form=self.form_class)
         Object = custom_object_factory(participant, self.field_types)
         form = Form(obj=Object())
-        field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_types=field_types,
-                                        form=self.magic_form_class)
-        FlagsObject = custom_object_factory(participant, field_types)
-        flags_form = FlagsForm(obj=FlagsObject())
-
-        return render_template(self.template, form=form, flags_form=flags_form,
+        return render_template(self.template, form=form,
                                participant=participant)
 
     def post(self, participant_id=None):
@@ -254,15 +249,8 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                                    form=self.form_class)
         Object = custom_object_factory(participant, self.field_types)
         form = Form(obj=Object())
-
-        field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_types=field_types,
-                                        form=self.magic_form_class)
-        FlagsObject = custom_object_factory(participant, field_types)
-        flags_form = FlagsForm(obj=FlagsObject())
-        if (form.validate() and flags_form.validate()):
+        if (form.validate()):
             participant = form.save(participant)
-            flags_form.save(participant)
             flash('Person information saved', 'success')
             return redirect(self._get_success_url(participant_id,
                                                   participant))
