@@ -83,7 +83,7 @@ class CustomFieldEdit(PermissionRequiredMixin, MethodView):
 
 def _get_participant(participant_id):
     return (
-        Participant.query.current_meeting().participants()
+        Participant.query.current_meeting()
         .filter_by(id=participant_id)
         .first_or_404())
 
@@ -190,8 +190,11 @@ class CustomFieldCropUpload(PermissionRequiredMixin, MethodView):
         valid_crop = x2 > 0 and y2 > 0
         if valid_crop:
             crop_file(custom_field_value.value, 'custom', (x1, y1, x2, y2))
-
-        url = url_for('.participant_detail', participant_id=participant_id)
+        if participant.participant_type == Participant.PARTICIPANT:
+            url = url_for('.participant_detail', participant_id=participant_id)
+        else:
+            url = url_for('.media_participant_detail',
+                          participant_id=participant_id)
         return redirect(url)
 
 

@@ -289,7 +289,11 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                              action='delete', staff=staff)
         db.session.commit()
         flash('Participant successfully deleted', 'warning')
-        return jsonify(status="success", url=url_for('.participants'))
+        if participant.participant_type == Participant.PARTICIPANT:
+            url = url_for('.participants')
+        else:
+            url = url_for('.media_participants')
+        return jsonify(status="success", url=url)
 
 
 class MediaParticipantEdit(ParticipantEdit):
@@ -363,7 +367,7 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id):
         participant = (
-            Participant.query.current_meeting().participants()
+            Participant.query.current_meeting()
             .filter_by(id=participant_id)
             .first_or_404())
         nostripe = request.args.get('nostripe')
