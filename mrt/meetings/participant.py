@@ -497,7 +497,10 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
 
         columns = []
 
-        custom_fields = g.meeting.custom_fields.filter_by(is_primary=True)
+        custom_fields = (
+            g.meeting.custom_fields
+            .filter_by(custom_field_type=CustomField.PARTICIPANT,
+                       is_primary=True))
         cfs = [cf.slug for cf in custom_fields
                if cf.field_type.code not in ('image',)]
         form = ParticipantDummyForm()
