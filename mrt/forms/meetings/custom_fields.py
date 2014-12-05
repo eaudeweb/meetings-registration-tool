@@ -124,7 +124,9 @@ def custom_form_factory(field_types=[], field_slugs=[],
             attrs['coerce'] = int
 
         # set field to form
-        form_attrs[f.slug] = data['field'](**attrs)
+        field = data['field'](**attrs)
+        setattr(field, 'field_type', f.field_type.code)
+        form_attrs[f.slug] = field
 
     return type(form)(form.__name__, (form,), form_attrs)
 

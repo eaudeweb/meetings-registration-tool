@@ -239,7 +239,6 @@ class ParticipantEdit(PermissionRequiredMixin, MethodView):
                                    form=self.form_class)
         Object = custom_object_factory(participant, self.field_types)
         form = Form(obj=Object())
-
         field_types = [CustomField.CHECKBOX]
         FlagsForm = custom_form_factory(field_types=field_types,
                                         form=self.magic_form_class)
