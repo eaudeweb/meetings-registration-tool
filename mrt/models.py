@@ -812,6 +812,7 @@ class MeetingType(db.Model):
     slug = db.Column(db.String(16), primary_key=True, unique=True,
                      info={'label': 'Slug'})
     label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
+    default = db.Column(db.Boolean, nullable=False, default=False)
 
     def load_default_phrases(self):
         with open(app.config['DEFAULT_PHRASES_PATH'], 'r') as f:

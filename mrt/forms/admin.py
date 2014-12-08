@@ -189,7 +189,7 @@ class MeetingTypeEditForm(BaseForm):
 
     class Meta:
         model = MeetingType
-        include = ('slug',)
+        only = ('slug', 'label')
         unique_validator = _meeting_type_unique
 
     def __init__(self, *args, **kwargs):
