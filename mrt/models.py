@@ -617,8 +617,8 @@ class Meeting(db.Model):
     meeting_type_slug = db.Column(
         'meeting_type', db.String(16), db.ForeignKey('meeting_type.slug'),
         nullable=False)
-    meeting_type = db.relationship('MeetingType',
-                                   backref=db.backref('meetings'))
+    meeting_type = db.relationship(
+        'MeetingType', backref=db.backref('meetings', lazy='dynamic'))
 
     date_start = db.Column(db.Date, nullable=False,
                            info={'label': 'Start Date',

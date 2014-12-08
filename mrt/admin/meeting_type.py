@@ -55,7 +55,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
 
     def delete(self, meeting_type_slug):
         meeting_type = MeetingType.query.get_or_404(meeting_type_slug)
-        meetings_nr = len(meeting_type.meetings)
+        meetings_nr = meeting_type.meetings.count()
         if meetings_nr:
             meetings_message = (
                 'There is {} meeting' if meetings_nr == 1
