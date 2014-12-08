@@ -189,6 +189,13 @@ class MeetingTypeEditForm(BaseForm):
 
     class Meta:
         model = MeetingType
+        include = ('slug',)
+        unique_validator = _meeting_type_unique
+
+    def __init__(self, *args, **kwargs):
+        super(MeetingTypeEditForm, self).__init__(*args, **kwargs)
+        if self.obj:
+            del self._fields['slug']
 
     def save(self):
         meeting_type = self.obj or self.meta.model()
@@ -197,11 +204,3 @@ class MeetingTypeEditForm(BaseForm):
         if not meeting_type.default_phrases:
             meeting_type.load_default_phrases()
         db.session.commit()
-
-
-class MeetingTypeAddForm(MeetingTypeEditForm):
-
-    class Meta:
-        model = MeetingType
-        include = ('slug',)
-        unique_validator = _meeting_type_unique

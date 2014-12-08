@@ -4,7 +4,7 @@ from flask.ext.login import login_required
 
 from mrt.meetings import PermissionRequiredMixin
 from mrt.models import MeetingType, db
-from mrt.forms.admin import MeetingTypeEditForm, MeetingTypeAddForm
+from mrt.forms.admin import MeetingTypeEditForm
 
 
 class MeetingTypes(PermissionRequiredMixin, MethodView):
@@ -24,10 +24,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
     def get(self, meeting_type_slug=None):
         meeting_type = MeetingType.query.get_or_404(meeting_type_slug) \
             if meeting_type_slug else None
-        if meeting_type:
-            form = MeetingTypeEditForm(obj=meeting_type)
-        else:
-            form = MeetingTypeAddForm(obj=meeting_type)
+        form = MeetingTypeEditForm(obj=meeting_type)
         return render_template('admin/meeting_type/edit.html',
                                form=form,
                                meeting_type=meeting_type)
@@ -35,10 +32,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
     def post(self, meeting_type_slug=None):
         meeting_type = MeetingType.query.get_or_404(meeting_type_slug) \
             if meeting_type_slug else None
-        if meeting_type:
-            form = MeetingTypeEditForm(request.form, obj=meeting_type)
-        else:
-            form = MeetingTypeAddForm(request.form, obj=meeting_type)
+        form = MeetingTypeEditForm(request.form, obj=meeting_type)
 
         if form.validate():
             form.save()
