@@ -38,6 +38,8 @@ DEFAULT_CONFIG = {
     'PRODUCT_SIDE_LOGO': '',
     # MRT specifics
     'MEETING_TYPES': [],
+    'DEFAULT_PHRASES_PATH': (
+        path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
 }
 
 

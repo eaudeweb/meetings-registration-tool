@@ -6,7 +6,6 @@ from uuid import uuid4
 import os
 import re
 import xlwt
-import json
 
 from flask import _request_ctx_stack, current_app as app
 from flask import g
@@ -207,9 +206,3 @@ def clean_email(emails):
         if validate_email(email):
             return email
     return None
-
-
-def get_default_phrases():
-    with open(app.config['DEFAULT_PHRASES'], 'r') as f:
-        default_phrases = json.load(f)
-    return default_phrases

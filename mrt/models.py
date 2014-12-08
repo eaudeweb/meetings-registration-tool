@@ -813,6 +813,11 @@ class MeetingType(db.Model):
                      info={'label': 'Slug'})
     label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
 
+    def load_default_phrases(self):
+        with open(app.config['DEFAULT_PHRASES_PATH'], 'r') as f:
+            default_phrases = json.load(f)
+        self.default_phrases += [PhraseDefault(**d) for d in default_phrases]
+
 
 class MailLog(db.Model):
 
