@@ -36,13 +36,15 @@ DEFAULT_CONFIG = {
     # Branding defaults
     'PRODUCT_LOGO': '',
     'PRODUCT_SIDE_LOGO': '',
+    # MRT specifics
+    'MEETING_TYPES': [],
 }
 
 
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
     app.config.update(DEFAULT_CONFIG)
-    app.config.from_pyfile('settings.py')
+    app.config.from_pyfile('settings.py', silent=True)
     app.config.update(config)
 
     babel = Babel(app)
