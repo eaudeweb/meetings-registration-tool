@@ -809,8 +809,7 @@ class PhraseDefault(PhraseMixin, db.Model):
 
 class MeetingType(db.Model):
     __tablename__ = 'meeting_type'
-    slug = db.Column(db.String(16), primary_key=True, unique=True,
-                     info={'label': 'Slug'})
+    slug = db.Column(db.String(16), primary_key=True, info={'label': 'Slug'})
     label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
     default = db.Column(db.Boolean, nullable=False, default=False)
 
