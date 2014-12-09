@@ -1,4 +1,4 @@
-{% extends 'meetings/participant/_edit_base.html' %}
+{% extends 'meetings/participant/base/_edit.html' %}
 
 
 {% set title = "Edit media participant" if participant else "Add a new media participant" %}
@@ -22,7 +22,7 @@
 {% endblock %}
 
 
-{% block footer_cancel %}
+{% block footer %}
 
 <small>
   or

@@ -14,16 +14,25 @@ from mrt.definitions import PRINTOUT_TYPES
 custom_upload = UploadSet('custom', IMAGES)
 
 
-class ParticipantEditForm(BaseForm):
+class BaseParticipantForm(BaseForm):
 
-    _CUSTOM_FIELDS_TYPE = 'participant'
-
-    def filter(self, field_type):
+    def filter(self, field_types=[]):
         fields = OrderedDict([
             (slug, field) for slug, field in self._fields.items()
-            if self._custom_fields[slug].field_type == field_type
+            if self._custom_fields[slug].field_type in field_types
         ])
         return iter(compat.itervalues(fields))
+
+    def exclude(self, field_types):
+        fields = OrderedDict([
+            (slug, field) for slug, field in self._fields.items()
+            if self._custom_fields[slug].field_type not in field_types
+        ])
+        return iter(compat.itervalues(fields))
+
+    def has(self, field_type):
+        return len([f for f in self._fields
+                    if self._custom_fields[f].field_type == field_type]) > 0
 
     def save(self, participant=None, commit=True):
         participant = participant or Participant()
@@ -51,6 +60,11 @@ class ParticipantEditForm(BaseForm):
             db.session.commit()
 
         return participant
+
+
+class ParticipantEditForm(BaseParticipantForm):
+
+    _CUSTOM_FIELDS_TYPE = 'participant'
 
 
 class MediaParticipantEditForm(ParticipantEditForm):

@@ -1,0 +1,46 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group, flashed_messages %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block head %}
+
+  {% assets "upload_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+  {% assets "upload_js" %}
+     <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {% if not disable_super %}
+    {{ super() }}
+  {% endif %}
+
+  {% block content_header %}{% endblock %}
+
+  <div class="row">
+
+    <div class="col-sm-7">
+      {% include "meetings/participant/base/_detail_personal.html" %}
+    </div> {# cols-#}
+
+    <div class="col-sm-5">
+      {% include "meetings/participant/base/_detail_flags.html" %}
+    </div> {# cols- #}
+
+  </div> {# row #}
+
+{% endblock %}

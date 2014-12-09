@@ -7,7 +7,9 @@
 
 {% block content %}
 
-  {{ super() }}
+  {% if disable_super %}
+    {{ super() }}
+  {% endif %}
 
   <h3 class="page-title">{{ title }}</h3>
 
@@ -19,7 +21,8 @@
         <div class="panel panel-default">
           <div class="panel-heading"><b>Participant details</b></div>
           <div class="panel-body">
-            {% for field in form %}
+            {% for field in form.exclude([CustomField.CHECKBOX,
+                                          CustomField.IMAGE]) %}
               {% if loop.first %}
                 {% set options = {'autofocus': '' } %}
               {% else %}
@@ -29,21 +32,23 @@
                             options=options) }}
             {% endfor %}
           </div>
-        </div>
+        </div> {# panel #}
 
       </div> {# col-sm-9 #}
 
 
       <div class="col-sm-3">
 
-        <div class="panel panel-default">
-          <div class="panel-heading"><b>Meeting flags</b></div>
-          <div class="panel-body">
-            {% for field in form.filter(CustomField.CHECKBOX) %}
-              {{ form_group(field, label_size="6", input_size="6") }}
-            {% endfor %}
-          </div>
-        </div> {# panel #}
+        {% if form.has(CustomField.CHECKBOX) %}
+          <div class="panel panel-default">
+            <div class="panel-heading"><b>Meeting flags</b></div>
+            <div class="panel-body">
+              {% for field in form.filter([CustomField.CHECKBOX]) %}
+                {{ form_group(field, label_size="6", input_size="6") }}
+              {% endfor %}
+            </div>
+          </div> {# panel #}
+        {% endif %}
 
       </div> {# col-sm-3 #}
 
@@ -53,7 +58,7 @@
       <button type="submit" class="btn btn-primary">
         Save changes</button>
 
-      {% block footer_cancel %}{% endblock %}
+      {% block footer %}{% endblock %}
 
     </div>
 

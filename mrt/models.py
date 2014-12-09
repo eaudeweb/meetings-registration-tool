@@ -161,12 +161,8 @@ class Staff(db.Model):
     full_name = db.Column(db.String(128), nullable=False,
                           info={'label': 'Full Name'})
 
-    user_id = db.Column(
-        db.Integer, db.ForeignKey('user.id'),
-        nullable=False)
-    user = db.relationship(
-        'User',
-        backref=db.backref('staff', uselist=False))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', backref=db.backref('staff', uselist=False))
 
     @property
     def user_role(self):
@@ -391,12 +387,16 @@ class Participant(db.Model):
         from mrt.forms.meetings import ParticipantDummyForm
         from mrt.forms.meetings import add_custom_fields_for_meeting
         nr_fields = len(list(ParticipantDummyForm()))
+        exclude = ['category_id', 'attended', 'verified',
+                   'credentials']
         count = (
             CustomField.query.filter_by(meeting=self.default_meeting)
             .filter_by(is_primary=True)
+            .filter(~CustomField.slug.in_(exclude))
         ).count()
         if not nr_fields == count:
-            add_custom_fields_for_meeting(self.default_meeting)
+            add_custom_fields_for_meeting(self.default_meeting,
+                                          exclude=exclude)
 
     def clone(self):
         self.default_meeting = Meeting.get_default()

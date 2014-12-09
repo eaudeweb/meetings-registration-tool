@@ -157,10 +157,13 @@ class MeetingFilterForm(BaseForm):
         self.meeting_type.choices = [('', 'All')] + choices
 
 
-def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
+def add_custom_fields_for_meeting(meeting, exclude=[],
+                                  form_class=ParticipantDummyForm):
     """Adds participants fields as CustomFields to meeting."""
     form = form_class()
     for i, field in enumerate(form):
+        if field.name in exclude:
+            continue
         query = (
             CustomField.query
             .filter_by(slug=field.name, meeting=meeting)

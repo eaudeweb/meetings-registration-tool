@@ -7,7 +7,6 @@ from flask.views import MethodView
 from flask.ext.login import current_user as user
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
-from mrt.forms.meetings import ParticipantMagicForm, MediaMagicForm
 from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
 from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.forms.meetings import AcknowledgeEmailForm
@@ -16,11 +15,11 @@ from mrt.meetings import PermissionRequiredMixin
 from mrt.mixins import FilterView
 
 from mrt.mail import send_single_message
-from mrt.models import db, Participant, CustomField, Staff, Category, Phrase
+from mrt.models import db, Participant, CustomField, Category, Phrase
 from mrt.models import search_for_participant, get_participants_full
 
 from mrt.pdf import PdfRenderer
-from mrt.signals import activity_signal, notification_signal
+from mrt.signals import activity_signal
 from mrt.utils import generate_excel, set_language
 
 
@@ -135,186 +134,167 @@ class ParticipantSearch(PermissionRequiredMixin, MethodView):
         return json.dumps(results)
 
 
-class ParticipantDetail(PermissionRequiredMixin, MethodView):
+class BaseParticipantDetail(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
-    form_class = ParticipantEditForm
-    magic_form_class = ParticipantMagicForm
-    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                   CustomField.COUNTRY, CustomField.CATEGORY]
-    template = 'meetings/participant/participant/detail.html'
-
-    def _get_queryset(self, participant_id):
-        return (
-            Participant.query.current_meeting()
-            .filter_by(id=participant_id)
-            .first_or_404())
+    def _get_queryset(self):
+        raise NotImplemented
 
     def get(self, participant_id):
         participant = self._get_queryset(participant_id)
-        Form = custom_form_factory(field_types=self.field_types,
-                                   form=self.form_class)
-        Object = custom_object_factory(participant, self.field_types)
+        Form = custom_form_factory(form=self.form_class)
+        Object = custom_object_factory(participant)
         form = Form(obj=Object())
-
-        field_types = [CustomField.CHECKBOX]
-        FlagsForm = custom_form_factory(field_types=field_types,
-                                        form=self.magic_form_class)
-        FlagsObject = custom_object_factory(participant, field_types)
-        flags_form = FlagsForm(obj=FlagsObject())
-
-        field_types = [CustomField.IMAGE]
-        ImagesForm = custom_form_factory(field_types=field_types,
-                                         form=self.magic_form_class)
-        ImagesObject = custom_object_factory(participant, field_types)
-        images_form = ImagesForm(obj=ImagesObject())
-
-        return render_template(self.template,
-                               participant=participant,
-                               form=form,
-                               flags_form=flags_form,
-                               images_form=images_form)
+        return render_template(self.template, participant=participant,
+                               form=form)
 
 
-class MediaParticipantDetail(ParticipantDetail):
+class ParticipantDetail(BaseParticipantDetail):
+
+    permission_required = ('view_participant',)
+    form_class = ParticipantEditForm
+    template = 'meetings/participant/participant/detail.html'
+
+    def _get_queryset(self, participant_id):
+        return (Participant.query.current_meeting().participants()
+                .filter_by(id=participant_id)
+                .first_or_404())
+
+
+class MediaParticipantDetail(BaseParticipantDetail):
 
     permission_required = ('view_media_participant',)
     form_class = MediaParticipantEditForm
-    magic_form_class = MediaMagicForm
     template = 'meetings/participant/media/detail.html'
 
     def _get_queryset(self, participant_id):
-        return (
-            Participant.query.current_meeting().media_participants()
-            .filter_by(id=participant_id)
-            .first_or_404())
+        return (Participant.query.current_meeting().media_participants()
+                .filter_by(id=participant_id)
+                .first_or_404())
 
 
-class DefaultParticipantDetail(ParticipantDetail):
+class DefaultParticipantDetail(BaseParticipantDetail):
 
-    permission_required = ('manage_default', )
-    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                   CustomField.COUNTRY]
+    permission_required = ('manage_default',)
+    form_class = ParticipantEditForm
+    template = 'meetings/participant/default/detail.html'
 
     def _get_queryset(self, participant_id):
-        return (
-            Participant.query.default_meeting().participants()
-            .filter_by(id=participant_id)
-            .first_or_404())
-
-
-class ParticipantEdit(PermissionRequiredMixin, MethodView):
-
-    permission_required = ('manage_participant',)
-    decorators = (_category_required,)
-    template = 'meetings/participant/participant/edit.html'
-    form_class = ParticipantEditForm
-    magic_form_class = ParticipantMagicForm
-    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                   CustomField.COUNTRY, CustomField.CATEGORY,
-                   CustomField.CHECKBOX]
-
-    def _get_object(self, participant_id=None):
-        return (Participant.query.current_meeting().participants()
+        return (Participant.query.default_meeting().participants()
                 .filter_by(id=participant_id)
-                .first_or_404()
-                if participant_id else None)
+                .first_or_404())
 
-    def _get_success_url(self, participant_id, participant):
-        staff = Staff.query.filter_by(user=user).first()
-        if participant_id:
+
+class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
+
+    def get_object(self):
+        raise NotImplemented
+
+    def get_success_url(self):
+        raise NotImplemented
+
+    def _edit_signals(self, participant):
+        if participant:
             activity_signal.send(self, participant=participant,
-                                 action='edit', staff=staff)
-            url = url_for('.participant_detail',
-                          participant_id=participant.id)
+                                 action='edit', staff=user.staff)
         else:
             activity_signal.send(self, participant=participant,
-                                 action='add', staff=staff)
-            notification_signal.send(self, participant=participant)
-            url = url_for('.participants')
-        return url
+                                 action='add', staff=user.staff)
+            # TODO
+            # notification_signal.send(self, participant=participant)
+
+    def _delete_signals(self, participant):
+        activity_signal.send(self, participant=participant,
+                             action='delete', staff=user.staff)
+
+    def get_form(self):
+        return custom_form_factory(form=self.form_class)
 
     def get(self, participant_id=None):
-        participant = self._get_object(participant_id)
-        Form = custom_form_factory(field_types=self.field_types,
-                                   form=self.form_class)
-        Object = custom_object_factory(participant, self.field_types)
+        participant = self.get_object(participant_id)
+        Form = self.get_form()
+        Object = custom_object_factory(participant)
         form = Form(obj=Object())
         return render_template(self.template, form=form,
                                participant=participant)
 
     def post(self, participant_id=None):
-        participant = self._get_object(participant_id)
-        Form = custom_form_factory(field_types=self.field_types,
-                                   form=self.form_class)
-        Object = custom_object_factory(participant, self.field_types)
+        participant = self.get_object(participant_id)
+        Form = self.get_form()
+        Object = custom_object_factory(participant)
         form = Form(obj=Object())
-        if (form.validate()):
+        if form.validate():
             participant = form.save(participant)
             flash('Person information saved', 'success')
-            return redirect(self._get_success_url(participant_id,
-                                                  participant))
-        return render_template(self.template, form=form, flags_form=flags_form,
+            self._edit_signals(participant)
+            return redirect(self.get_success_url(participant))
+        return render_template(self.template, form=form,
                                participant=participant)
 
     def delete(self, participant_id):
-        participant = self._get_object(participant_id)
+        participant = self.get_object(participant_id)
         participant.deleted = True
-        staff = Staff.query.filter_by(user=user).first()
-        activity_signal.send(self, participant=participant,
-                             action='delete', staff=staff)
         db.session.commit()
+        self._delete_signals()
         flash('Participant successfully deleted', 'warning')
-        if participant.participant_type == Participant.PARTICIPANT:
-            url = url_for('.participants')
+        return jsonify(status='success', url=self.get_success_url())
+
+
+class ParticipantEdit(BaseParticipantEdit):
+
+    permission_required = ('manage_participant',)
+    decorators = (_category_required,)
+    template = 'meetings/participant/participant/edit.html'
+    form_class = ParticipantEditForm
+
+    def get_object(self, participant_id=None):
+        return (Participant.query.current_meeting().participants()
+                .filter_by(id=participant_id)
+                .first_or_404() if participant_id else None)
+
+    def get_success_url(self, participant=None):
+        if participant:
+            url = url_for('.participant_detail',
+                          participant_id=participant.id)
         else:
-            url = url_for('.media_participants')
-        return jsonify(status="success", url=url)
+            url = url_for('.participants')
+        return url
 
 
 class MediaParticipantEdit(ParticipantEdit):
 
     permission_required = ('manage_media_participant',)
+    decorators = (_category_required,)
     template = 'meetings/participant/media/edit.html'
     form_class = MediaParticipantEditForm
-    magic_form_class = MediaMagicForm
 
-    def _get_object(self, participant_id=None):
+    def get_object(self, participant_id=None):
         return (
             Participant.query.current_meeting().media_participants()
             .filter_by(id=participant_id)
             .first_or_404()
             if participant_id else None)
 
-    def _get_success_url(self, participant_id, participant):
-        staff = Staff.query.filter_by(user=user).first()
-        if participant_id:
-            activity_signal.send(self, participant=participant,
-                                 action='edit', staff=staff)
+    def get_success_url(self, participant=None):
+        if participant:
             url = url_for('.media_participant_detail',
                           participant_id=participant.id)
         else:
-            activity_signal.send(self, participant=participant,
-                                 action='add', staff=staff)
-            notification_signal.send(self, participant=participant)
             url = url_for('.media_participants')
         return url
 
 
-class DefaultParticipantEdit(ParticipantEdit):
+class DefaultParticipantEdit(BaseParticipantEdit):
 
     permission_required = ('manage_participant',)
-    decorators = []
     template = 'meetings/participant/default/edit.html'
-    field_types = [CustomField.TEXT, CustomField.SELECT, CustomField.EMAIL,
-                   CustomField.COUNTRY]
+    form_class = ParticipantEditForm
 
-    def _get_object(self, participant_id):
+    def get_object(self, participant_id):
         return (Participant.query.default_meeting().participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
-    def _get_success_url(self, participant_id, participant):
+    def get_success_url(self, participant):
         return url_for('.default_participant_detail',
                        participant_id=participant.id)
 
@@ -333,7 +313,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
                              action='restore')
         db.session.commit()
         flash('Participant successfully restored', 'success')
-        return jsonify(status="success", url=url_for('.participant_detail',
+        return jsonify(status='success', url=url_for('.participant_detail',
                        participant_id=participant.id))
 
 
