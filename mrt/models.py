@@ -9,15 +9,14 @@ from flask.ext.babel import gettext as _
 from flask.ext.babel import lazy_gettext as __
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask_redis import Redis
-
 from jinja2.exceptions import TemplateNotFound
 
-from wtforms.fields import DateField
 from sqlalchemy import cast
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy_utils import generates
+from wtforms.fields import DateField
 
 from mrt.definitions import (
     MEETING_TYPES, PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
@@ -387,8 +386,8 @@ class Participant(db.Model):
         from mrt.forms.meetings import ParticipantDummyForm
         from mrt.forms.meetings import add_custom_fields_for_meeting
         nr_fields = len(list(ParticipantDummyForm()))
-        exclude = ['category_id', 'attended', 'verified',
-                   'credentials']
+        exclude = ('category_id', 'attended', 'verified',
+                   'credentials')
         count = (
             CustomField.query.filter_by(meeting=self.default_meeting)
             .filter_by(is_primary=True)
@@ -896,7 +895,8 @@ def search_for_participant(search, queryset=None):
 def get_participants_full(meeting_id):
     qs = (
         Participant.query
-        .join(Participant.custom_field_values, CustomFieldValue.custom_field)
+        .outerjoin(Participant.custom_field_values,
+                   CustomFieldValue.custom_field)
         .with_entities(Participant, CustomField.slug, CustomFieldValue.value)
         .current_meeting()
         .participants()
@@ -908,10 +908,8 @@ def get_participants_full(meeting_id):
         if last_participant and participant.id != last_participant.id:
             yield last_participant
             last_participant = None
-
-        if not last_participant:
-            last_participant = participant
-        setattr(last_participant, slug, value)
-
+        last_participant = last_participant or participant
+        if slug:
+            setattr(last_participant, slug, value)
     if last_participant:
         yield last_participant

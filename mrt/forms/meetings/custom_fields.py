@@ -60,6 +60,7 @@ class _MagicForm(BaseForm):
 
 
 def custom_form_factory(field_types=[], field_slugs=[],
+                        excluded_field_types=[],
                         registration_fields=False,
                         form=_MagicForm):
     fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
@@ -73,6 +74,10 @@ def custom_form_factory(field_types=[], field_slugs=[],
 
     if field_slugs:
         fields = fields.filter(CustomField.slug.in_(field_slugs))
+
+    if excluded_field_types:
+        fields = fields.filter(
+            ~CustomField.field_type.in_(excluded_field_types))
 
     if registration_fields:
         fields = fields.for_registration()

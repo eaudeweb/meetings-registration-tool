@@ -207,7 +207,8 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
                              action='delete', staff=user.staff)
 
     def get_form(self):
-        return custom_form_factory(form=self.form_class)
+        return custom_form_factory(form=self.form_class,
+                                   excluded_field_types=[CustomField.IMAGE])
 
     def get(self, participant_id=None):
         participant = self.get_object(participant_id)
@@ -234,7 +235,7 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
         participant = self.get_object(participant_id)
         participant.deleted = True
         db.session.commit()
-        self._delete_signals()
+        self._delete_signals(participant)
         flash('Participant successfully deleted', 'warning')
         return jsonify(status='success', url=self.get_success_url())
 
@@ -472,7 +473,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['country'] = p.country.name
             data['email'] = p.email
             data['language'] = p.language.value
-            data['category_id'] = p.category_id
+            data['category_id'] = p.category.title
             data['represented_country'] = p.represented_country.name
             data['represented_region'] = (
                 p.represented_region.value if p.represented_region else None)

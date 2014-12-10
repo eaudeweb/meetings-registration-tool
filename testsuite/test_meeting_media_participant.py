@@ -82,7 +82,8 @@ def test_meeting_media_participant_detail_list(app, user):
         custom_fields = (
             meeting.custom_fields
             .filter_by(custom_field_type=CustomField.MEDIA)
-            .filter(not_(CustomField.field_type == 'image'))
+            .filter(not_(CustomField.field_type == CustomField.IMAGE))
+            .filter(not_(CustomField.field_type == CustomField.CHECKBOX))
             .order_by(CustomField.sort).all())
         for i, custom_field in enumerate(custom_fields):
             detail_label = details[i].find('th').text_content().strip()
