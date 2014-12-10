@@ -6,9 +6,10 @@ from flask.ext.uploads import UploadSet, IMAGES
 from werkzeug import FileStorage
 from wtforms import fields, compat
 
+from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
 from mrt.models import db, Participant, Category
-from mrt.definitions import PRINTOUT_TYPES
+from mrt.utils import unlink_participant_photo
 
 
 custom_upload = UploadSet('custom', IMAGES)
@@ -38,6 +39,7 @@ class BaseParticipantForm(BaseForm):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
         if participant.id is None:
+            # TODO this should be only on registration
             participant.registration_token = str(uuid4())
             participant.participant_type = self._CUSTOM_FIELDS_TYPE
             db.session.add(participant)
@@ -50,8 +52,10 @@ class BaseParticipantForm(BaseForm):
             elif field.data:
                 cfv = cf.get_or_create_value(participant)
                 if isinstance(field.data, FileStorage):
+                    current_filename = cfv.value
                     cfv.value = custom_upload.save(
                         field.data, name=str(uuid4()) + '.')
+                    unlink_participant_photo(current_filename)
                 else:
                     cfv.value = field.data
                 if not cfv.id:

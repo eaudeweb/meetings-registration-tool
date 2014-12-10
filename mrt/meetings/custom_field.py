@@ -6,6 +6,7 @@ from flask.views import MethodView
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
+from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.meetings import PermissionRequiredMixin
 
 from mrt.models import db
@@ -81,30 +82,36 @@ class CustomFieldEdit(PermissionRequiredMixin, MethodView):
         return jsonify(status="success", url=url_for('.custom_fields'))
 
 
-def _get_participant(participant_id):
-    return (
-        Participant.query.current_meeting()
-        .filter_by(id=participant_id)
-        .first_or_404())
+class BaseCustomFieldFile(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_participant',)
+
+    def get_object(self, participant_id):
+        return (Participant.query.current_meeting()
+                .filter_by(id=participant_id)
+                .first_or_404())
 
 
-class CustomFieldUpload(PermissionRequiredMixin, MethodView):
-
-    permission_required = ('manage_participant', )
+class CustomFieldUpload(BaseCustomFieldFile):
 
     def post(self, participant_id, field_slug):
-        participant = _get_participant(participant_id)
-        CustomField.query.filter_by(slug=field_slug).first_or_404()
+        participant = self.get_object(participant_id)
+        cf = CustomField.query.filter_by(slug=field_slug).first_or_404()
+
+        if participant.participant_type == Participant.PARTICIPANT:
+            form = ParticipantEditForm
+        else:
+            form = MediaparticipantEditForm
 
         field_types = [CustomField.IMAGE]
         Object = custom_object_factory(participant, field_types)
-        Form = custom_form_factory(field_slugs=[field_slug])
+        Form = custom_form_factory(form, field_slugs=[field_slug])
         form = Form(obj=Object())
 
         if form.validate():
             try:
-                [field_value] = form.save(participant)
-                data = field_value.value
+                form.save(participant)
+                data = cf.custom_field_values.first()
             except ValueError:
                 field_value = data = None
         else:
@@ -115,7 +122,7 @@ class CustomFieldUpload(PermissionRequiredMixin, MethodView):
         return jsonify(html=html)
 
     def delete(self, participant_id, field_slug):
-        participant = _get_participant(participant_id)
+        participant = self.get_object(participant_id)
         custom_field = (
             CustomFieldValue.query
             .filter(CustomFieldValue.participant == participant)
@@ -129,12 +136,10 @@ class CustomFieldUpload(PermissionRequiredMixin, MethodView):
         return jsonify()
 
 
-class CustomFieldRotate(PermissionRequiredMixin, MethodView):
-
-    permission_required = ('manage_participant', )
+class CustomFieldRotate(BaseCustomFieldFile):
 
     def post(self, participant_id, field_slug):
-        participant = _get_participant(participant_id)
+        participant = self.get_object(participant_id)
         custom_field = CustomField.query.filter_by(
             slug=field_slug, field_type='image').first_or_404()
         custom_field_value = CustomFieldValue.query.filter_by(
@@ -154,12 +159,10 @@ class CustomFieldRotate(PermissionRequiredMixin, MethodView):
         return jsonify(html=html)
 
 
-class CustomFieldCropUpload(PermissionRequiredMixin, MethodView):
-
-    permission_required = ('manage_participant', )
+class CustomFieldCropUpload(BaseCustomFieldFile):
 
     def get(self, participant_id, field_slug):
-        participant = _get_participant(participant_id)
+        participant = self.get_object(participant_id)
         custom_field = CustomField.query.filter_by(
             slug=field_slug, field_type='image').first_or_404()
         custom_field_value = CustomFieldValue.query.filter_by(
@@ -170,7 +173,7 @@ class CustomFieldCropUpload(PermissionRequiredMixin, MethodView):
                                data=custom_field_value.value)
 
     def post(self, participant_id, field_slug):
-        participant = _get_participant(participant_id)
+        participant = self.get_object(participant_id)
         custom_field = CustomField.query.filter_by(
             slug=field_slug, field_type='image').first_or_404()
         custom_field_value = CustomFieldValue.query.filter_by(

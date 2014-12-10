@@ -141,7 +141,7 @@ class BaseParticipantDetail(PermissionRequiredMixin, MethodView):
 
     def get(self, participant_id):
         participant = self._get_queryset(participant_id)
-        Form = custom_form_factory(form=self.form_class)
+        Form = custom_form_factory(self.form_class)
         Object = custom_object_factory(participant)
         form = Form(obj=Object())
         return render_template(self.template, participant=participant,
@@ -207,7 +207,7 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
                              action='delete', staff=user.staff)
 
     def get_form(self):
-        return custom_form_factory(form=self.form_class,
+        return custom_form_factory(self.form_class,
                                    excluded_field_types=[CustomField.IMAGE])
 
     def get(self, participant_id=None):

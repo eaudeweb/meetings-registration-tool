@@ -1,6 +1,7 @@
 from flask import g
 
 from mrt.forms.meetings import custom_object_factory, custom_form_factory
+from mrt.forms.meetings import ParticipantEditForm
 from mrt.models import CustomField
 from .factories import ProfilePictureFactory, CustomFieldFactory
 
@@ -26,7 +27,8 @@ def test_custom_form_factory(app):
     g.meeting = pic.participant.meeting
     field_types = [CustomField.IMAGE]
     Obj = custom_object_factory(pic.participant, field_types)
-    Form = custom_form_factory(field_slugs=[pic.custom_field.label.english])
+    Form = custom_form_factory(ParticipantEditForm,
+                               field_slugs=[pic.custom_field.label.english])
     with app.test_request_context():
         form = Form(obj=Obj())
         assert pic.custom_field.label.english in form._fields

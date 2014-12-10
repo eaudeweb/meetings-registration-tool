@@ -42,8 +42,7 @@ class Registration(MethodView):
         lang = request.args.get('lang', 'en')
         if lang in ('en', 'fr', 'es'):
             set_language(lang)
-        Form = custom_form_factory(registration_fields=True,
-                                   form=self.form_class)
+        Form = custom_form_factory(self.form_class, registration_fields=True)
         form = Form()
         if current_user.is_authenticated():
             participant = current_user.get_default()
@@ -53,8 +52,7 @@ class Registration(MethodView):
                                form=form)
 
     def post(self):
-        Form = custom_form_factory(registration_fields=True,
-                                   form=self.form_class)
+        Form = custom_form_factory(self.form_class, registration_fields=True)
         form = Form(request.form)
         if form.validate():
             participant = form.save()

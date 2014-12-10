@@ -1,25 +1,18 @@
-from uuid import uuid4
-
 from flask import g
-from flask.ext.uploads import UploadSet, IMAGES, TEXT, DOCUMENTS
+from flask.ext.uploads import IMAGES
 from flask_wtf.file import FileField, FileAllowed
 from flask.ext.babel import lazy_gettext as __
 
 from sqlalchemy_utils import Choice
 
-from werkzeug import FileStorage, OrderedMultiDict
+from werkzeug import OrderedMultiDict
 from wtforms import fields
 from wtforms.validators import DataRequired
 
-from mrt.forms.base import BaseForm, EmailField, EmailRequired
+from mrt.forms.base import EmailField, EmailRequired
 from mrt.forms.base import BooleanField, CategoryField, CountryField
 from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import Category
-from mrt.models import db
-from mrt.utils import unlink_participant_photo
-
-
-custom_upload = UploadSet('custom', TEXT + DOCUMENTS + IMAGES)
 
 
 _CUSTOM_FIELDS_MAP = {
@@ -30,39 +23,13 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.SELECT: {'field': fields.SelectField},
     CustomField.COUNTRY: {'field': CountryField},
     CustomField.CATEGORY: {'field': CategoryField},
-    CustomField.EMAIL: {'field': EmailField,
-                        'validators': [EmailRequired()]},
+    CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
 }
 
 
-class _MagicForm(BaseForm):
-
-    def save(self, participant):
-        items = []
-        for field_name, field in self._fields.items():
-            cf = self._custom_fields[field.name]
-            cfv = cf.get_or_create_value(participant)
-            if isinstance(field.data, FileStorage):
-                current_filename = cfv.value
-                cfv.value = custom_upload.save(field.data,
-                                               name=str(uuid4()) + '.')
-                unlink_participant_photo(current_filename)
-            else:
-                cfv.value = field.data
-            cfv.participant = participant
-            if cf.is_primary:
-                setattr(participant, cf.slug, cfv.value)
-            if not cfv.id:
-                db.session.add(cfv)
-            items.append(cfv)
-        db.session.commit()
-        return items
-
-
-def custom_form_factory(field_types=[], field_slugs=[],
+def custom_form_factory(form, field_types=[], field_slugs=[],
                         excluded_field_types=[],
-                        registration_fields=False,
-                        form=_MagicForm):
+                        registration_fields=False):
     fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
               .order_by(CustomField.sort))
     form_attrs = {
@@ -130,13 +97,8 @@ def custom_object_factory(participant, field_type=[], obj=object):
     object_attrs = {}
 
     if participant:
-        query = CustomField.query
-
-        if participant.meeting:
-            query = query.filter_by(meeting=participant.meeting)
-        else:
-            query = query.filter_by(meeting=g.meeting)
-
+        query = (CustomField.query
+                 .filter_by(meeting=participant.meeting or g.meeting))
         if field_type:
             query = query.filter(CustomField.field_type.in_(field_type))
 
