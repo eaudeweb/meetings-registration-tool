@@ -68,7 +68,7 @@ def user():
 
 @fixture
 def default_meeting():
-    meeting_type = MeetingTypeFactory(slug=Meeting.DEFAULT_TYPE)
+    meeting_type = MeetingTypeFactory(slug='def', default=True)
     default_meeting = MeetingFactory(meeting_type=meeting_type)
     return default_meeting
 

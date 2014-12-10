@@ -14,7 +14,7 @@ from .factories import RoleUserMeetingFactory, CustomFieldFactory
 from .factories import MeetingCategoryFactory, MeetingTypeFactory
 
 
-def test_meeting_list(app):
+def test_meeting_list(app, default_meeting):
     MeetingFactory.create_batch(5)
     role_user = RoleUserFactory()
     StaffFactory(user=role_user.user)
@@ -33,7 +33,7 @@ def test_meeting_list(app):
     assert row_count == 5
 
 
-def test_meeting_list_filter(app):
+def test_meeting_list_filter(app, default_meeting):
     MeetingFactory.create_batch(3)
     meeting_type = MeetingTypeFactory(slug='sc')
     MeetingFactory.create_batch(6, meeting_type=meeting_type)
