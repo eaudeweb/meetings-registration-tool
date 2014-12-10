@@ -23,8 +23,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
 
     def get(self, meeting_type_slug=None):
         meeting_type = (
-            MeetingType.query.ignore_def()
-            .get_or_404(meeting_type_slug)
+            MeetingType.query.get_or_404(meeting_type_slug)
             if meeting_type_slug else None
         )
         form = MeetingTypeEditForm(obj=meeting_type)
@@ -34,8 +33,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
 
     def post(self, meeting_type_slug=None):
         meeting_type = (
-            MeetingType.query.ignore_def()
-            .get_or_404(meeting_type_slug)
+            MeetingType.query.get_or_404(meeting_type_slug)
             if meeting_type_slug else None
         )
         form = MeetingTypeEditForm(request.form, obj=meeting_type)
@@ -54,8 +52,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
                                meeting_type=meeting_type)
 
     def delete(self, meeting_type_slug):
-        meeting_type = MeetingType.query.ignore_def().get_or_404(
-            meeting_type_slug)
+        meeting_type = MeetingType.query.get_or_404(meeting_type_slug)
         meetings_nr = meeting_type.meetings.count()
         if meetings_nr:
             meetings_message = (
