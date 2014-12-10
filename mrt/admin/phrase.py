@@ -1,6 +1,6 @@
 from flask import flash
 from flask import render_template
-from flask import request
+from flask import request, redirect, url_for
 from flask.views import MethodView
 from flask.ext.login import login_required
 
@@ -33,6 +33,9 @@ class PhraseEdit(PermissionRequiredMixin, MethodView):
             phrase = PhraseDefault.query.get_or_404(phrase_id)
         else:
             phrase = phrases.first_or_404()
+            return redirect(url_for('.phrase_edit',
+                                    meeting_type=meeting_type,
+                                    phrase_id=phrase.id))
         form = PhraseDefaultEditForm(obj=phrase)
         return render_template('admin/phrase/edit.html',
                                phrases=phrases, phrase=phrase, form=form)
@@ -46,6 +49,9 @@ class PhraseEdit(PermissionRequiredMixin, MethodView):
             phrase = PhraseDefault.query.get_or_404(phrase_id)
         else:
             phrase = phrases.first_or_404()
+            return redirect(url_for('.phrase_edit',
+                                    meeting_type=meeting_type,
+                                    phrase_id=phrase.id))
         form = PhraseDefaultEditForm(request.form, obj=phrase)
         if form.validate():
             form.save()

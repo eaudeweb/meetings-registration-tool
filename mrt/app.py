@@ -72,7 +72,6 @@ def create_app(config={}):
     app.add_template_filter(slugify)
     app.add_template_filter(sort_by_tuple_element)
     app.add_template_global(active)
-    app.add_template_global(active)
     app.add_template_global(url_for_brand_static_path)
     app.add_template_global(date_processor)
     app.add_template_global(inject_static_file)
