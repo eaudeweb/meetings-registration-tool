@@ -54,7 +54,7 @@ class MeetingEditForm(BaseForm):
         self.badge_header.english.validators = []
         delattr(self.badge_header.english.flags, 'required')
         self.meeting_type_slug.choices = [
-            (mt.slug, mt.label) for mt in MeetingType.query.all()]
+            (mt.slug, mt.label) for mt in MeetingType.query.ignore_def()]
         self.owner_id.choices = [
             (x.id, x.full_name or x.user.email) for x in Staff.query.all()]
         self.photo_field_id.choices = [(0, '-----')]
@@ -154,7 +154,7 @@ class MeetingFilterForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(MeetingFilterForm, self).__init__(*args, **kwargs)
-        choices = [(mt.slug, mt.label) for mt in MeetingType.query.all()]
+        choices = [(m.slug, m.label) for m in MeetingType.query.ignore_def()]
         self.meeting_type.choices = [('', 'All')] + choices
 
 

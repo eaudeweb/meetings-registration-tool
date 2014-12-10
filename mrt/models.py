@@ -43,6 +43,15 @@ class CustomFieldQuery(BaseQuery):
         return self.filter_by(visible_on_registration_form=True)
 
 
+class MeetingTypeQuery(BaseQuery):
+
+    def default(self):
+        return self.filter_by(default=True).one()
+
+    def ignore_def(self):
+        return self.filter(MeetingType.default != True)
+
+
 class JSONEncodedDict(TypeDecorator):
     impl = String
 
@@ -103,7 +112,7 @@ class User(db.Model):
 
     def get_default(self):
         return (self.participants.filter(
-            Participant.meeting.has(meeting_type_slug=Meeting.DEFAULT_TYPE))
+            Participant.meeting.has(meeting_type=MeetingType.query.default()))
             .scalar())
 
 
@@ -598,6 +607,7 @@ class MediaParticipant(db.Model):
 
 class Meeting(db.Model):
 
+    # TODO Remove this line
     DEFAULT_TYPE = 'def'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -668,7 +678,7 @@ class Meeting(db.Model):
     @classmethod
     def get_default(cls):
         return cls.query.filter_by(
-            meeting_type_slug=Meeting.DEFAULT_TYPE).one()
+            meeting_type=MeetingType.query.default()).one()
 
     def __repr__(self):
         return self.title.english
@@ -808,7 +818,11 @@ class PhraseDefault(PhraseMixin, db.Model):
 
 
 class MeetingType(db.Model):
+
     __tablename__ = 'meeting_type'
+
+    query_class = MeetingTypeQuery
+
     slug = db.Column(db.String(16), primary_key=True, info={'label': 'Slug'})
     label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
     default = db.Column(db.Boolean, nullable=False, default=False)

@@ -6,7 +6,7 @@ from flask.ext.login import login_required, current_user
 
 from sqlalchemy import desc
 
-from mrt.models import Meeting, db
+from mrt.models import Meeting, db, MeetingType
 from mrt.forms.meetings import MeetingEditForm, MeetingFilterForm
 
 
@@ -50,7 +50,7 @@ class Meetings(PermissionRequiredMixin, MethodView):
 
     def get(self):
         meetings = (Meeting.query
-                    .filter(Meeting.meeting_type_slug != Meeting.DEFAULT_TYPE)
+                    .filter(Meeting.meeting_type != MeetingType.query.default())
                     .order_by(desc(Meeting.date_start)))
         meeting_type = request.args.get('meeting_type', None)
         if meeting_type:

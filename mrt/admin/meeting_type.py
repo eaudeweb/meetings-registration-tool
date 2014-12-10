@@ -12,7 +12,7 @@ class MeetingTypes(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_default', )
 
     def get(self):
-        meeting_types = MeetingType.query
+        meeting_types = MeetingType.query.ignore_def()
         return render_template('admin/meeting_type/list.html',
                                meeting_types=meeting_types)
 
@@ -22,16 +22,22 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_default', )
 
     def get(self, meeting_type_slug=None):
-        meeting_type = MeetingType.query.get_or_404(meeting_type_slug) \
+        meeting_type = (
+            MeetingType.query.ignore_def()
+            .get_or_404(meeting_type_slug)
             if meeting_type_slug else None
+        )
         form = MeetingTypeEditForm(obj=meeting_type)
         return render_template('admin/meeting_type/edit.html',
                                form=form,
                                meeting_type=meeting_type)
 
     def post(self, meeting_type_slug=None):
-        meeting_type = MeetingType.query.get_or_404(meeting_type_slug) \
+        meeting_type = (
+            MeetingType.query.ignore_def()
+            .get_or_404(meeting_type_slug)
             if meeting_type_slug else None
+        )
         form = MeetingTypeEditForm(request.form, obj=meeting_type)
 
         if form.validate():
@@ -48,7 +54,8 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
                                meeting_type=meeting_type)
 
     def delete(self, meeting_type_slug):
-        meeting_type = MeetingType.query.get_or_404(meeting_type_slug)
+        meeting_type = MeetingType.query.ignore_def().get_or_404(
+            meeting_type_slug)
         meetings_nr = meeting_type.meetings.count()
         if meetings_nr:
             meetings_message = (

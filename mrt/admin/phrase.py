@@ -15,7 +15,7 @@ class PhrasesTypes(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_default', )
 
     def get(self):
-        m_types = [(mt.slug, mt.label) for mt in MeetingType.query.all()]
+        m_types = [(m.slug, m.label) for m in MeetingType.query.ignore_def()]
         return render_template('admin/phrase/list.html', meeting_types=m_types)
 
 
