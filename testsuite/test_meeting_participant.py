@@ -290,6 +290,32 @@ def test_meeting_participant_add_form_field_order(app, user):
             assert custom_field.label.english == form_fields[i].text.strip()
 
 
+def test_meeting_participant_edit_success(app, user):
+    category = MeetingCategoryFactory(meeting__owner=user.staff)
+    meeting = category.meeting
+    participant = ParticipantFactory(meeting=meeting, category=category)
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['first_name'] = new_first_name = 'Johnny'
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        add_custom_fields_for_meeting(meeting,
+                                      form_class=MediaParticipantDummyForm)
+        populate_participant_form(meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=meeting.id,
+                                   participant_id=participant.id), data=data)
+        assert resp.status_code == 302
+        assert participant.first_name == new_first_name
+        activity_log = ActivityLog.query.filter_by(meeting_id=meeting.id,
+                                                   action='edit').count()
+        assert activity_log == 1
+
+
 def test_meeting_participant_edit_form_populated(app, user):
     category = MeetingCategoryFactory()
     meeting = category.meeting

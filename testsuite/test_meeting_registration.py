@@ -164,6 +164,10 @@ def test_meeting_registration_default_participant_creation(app, default_meeting)
         assert default_participant is not None
         assert_participants_fields_equal(participant, default_participant)
         assert default_participant.participant_type.code == Participant.PARTICIPANT
+        assert default_participant.meeting_id != participant.meeting_id
+        assert default_participant.meeting_id == default_meeting.id
+        assert default_participant.category_id is None
+        assert default_participant.registration_token is None
 
 
 def test_meeting_registration_default_participant_update(app, default_meeting):
