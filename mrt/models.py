@@ -26,7 +26,6 @@ from mrt.utils import unlink_participant_photo
 
 
 db = SQLAlchemy()
-
 redis_store = Redis()
 
 
@@ -416,7 +415,6 @@ class Participant(db.Model):
         participant.meeting = self.default_meeting
         db.session.add(participant)
         db.session.flush()
-
         # add primary custom fields for default meeting
         self._add_primary_custom_fields_for_default_meeting()
 

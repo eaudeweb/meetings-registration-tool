@@ -23,12 +23,25 @@ from mrt.signals import activity_signal
 from mrt.utils import generate_excel, set_language
 
 
-def _category_required(func):
+def _check_category(category_type):
+    query = (Category.query.filter_by(meeting=g.meeting)
+             .filter_by(category_type=Category.PARTICIPANT))
+    if query.count() == 0:
+        return render_template('meetings/category_required.html')
+
+
+def _participant_category_required(func):
     @wraps(func)
     def wrapper(**kwargs):
-        query = Category.query.filter_by(meeting=g.meeting)
-        if (query.count() == 0):
-            return render_template('meetings/category_required.html')
+        _check_category(Category.PARTICIPANT)
+        return func(**kwargs)
+    return wrapper
+
+
+def _media_participant_category_required(func):
+    @wraps(func)
+    def wrapper(**kwargs):
+        _check_category(Category.MEDIA)
         return func(**kwargs)
     return wrapper
 
@@ -256,7 +269,7 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
 class ParticipantEdit(BaseParticipantEdit):
 
     permission_required = ('manage_participant',)
-    decorators = (_category_required,)
+    decorators = (_participant_category_required,)
     template = 'meetings/participant/participant/edit.html'
     form_class = ParticipantEditForm
 
@@ -277,7 +290,7 @@ class ParticipantEdit(BaseParticipantEdit):
 class MediaParticipantEdit(ParticipantEdit):
 
     permission_required = ('manage_media_participant',)
-    decorators = (_category_required,)
+    decorators = (_media_participant_category_required,)
     template = 'meetings/participant/media/edit.html'
     form_class = MediaParticipantEditForm
 

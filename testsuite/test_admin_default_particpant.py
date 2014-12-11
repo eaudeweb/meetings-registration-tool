@@ -18,9 +18,7 @@ def test_default_participant_detail(app, user, default_meeting):
 
     client = app.test_client()
     with app.test_request_context():
-        with client.session_transaction() as sess:
-            sess['user_id'] = user.id
-        meeting = add_new_meeting(client)
+        meeting = add_new_meeting(client, user)
         category = MeetingCategoryFactory(meeting=meeting)
         CustomFieldFactory(custom_field_type=CustomField.MEDIA,
                            meeting=meeting)
@@ -74,9 +72,7 @@ def test_default_participant_edit(app, user, default_meeting):
 
     client = app.test_client()
     with app.test_request_context():
-        with client.session_transaction() as sess:
-            sess['user_id'] = user.id
-        meeting = add_new_meeting(client)
+        meeting = add_new_meeting(client, user)
         category = MeetingCategoryFactory(meeting=meeting)
         CustomFieldFactory(meeting=meeting, field_type='text',
                            label__english='diet')
@@ -116,9 +112,7 @@ def test_default_participant_edit_photo_field(app, user, default_meeting):
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     client = app.test_client()
     with app.test_request_context():
-        with client.session_transaction() as sess:
-            sess['user_id'] = user.id
-        meeting = add_new_meeting(client)
+        meeting = add_new_meeting(client, user)
         category = MeetingCategoryFactory(meeting=meeting)
         CustomFieldFactory(meeting=meeting)
 
@@ -143,7 +137,10 @@ def test_default_participant_edit_photo_field(app, user, default_meeting):
         assert photo_field_value != default_photo_field_value
 
 
-def add_new_meeting(client):
+def add_new_meeting(client, user):
+    with client.session_transaction() as sess:
+        sess['user_id'] = user.id
+
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['acronym'] = acronym = 'TEST'

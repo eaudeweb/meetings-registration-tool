@@ -115,7 +115,7 @@ def test_meeting_media_registration_default_participant_custom_fields(app,
         assert (default_meeting.custom_fields
                 .filter_by(custom_field_type='media').count() == 2)
 
-        default_participant = part.user.get_default()
+        default_participant = part.user.get_default(Participant.MEDIA)
         assert (default_participant.custom_field_values.count() ==
                 part.custom_field_values.count())
         for cfv in default_participant.custom_field_values.all():
@@ -472,9 +472,8 @@ def create_user_after_registration(client, participant, meeting):
         'password': 'testpassword',
         'confirm': 'testpassword'
     }
-    resp = client.post(url_for('meetings.registration_user',
+    return client.post(url_for('meetings.registration_user',
                                meeting_id=meeting.id), data=data)
-    return resp
 
 
 def assert_participants_fields_equal(first, second):

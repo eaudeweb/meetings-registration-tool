@@ -94,6 +94,8 @@ class MediaRegistration(BaseRegistration):
 class UserRegistration(MethodView):
 
     def post(self):
+        if current_user.is_authenticated():
+            abort(404)
         registration_token = session.get('registration_token', None)
         if not registration_token:
             abort(400)
