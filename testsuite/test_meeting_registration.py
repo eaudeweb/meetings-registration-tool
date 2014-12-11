@@ -5,7 +5,7 @@ from py.path import local
 
 from mrt.mail import mail
 from mrt.models import Participant, ActivityLog, User, CustomFieldValue
-from mrt.models import Category
+from mrt.models import Category, CustomField
 from mrt.forms.meetings import add_custom_fields_for_meeting
 from mrt.forms.meetings import MediaParticipantDummyForm
 from .factories import MeetingCategoryFactory, ParticipantFactory
@@ -85,6 +85,46 @@ def test_meeting_registration_media_add(app, default_meeting):
         assert participant.participant_type.code == Participant.MEDIA
         assert len(outbox) == 2
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
+
+
+def test_meeting_media_registration_default_participant_custom_fields(app,
+                                                                      default_meeting):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    category = MeetingCategoryFactory(meeting__online_registration=True,
+                                      meeting__settings=MEDIA_ENABLED,
+                                      category_type=Category.MEDIA)
+    meeting = category.meeting
+    CustomFieldFactory(field_type='text', meeting=meeting,
+                       label__english='size',
+                       custom_field_type=CustomField.MEDIA)
+    CustomFieldFactory(field_type='checkbox', meeting=meeting,
+                       label__english='passport',
+                       custom_field_type=CustomField.MEDIA)
+
+    data = MediaParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['size'] = 40
+    data['passport'] = 'y'
+
+    client = app.test_client()
+    with app.test_request_context():
+        resp = register_media_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        part = Participant.query.current_meeting().media_participants().first()
+        create_user_after_registration(client, part, meeting)
+        assert (default_meeting.custom_fields
+                .filter_by(custom_field_type='media').count() == 2)
+
+        default_participant = part.user.get_default()
+        assert (default_participant.custom_field_values.count() ==
+                part.custom_field_values.count())
+        for cfv in default_participant.custom_field_values.all():
+            assert cfv.custom_field.meeting is default_meeting
+            participant_cfv = (part.custom_field_values
+                               .filter(CustomFieldValue.custom_field
+                                       .has(slug=cfv.custom_field.slug))
+                               .first())
+            assert cfv.value == participant_cfv.value
 
 
 def test_meeting_registration_with_meeting_photo(app, default_meeting):
