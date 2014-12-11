@@ -41,7 +41,7 @@ class BaseParticipantForm(BaseForm):
         if participant.id is None:
             # TODO this should be only on registration
             participant.registration_token = str(uuid4())
-            participant.participant_type = self._CUSTOM_FIELDS_TYPE
+            participant.participant_type = self.CUSTOM_FIELDS_TYPE
             db.session.add(participant)
 
         for field_name, field in self._fields.items():
@@ -68,12 +68,12 @@ class BaseParticipantForm(BaseForm):
 
 class ParticipantEditForm(BaseParticipantForm):
 
-    _CUSTOM_FIELDS_TYPE = 'participant'
+    CUSTOM_FIELDS_TYPE = 'participant'
 
 
 class MediaParticipantEditForm(ParticipantEditForm):
 
-    _CUSTOM_FIELDS_TYPE = 'media'
+    CUSTOM_FIELDS_TYPE = 'media'
 
 
 class BadgeCategories(BaseForm):

@@ -49,8 +49,8 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
     if registration_fields:
         fields = fields.for_registration()
 
-    if getattr(form, '_CUSTOM_FIELDS_TYPE', None):
-        fields = fields.filter_by(custom_field_type=form._CUSTOM_FIELDS_TYPE)
+    if getattr(form, 'CUSTOM_FIELDS_TYPE', None):
+        fields = fields.filter_by(custom_field_type=form.CUSTOM_FIELDS_TYPE)
 
     for f in fields:
         attrs = {'label': __(unicode(f.label)), 'validators': [],
@@ -78,7 +78,7 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
 
         if f.field_type.code == CustomField.CATEGORY:
             query = (Category.query.filter_by(meeting=g.meeting)
-                     .filter_by(category_type=form._CUSTOM_FIELDS_TYPE)
+                     .filter_by(category_type=form.CUSTOM_FIELDS_TYPE)
                      .order_by(Category.group, Category.sort))
             if registration_fields:
                 query = query.filter_by(visible_on_registration_form=True)

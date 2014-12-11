@@ -42,7 +42,7 @@ class BaseRegistration(MethodView):
         Form = custom_form_factory(self.form_class, registration_fields=True)
         form = Form()
         if current_user.is_authenticated():
-            participant = current_user.get_default()
+            participant = current_user.get_default(Form.CUSTOM_FIELDS_TYPE)
             Object = custom_object_factory(participant)
             form = Form(obj=Object())
         return render_template('meetings/registration/form.html',
@@ -55,7 +55,8 @@ class BaseRegistration(MethodView):
             participant = form.save()
             if current_user.is_authenticated():
                 participant.user = current_user
-                default_participant = current_user.get_default()
+                default_participant = current_user.get_default(
+                    Form.CUSTOM_FIELDS_TYPE)
                 if default_participant:
                     default_participant.update(participant)
             db.session.commit()

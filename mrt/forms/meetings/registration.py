@@ -4,7 +4,7 @@ from flask.ext.uploads import IMAGES
 
 from wtforms import Form, StringField, PasswordField, validators
 
-from mrt.forms.meetings import ParticipantEditForm
+from mrt.forms.meetings import BaseParticipantForm
 from mrt.forms.base import FileField
 from mrt.models import db, User, CustomField
 from mrt import utils
@@ -12,7 +12,7 @@ from mrt import utils
 
 class RegistrationForm(BaseParticipantForm):
 
-    _CUSTOM_FIELDS_TYPE = 'participant'
+    CUSTOM_FIELDS_TYPE = 'participant'
 
     _CUSTOM_FIELDS_MAP = {
         CustomField.IMAGE: {
@@ -24,7 +24,7 @@ class RegistrationForm(BaseParticipantForm):
 
 class MediaRegistrationForm(RegistrationForm):
 
-    _CUSTOM_FIELDS_TYPE = 'media'
+    CUSTOM_FIELDS_TYPE = 'media'
 
 
 class RegistrationUserForm(Form):

@@ -114,10 +114,13 @@ class User(db.Model):
                 return True
         return False
 
-    def get_default(self):
-        return (self.participants.filter(
-            Participant.meeting.has(meeting_type=Meeting.DEFAULT_TYPE))
-            .scalar())
+    def get_default(self, participant_type):
+        return (
+            self.participants.filter(
+                Participant.meeting.has(meeting_type=Meeting.DEFAULT_TYPE))
+            .filter(Participant.participant_type == participant_type)
+            .scalar()
+        )
 
 
 class UserNotification(db.Model):
