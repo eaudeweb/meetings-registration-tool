@@ -179,7 +179,7 @@ class DefaultParticipantDetail(BaseParticipantDetail):
     template = 'meetings/participant/default/detail.html'
 
     def _get_queryset(self, participant_id):
-        return (Participant.query.default_meeting().participants()
+        return (Participant.query.default_meeting()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
@@ -192,8 +192,8 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
     def get_success_url(self):
         raise NotImplemented
 
-    def _edit_signals(self, participant):
-        if participant:
+    def _edit_signals(self, participant, is_created):
+        if is_created:
             activity_signal.send(self, participant=participant,
                                  action='edit', staff=user.staff)
         else:
@@ -226,7 +226,8 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
         if form.validate():
             participant = form.save(participant)
             flash('Person information saved', 'success')
-            self._edit_signals(participant)
+            is_created = True if participant_id else False
+            self._edit_signals(participant, is_created)
             return redirect(self.get_success_url(participant))
         return render_template(self.template, form=form,
                                participant=participant)

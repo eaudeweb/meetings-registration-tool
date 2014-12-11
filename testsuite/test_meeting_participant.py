@@ -15,7 +15,7 @@ from mrt.forms.base import EmailRequired
 from mrt.forms.meetings import (add_custom_fields_for_meeting,
                                 MediaParticipantDummyForm)
 from mrt.mail import mail
-from mrt.models import Participant, CustomField, Category
+from mrt.models import Participant, CustomField, Category, ActivityLog
 from mrt.utils import translate
 
 from testsuite.utils import populate_participant_form
@@ -127,7 +127,7 @@ def test_meeting_participant_detail(app, user):
 
 
 def test_meeting_participant_add_success(app, user):
-    category = MeetingCategoryFactory()
+    category = MeetingCategoryFactory(meeting__owner=user.staff)
     meeting = category.meeting
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
@@ -154,6 +154,9 @@ def test_meeting_participant_add_success(app, user):
         assert part.last_name
         assert part.email
         assert part.country
+        activity_log = ActivityLog.query.filter_by(meeting_id=meeting.id,
+                                                   action='add').count()
+        assert activity_log == 1
 
 
 def test_meeting_participant_add_with_custom_field(app, user):
@@ -289,24 +292,25 @@ def test_meeting_participant_add_form_field_order(app, user):
 
 def test_meeting_participant_edit_form_populated(app, user):
     category = MeetingCategoryFactory()
+    meeting = category.meeting
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
     client = app.test_client()
     with app.test_request_context():
-        add_custom_fields_for_meeting(category.meeting)
-        populate_participant_form(category.meeting, data)
+        add_custom_fields_for_meeting(meeting)
+        populate_participant_form(meeting, data)
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
         resp = client.post(url_for('meetings.participant_edit',
-                                   meeting_id=category.meeting.id), data=data)
+                                   meeting_id=meeting.id), data=data)
 
         assert resp.status_code == 302
         assert Participant.query.current_meeting().participants().first()
         part = Participant.query.current_meeting().participants().first()
 
         resp = client.get(url_for('meetings.participant_edit',
-                                  meeting_id=category.meeting.id,
+                                  meeting_id=meeting.id,
                                   participant_id=part.id))
 
         sel = PyQuery(resp.data)
