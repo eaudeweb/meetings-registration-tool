@@ -318,6 +318,16 @@ class Participant(db.Model):
                            participant_id=self.id,
                            meeting_id=self.meeting.id)
 
+    def get_default_detail_url(self):
+        if self.participant_type.code == self.PARTICIPANT:
+            return url_for('meetings.default_participant_detail',
+                           participant_id=self.id,
+                           meeting_id=self.meeting.id)
+        else:
+            return url_for('meetings.default_media_participant_detail',
+                           participant_id=self.id,
+                           meeting_id=self.meeting.id)
+
     @property
     def name(self):
         return '%s %s %s' % (self.title.value, self.first_name,

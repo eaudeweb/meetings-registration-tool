@@ -176,10 +176,22 @@ class DefaultParticipantDetail(BaseParticipantDetail):
 
     permission_required = ('manage_default',)
     form_class = ParticipantEditForm
-    template = 'meetings/participant/default/detail.html'
+    template = 'meetings/participant/default/participant_detail.html'
 
     def _get_queryset(self, participant_id):
-        return (Participant.query.default_meeting()
+        return (Participant.query.default_meeting().participants()
+                .filter_by(id=participant_id)
+                .first_or_404())
+
+
+class DefaultMediaParticipantDetail(BaseParticipantDetail):
+
+    permission_required = ('manage_default',)
+    form_class = MediaParticipantEditForm
+    template = 'meetings/participant/default/media_detail.html'
+
+    def _get_queryset(self, participant_id):
+        return (Participant.query.default_meeting().media_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
@@ -291,6 +303,11 @@ class DefaultParticipantEdit(BaseParticipantEdit):
     template = 'meetings/participant/default/edit.html'
     form_class = ParticipantEditForm
 
+    def get_form(self):
+        return custom_form_factory(self.form_class,
+                                   excluded_field_types=[CustomField.IMAGE,
+                                                         CustomField.CATEGORY])
+
     def get_object(self, participant_id):
         return (Participant.query.default_meeting().participants()
                 .filter_by(id=participant_id)
@@ -298,6 +315,22 @@ class DefaultParticipantEdit(BaseParticipantEdit):
 
     def get_success_url(self, participant):
         return url_for('.default_participant_detail',
+                       participant_id=participant.id)
+
+
+class DefaultMediaParticipantEdit(DefaultParticipantEdit):
+
+    permission_required = ('manage_participant',)
+    template = 'meetings/participant/default/edit.html'
+    form_class = MediaParticipantEditForm
+
+    def get_object(self, participant_id):
+        return (Participant.query.default_meeting().media_participants()
+                .filter_by(id=participant_id)
+                .first_or_404())
+
+    def get_success_url(self, participant):
+        return url_for('.default_media_participant_detail',
                        participant_id=participant.id)
 
 

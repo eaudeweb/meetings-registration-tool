@@ -11,7 +11,7 @@
 {% block footer %}
 
 <small>
-  or <a href="{{ url_for('.default_participant_detail', participant_id=participant.id) }}">Cancel</a>
+  or <a href="{{ participant.get_default_detail_url() }}">Cancel</a>
 </small>
 
 {% endblock %}

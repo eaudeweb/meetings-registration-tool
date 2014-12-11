@@ -111,7 +111,8 @@
 
                       <li>
                         {% if loop.first %}
-                          <a class="text-danger" href="{{ url_for('meetings.default_participant_detail', participant_id=participant.id, meeting_id=participant.meeting.id) }}">
+                          <a class="text-danger"
+                              href="{{ participant.get_default_detail_url() }}">
                         {% else %}
                           <a href="{{ participant.get_detail_url() }}">
                         {% endif %}

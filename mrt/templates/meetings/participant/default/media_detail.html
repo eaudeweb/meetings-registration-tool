@@ -1,0 +1,26 @@
+{% extends "meetings/participant/base/_detail.html" %}
+
+
+{% set title = participant.name %}
+{% set disable_super = True %}
+
+
+{% block breadcrumb %}{% endblock %}
+
+
+{% block content_header %}
+
+  <div class="page-header">
+    <h2>{{ title }} - Default Participant</h2>
+  </div>
+
+  {% set edit_url = url_for('.default_media_participant_edit',
+                            participant_id=participant.id) %}
+
+  <div class="actions">
+    <a href="{{ edit_url }}" class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-pencil"></span> &nbsp;
+      Edit participant</a>
+  </div> {# actions #}
+
+{% endblock %}
