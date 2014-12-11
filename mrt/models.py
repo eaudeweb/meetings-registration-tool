@@ -383,19 +383,17 @@ class Participant(db.Model):
         return cfv
 
     def _add_primary_custom_fields_for_default_meeting(self):
-        from mrt.forms.meetings import ParticipantDummyForm
+        from mrt.forms.meetings import DefaultParticipantDummyForm
         from mrt.forms.meetings import add_custom_fields_for_meeting
-        nr_fields = len(list(ParticipantDummyForm()))
-        exclude = ('category_id', 'attended', 'verified',
-                   'credentials')
+        nr_fields = len(list(DefaultParticipantDummyForm()))
         count = (
             CustomField.query.filter_by(meeting=self.default_meeting)
             .filter_by(is_primary=True)
-            .filter(~CustomField.slug.in_(exclude))
         ).count()
         if not nr_fields == count:
-            add_custom_fields_for_meeting(self.default_meeting,
-                                          exclude=exclude)
+            add_custom_fields_for_meeting(
+                self.default_meeting,
+                form_class=DefaultParticipantDummyForm)
 
     def clone(self):
         self.default_meeting = Meeting.get_default()

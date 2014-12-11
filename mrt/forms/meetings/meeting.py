@@ -132,6 +132,23 @@ class ParticipantDummyForm(BaseForm):
         }
 
 
+class DefaultParticipantDummyForm(BaseForm):
+
+    CUSTOM_FIELD_TYPE = 'participant'
+
+    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
+
+    class Meta:
+        model = Participant
+        exclude = ('deleted', 'registration_token', 'participant_type',
+                   'attended', 'verified', 'credentials')
+        visible_on_registration_form = []
+        field_args = {
+            'language': {'validators': [InputRequired()]},
+            'country': {'validators': [InputRequired()]}
+        }
+
+
 class MediaParticipantDummyForm(BaseForm):
 
     CUSTOM_FIELD_TYPE = 'media'
@@ -157,13 +174,10 @@ class MeetingFilterForm(BaseForm):
         self.meeting_type.choices = [('', 'All')] + choices
 
 
-def add_custom_fields_for_meeting(meeting, exclude=[],
-                                  form_class=ParticipantDummyForm):
+def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
     """Adds participants fields as CustomFields to meeting."""
     form = form_class()
     for i, field in enumerate(form):
-        if field.name in exclude:
-            continue
         query = (
             CustomField.query
             .filter_by(slug=field.name, meeting=meeting)
