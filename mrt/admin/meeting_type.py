@@ -1,4 +1,5 @@
-from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask import (
+    render_template, request, redirect, url_for, flash, jsonify, abort)
 from flask.views import MethodView
 from flask.ext.login import login_required
 
@@ -53,6 +54,9 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
 
     def delete(self, meeting_type_slug):
         meeting_type = MeetingType.query.get_or_404(meeting_type_slug)
+        if meeting_type.default:
+            abort(403)
+
         meetings_nr = meeting_type.meetings.count()
         if meetings_nr:
             meetings_message = (
@@ -61,6 +65,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
             message = 'Cannot delete {0}. {1} with this meeting type'.format(
                 meeting_type.label, meetings_message)
             return jsonify(status='error', message=message)
+
         db.session.delete(meeting_type)
         db.session.commit()
         flash('Meeting type successfully deleted', 'warning')
