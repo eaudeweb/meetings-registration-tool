@@ -59,6 +59,8 @@ class BaseRegistration(MethodView):
                     Form.CUSTOM_FIELDS_TYPE)
                 if default_participant:
                     default_participant.update(participant)
+                else:
+                    participant.clone()
             db.session.commit()
 
             activity_signal.send(self, participant=participant,

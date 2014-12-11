@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from flask import render_template, jsonify, flash, abort, url_for
 from flask.ext.login import login_required, current_user
 from flask.views import MethodView
@@ -5,7 +7,7 @@ from flask.views import MethodView
 from mrt.forms.auth import RecoverForm
 from mrt.mail import send_reset_mail
 from mrt.meetings import PermissionRequiredMixin
-from mrt.models import User, db
+from mrt.models import User, db, Participant
 
 
 class Users(PermissionRequiredMixin, MethodView):
@@ -14,9 +16,12 @@ class Users(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_default',)
 
     def get(self):
-        users = User.query.all()
+        participants = (Participant.query.active()
+                        .filter(Participant.category != None)
+                        .join(Participant.user))
+        grouped_participants = groupby(participants, lambda x: x.user)
         return render_template('admin/user/list.html',
-                               users=users)
+                               grouped_participants=grouped_participants)
 
 
 class UserToggle(PermissionRequiredMixin, MethodView):

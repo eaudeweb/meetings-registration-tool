@@ -96,31 +96,37 @@
         </thead>
 
         <tbody>
-          {% for user in users %}
+          {% for user, participants in grouped_participants %}
             <tr class="{% if current_user == user %}current-user bg-info{% endif %}">
               <td>{{ user.email }}<br>
                 {% if user.staff %}
-                <small class="text-danger"><em>Staff</em></small>
+                <small class="text-danger"><em>Staff</em></small><br>
+                {% endif %}
+
+                {% set default_participant = user.get_default(Participant.PARTICIPANT) %}
+                {% if default_participant %}
+                  <small>
+                    <a href="{{ url_for('meetings.default_participant_detail',
+                                         participant_id=default_participant.id,
+                                         meeting_id=default_participant.meeting.id) }}">
+                      Default participant</a>
+                  </small><br>
+                {% endif %}
+
+                {% set default_media = user.get_default(Participant.MEDIA) %}
+                {% if default_media %}
+                  <small>
+                    <a href="{{ url_for('meetings.default_media_participant_detail',
+                                         participant_id=default_media.id,
+                                         meeting_id=default_media.meeting.id) }}">
+                    Default media</a></small>
                 {% endif %}
               </td>
               <td>
                 <ul class="list-unstyled">
-                  {% for participant in
-                          user.participants.filter_by(deleted=False)|sort(attribute='meeting_id') %}
-                    {% if participant.meeting %}
-
-                      <li>
-                        {% if loop.first %}
-                          <a class="text-danger"
-                              href="{{ participant.get_default_detail_url() }}">
-                        {% else %}
-                          <a href="{{ participant.get_detail_url() }}">
-                        {% endif %}
-                          {{ participant.meeting }}</a>
-                      </li>
-                    {% endif %}
-                  {% else %}
-                    <p>-</p>
+                  {% for participant in participants %}
+                    <li><a href="{{ participant.get_detail_url() }}">{{ participant.meeting }}</a>
+                    </li>
                   {% endfor %}
                 </ul>
               </td>
@@ -144,7 +150,6 @@
                             data-href="{{ url_for('admin.user_toggle', user_id=user.id) }}">{{ text }}</a></small>
                 </div>
               </td>
-            </tr>
           {% endfor %}
         </tbody>
 

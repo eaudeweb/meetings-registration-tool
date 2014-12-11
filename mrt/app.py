@@ -17,7 +17,7 @@ from mrt.forms.admin import backgrounds
 from mrt.forms.meetings import custom_upload
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
-from mrt.models import db, redis_store, User, CustomField
+from mrt.models import db, redis_store, User, CustomField, Participant
 
 from mrt.template import country_in, region_in
 from mrt.template import nl2br, active, date_processor, countries, crop
@@ -86,6 +86,10 @@ def create_app(config={}):
                 'SELECT': CustomField.SELECT,
                 'COUNTRY': CustomField.COUNTRY,
                 'CATEGORY': CustomField.CATEGORY,
+            },
+            'Participant': {
+                'PARTICIPANT': Participant.PARTICIPANT,
+                'MEDIA': Participant.MEDIA,
             }
         }
 
