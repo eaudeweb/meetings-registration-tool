@@ -172,10 +172,17 @@
 
     </div> {# panel #}
 
+    {% if g.meeting %}
+      {% set url = url_for('.participants') %}
+    {% else %}
+      {% set url = url_for('.home') %}
+    {% endif %}
+
     <div class="form-actions row">
       <div class="col-sm-6">
         <button type="submit" class="btn btn-primary">
-          Save changes</button> <small>or <a href="{{ url_for('.home') }}">Cancel</a></small>
+          Save changes</button>
+          <small>or <a href="{{ url }}">Cancel</a></small>
       </div>
       {% if g.meeting %}
         <div class="col-sm-6 text-right">
