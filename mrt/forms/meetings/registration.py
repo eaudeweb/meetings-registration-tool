@@ -10,7 +10,9 @@ from mrt.models import db, User, CustomField
 from mrt import utils
 
 
-class RegistrationForm(ParticipantEditForm):
+class RegistrationForm(BaseParticipantForm):
+
+    _CUSTOM_FIELDS_TYPE = 'participant'
 
     _CUSTOM_FIELDS_MAP = {
         CustomField.IMAGE: {

@@ -33,10 +33,7 @@ def _render_if_media_disabled(func):
     return wrapper
 
 
-class Registration(MethodView):
-
-    decorators = (_render_if_closed,)
-    form_class = RegistrationForm
+class BaseRegistration(MethodView):
 
     def get(self):
         lang = request.args.get('lang', 'en')
@@ -79,7 +76,13 @@ class Registration(MethodView):
                                form=form)
 
 
-class MediaRegistration(Registration):
+class Registration(BaseRegistration):
+
+    decorators = (_render_if_closed,)
+    form_class = RegistrationForm
+
+
+class MediaRegistration(BaseRegistration):
 
     decorators = (_render_if_closed, _render_if_media_disabled)
     form_class = MediaRegistrationForm
