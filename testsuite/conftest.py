@@ -6,7 +6,7 @@ from pytest import fixture
 from path import path
 
 from mrt.app import create_app
-from mrt.models import db, Meeting
+from mrt.models import db
 from mrt.pdf import PdfRenderer
 from .factories import RoleUserFactory, StaffFactory, MeetingFactory
 from .factories import MeetingTypeFactory
@@ -67,8 +67,14 @@ def user():
 
 
 @fixture
-def default_meeting():
+def default_meeting_type():
     meeting_type = MeetingTypeFactory(slug='def', default=True)
+    return meeting_type
+
+
+@fixture
+def default_meeting():
+    meeting_type = default_meeting_type()
     default_meeting = MeetingFactory(meeting_type=meeting_type)
     return default_meeting
 

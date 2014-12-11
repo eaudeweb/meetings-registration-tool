@@ -4,7 +4,6 @@ from pyquery import PyQuery
 from .factories import (
     PhraseDefaultFactory, RoleUserFactory, MeetingTypeFactory,
 )
-from mrt.definitions import MEETING_TYPES
 
 
 PERMISSION = ('manage_default', )
@@ -20,7 +19,7 @@ def test_default_phrase_types_list(app):
         resp = client.get(url_for('admin.phrases'))
         assert resp.status_code == 200
         rows = PyQuery(resp.data)('table tbody tr')
-        assert len(rows) == len(MEETING_TYPES)
+        assert len(rows) == 5
 
 
 def test_default_phrase_category_list(app):
