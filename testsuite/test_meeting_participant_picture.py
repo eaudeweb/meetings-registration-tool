@@ -32,9 +32,62 @@ def test_participant_picture_add(app):
         assert upload_dir.join(picture.value).check()
 
 
+def test_media_participant_picture_add(app):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    role_user = RoleUserFactory()
+    participant = ParticipantFactory(participant_type='media',
+                                     category__meeting__settings=MEDIA_ENABLED,
+                                     category__category_type='media')
+    field = CustomFieldFactory(meeting=participant.meeting,
+                               custom_field_type='media')
+    participant.meeting.photo_field = field
+    data = {'picture': (StringIO('Test'), 'test.png')}
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.custom_field_upload',
+                                   meeting_id=field.meeting.id,
+                                   participant_id=participant.id,
+                                   field_slug=field.slug), data=data)
+        assert resp.status_code == 200
+        picture = CustomFieldValue.query.filter_by(custom_field=field).first()
+        assert picture is not None
+        assert upload_dir.join(picture.value).check()
+
+
 def test_participant_picture_edit(app):
     role_user = RoleUserFactory()
     pic = ProfilePictureFactory()
+    pic.custom_field.meeting.photo_field = pic.custom_field
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    filename = pic.value
+    upload_dir.ensure(pic.value)
+
+    data = {'picture': (StringIO('Test'), 'test_edit.png')}
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.post(url_for('meetings.custom_field_upload',
+                                   meeting_id=pic.custom_field.meeting.id,
+                                   participant_id=pic.participant.id,
+                                   field_slug=pic.custom_field.slug),
+                           data=data)
+        assert resp.status_code == 200
+        assert CustomFieldValue.query.scalar()
+        assert filename != pic.value
+
+
+def test_media_participant_picture_edit(app):
+    MEDIA = {'media_participant_enabled': True}
+    role_user = RoleUserFactory()
+    pic = ProfilePictureFactory(participant__category__meeting__settings=MEDIA,
+                                participant__participant_type='media',
+                                participant__category__category_type='media',
+                                custom_field__custom_field_type='media')
     pic.custom_field.meeting.photo_field = pic.custom_field
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
     filename = pic.value
@@ -74,6 +127,29 @@ def test_participant_picture_remove(app):
         assert not upload_dir.join(pic.value).check()
 
 
+def test_media_participant_picture_remove(app):
+    MEDIA = {'media_participant_enabled': True}
+    role_user = RoleUserFactory()
+    pic = ProfilePictureFactory(participant__category__meeting__settings=MEDIA,
+                                participant__participant_type='media',
+                                participant__category__category_type='media',
+                                custom_field__custom_field_type='media')
+    pic.custom_field.meeting.photo_field = pic.custom_field
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    upload_dir.ensure(pic.value)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        resp = client.delete(url_for('meetings.custom_field_upload',
+                                     meeting_id=pic.custom_field.meeting.id,
+                                     participant_id=pic.participant.id,
+                                     field_slug=pic.custom_field.slug))
+        assert resp.status_code == 200
+        assert not upload_dir.join(pic.value).check()
+
+
 def test_participant_picture_rotate(app):
     role_user = RoleUserFactory()
     pic = ProfilePictureFactory()
@@ -83,6 +159,34 @@ def test_participant_picture_rotate(app):
     image = Image.new('RGB', (250, 250), 'red')
     image.save(str(upload_dir.join(filename)))
 
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('meetings.custom_field_rotate',
+                      meeting_id=pic.custom_field.meeting.id,
+                      participant_id=pic.participant.id,
+                      field_slug=pic.custom_field.slug)
+
+        resp = client.post(url)
+        assert resp.status_code == 200
+        assert filename != pic.value
+        assert not upload_dir.join(filename).check()
+        assert upload_dir.join(pic.value).check()
+
+
+def test_media_participant_picture_rotate(app):
+    MEDIA = {'media_participant_enabled': True}
+    role_user = RoleUserFactory()
+    pic = ProfilePictureFactory(participant__category__meeting__settings=MEDIA,
+                                participant__participant_type='media',
+                                participant__category__category_type='media',
+                                custom_field__custom_field_type='media')
+    pic.custom_field.meeting.photo_field = pic.custom_field
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    filename = pic.value
+    image = Image.new('RGB', (250, 250), 'red')
+    image.save(str(upload_dir.join(filename)))
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:

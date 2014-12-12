@@ -101,7 +101,7 @@ class CustomFieldUpload(BaseCustomFieldFile):
         if participant.participant_type == Participant.PARTICIPANT:
             form = ParticipantEditForm
         else:
-            form = MediaparticipantEditForm
+            form = MediaParticipantEditForm
 
         field_types = [CustomField.IMAGE]
         Object = custom_object_factory(participant, field_types)
