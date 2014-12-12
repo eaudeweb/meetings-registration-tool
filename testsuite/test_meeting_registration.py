@@ -440,6 +440,86 @@ def test_meeting_registration_multiple_email_user_form_prepopuluted(app, default
         assert populated_email == 'john@test.com'
 
 
+def test_meeting_user_registration_is_not_accesible_logged_in(app, user):
+    participant = ParticipantFactory()
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = create_user_after_registration(client, participant,
+                                              participant.meeting)
+        assert resp.status_code == 404
+
+
+def test_meeting_registration_participant_and_media_on_same_user(app, default_meeting):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    category = MeetingCategoryFactory(meeting__online_registration=True,
+                                      meeting__settings=MEDIA_ENABLED)
+    meeting = category.meeting
+    media_category = MeetingCategoryFactory(meeting=meeting,
+                                            category_type=Category.MEDIA)
+
+    #FIRST REGISTER AS PARTICIPANT
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert (meeting.participants
+                .filter_by(participant_type=Participant.PARTICIPANT)
+                .count() == 1)
+        participant = meeting.participants.first()
+        resp = create_user_after_registration(client, participant, meeting)
+        assert resp.status_code == 200
+        assert User.query.count() == 1
+        user = User.query.first()
+
+    #REGISTER AS MEDIA PARTICIPANT ON SAME USER
+        data = MediaParticipantFactory.attributes()
+        data['category_id'] = media_category.id
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = register_media_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert (meeting.participants
+                .filter_by(participant_type=Participant.MEDIA)
+                .count() == 1)
+        media_participant = (meeting.participants
+                             .filter_by(participant_type=Participant.MEDIA)
+                             .first())
+
+    #CHECK DEFAULT PARTICIPANT AND MEDIA CREATED
+        assert user.get_default(Participant.PARTICIPANT) is not None
+        assert user.get_default(Participant.MEDIA) is not None
+
+    #CHECK PARTICIPANT REGISTRATION FORM IS POPULATED
+        resp = client.get(url_for('meetings.registration',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        assert participant.title.value == html('#title option[selected]').val()
+        assert participant.first_name == html('#first_name').val()
+        assert participant.last_name == html('#last_name').val()
+        assert participant.email == html('#email').val()
+        assert (participant.language.value ==
+                html('#language option[selected]').val())
+        assert (participant.country.code ==
+                html('#country option[selected]').val())
+
+    #CHECK MEDIA PARTICIPANT REGISTRATION FORM IS POPULATED
+        resp = client.get(url_for('meetings.media_registration',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        assert (media_participant.title.value ==
+                html('#title option[selected]').val())
+        assert media_participant.first_name == html('#first_name').val()
+        assert media_participant.last_name == html('#last_name').val()
+        assert media_participant.email == html('#email').val()
+
+
 def register_participant_online(client, participant_data, meeting, user=None):
     """Helper function that registers a participant to a meeting."""
     if user:
