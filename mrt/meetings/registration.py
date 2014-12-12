@@ -121,15 +121,17 @@ class UserRegistrationLogin(MethodView):
 
     def get(self):
         form = LoginForm()
+        next = request.values.get('next')
         return render_template('meetings/registration/user_login.html',
-                               form=form)
+                               form=form, next=next)
 
     def post(self):
         form = LoginForm(request.form)
         if form.validate():
             user = form.get_user()
             login_user(user)
-            return redirect(url_for('meetings.registration'))
+            next = request.values.get('next')
+            return redirect(next or url_for('meetings.registration'))
         return render_template('meetings/registration/user_login.html',
                                form=form)
 
