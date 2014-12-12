@@ -70,7 +70,7 @@
       </small></a>
     </span>
   {% else %}
-    {% set url = url_for('.participant_detail', participant_id=activity.participant.id) %}
+    {% set url = activity.participant.get_detail_url() %}
     <a href="{{ url }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
   {% endif %}
 {% endmacro %}

@@ -353,7 +353,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 
     def post(self, participant_id):
         participant = (
-            Participant.query.participants()
+            Participant.query
             .filter_by(meeting_id=g.meeting.id, id=participant_id)
             .first_or_404())
         participant.deleted = False
@@ -361,8 +361,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
                              action='restore')
         db.session.commit()
         flash('Participant successfully restored', 'success')
-        return jsonify(status='success', url=url_for('.participant_detail',
-                       participant_id=participant.id))
+        return jsonify(status='success', url=participant.get_detail_url())
 
 
 class ParticipantBadge(PermissionRequiredMixin, MethodView):
