@@ -35,6 +35,9 @@ def _render_if_media_disabled(func):
 
 class BaseRegistration(MethodView):
 
+    def get_default_participant(self, user):
+        raise NotImplementedError
+
     def get(self):
         lang = request.args.get('lang', 'en')
         if lang in ('en', 'fr', 'es'):
@@ -42,7 +45,7 @@ class BaseRegistration(MethodView):
         Form = custom_form_factory(self.form_class, registration_fields=True)
         form = Form()
         if current_user.is_authenticated():
-            participant = current_user.get_default(Form.CUSTOM_FIELDS_TYPE)
+            participant = self.get_default_participant(current_user)
             Object = custom_object_factory(participant)
             form = Form(obj=Object())
         return render_template('meetings/registration/form.html',
@@ -55,8 +58,8 @@ class BaseRegistration(MethodView):
             participant = form.save()
             if current_user.is_authenticated():
                 participant.user = current_user
-                default_participant = current_user.get_default(
-                    Form.CUSTOM_FIELDS_TYPE)
+                default_participant = self.get_default_participant(
+                    current_user)
                 if default_participant:
                     default_participant.update(participant)
                 else:
@@ -84,11 +87,17 @@ class Registration(BaseRegistration):
     decorators = (_render_if_closed,)
     form_class = RegistrationForm
 
+    def get_default_participant(self, user):
+        return user.get_default(Participant.DEFAULT)
+
 
 class MediaRegistration(BaseRegistration):
 
     decorators = (_render_if_closed, _render_if_media_disabled)
     form_class = MediaRegistrationForm
+
+    def get_default_participant(self, user):
+        return user.get_default(Participant.DEFAULT_MEDIA)
 
 
 class UserRegistration(MethodView):

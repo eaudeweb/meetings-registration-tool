@@ -41,6 +41,13 @@ class ParticipantQuery(BaseQuery):
     def media_participants(self):
         return self.filter(Participant.participant_type == Participant.MEDIA)
 
+    def default_participants(self):
+        return self.filter(Participant.participant_type == Participant.DEFAULT)
+
+    def default_media_participants(self):
+        return self.filter(
+            Participant.participant_type == Participant.DEFAULT_MEDIA)
+
     def current_meeting(self):
         return self.filter(Participant.meeting == g.meeting).active()
 
@@ -235,12 +242,17 @@ class Participant(db.Model):
     )
     PARTICIPANT = 'participant'
     MEDIA = 'media'
+    DEFAULT = 'default'
+    DEFAULT_MEDIA = 'default_media'
     PARTICIPANT_TYPE_CHOICES = (
         (PARTICIPANT, __('Participant')),
         (MEDIA, __('Media')),
+        (DEFAULT, __('Default')),
+        (DEFAULT_MEDIA, __('Default Media')),
     )
 
-    EXCLUDE_WHEN_COPYING = ('meeting_id', 'category_id', 'registration_token',)
+    EXCLUDE_WHEN_COPYING = ('meeting_id', 'category_id', 'registration_token',
+                            'participant_type',)
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -310,25 +322,14 @@ class Participant(db.Model):
     def __repr__(self):
         return self.name
 
-    def get_detail_url(self):
-        if self.participant_type.code == self.PARTICIPANT:
-            return url_for('meetings.participant_detail',
-                           participant_id=self.id,
-                           meeting_id=self.meeting.id)
-        else:
-            return url_for('meetings.media_participant_detail',
-                           participant_id=self.id,
-                           meeting_id=self.meeting.id)
-
-    def get_default_detail_url(self):
-        if self.participant_type.code == self.PARTICIPANT:
-            return url_for('meetings.default_participant_detail',
-                           participant_id=self.id,
-                           meeting_id=self.meeting.id)
-        else:
-            return url_for('meetings.default_media_participant_detail',
-                           participant_id=self.id,
-                           meeting_id=self.meeting.id)
+    def get_absolute_url(self):
+        url = {
+            Participant.PARTICIPANT: 'meetings.participant_detail',
+            Participant.MEDIA: 'meetings.media_participant_detail',
+            Participant.DEFAULT: 'meetings.default_participant_detail',
+            Participant.DEFAULT_MEDIA: 'default_media_participant_detail',
+        }.get(self.participant_type, 'meetings.participant_detail')
+        return url_for(url, participant_id=self.id, meeting_id=self.meeting.id)
 
     @property
     def name(self):
@@ -413,6 +414,10 @@ class Participant(db.Model):
             Participant(), self, with_relations=True,
             exclude=self.EXCLUDE_WHEN_COPYING)
         participant.meeting = self.default_meeting
+        participant.participant_type = {
+            Participant.PARTICIPANT: Participant.DEFAULT,
+            Participant.MEDIA: Participant.DEFAULT_MEDIA,
+        }.get(self.participant_type.code, Participant.DEFAULT)
         db.session.add(participant)
         db.session.flush()
         # add primary custom fields for default meeting

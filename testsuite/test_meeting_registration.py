@@ -115,7 +115,7 @@ def test_meeting_media_registration_default_participant_custom_fields(app,
         assert (default_meeting.custom_fields
                 .filter_by(custom_field_type='media').count() == 2)
 
-        default_participant = part.user.get_default(Participant.MEDIA)
+        default_participant = part.user.get_default(Participant.DEFAULT_MEDIA)
         assert (default_participant.custom_field_values.count() ==
                 part.custom_field_values.count())
         for cfv in default_participant.custom_field_values.all():
@@ -201,10 +201,10 @@ def test_meeting_registration_default_participant_creation(app, default_meeting)
         create_user_after_registration(client, participant, meeting)
 
         default_participant = participant.user.get_default(
-            Participant.PARTICIPANT)
+            Participant.DEFAULT)
         assert default_participant is not None
         assert_participants_fields_equal(participant, default_participant)
-        assert default_participant.participant_type.code == Participant.PARTICIPANT
+        assert default_participant.participant_type.code == Participant.DEFAULT
         assert default_participant.meeting_id != participant.meeting_id
         assert default_participant.meeting_id == default_meeting.id
         assert default_participant.category_id is None
@@ -224,7 +224,7 @@ def test_meeting_registration_default_participant_update(app, default_meeting):
         create_user_after_registration(client, participant, meeting)
 
         default_participant = participant.user.get_default(
-            Participant.PARTICIPANT)
+            Participant.DEFAULT)
 
     new_category = MeetingCategoryFactory(meeting__online_registration=True)
     new_meeting = new_category.meeting
@@ -260,7 +260,7 @@ def test_meeting_registration_default_participant_custom_fields(app, default_mee
         create_user_after_registration(client, participant, meeting)
 
         default_participant = participant.user.get_default(
-            Participant.PARTICIPANT)
+            Participant.DEFAULT)
         assert (default_participant.custom_field_values.count() ==
                 participant.custom_field_values.count())
         for cfv in default_participant.custom_field_values.all():
@@ -290,7 +290,7 @@ def test_meeting_registration_default_participant_photo(app, default_meeting):
         create_user_after_registration(client, participant, meeting)
 
         default_participant = participant.user.get_default(
-            Participant.PARTICIPANT)
+            Participant.DEFAULT)
         photo_field = participant.custom_field_values.scalar().value
         default_photo_field = (default_participant.custom_field_values
                                .scalar().value)
@@ -339,7 +339,7 @@ def test_meeting_registration_default_participant_custom_fields_update(app, defa
         assert resp.status_code == 200
         participant = Participant.query.filter_by(meeting=new_meeting).first()
         default_participant = participant.user.get_default(
-            Participant.PARTICIPANT)
+            Participant.DEFAULT)
         assert (default_participant.custom_field_values.count() ==
                 participant.custom_field_values.count() + 2)
         for cfv in participant.custom_field_values:
@@ -369,7 +369,7 @@ def test_meeting_registration_default_participant_photo_update(app, default_meet
         participant = Participant.query.filter_by(meeting=meeting).first()
         create_user_after_registration(client, participant, meeting)
         default_participant = participant.user.get_default(
-            Participant.PARTICIPANT)
+            Participant.DEFAULT)
         original_image = (default_participant.custom_field_values
                           .scalar().value)
 
@@ -387,7 +387,7 @@ def test_meeting_registration_default_participant_photo_update(app, default_meet
         assert resp.status_code == 200
         participant = Participant.query.filter_by(meeting=new_meeting).first()
         default_participant = participant.user.get_default(
-            Participant.PARTICIPANT)
+            Participant.DEFAULT)
 
         photo_field = participant.custom_field_values.scalar().value
         default_photo_field = (default_participant.custom_field_values
@@ -404,7 +404,8 @@ def test_meeting_registration_is_prepopulated(app, default_meeting):
     meeting = category.meeting
     user = UserFactory()
     part = ParticipantFactory(user=user, meeting=default_meeting,
-                              category=None)
+                              category=None,
+                              participant_type=Participant.DEFAULT)
 
     client = app.test_client()
     with app.test_request_context():
@@ -491,8 +492,8 @@ def test_meeting_registration_participant_and_media_on_same_user(app, default_me
                              .first())
 
     #CHECK DEFAULT PARTICIPANT AND MEDIA CREATED
-        assert user.get_default(Participant.PARTICIPANT) is not None
-        assert user.get_default(Participant.MEDIA) is not None
+        assert user.get_default(Participant.DEFAULT) is not None
+        assert user.get_default(Participant.DEFAULT_MEDIA) is not None
 
     #CHECK PARTICIPANT REGISTRATION FORM IS POPULATED
         resp = client.get(url_for('meetings.registration',

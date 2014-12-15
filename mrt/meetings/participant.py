@@ -192,7 +192,7 @@ class DefaultParticipantDetail(BaseParticipantDetail):
     template = 'meetings/participant/default/participant_detail.html'
 
     def _get_queryset(self, participant_id):
-        return (Participant.query.default_meeting().participants()
+        return (Participant.query.default_meeting().default_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
@@ -204,7 +204,8 @@ class DefaultMediaParticipantDetail(BaseParticipantDetail):
     template = 'meetings/participant/default/media_detail.html'
 
     def _get_queryset(self, participant_id):
-        return (Participant.query.default_meeting().media_participants()
+        return (Participant.query.default_meeting()
+                .default_media_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
@@ -322,7 +323,7 @@ class DefaultParticipantEdit(BaseParticipantEdit):
                                                          CustomField.CATEGORY])
 
     def get_object(self, participant_id):
-        return (Participant.query.default_meeting().participants()
+        return (Participant.query.default_meeting().default_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
@@ -338,7 +339,8 @@ class DefaultMediaParticipantEdit(DefaultParticipantEdit):
     form_class = MediaParticipantEditForm
 
     def get_object(self, participant_id):
-        return (Participant.query.default_meeting().media_participants()
+        return (Participant.query.default_meeting()
+                .default_media_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
 
@@ -361,7 +363,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
                              action='restore')
         db.session.commit()
         flash('Participant successfully restored', 'success')
-        return jsonify(status='success', url=participant.get_detail_url())
+        return jsonify(status='success', url=participant.get_absolute_url())
 
 
 class ParticipantBadge(PermissionRequiredMixin, MethodView):

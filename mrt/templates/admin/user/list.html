@@ -103,7 +103,8 @@
                 <small class="text-danger"><em>Staff</em></small><br>
                 {% endif %}
 
-                {% set default_participant = user.get_default(Participant.PARTICIPANT) %}
+                {% set default_participant = user.get_default(
+                    Participant.DEFAULT) %}
                 {% if default_participant %}
                   <small>
                     <a href="{{ url_for('meetings.default_participant_detail',
@@ -113,7 +114,8 @@
                   </small><br>
                 {% endif %}
 
-                {% set default_media = user.get_default(Participant.MEDIA) %}
+                {% set default_media = user.get_default(
+                    Participant.DEFAULT_MEDIA) %}
                 {% if default_media %}
                   <small>
                     <a href="{{ url_for('meetings.default_media_participant_detail',
@@ -125,7 +127,8 @@
               <td>
                 <ul class="list-unstyled">
                   {% for participant in participants %}
-                    <li><a href="{{ participant.get_detail_url() }}">{{ participant.meeting }}</a>
+                    <li><a href="{{ participant.get_absolute_url() }}">
+                      {{ participant.meeting }}</a>
                     </li>
                   {% endfor %}
                 </ul>
