@@ -51,10 +51,6 @@ class ParticipantQuery(BaseQuery):
     def current_meeting(self):
         return self.filter(Participant.meeting == g.meeting).active()
 
-    def default_meeting(self):
-        return self.current_meeting().filter(
-            Meeting.meeting_type == Meeting.DEFAULT_TYPE)
-
 
 class CustomFieldQuery(BaseQuery):
 

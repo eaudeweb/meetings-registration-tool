@@ -1,17 +1,19 @@
+from StringIO import StringIO
+
 from flask import url_for
-from pyquery import PyQuery
 from py.path import local
+from pyquery import PyQuery
+
 from sqlalchemy import not_
 from sqlalchemy_utils import types
-from StringIO import StringIO
 
 from mrt.models import Meeting, CustomField, CustomFieldValue
 
-from testsuite.test_meeting_registration import create_user_after_registration
-from testsuite.factories import MeetingFactory, normalize_data
-from testsuite.factories import CustomFieldFactory
-from testsuite.factories import MeetingCategoryFactory, ParticipantFactory
-from testsuite.utils import populate_participant_form
+from .factories import MeetingCategoryFactory, ParticipantFactory
+from .factories import MeetingFactory, MeetingTypeFactory, CustomFieldFactory
+from .factories import normalize_data
+from .test_meeting_registration import create_user_after_registration
+from .utils import populate_participant_form
 
 
 def test_default_participant_detail(app, user, default_meeting):
@@ -141,6 +143,7 @@ def add_new_meeting(client, user):
     with client.session_transaction() as sess:
         sess['user_id'] = user.id
 
+    meeting_type = MeetingTypeFactory()
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['acronym'] = acronym = 'TEST'
@@ -148,6 +151,7 @@ def add_new_meeting(client, user):
     data['badge_header-english'] = data.pop('badge_header')
     data['online_registration'] = 'y'
     data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
 
     url = url_for('meetings.edit')
     resp = client.post(url, data=data)
