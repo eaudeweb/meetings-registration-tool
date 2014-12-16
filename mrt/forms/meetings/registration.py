@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from flask.ext.babel import gettext as _
 from flask_wtf.file import FileAllowed
 from flask.ext.uploads import IMAGES
@@ -20,6 +22,12 @@ class RegistrationForm(BaseParticipantForm):
             'validators': [FileAllowed(IMAGES)]
         },
     }
+
+    def save(self):
+        participant = super(RegistrationForm, self).save(commit=False)
+        participant.registration_token = str(uuid4())
+        db.session.commit()
+        return participant
 
 
 class MediaRegistrationForm(RegistrationForm):

@@ -39,8 +39,6 @@ class BaseParticipantForm(BaseForm):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
         if participant.id is None:
-            # TODO this should be only on registration
-            participant.registration_token = str(uuid4())
             participant.participant_type = self.CUSTOM_FIELDS_TYPE
             db.session.add(participant)
 

@@ -31,7 +31,6 @@ def test_send_notification_add_participant(app):
                                    meeting_id=category.meeting.id), data=data)
         assert resp.status_code == 302
         assert RoleUser.query.filter_by(meeting=category.meeting).count() == 2
-        # TODO Find out if email notification after adding a user
         assert len(outbox) == 0
 
 
@@ -58,5 +57,4 @@ def test_send_notification_add_media_participant(app):
                                    meeting_id=category.meeting.id), data=data)
         assert resp.status_code == 302
         assert RoleUser.query.filter_by(meeting=category.meeting).count() == 2
-        # TODO Find out if email notification after adding a user
         assert len(outbox) == 0

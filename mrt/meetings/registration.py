@@ -28,7 +28,7 @@ def _render_if_media_disabled(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not g.meeting.media_participant_enabled:
-            return render_template('meetings/registration/media_closed.html')
+            abort(404)
         return func(*args, **kwargs)
     return wrapper
 

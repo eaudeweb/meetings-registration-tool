@@ -225,8 +225,6 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
         else:
             activity_signal.send(self, participant=participant,
                                  action='add', staff=user.staff)
-            # TODO
-            # notification_signal.send(self, participant=participant)
 
     def _delete_signals(self, participant):
         activity_signal.send(self, participant=participant,
