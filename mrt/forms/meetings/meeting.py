@@ -167,6 +167,18 @@ class MediaParticipantDummyForm(BaseForm):
             'title', 'first_name', 'last_name', 'email', 'category_id')
 
 
+class DefaultMediaParticipantDummyForm(BaseForm):
+
+    CUSTOM_FIELD_TYPE = 'media'
+
+    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
+
+    class Meta:
+        model = Participant
+        only = ('title', 'first_name', 'last_name', 'email')
+        visible_on_registration_form = []
+
+
 class MeetingFilterForm(BaseForm):
 
     meeting_type = fields.SelectField('Filter by type', choices=[])

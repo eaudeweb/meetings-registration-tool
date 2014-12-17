@@ -113,7 +113,8 @@ def test_meeting_media_registration_default_participant_custom_fields(app,
         part = Participant.query.current_meeting().media_participants().first()
         create_user_after_registration(client, part, meeting)
         assert (default_meeting.custom_fields
-                .filter_by(custom_field_type='media').count() == 2)
+                .filter_by(custom_field_type='media', is_primary=False)
+                .count() == 2)
 
         default_participant = part.user.get_default(Participant.DEFAULT_MEDIA)
         assert (default_participant.custom_field_values.count() ==

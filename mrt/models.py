@@ -402,8 +402,14 @@ class Participant(db.Model):
 
     def _add_primary_custom_fields_for_default_meeting(self):
         from mrt.forms.meetings import DefaultParticipantDummyForm
+        from mrt.forms.meetings import DefaultMediaParticipantDummyForm
         from mrt.forms.meetings import add_custom_fields_for_meeting
-        nr_fields = len(list(DefaultParticipantDummyForm()))
+        form_class = {
+            Participant.PARTICIPANT: DefaultParticipantDummyForm,
+            Participant.MEDIA: DefaultMediaParticipantDummyForm,
+        }.get(self.participant_type.code, DefaultParticipantDummyForm)
+
+        nr_fields = len(list(form_class()))
         count = (
             CustomField.query.filter_by(meeting=self.default_meeting)
             .filter_by(is_primary=True)
@@ -411,7 +417,7 @@ class Participant(db.Model):
         if not nr_fields == count:
             add_custom_fields_for_meeting(
                 self.default_meeting,
-                form_class=DefaultParticipantDummyForm)
+                form_class=form_class)
 
     def clone(self):
         self.default_meeting = Meeting.get_default()
