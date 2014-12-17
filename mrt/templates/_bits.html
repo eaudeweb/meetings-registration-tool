@@ -83,7 +83,7 @@
       </small></a>
     </span>
   {% else %}
-    {% set url = activity.participant.get_aboslute_url() %}
+    {% set url = activity.participant.get_absolute_url() %}
     <a href="{{ url }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
   {% endif %}
 {% endmacro %}
