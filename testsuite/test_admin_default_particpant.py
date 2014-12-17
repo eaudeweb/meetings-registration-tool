@@ -17,7 +17,6 @@ from .utils import populate_participant_form
 
 
 def test_default_participant_detail(app, user, default_meeting):
-
     client = app.test_client()
     with app.test_request_context():
         meeting = add_new_meeting(client, user)

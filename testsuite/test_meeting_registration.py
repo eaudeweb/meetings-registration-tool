@@ -538,6 +538,7 @@ def test_meeting_registration_timestamp_captcha(app, default_meeting):
             assert resp.status_code == 200
     assert Participant.query.count() == 0
 
+
 def register_participant_online(client, participant_data, meeting, user=None):
     """Helper function that registers a participant to a meeting."""
     if user:

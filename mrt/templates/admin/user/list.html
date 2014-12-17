@@ -96,7 +96,7 @@
         </thead>
 
         <tbody>
-          {% for user, participants in grouped_participants %}
+          {% for user, participants in users.items() %}
             <tr class="{% if current_user == user %}current-user bg-info{% endif %}">
               <td>{{ user.email }}<br>
                 {% if user.staff %}
@@ -127,9 +127,9 @@
               <td>
                 <ul class="list-unstyled">
                   {% for participant in participants %}
-                    <li><a href="{{ participant.get_absolute_url() }}">
-                      {{ participant.meeting }}</a>
-                    </li>
+                      <li><a href="{{ participant.get_absolute_url() }}">
+                        {{ participant.meeting }}</a>
+                      </li>
                   {% endfor %}
                 </ul>
               </td>
