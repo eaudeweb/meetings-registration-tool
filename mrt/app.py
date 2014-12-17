@@ -91,6 +91,8 @@ def create_app(config={}):
             'Participant': {
                 'PARTICIPANT': Participant.PARTICIPANT,
                 'MEDIA': Participant.MEDIA,
+                'DEFAULT': Participant.DEFAULT,
+                'DEFAULT_MEDIA': Participant.DEFAULT_MEDIA,
             }
         }
 

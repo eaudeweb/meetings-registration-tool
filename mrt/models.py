@@ -332,8 +332,8 @@ class Participant(db.Model):
             Participant.PARTICIPANT: 'meetings.participant_detail',
             Participant.MEDIA: 'meetings.media_participant_detail',
             Participant.DEFAULT: 'meetings.default_participant_detail',
-            Participant.DEFAULT_MEDIA: 'default_media_participant_detail',
-        }.get(self.participant_type, 'meetings.participant_detail')
+            Participant.DEFAULT_MEDIA: 'meetings.default_media_participant_detail',
+        }.get(self.participant_type.code, 'meetings.participant_detail')
         return url_for(url, participant_id=self.id, meeting_id=self.meeting.id)
 
     @property

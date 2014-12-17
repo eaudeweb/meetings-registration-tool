@@ -5,6 +5,8 @@ from testsuite.factories import MeetingCategoryFactory, MediaParticipantFactory
 from testsuite.factories import CustomFieldFactory, UserNotificationFactory
 from testsuite.factories import PhraseMeetingFactory
 
+from mrt.models import Category
+
 
 STATUS_OK = 200
 STATUS_DENIED = 403
@@ -78,12 +80,13 @@ def test_permissions_participant(app, monkeypatch, pdf_renderer,
 ])
 def test_permissions_media_participant(app, url_name, perms, status):
     role = RoleUserMeetingFactory(role__permissions=perms)
-    participant = MediaParticipantFactory(category__meeting=role.meeting)
+    media = MediaParticipantFactory(category__meeting=role.meeting,
+                                    category__category_type=Category.MEDIA)
     client = app.test_client()
     with app.test_request_context():
         _login_user(client, role.user)
         _test(client, url_for(url_name,
-                              participant_id=participant.id,
+                              participant_id=media.id,
                               meeting_id=role.meeting.id), status)
 
 

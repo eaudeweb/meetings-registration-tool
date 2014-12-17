@@ -501,3 +501,32 @@ def test_meeting_participants_export_excel(app, user):
         for sheet_name in workbook.sheet_names():
             worksheet = workbook.sheet_by_name(sheet_name)
             assert worksheet.nrows == 11
+
+
+def test_meeting_participant_absolute_url(app):
+    participant = ParticipantFactory()
+    media = ParticipantFactory(category__category_type=Category.MEDIA,
+                               participant_type=Participant.MEDIA)
+    def_participant = ParticipantFactory(participant_type=Participant.DEFAULT)
+    def_media = ParticipantFactory(participant_type=Participant.DEFAULT_MEDIA)
+
+    with app.test_request_context():
+        url = url_for('meetings.participant_detail',
+                      meeting_id=participant.meeting.id,
+                      participant_id=participant.id)
+        assert url == participant.get_absolute_url()
+
+        url = url_for('meetings.media_participant_detail',
+                      meeting_id=media.meeting.id,
+                      participant_id=media.id)
+        assert url == media.get_absolute_url()
+
+        url = url_for('meetings.default_participant_detail',
+                      meeting_id=def_participant.meeting.id,
+                      participant_id=def_participant.id)
+        assert url == def_participant.get_absolute_url()
+
+        url = url_for('meetings.default_media_participant_detail',
+                      meeting_id=def_media.meeting.id,
+                      participant_id=def_media.id)
+        assert url == def_media.get_absolute_url()
