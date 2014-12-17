@@ -25,7 +25,7 @@ from mrt.utils import generate_excel, set_language
 
 def _check_category(category_type):
     query = (Category.query.filter_by(meeting=g.meeting)
-             .filter_by(category_type=Category.PARTICIPANT))
+             .filter_by(category_type=category_type))
     if query.count() == 0:
         return render_template('meetings/category_required.html')
 
@@ -33,16 +33,14 @@ def _check_category(category_type):
 def _participant_category_required(func):
     @wraps(func)
     def wrapper(**kwargs):
-        _check_category(Category.PARTICIPANT)
-        return func(**kwargs)
+        return _check_category(Category.PARTICIPANT) or func(**kwargs)
     return wrapper
 
 
 def _media_participant_category_required(func):
     @wraps(func)
     def wrapper(**kwargs):
-        _check_category(Category.MEDIA)
-        return func(**kwargs)
+        return _check_category(Category.MEDIA) or func(**kwargs)
     return wrapper
 
 

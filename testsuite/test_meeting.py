@@ -293,6 +293,34 @@ def test_meeting_delete(app, user):
     assert Meeting.query.count() == 0
 
 
+def test_meeting_participant_category_required(app, user):
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.participant_edit',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        category_required = PyQuery(resp.data)('h3.text-danger')
+        assert len(category_required) == 1
+
+
+def test_meeting_media_participant_category_required(app, user):
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.media_participant_edit',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        category_required = PyQuery(resp.data)('h3.text-danger')
+        assert len(category_required) == 1
+
+
 def test_meeting_category_add_list(app, user):
     CategoryDefaultFactory.create_batch(5)
     meeting = MeetingFactory()
