@@ -430,7 +430,7 @@ class Participant(db.Model):
     def clone(self):
         self.default_meeting = Meeting.get_default()
         participant = copy_attributes(
-            Participant(), self, with_relations=True,
+            Participant(), self, exclude_fk=False,
             exclude=self.EXCLUDE_WHEN_COPYING)
         participant.meeting = self.default_meeting
         participant.participant_type = {
@@ -450,7 +450,7 @@ class Participant(db.Model):
 
     def update(self, source):
         self.default_meeting = Meeting.get_default()
-        participant = copy_attributes(self, source, with_relations=True,
+        participant = copy_attributes(self, source, exclude_fk=False,
                                       exclude=self.EXCLUDE_WHEN_COPYING)
         for cfv in source.custom_field_values.all():
             cf_clone = self._clone_custom_field(cfv.custom_field)

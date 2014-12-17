@@ -12,7 +12,7 @@ from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import Translation, UserNotification
 
 from mrt.definitions import NOTIFICATION_TYPES
-from mrt.utils import copy_model_fields, duplicate_uploaded_file
+from mrt.utils import copy_attributes, duplicate_uploaded_file
 
 from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
 
@@ -46,9 +46,8 @@ class MeetingCategoryAddForm(BaseForm):
         categories_default = CategoryDefault.query.filter(
             CategoryDefault.id.in_(self.categories.data))
         for category_default in categories_default:
-            category = copy_model_fields(
-                Category, category_default,
-                exclude=('id', 'title_id', 'background'))
+            category = copy_attributes(Category(), category_default,
+                                       exclude=('background', ))
             translation = Translation(english=category_default.title.english)
             db.session.add(translation)
             db.session.flush()

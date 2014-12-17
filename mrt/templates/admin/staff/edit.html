@@ -35,7 +35,10 @@
           {{ form_group(form.title) }}
           {{ form_group(form.full_name) }}
           {{ form_group(form.user.email) }}
-          {{ form_group(form.user.is_superuser) }}
+
+          {% if form.user.is_superuser %}
+            {{ form_group(form.user.is_superuser) }}
+          {% endif %}
           {{ form_group(form.role_id) }}
         </div>
       </div>

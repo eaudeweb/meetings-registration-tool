@@ -1,9 +1,12 @@
 from flask import url_for
 from pyquery import PyQuery
+import pytest
 
 from mrt.models import Staff, RoleUser
 from mrt.mail import mail
 from .factories import StaffFactory, UserFactory, RoleFactory, RoleUserFactory
+
+PERMISSION = ('manage_staff', )
 
 
 def test_staff_list(app, user):
@@ -138,6 +141,8 @@ def test_staff_edit_user(app, user):
 
 def test_staff_delete(app, user):
     staff = test_staff_add(app, user)
+    assert Staff.query.count() == 2
+
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -148,3 +153,80 @@ def test_staff_delete(app, user):
     assert resp.status_code == 200
     assert Staff.query.count() == 1
     assert RoleUser.query.filter_by(user=staff.user).count() == 0
+
+
+def test_revoke_superuser(app, user):
+    role_user = RoleUserFactory(user=user)
+    data = StaffFactory.attributes()
+    data['user-email'] = data.pop('user')
+    data['role_id'] = role_user.id
+    data['user-is_superuser'] = ''
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('admin.staff_edit', staff_id=user.staff.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert user.is_superuser
+
+
+@pytest.mark.xfail
+def test_enable_superuser(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION,
+                                user__email='test@email.com',
+                                user__is_superuser=False)
+    staff = StaffFactory(user=role_user.user)
+    data = StaffFactory.attributes()
+    data['user-email'] = data.pop('user')
+    data['user-is_superuser'] = 'y'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('admin.staff_edit', staff_id=staff.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert not staff.user.is_superuser
+
+
+@pytest.mark.xfail
+def test_enable_superuser_for_other_user(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION,
+                                user__email='test@email.com',
+                                user__is_superuser=False)
+    staff = StaffFactory()
+    data = StaffFactory.attributes()
+    data['user-email'] = data.pop('user')
+    data['user-is_superuser'] = 'y'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('admin.staff_edit', staff_id=staff.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert not staff.user.is_superuser
+
+
+@pytest.mark.xfail
+def test_disable_superuser_for_other_user(app):
+    role_user = RoleUserFactory(role__permissions=PERMISSION,
+                                user__email='test@email.com',
+                                user__is_superuser=False)
+    staff = StaffFactory(user__is_superuser=True)
+    data = StaffFactory.attributes()
+    data['user-email'] = data.pop('user')
+    data['user-is_superuser'] = ''
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role_user.user.id
+        url = url_for('admin.staff_edit', staff_id=staff.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert staff.user.is_superuser
