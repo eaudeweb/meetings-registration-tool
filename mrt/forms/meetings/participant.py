@@ -43,6 +43,9 @@ class BaseParticipantForm(BaseForm):
             db.session.add(participant)
 
         for field_name, field in self._fields.items():
+            if field_name.endswith('_'):
+                continue
+
             cf = self._custom_fields[field.name]
             if cf.is_primary:
                 value = field.data

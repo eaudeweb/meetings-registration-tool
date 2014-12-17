@@ -175,7 +175,9 @@ class Staff(db.Model):
                           info={'label': 'Full Name'})
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('staff', uselist=False))
+    user = db.relationship(
+        'User',
+        backref=db.backref('staff', uselist=False, cascade='delete'))
 
     @property
     def user_role(self):

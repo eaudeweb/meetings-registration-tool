@@ -44,8 +44,7 @@ def test_meeting_registration_add(app, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
     role_user = RoleUserMeetingFactory(meeting=meeting)
-    RoleUserMeetingFactory(meeting=meeting,
-                           user__email='test@email.com')
+    RoleUserMeetingFactory(meeting=meeting, user__email='test@email.com')
     UserNotificationFactory(user=role_user.user, meeting=meeting)
 
     data = ParticipantFactory.attributes()
@@ -521,6 +520,23 @@ def test_meeting_registration_participant_and_media_on_same_user(app, default_me
         assert media_participant.last_name == html('#last_name').val()
         assert media_participant.email == html('#email').val()
 
+
+def test_meeting_registration_timestamp_captcha(app, default_meeting):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    role_user = RoleUserMeetingFactory(meeting=meeting)
+    RoleUserMeetingFactory(meeting=meeting, user__email='test@email.com')
+    UserNotificationFactory(user=role_user.user, meeting=meeting)
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    client = app.test_client()
+    with app.test_request_context():
+        app.config['DEBUG'] = False
+        for i in range(4):
+            resp = register_participant_online(client, data, meeting)
+            assert resp.status_code == 200
+    assert Participant.query.count() == 0
 
 def register_participant_online(client, participant_data, meeting, user=None):
     """Helper function that registers a participant to a meeting."""

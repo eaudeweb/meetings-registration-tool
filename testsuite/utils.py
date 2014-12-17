@@ -1,3 +1,6 @@
+import time
+from base64 import b64encode
+
 from mrt.forms.meetings.meeting import ParticipantDummyForm
 from mrt.forms.meetings.meeting import _CUSTOM_FIELD_MAPPER
 from mrt.models import CustomField, CustomFieldChoice, Translation, db
@@ -41,3 +44,5 @@ def populate_participant_form(meeting, data={}):
         data[custom_field.slug] = (
             custom_field.custom_field_choices.first().value)
     data['represented_country'] = 'RO'
+    now = int(time.time())
+    data['ts'] = b64encode(str(now))
