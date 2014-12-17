@@ -11,7 +11,7 @@ from mrt.models import MeetingType
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
 from mrt.forms.base import CategoryField, EmailRequired, EmailField
 
-from mrt.utils import copy_model_fields
+from mrt.utils import copy_attributes
 from mrt.definitions import MEETING_SETTINGS
 
 
@@ -87,12 +87,10 @@ class MeetingEditForm(BaseForm):
             .filter_by(meeting_type_slug=meeting.meeting_type_slug)
         )
         for phrase_default in phrases_default:
-            phrase = copy_model_fields(Phrase, phrase_default, exclude=(
-                'id', 'description_id', 'meeting_type'))
-            #Change english=phrase_default.translation.description.english
-            descr = Translation(english=phrase_default.name)
-            db.session.add(descr)
-            phrase.description = descr
+            phrase = copy_attributes(Phrase(), phrase_default)
+            phrase.description = (
+                copy_attributes(Translation(), phrase_default.description)
+                if phrase_default.description else Translation(english=''))
             phrase.meeting = meeting
             db.session.add(phrase)
             db.session.flush()

@@ -1,3 +1,5 @@
+from functools import wraps
+
 from flask import request, redirect, render_template, jsonify
 from flask import g, url_for, flash
 from flask.views import MethodView
@@ -5,9 +7,21 @@ from flask.ext.login import login_required, current_user as user
 
 from sqlalchemy import desc
 
-from mrt.models import Meeting, db, RoleUser
+from mrt.models import Meeting, db, RoleUser, MeetingType
 from mrt.forms.meetings import MeetingEditForm, MeetingFilterForm
 from mrt.meetings.mixins import PermissionRequiredMixin
+
+
+def _check_meeting_type():
+    if MeetingType.query.ignore_def().count() == 0:
+        return render_template('meetings/meeting_type_required.html')
+
+
+def _meeting_type_required(func):
+    @wraps(func)
+    def wrapper(**kwargs):
+        return _check_meeting_type() or func(**kwargs)
+    return wrapper
 
 
 class MeetingsPermissionRequiredMixin(PermissionRequiredMixin):
@@ -39,7 +53,7 @@ class Meetings(MeetingsPermissionRequiredMixin, MethodView):
 
 class MeetingEdit(PermissionRequiredMixin, MethodView):
 
-    decorators = (login_required, )
+    decorators = (login_required, _meeting_type_required)
     permission_required = ('manage_meeting',)
 
     def get(self):

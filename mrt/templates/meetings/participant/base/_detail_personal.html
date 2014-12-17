@@ -16,7 +16,7 @@
             {% elif field.name == 'email' %}
               <a href="mailto:{{ field.data }}">{{ field.data }}</a>
             {% else %}
-              {{ field.data }}
+              {{ field.data or '' }}
             {% endif %}
           </td>
         </tr>

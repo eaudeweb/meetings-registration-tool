@@ -1,6 +1,5 @@
-from flask import render_template, flash
-from flask import request, redirect, url_for, jsonify
-from flask.ext.login import login_required
+from flask import flash, jsonify, redirect, render_template, request, url_for
+from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
@@ -48,6 +47,9 @@ class StaffEdit(PermissionRequiredMixin, MethodView):
 
     def delete(self, staff_id):
         staff = Staff.query.get_or_404(staff_id)
+        if staff.user == current_user:
+            message = 'You cannot delete your staff entry.'
+            return jsonify(status='error', message=message)
         db.session.delete(staff)
         db.session.commit()
         flash('Staff successfully deleted', 'warning')

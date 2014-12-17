@@ -94,6 +94,19 @@ def test_meeting_add(app, user):
     assert Meeting.query.count() == 1
 
 
+def test_meeting_add_no_meeting_type(app, user):
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.edit')
+        resp = client.get(url)
+
+    assert resp.status_code == 200
+    meeting_type_required_warning = PyQuery(resp.data)('h3.text-danger')
+    assert len(meeting_type_required_warning) == 1
+
+
 def test_meeting_add_without_badge_header(app, user):
     data = normalize_data(MeetingFactory.attributes())
     meeting_type = MeetingTypeFactory()

@@ -1,6 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
+from flask.ext.login import current_user
 from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed
 
@@ -45,6 +46,12 @@ class UserForm(BaseForm):
         only = ('email', 'is_superuser')
         unique_validator = _staff_user_unique
 
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
+        if not current_user.is_superuser or current_user == self.obj:
+            del self._fields['is_superuser']
+            del self.is_superuser
+
 
 class StaffEditForm(BaseForm):
 
@@ -59,18 +66,20 @@ class StaffEditForm(BaseForm):
         staff.full_name = self.full_name.data
         staff.title = self.title.data
         email = self.user.email.data
+
         if staff.user is None:
             try:
                 staff.user = User.query.filter_by(email=email).one()
             except NoResultFound:
-                staff.user = User(email=self.user.email.data,
+                staff.user = User(email=email,
                                   recover_token=str(uuid4()),
-                                  recover_time=datetime.now(),
-                                  is_superuser=self.user.is_superuser.data)
+                                  recover_time=datetime.now())
                 send_activation_mail(staff.user.email,
                                      staff.user.recover_token)
         else:
-            staff.user.email = self.user.email.data
+            staff.user.email = email
+
+        if self.user.is_superuser:
             staff.user.is_superuser = self.user.is_superuser.data
 
         if staff.id is None:

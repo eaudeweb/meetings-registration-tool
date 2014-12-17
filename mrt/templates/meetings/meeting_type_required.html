@@ -1,0 +1,20 @@
+{% extends "_layout.html" %}
+
+
+{% set title = 'At least one meeting type is required in order to access this page' %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block content %}
+
+  <div class="text-center" style="margin-top: 80px;">
+    <h3 class="page-title text-danger">{{ title }}</h3>
+    <p>
+      <a href="{{ url_for('admin.meeting_types') }}" class="btn btn-primary">
+        Manage meeting types</a>
+    </p>
+  </div>
+
+{% endblock %}

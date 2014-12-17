@@ -61,13 +61,17 @@ def duplicate_uploaded_file(filename, config_key):
     return False
 
 
-def copy_model_fields(model, instance, exclude=[]):
-    cls = model()
-    for col in instance.__table__.columns:
+def copy_attributes(destination, source, exclude_pk=True, exclude_fk=True,
+                    exclude=[]):
+    for col in destination.__table__.columns:
+        if exclude_pk and col.primary_key:
+            continue
+        if exclude_fk and col.foreign_keys:
+            continue
         if col.name in exclude:
             continue
-        setattr(cls, col.name, getattr(instance, col.name))
-    return cls
+        setattr(destination, col.name, getattr(source, col.name))
+    return destination
 
 
 _SLUG_RE = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
@@ -180,16 +184,6 @@ def set_language(lang='english'):
         iso = lang
     g.language = iso
     refresh()
-
-
-def copy_attributes(obj, source, with_relations=False, exclude=[]):
-    for c in obj.__table__.c:
-        if c.name == 'id' or c.name in exclude:
-            continue
-        if not with_relations and c.name.endswith('id'):
-            continue
-        setattr(obj, c.name, getattr(source, c.name))
-    return obj
 
 
 def validate_email(email):
