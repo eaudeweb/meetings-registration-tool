@@ -7,11 +7,11 @@ from mrt.models import Meeting, Category, Phrase, CustomField
 from mrt.models import CustomFieldChoice, Translation, Participant
 from mrt.forms.meetings import ParticipantDummyForm, MediaParticipantDummyForm
 
-from .factories import CategoryDefaultFactory
-from .factories import MeetingFactory, MeetingTypeFactory
-from .factories import PhraseDefaultFactory, normalize_data
+from .factories import CategoryDefaultFactory, StaffFactory
+from .factories import PhraseDefaultFactory, RoleUserMeetingFactory
 from .factories import PhraseMeetingFactory, ParticipantFactory
 from .factories import CustomFieldFactory, MeetingCategoryFactory
+from .factories import MeetingFactory, MeetingTypeFactory, normalize_data
 
 
 def test_meeting_list(app, user, default_meeting):
@@ -28,6 +28,25 @@ def test_meeting_list(app, user, default_meeting):
     tbody = table('tbody')
     row_count = len(tbody('tr'))
     assert row_count == 5
+
+
+def test_meeting_list_for_role_user(app, default_meeting):
+    staff = StaffFactory()
+    MeetingFactory.create_batch(3)
+    MeetingFactory(owner=staff)
+    RoleUserMeetingFactory.create_batch(3, user=staff.user, staff=staff)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = staff.user.id
+        url = url_for('meetings.home')
+        resp = client.get(url)
+
+    table = PyQuery(resp.data)('#meetings')
+    tbody = table('tbody')
+    row_count = len(tbody('tr'))
+    assert row_count == 4
 
 
 def test_meeting_list_filter(app, user, default_meeting):

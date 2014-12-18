@@ -8,8 +8,8 @@ from path import path
 from mrt.app import create_app
 from mrt.models import db
 from mrt.pdf import PdfRenderer
-from .factories import RoleUserFactory, StaffFactory, MeetingFactory
-from .factories import MeetingTypeFactory
+from .factories import UserFactory, MeetingFactory
+from .factories import MeetingTypeFactory, StaffFactory
 
 
 @fixture
@@ -61,9 +61,9 @@ def app(request, tmpdir):
 
 @fixture
 def user():
-    role_user = RoleUserFactory()
-    StaffFactory(user=role_user.user)
-    return role_user.user
+    user = UserFactory(is_superuser=True, email='admin@test.com')
+    StaffFactory(user=user)
+    return user
 
 
 @fixture
@@ -75,7 +75,8 @@ def default_meeting_type():
 @fixture
 def default_meeting():
     meeting_type = default_meeting_type()
-    default_meeting = MeetingFactory(meeting_type=meeting_type)
+    default_meeting = MeetingFactory(meeting_type=meeting_type,
+                                     title__english='Default')
     return default_meeting
 
 

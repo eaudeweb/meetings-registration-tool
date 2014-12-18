@@ -38,6 +38,7 @@ class UserFactory(SQLAlchemyModelFactory):
 
     email = 'johndoe@eaudeweb.ro'
     password = 'eaudeweb'
+    is_superuser = False
 
 
 class MeetingTitleFactory(SQLAlchemyModelFactory):
@@ -179,15 +180,6 @@ class PhraseMeetingFactory(SQLAlchemyModelFactory):
     group = 'Acknowledge details'
     description = SubFactory(PhraseDescriptionFactory)
     meeting = SubFactory(MeetingFactory)
-
-
-class RoleUserFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = models.RoleUser
-        sqlalchemy_session = models.db.session
-
-    role = SubFactory(RoleFactory)
-    user = SubFactory(UserFactory)
 
 
 class RoleUserMeetingFactory(SQLAlchemyModelFactory):

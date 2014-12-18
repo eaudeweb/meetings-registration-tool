@@ -4,15 +4,11 @@ from pyquery import PyQuery
 from mrt.mail import mail
 from mrt.models import MailLog
 from .factories import MeetingCategoryFactory, ParticipantFactory
-from .factories import MailLogFactory, RoleUserFactory
+from .factories import MailLogFactory
 
 
-PERMISSION = ('view_participant', )
-
-
-def test_send_email_in_english(app):
+def test_send_email_in_english(app, user):
     cat = MeetingCategoryFactory()
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
     ParticipantFactory.create_batch(5, meeting=cat.meeting)
     ParticipantFactory.create_batch(5, meeting=cat.meeting, language='fr')
     data = {
@@ -24,15 +20,14 @@ def test_send_email_in_english(app):
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.bulkemail',
                                    meeting_id=cat.meeting.id), data=data)
         assert resp.status_code == 302
         assert len(outbox) == 5
 
 
-def test_send_email_to_categories(app):
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
+def test_send_email_to_categories(app, user):
     cat_member = MeetingCategoryFactory()
     cat_press = MeetingCategoryFactory(meeting=cat_member.meeting)
     ParticipantFactory.create_batch(7, meeting=cat_member.meeting,
@@ -49,16 +44,15 @@ def test_send_email_to_categories(app):
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.bulkemail',
                                    meeting_id=cat_press.meeting.id), data=data)
         assert resp.status_code == 302
         assert len(outbox) == 7
 
 
-def test_send_bulk_email_logs(app):
+def test_send_bulk_email_logs(app, user):
     cat = MeetingCategoryFactory()
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
     ParticipantFactory.create_batch(5, meeting=cat.meeting)
     ParticipantFactory.create_batch(3, meeting=cat.meeting,
                                     language='fr')
@@ -72,7 +66,7 @@ def test_send_bulk_email_logs(app):
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.bulkemail',
                                    meeting_id=cat.meeting.id), data=data)
         assert resp.status_code == 302
@@ -85,14 +79,13 @@ def test_send_bulk_email_logs(app):
         assert len(PyQuery(resp.data)('#mails tbody tr')) == 5
 
 
-def test_resend_email(app):
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
+def test_resend_email(app, user):
     mail_log = MailLogFactory()
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.post(url_for('meetings.mail_resend',
                                    meeting_id=mail_log.meeting.id,
                                    mail_id=mail_log.id))

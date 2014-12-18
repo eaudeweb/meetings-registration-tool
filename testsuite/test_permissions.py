@@ -3,7 +3,7 @@ from flask import url_for
 from testsuite.factories import RoleUserMeetingFactory, ParticipantFactory
 from testsuite.factories import MeetingCategoryFactory, MediaParticipantFactory
 from testsuite.factories import CustomFieldFactory, UserNotificationFactory
-from testsuite.factories import PhraseMeetingFactory
+from testsuite.factories import PhraseMeetingFactory, StaffFactory
 
 from mrt.models import Category
 
@@ -49,7 +49,7 @@ def _login_user(client, user, password='eaudeweb'):
     ('meetings.participant_envelope', ('manage_participant',), STATUS_OK),
 ])
 def test_permissions_participant(app, monkeypatch, pdf_renderer,
-                                 url_name, perms, status):
+                                 url_name, perms, status, default_meeting):
     monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
     role = RoleUserMeetingFactory(role__permissions=perms)
     participant = ParticipantFactory(category__meeting=role.meeting)
@@ -78,7 +78,8 @@ def test_permissions_participant(app, monkeypatch, pdf_renderer,
     ('meetings.media_participant_edit',
         ('manage_media_participant',), STATUS_OK),
 ])
-def test_permissions_media_participant(app, url_name, perms, status):
+def test_permissions_media_participant(app, url_name, perms, status,
+                                       default_meeting):
     role = RoleUserMeetingFactory(role__permissions=perms)
     media = MediaParticipantFactory(category__meeting=role.meeting,
                                     category__category_type=Category.MEDIA)
@@ -99,7 +100,8 @@ def test_permissions_media_participant(app, url_name, perms, status):
     ('meetings.participant_acknowledge', ('view_participant',), STATUS_OK),
     ('meetings.participant_acknowledge', ('manage_participant',), STATUS_OK),
 ])
-def test_permissions_emails(app, url_name, perms, status):
+def test_permissions_emails(app, url_name, perms, status,
+                            default_meeting):
     role = RoleUserMeetingFactory(role__permissions=perms)
     participant = ParticipantFactory(category__meeting=role.meeting)
     client = app.test_client()
@@ -117,7 +119,8 @@ def test_permissions_emails(app, url_name, perms, status):
     ('meetings.category_edit', [], STATUS_DENIED),
     ('meetings.category_edit', ('manage_meeting',), STATUS_OK),
 ])
-def test_permissions_meeting_category(app, url_name, perms, status):
+def test_permissions_meeting_category(app, url_name, perms, status,
+                                      default_meeting):
     role = RoleUserMeetingFactory(role__permissions=perms)
     category = MeetingCategoryFactory(meeting=role.meeting)
     client = app.test_client()
@@ -135,7 +138,8 @@ def test_permissions_meeting_category(app, url_name, perms, status):
     ('meetings.role_user_edit', [], STATUS_DENIED),
     ('meetings.role_user_edit', ('manage_meeting',), STATUS_OK),
 ])
-def test_permissions_meeting_role(app, url_name, perms, status):
+def test_permissions_meeting_role(app, url_name, perms, status,
+                                  default_meeting):
     role = RoleUserMeetingFactory(role__permissions=perms)
     client = app.test_client()
     with app.test_request_context():
@@ -152,7 +156,8 @@ def test_permissions_meeting_role(app, url_name, perms, status):
     ('meetings.notification_edit', [], STATUS_DENIED),
     ('meetings.notification_edit', ('manage_meeting',), STATUS_OK),
 ])
-def test_permissions_meeting_notification(app, url_name, perms, status):
+def test_permissions_meeting_notification(app, url_name, perms, status,
+                                          default_meeting):
     role = RoleUserMeetingFactory(role__permissions=perms)
     notification = UserNotificationFactory(user=role.user,
                                            meeting=role.meeting)
@@ -168,7 +173,8 @@ def test_permissions_meeting_notification(app, url_name, perms, status):
     ('meetings.phrase_edit', [], STATUS_DENIED),
     ('meetings.phrase_edit', ('manage_meeting',), STATUS_OK),
 ])
-def test_permissions_meeting_phrase(app, url_name, perms, status):
+def test_permissions_meeting_phrase(app, url_name, perms, status,
+                                    default_meeting):
     role = RoleUserMeetingFactory(role__permissions=perms)
     PhraseMeetingFactory(meeting=role.meeting)
     client = app.test_client()
@@ -186,7 +192,8 @@ def test_permissions_meeting_phrase(app, url_name, perms, status):
     ('meetings.custom_field_edit', [], STATUS_DENIED),
     ('meetings.custom_field_edit', ('manage_meeting',), STATUS_OK),
 ])
-def test_permissions_meeting_custom_field(app, url_name, perms, status):
+def test_permissions_meeting_custom_field(app, url_name, perms, status,
+                                          default_meeting):
     role = RoleUserMeetingFactory(role__permissions=perms)
     field = CustomFieldFactory(meeting=role.meeting)
     client = app.test_client()
@@ -195,5 +202,25 @@ def test_permissions_meeting_custom_field(app, url_name, perms, status):
         _test(client, url_for(url_name,
                               custom_field_id=field.id,
                               meeting_id=role.meeting.id), status)
+
+
+@pytest.mark.parametrize("url_name, status", [
+    ('meetings.participants', STATUS_OK),
+    ('meetings.participant_detail', STATUS_OK),
+    ('meetings.participant_edit', STATUS_OK),
+    ('meetings.participant_badge', STATUS_OK),
+    ('meetings.participant_label', STATUS_OK),
+    ('meetings.participant_envelope', STATUS_OK),
+])
+def test_permissions_meeting_owner(app, url_name, status, default_meeting):
+    staff = StaffFactory()
+    participant = ParticipantFactory(category__meeting__owner=staff)
+    client = app.test_client()
+    with app.test_request_context():
+        _login_user(client, staff.user)
+        _test(client, url_for(url_name,
+                              participant_id=participant.id,
+                              meeting_id=participant.meeting.id), status)
+
 
 # TODO: printouts

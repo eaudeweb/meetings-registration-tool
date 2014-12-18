@@ -2,34 +2,29 @@ from flask import url_for
 from pyquery import PyQuery
 
 from .factories import (
-    PhraseDefaultFactory, RoleUserFactory, MeetingTypeFactory,
+    PhraseDefaultFactory, MeetingTypeFactory,
 )
 
 
-PERMISSION = ('manage_default', )
-
-
-def test_default_phrase_types_list(app):
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
+def test_default_phrase_types_list(app, user):
     client = app.test_client()
     MeetingTypeFactory.create_batch(5)
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         resp = client.get(url_for('admin.phrases'))
         assert resp.status_code == 200
         rows = PyQuery(resp.data)('table tbody tr')
         assert len(rows) == 5
 
 
-def test_default_phrase_category_list(app):
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
+def test_default_phrase_category_list(app, user):
     meeting_type = MeetingTypeFactory(slug='cop')
     PhraseDefaultFactory.create_batch(5, meeting_type=meeting_type)
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('admin.phrase_edit', meeting_type='cop')
         resp = client.get(url, follow_redirects=True)
         assert resp.status_code == 200
@@ -37,15 +32,14 @@ def test_default_phrase_category_list(app):
         assert len(phrases) == 6
 
 
-def test_default_phrase_edit_successfully(app):
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
+def test_default_phrase_edit_successfully(app, user):
     phrase = PhraseDefaultFactory()
     data = PhraseDefaultFactory.attributes()
     data['description-english'] = descr = 'Enter credentials'
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('admin.phrase_edit', meeting_type=phrase.meeting_type,
                       phrase_id=phrase.id)
         resp = client.post(url, data=data)
@@ -55,14 +49,13 @@ def test_default_phrase_edit_successfully(app):
         assert phrase.description.english == descr
 
 
-def test_default_phrase_edit_fail(app):
-    role_user = RoleUserFactory(role__permissions=PERMISSION)
+def test_default_phrase_edit_fail(app, user):
     phrase = PhraseDefaultFactory()
     data = PhraseDefaultFactory.attributes()
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
-            sess['user_id'] = role_user.user.id
+            sess['user_id'] = user.id
         url = url_for('admin.phrase_edit', meeting_type=phrase.meeting_type,
                       phrase_id=phrase.id)
         resp = client.post(url, data=data)
