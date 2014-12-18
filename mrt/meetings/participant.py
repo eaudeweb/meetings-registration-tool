@@ -11,7 +11,7 @@ from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
 from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.forms.meetings import AcknowledgeEmailForm
 
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.mixins import FilterView
 
 from mrt.mail import send_single_message

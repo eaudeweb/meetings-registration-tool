@@ -3,14 +3,14 @@ from flask import (
 from flask.views import MethodView
 from flask.ext.login import login_required
 
-from mrt.meetings import PermissionRequiredMixin
+from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.models import MeetingType, db
 from mrt.forms.admin import MeetingTypeEditForm
 
 
 class MeetingTypes(PermissionRequiredMixin, MethodView):
-    decorators = (login_required, )
-    permission_required = ('manage_default', )
+
+    decorators = (login_required,)
 
     def get(self):
         meeting_types = MeetingType.query.ignore_def()
@@ -19,8 +19,8 @@ class MeetingTypes(PermissionRequiredMixin, MethodView):
 
 
 class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
-    decorators = (login_required, )
-    permission_required = ('manage_default', )
+
+    decorators = (login_required,)
 
     def get(self, meeting_type_slug=None):
         meeting_type = (
@@ -35,10 +35,9 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
     def post(self, meeting_type_slug=None):
         meeting_type = (
             MeetingType.query.get_or_404(meeting_type_slug)
-            if meeting_type_slug else None
-        )
-        form = MeetingTypeEditForm(request.form, obj=meeting_type)
+            if meeting_type_slug else None)
 
+        form = MeetingTypeEditForm(request.form, obj=meeting_type)
         if form.validate():
             form.save()
             if meeting_type_slug:
@@ -46,6 +45,7 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
             else:
                 flash('Meeting type successfully added', 'success')
             return redirect(url_for('.meeting_types'))
+
         flash('Meeting type was not saved. Please see the errors bellow',
               'danger')
         return render_template('admin/meeting_type/edit.html',

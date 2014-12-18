@@ -4,7 +4,7 @@ from flask.views import MethodView
 from mrt.forms.meetings.email import BulkEmailForm
 from mrt.mail import send_bulk_message, send_single_message
 from mrt.models import Participant, MailLog
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 
 
 def get_recipients(language, categories=None):

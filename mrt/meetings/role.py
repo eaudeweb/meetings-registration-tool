@@ -5,7 +5,7 @@ from flask.views import MethodView
 
 from mrt.models import db, RoleUser
 from mrt.forms.meetings import RoleUserEditForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 
 
 class Roles(PermissionRequiredMixin, MethodView):

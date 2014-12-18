@@ -1,17 +1,16 @@
-from flask import request, redirect, url_for, jsonify
 from flask import render_template, flash
-from flask.views import MethodView
+from flask import request, redirect, url_for, jsonify
 from flask.ext.login import login_required
+from flask.views import MethodView
 
-from mrt.models import db, Staff
+from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.forms.admin import StaffEditForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.models import db, Staff
 
 
 class StaffList(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
-    permission_required = ('manage_staff', )
 
     def get(self):
         staff = Staff.query.order_by(Staff.id)
@@ -21,7 +20,6 @@ class StaffList(PermissionRequiredMixin, MethodView):
 class StaffEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, )
-    permission_required = ('manage_staff', )
 
     def get(self, staff_id=None):
         if staff_id:

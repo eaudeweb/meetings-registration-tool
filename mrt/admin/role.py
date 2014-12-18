@@ -1,17 +1,16 @@
-from flask import request, redirect, url_for, jsonify
 from flask import render_template, flash
-from flask.views import MethodView
+from flask import request, redirect, url_for, jsonify
 from flask.ext.login import login_required
+from flask.views import MethodView
 
-from mrt.models import db, Role, RoleUser
+from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.forms.admin import RoleEditForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.models import db, Role, RoleUser
 
 
 class Roles(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_role', )
 
     def get(self):
         roles = Role.query.all()
@@ -21,7 +20,6 @@ class Roles(PermissionRequiredMixin, MethodView):
 class RoleEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_role', )
 
     def get(self, role_id=None):
         role = role_id and Role.query.get_or_404(role_id)

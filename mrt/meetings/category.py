@@ -6,7 +6,7 @@ from flask.views import MethodView
 
 from mrt.forms.meetings import MeetingCategoryAddForm
 from mrt.forms.admin import CategoryEditForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.models import db, Category, Participant
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import COLORS

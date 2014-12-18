@@ -8,7 +8,7 @@ from sqlalchemy import or_
 
 from mrt.models import db, Participant
 from mrt.models import ActivityLog, MailLog, RoleUser
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.signals import activity_signal
 
 

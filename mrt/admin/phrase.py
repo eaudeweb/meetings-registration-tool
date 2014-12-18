@@ -1,18 +1,17 @@
 from flask import flash
 from flask import render_template
 from flask import request, redirect, url_for
-from flask.views import MethodView
 from flask.ext.login import login_required
+from flask.views import MethodView
 
-from mrt.models import PhraseDefault, MeetingType
+from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.forms.admin import PhraseDefaultEditForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.models import PhraseDefault, MeetingType
 
 
 class PhrasesTypes(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_default', )
 
     def get(self):
         m_types = [(m.slug, m.label) for m in MeetingType.query.ignore_def()]
@@ -22,7 +21,6 @@ class PhrasesTypes(PermissionRequiredMixin, MethodView):
 class PhraseEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_default', )
 
     def get(self, meeting_type, phrase_id=None):
         phrases = (

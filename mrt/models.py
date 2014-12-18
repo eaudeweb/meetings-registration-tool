@@ -67,6 +67,12 @@ class MeetingTypeQuery(BaseQuery):
         return self.filter(MeetingType.default != True)
 
 
+class MeetingQuery(BaseQuery):
+
+    def ignore_def(self):
+        return self.join(MeetingType).filter(MeetingType.default != True)
+
+
 class JSONEncodedDict(TypeDecorator):
     impl = String
 
@@ -600,8 +606,7 @@ class CustomFieldChoice(db.Model):
 
 class Meeting(db.Model):
 
-    # TODO Remove this line
-    DEFAULT_TYPE = 'def'
+    query_class = MeetingQuery
 
     id = db.Column(db.Integer, primary_key=True)
 

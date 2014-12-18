@@ -4,7 +4,7 @@ from flask.ext.login import login_required
 from flask.views import MethodView
 
 from mrt.forms.admin import PhraseEditForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.models import Phrase
 
 

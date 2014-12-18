@@ -1,76 +1,40 @@
 from flask import request, redirect, render_template, jsonify
-from flask import g, url_for, flash, abort
-from flask import current_app as app
+from flask import g, url_for, flash
 from flask.views import MethodView
 from flask.ext.login import login_required, current_user as user
 
 from sqlalchemy import desc
 
-from mrt.models import Meeting, db, MeetingType, RoleUser
+from mrt.models import Meeting, db, RoleUser
 from mrt.forms.meetings import MeetingEditForm, MeetingFilterForm
-
-
-class PermissionRequiredMixin(object):
-
-    permission_required = None
-
-    def get_permission_required(self):
-        if self.permission_required is None:
-            raise RuntimeError('permission_required was not set')
-        return self.permission_required
-
-    def check_permissions(self):
-        perms = self.get_permission_required()
-        admin_perms = [x.replace('view', 'manage', 1) for x in perms]
-        if user.is_superuser:
-            return True
-        if g.get('meeting'):
-            return (
-                (user.staff and user.staff is g.meeting.owner) or
-                user.has_perms(perms, meeting_id=g.meeting.id) or
-                user.has_perms(admin_perms, meeting_id=g.meeting.id)
-            )
-        return False
-
-    def dispatch_request(self, *args, **kwargs):
-        if not user.is_authenticated():
-            return app.login_manager.unauthorized()
-        if not self.check_permissions():
-            abort(403)
-        return super(PermissionRequiredMixin, self).dispatch_request(
-            *args, **kwargs)
+from mrt.meetings.mixins import PermissionRequiredMixin
 
 
 class MeetingsPermissionRequiredMixin(PermissionRequiredMixin):
 
     def check_permissions(self):
-        if (user.is_superuser or
-                RoleUser.query.filter_by(user=user).first()):
+        if (user.is_superuser or RoleUser.query.filter_by(user=user).first()):
             return True
         return False
 
 
 class Meetings(MeetingsPermissionRequiredMixin, MethodView):
 
-    decorators = (login_required, )
+    decorators = (login_required,)
 
     def get(self):
-        meetings = (
-            Meeting.query
-            .filter(Meeting.meeting_type != MeetingType.query.default()))
+        qs = Meeting.query.ignore_def().order_by(desc(Meeting.date_start))
         if not user.is_superuser:
-            meetings = (
-                meetings.join(RoleUser)
-                .filter_by(user=user)
-                .union(meetings.filter_by(owner=user.staff)))
+            qs = qs.outerjoin(RoleUser).filter((RoleUser.user == user) |
+                                               (Meeting.owner == user.staff))
+
         meeting_type = request.args.get('meeting_type', None)
         if meeting_type:
-            meetings = meetings.filter_by(meeting_type_slug=meeting_type)
+            qs = qs.filter(Meeting.meeting_type.has(slug=meeting_type))
+
         filter_form = MeetingFilterForm(request.args)
-        meetings = meetings.order_by(desc(Meeting.date_start))
         return render_template('meetings/meeting/list.html',
-                               meetings=meetings,
-                               filter_form=filter_form)
+                               meetings=qs, filter_form=filter_form)
 
 
 class MeetingEdit(PermissionRequiredMixin, MethodView):

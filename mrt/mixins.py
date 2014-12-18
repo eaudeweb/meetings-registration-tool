@@ -1,5 +1,7 @@
 
-from flask import request, jsonify
+from flask import request, jsonify, abort
+from flask import current_app as app
+from flask.ext.login import current_user as user
 from querystring_parser import parser
 
 
@@ -40,3 +42,24 @@ class FilterView(object):
         return jsonify(recordsTotal=total,
                        recordsFiltered=total,
                        data=data)
+
+
+class PermissionRequiredMixin(object):
+
+    permission_required = None
+
+    def get_permission_required(self):
+        if self.permission_required is None:
+            raise RuntimeError('permission_required was not set')
+        return self.permission_required
+
+    def check_permissions(self):
+        raise NotImplementedError
+
+    def dispatch_request(self, *args, **kwargs):
+        if not user.is_authenticated():
+            return app.login_manager.unauthorized()
+        if not self.check_permissions():
+            abort(403)
+        return super(PermissionRequiredMixin, self).dispatch_request(
+            *args, **kwargs)

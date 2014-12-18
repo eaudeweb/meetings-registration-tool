@@ -4,9 +4,9 @@ from flask import render_template, jsonify, flash, abort, url_for
 from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
+from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.forms.auth import RecoverForm
 from mrt.mail import send_reset_mail
-from mrt.meetings import PermissionRequiredMixin
 from mrt.models import User, db, Participant
 
 
@@ -25,7 +25,6 @@ def _get_users_with_participants(limit=10, offset=0):
 class Users(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_default',)
 
     def get(self):
         users = _get_users_with_participants()
@@ -35,7 +34,6 @@ class Users(PermissionRequiredMixin, MethodView):
 class UserToggle(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_default',)
 
     def post(self, user_id):
         user = User.query.get_or_404(user_id)
@@ -49,7 +47,6 @@ class UserToggle(PermissionRequiredMixin, MethodView):
 class UserPasswordChange(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_default',)
 
     def post(self, user_id):
         user = User.query.get_or_404(user_id)

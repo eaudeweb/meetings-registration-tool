@@ -7,7 +7,7 @@ from flask.views import MethodView
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue

@@ -6,7 +6,7 @@ from flask.views import MethodView
 
 from mrt.models import UserNotification, db
 from mrt.forms.meetings import UserNotificationForm
-from mrt.meetings import PermissionRequiredMixin
+from mrt.meetings.mixins import PermissionRequiredMixin
 
 
 class Notifications(PermissionRequiredMixin, MethodView):
