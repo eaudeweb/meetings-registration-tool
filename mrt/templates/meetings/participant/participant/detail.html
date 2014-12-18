@@ -1,6 +1,9 @@
 {% extends "meetings/participant/base/_detail.html" %}
 
 
+{% set title = participant.name %}
+
+
 {% block breadcrumb %}
 
   {{ breadcrumb( [
@@ -13,7 +16,7 @@
 
 {% block content_header %}
 
-  <h3 class="page-title" style="margin: 0">{{ participant.name }}</h3>
+  <h3 class="page-title" style="margin: 0">{{ title }}</h3>
 
   {% set edit_url = url_for('.participant_edit',
                             participant_id=participant.id) %}

@@ -1,0 +1,81 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% set title = user.email %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('admin.users'), 'Users'),
+      ('', title)
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>{{ title }}</h2>
+  </div>
+
+  {% set def_part = user.get_default(Participant.DEFAULT) %}
+  {% if def_part %}
+    {% set url = url_for('meetings.default_participant_detail',
+                          participant_id=def_part.id,
+                          meeting_id=def_part.meeting.id) %}
+    <a href="{{ url }}" class="btn btn-default btn-sm">Default participant</a>
+  {% endif %}
+
+  {% set def_media = user.get_default(Participant.DEFAULT_MEDIA) %}
+  {% if def_media %}
+    {% set url = url_for('meetings.default_media_participant_detail',
+                         participant_id=def_media.id,
+                         meeting_id=def_media.meeting.id) %}
+      <a href="{{ url }}" class="btn btn-default btn-sm">Default media</a>
+  {% endif %}
+
+  <h5 style="margin-top: 25px;">
+    <b>List of all participants for this user</b></h5>
+
+  <div class="table-responsive">
+
+    <table class="table table-bordered">
+
+    <thead>
+      <tr>
+        <th>Participant name</th>
+        <th>Meeting</th>
+      </tr>
+    </thead>
+
+      <tbody>
+        {% for part in participants %}
+          <tr class="{{ 'danger' if part.deleted }}">
+            <td>
+              {% if part.deleted %}
+                {{ part.name }} (<span class="text-danger">deleted</span>)
+              {% else %}
+                <a href="{{ part.get_absolute_url() }}">
+                  {{ part.name }}</a>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{{ part.meeting.get_absolute_url() }}">
+                {{ part.meeting.title }}
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+
+  </div>
+
+{% endblock %}

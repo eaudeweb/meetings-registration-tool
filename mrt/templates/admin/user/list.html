@@ -1,5 +1,5 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, form_group %}
+{% from "_bits.html" import breadcrumb, form_group, render_pagination %}
 
 
 {% block title %}Users{% endblock %}
@@ -82,81 +82,65 @@
   </div>
 
 
-    <div class="table-responsive">
+  <div class="table-responsive">
 
-      <table id="users" class="table table-bordered table-condensed">
+    <table id="users" class="table table-bordered table-condensed">
 
-        <thead>
-          <tr>
-            <th class="col-sm-3">Email</th>
-            <th>Meetings</th>
-            <th>Active</th>
-            <th class="col-sm-2 text-center">Actions</th>
+      <thead>
+        <tr>
+          <th class="col-sm-3">Email</th>
+          <th class="col-sm-2 text-center">Active</th>
+          <th class="col-sm-2 text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for user in users.items %}
+
+          <tr class="{{ 'current-user bg-info' if current_user == user }}">
+
+            <td>
+              {% set url = url_for('.user_detail', user_id=user.id) %}
+              <a href="{{ url }}">{{ user.email }}</a> <br>
+              {% if user.staff %}
+                <small class="text-danger"><em>Staff</em></small> <br>
+              {% endif %}
+            </td>
+
+            <td class="text-center">
+              {% if user.active %}
+              <span class="glyphicon glyphicon-ok"></span>
+              {% else %}
+                <span class="glyphicon glyphicon-minus"></span>
+              {% endif %}
+            </td>
+
+            <td class="text-center">
+              <div class="options">
+                <small>
+                  <a data-href="{{ url_for('admin.user_edit', user_id=user.id) }}" data-toggle="reset">Reset Password</a>
+                </small>&nbsp;
+
+                {% set text = 'Disable' if user.active else 'Enable' %}
+                {% set url = url_for('admin.user_toggle', user_id=user.id) %}
+                <small class="toggle"><a data-toggle="enable"
+                       data-enable="Enable"
+                       data-disable="Disable"
+                       data-href="{{ url }}">{{ text }}</a>
+                </small>
+              </div>
+            </td>
+
           </tr>
-        </thead>
 
-        <tbody>
-          {% for user, participants in users.items() %}
-            <tr class="{% if current_user == user %}current-user bg-info{% endif %}">
-              <td>{{ user.email }}<br>
-                {% if user.staff %}
-                <small class="text-danger"><em>Staff</em></small><br>
-                {% endif %}
+        {% endfor %}
+      </tbody>
 
-                {% set default_participant = user.get_default(
-                    Participant.DEFAULT) %}
-                {% if default_participant %}
-                  <small>
-                    <a href="{{ url_for('meetings.default_participant_detail',
-                                         participant_id=default_participant.id,
-                                         meeting_id=default_participant.meeting.id) }}">
-                      Default participant</a>
-                  </small><br>
-                {% endif %}
+    </table>
 
-                {% set default_media = user.get_default(
-                    Participant.DEFAULT_MEDIA) %}
-                {% if default_media %}
-                  <small>
-                    <a href="{{ url_for('meetings.default_media_participant_detail',
-                                         participant_id=default_media.id,
-                                         meeting_id=default_media.meeting.id) }}">
-                    Default media</a></small>
-                {% endif %}
-              </td>
-              <td>
-                <ul class="list-unstyled">
-                  {% for participant in participants %}
-                      <li><a href="{{ participant.get_absolute_url() }}">
-                        {{ participant.meeting }}</a>
-                      </li>
-                  {% endfor %}
-                </ul>
-              </td>
-              <td class="text-center">
-                {% if user.active %}
-                  <span class="glyphicon glyphicon-ok"></span>
-                {% else %}
-                  <span class="glyphicon glyphicon-minus"></span>
-                {% endif %}
-              </td>
-              <td class="text-center">
-                <div class="options">
-                  <small>
-                    <a data-href="{{ url_for('admin.user_edit', user_id=user.id) }}" data-toggle="reset">Reset Password</a>
-                  </small>&nbsp;
+  </div> {# table-responsive #}
 
-                  {% set text = 'Disable' if user.active else 'Enable' %}
-                  <small class="toggle"><a data-toggle="enable"
-                            data-enable="Enable"
-                            data-disable="Disable"
-                            data-href="{{ url_for('admin.user_toggle', user_id=user.id) }}">{{ text }}</a></small>
-                </div>
-              </td>
-          {% endfor %}
-        </tbody>
-
-      </table>
-    </div>
+  {{ render_pagination(users, '.users') }}
 
 {% endblock %}

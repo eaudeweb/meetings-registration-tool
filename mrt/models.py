@@ -667,6 +667,9 @@ class Meeting(db.Model):
                                   foreign_keys=photo_field_id,
                                   post_update=True)
 
+    def get_absolute_url(self):
+        return url_for('meetings.participants', meeting_id=self.id)
+
     @property
     def media_participant_enabled(self):
         return (self.settings and

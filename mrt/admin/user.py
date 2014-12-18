@@ -1,25 +1,12 @@
-from collections import OrderedDict
-
 from flask import render_template, jsonify, flash, abort, url_for
+from flask import request
 from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.forms.auth import RecoverForm
 from mrt.mail import send_reset_mail
-from mrt.models import User, db, Participant
-
-
-def _get_users_with_participants(limit=10, offset=0):
-    qs = (User.query.outerjoin(Participant).with_entities(User, Participant)
-          .order_by(User.id.asc())
-          .limit(limit).offset(offset))
-    groups = OrderedDict()
-    for user, participant in qs:
-        groups.setdefault(user, [])
-        if participant:
-            groups[user].append(participant)
-    return groups
+from mrt.models import User, Meeting, Participant, db
 
 
 class Users(PermissionRequiredMixin, MethodView):
@@ -27,8 +14,25 @@ class Users(PermissionRequiredMixin, MethodView):
     decorators = (login_required,)
 
     def get(self):
-        users = _get_users_with_participants()
+        page = request.args.get('page', 1, type=int)
+        users = User.query.order_by(User.id.asc()).paginate(page, per_page=50)
         return render_template('admin/user/list.html', users=users)
+
+
+class UserDetail(PermissionRequiredMixin, MethodView):
+
+    decorators = (login_required,)
+
+    def get(self, user_id):
+        user = User.query.filter_by(id=user_id).first_or_404()
+        participants = (
+            user.participants
+            .order_by(Participant.deleted.asc())
+            .order_by(Participant.id.asc())
+            .filter(Participant.meeting != Meeting.get_default())
+        )
+        return render_template('admin/user/detail.html',
+                               user=user, participants=participants)
 
 
 class UserToggle(PermissionRequiredMixin, MethodView):
