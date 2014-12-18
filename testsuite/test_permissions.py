@@ -212,7 +212,9 @@ def test_permissions_meeting_custom_field(app, url_name, perms, status,
     ('meetings.participant_label', STATUS_OK),
     ('meetings.participant_envelope', STATUS_OK),
 ])
-def test_permissions_meeting_owner(app, url_name, status, default_meeting):
+def test_permissions_meeting_owner(app, url_name, status, default_meeting,
+                                   monkeypatch, pdf_renderer):
+    monkeypatch.setattr('mrt.meetings.participant.PdfRenderer', pdf_renderer)
     staff = StaffFactory()
     participant = ParticipantFactory(category__meeting__owner=staff)
     client = app.test_client()
