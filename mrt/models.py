@@ -117,7 +117,7 @@ class User(db.Model):
     def token_is_active(self):
         return (datetime.now() - self.recover_time).total_seconds() < 86400
 
-    def has_perms(self, perms, meeting_id=None):
+    def has_perms(self, perms, meeting_id):
         user_roles = RoleUser.query.filter_by(
             user_id=self.id, meeting_id=meeting_id)
         for user_role in user_roles:
@@ -204,7 +204,8 @@ class Role(db.Model):
 class RoleUser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(
-        db.Integer, db.ForeignKey('meeting.id'))
+        db.Integer, db.ForeignKey('meeting.id'),
+        nullable=False)
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('role_users', lazy='dynamic', cascade="delete"))
