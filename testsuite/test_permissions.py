@@ -13,7 +13,7 @@ STATUS_DENIED = 403
 
 
 def _test(client, url, code):
-    resp = client.get(url)
+    resp = client.get(url, follow_redirects=True)
     assert resp.status_code == code
 
 

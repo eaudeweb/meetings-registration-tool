@@ -1,5 +1,5 @@
 from flask import g
-from flask import render_template, request, flash
+from flask import render_template, request, flash, redirect, url_for
 from flask.ext.login import login_required
 from flask.views import MethodView
 
@@ -20,6 +20,8 @@ class PhraseEdit(PermissionRequiredMixin, MethodView):
             phrase = Phrase.query.get_or_404(phrase_id)
         else:
             phrase = phrases.first_or_404()
+            return redirect(url_for(
+                '.phrase_edit', meeting_type=meeting_type, phrase_id=phrase.id))
         form = PhraseEditForm(obj=phrase)
         return render_template('meetings/phrase/edit.html',
                                phrases=phrases,
