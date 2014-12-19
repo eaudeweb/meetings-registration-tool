@@ -11,7 +11,7 @@ from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
-from mrt.models import Staff, User, Role
+from mrt.models import Staff, User, Role, RoleUser
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
 from mrt.models import MeetingType
@@ -52,6 +52,16 @@ class StaffEditForm(BaseForm):
         model = Staff
 
     user = ModelFormField(UserForm)
+    role_id = fields.SelectField('Role',
+                                 validators=[DataRequired()],
+                                 coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs['obj']:
+            kwargs.setdefault('role_id', RoleUser.query.filter_by(
+                user=kwargs['obj'].user, meeting=None).first().role.id)
+        super(StaffEditForm, self).__init__(*args, **kwargs)
+        self.role_id.choices = [(x.id, x) for x in Role.query.all()]
 
     def save(self):
         staff = self.obj or Staff()
@@ -72,6 +82,10 @@ class StaffEditForm(BaseForm):
         else:
             staff.user.email = self.user.email.data
             staff.user.is_superuser = self.user.is_superuser.data
+
+        role_user = RoleUser(role=Role.query.get_or_404(self.role_id.data),
+                             user=staff.user)
+        db.session.add(role_user)
 
         if staff.id is None:
             db.session.add(staff)

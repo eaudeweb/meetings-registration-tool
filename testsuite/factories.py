@@ -182,14 +182,17 @@ class PhraseMeetingFactory(SQLAlchemyModelFactory):
     meeting = SubFactory(MeetingFactory)
 
 
-class RoleUserMeetingFactory(SQLAlchemyModelFactory):
-
+class RoleUserFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.RoleUser
         sqlalchemy_session = models.db.session
 
     role = SubFactory(RoleFactory)
     user = SubFactory(UserFactory)
+
+
+class RoleUserMeetingFactory(RoleUserFactory):
+
     meeting = SubFactory(MeetingFactory)
 
     @post_generation

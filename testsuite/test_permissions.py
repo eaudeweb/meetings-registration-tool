@@ -23,6 +23,9 @@ def _login_user(client, user, password='eaudeweb'):
     ), follow_redirects=True)
 
 
+#TEST MEETINGS VIEW, TEST MEETING ADD, TEST MEETING EDIT!
+
+
 @pytest.mark.parametrize("url_name, perms, status", [
     ('meetings.participants', [], STATUS_DENIED),
     ('meetings.participants', ('view_participant',), STATUS_OK),

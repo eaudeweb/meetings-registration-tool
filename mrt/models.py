@@ -210,8 +210,7 @@ class Role(db.Model):
 class RoleUser(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     meeting_id = db.Column(
-        db.Integer, db.ForeignKey('meeting.id'),
-        nullable=False)
+        db.Integer, db.ForeignKey('meeting.id'))
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('role_users', lazy='dynamic', cascade="delete"))

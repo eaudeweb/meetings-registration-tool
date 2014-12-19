@@ -27,6 +27,10 @@ PERMISSIONS = (
     ('manage_media_participant', 'Manage Media Partipant'),
     ('view_media_participant', 'View Media Participant'),
     ('manage_meeting', 'Manage Meeting'),
+    ('manage_user', 'Manage User'),
+    ('manage_staff', 'Manage Staff'),
+    ('manage_role', 'Manage Role'),
+    ('manage_default', 'Manage Default Values'),
 )
 
 
