@@ -20,6 +20,9 @@
     .current-user .toggle {
       display: none;
     }
+    .form-inline {
+      margin-bottom: 15px;
+    }
   </style>
 
 {% endblock %}
@@ -28,10 +31,6 @@
 
   <script>
     $(function () {
-      $('#users').dataTable({
-        "order": [],
-        stateSave: true
-      });
 
       $('[data-toggle=enable]').on('click', function () {
         var url = $(this).data('href');
@@ -81,6 +80,14 @@
     <h2>Users</h2>
   </div>
 
+  <form id="search" class="form-inline text-right">
+    <div class="form-group">
+      <label>{{ form.search.label.text }}:&nbsp;</label>
+        {{ form.search(class_='form-control',
+                       placeholder='Search users by email',
+                       autofocus='') }}
+    </div>
+  </form>
 
   <div class="table-responsive">
 

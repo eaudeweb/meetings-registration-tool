@@ -53,6 +53,11 @@ class UserForm(BaseForm):
             del self.is_superuser
 
 
+class UserSearchForm(BaseForm):
+
+    search = fields.StringField('Search')
+
+
 class StaffEditForm(BaseForm):
 
     class Meta:

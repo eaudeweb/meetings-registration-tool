@@ -5,6 +5,7 @@ from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.forms.auth import RecoverForm
+from mrt.forms.admin import UserSearchForm
 from mrt.mail import send_reset_mail
 from mrt.models import User, Meeting, Participant, db
 
@@ -15,8 +16,13 @@ class Users(PermissionRequiredMixin, MethodView):
 
     def get(self):
         page = request.args.get('page', 1, type=int)
-        users = User.query.order_by(User.id.asc()).paginate(page, per_page=50)
-        return render_template('admin/user/list.html', users=users)
+        search = request.args.get('search')
+        form = UserSearchForm(request.args)
+        users = User.query.order_by(User.id.asc())
+        if search:
+            users = users.filter(User.email.contains(search))
+        users = users.paginate(page, per_page=50)
+        return render_template('admin/user/list.html', users=users, form=form)
 
 
 class UserDetail(PermissionRequiredMixin, MethodView):
