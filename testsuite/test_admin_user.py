@@ -1,13 +1,35 @@
 from flask import url_for
+from pyquery import PyQuery
 
 from mrt.mail import mail
-from .factories import UserFactory, StaffFactory
+from .factories import UserFactory, StaffFactory, ParticipantUserFactory
+
+
+def test_admin_list(app, user):
+    UserFactory.create_batch(30)
+    ParticipantUserFactory.create_batch(30)
+    PER_PAGE = 50
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('admin.users'))
+        assert resp.status_code == 200
+        users = PyQuery(resp.data)('#users tbody tr')
+        assert len(users) == PER_PAGE
+
+        resp = client.get(url_for('admin.users', page='2'))
+        assert resp.status_code == 200
+        users = PyQuery(resp.data)('#users tbody tr')
+        assert len(users) == 11
 
 
 def test_login_fail_user_inactive(app, user):
     new_user = UserFactory()
     StaffFactory(user=new_user)
     data = UserFactory.attributes()
+    data['email'] = new_user.email
 
     user_client = app.test_client()
     with app.test_request_context():

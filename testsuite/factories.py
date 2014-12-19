@@ -36,7 +36,7 @@ class UserFactory(SQLAlchemyModelFactory):
         session.commit()
         return obj
 
-    email = 'johndoe@eaudeweb.ro'
+    email = Sequence(lambda n: 'john%d@doe.com' % n)
     password = 'eaudeweb'
     is_superuser = False
 
@@ -105,7 +105,7 @@ class RoleFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = models.db.session
 
     name = 'MeetingsAdmin'
-    permissions = ('manage_meeting', 'manage_participant', 'manage_default',
+    permissions = ('manage_meeting', 'manage_participant',
                    'manage_media_participant', 'view_participant')
 
 
@@ -214,6 +214,11 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     language = 'English'
     country = 'FR'
     represented_region = 'Asia'
+
+
+class ParticipantUserFactory(ParticipantFactory):
+
+    user = SubFactory(UserFactory)
 
 
 class MailLogFactory(SQLAlchemyModelFactory):

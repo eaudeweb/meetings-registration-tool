@@ -10,6 +10,7 @@ def test_login_for_staff_succesfull(app):
     user = UserFactory()
     StaffFactory(user=user)
     data = UserFactory.attributes()
+    data['email'] = user.email
 
     client = app.test_client()
     with app.test_request_context():
@@ -33,6 +34,7 @@ def test_login_failed_for_users_failed(app):
 def test_recover_password(app):
     user = UserFactory()
     data = UserFactory.attributes()
+    data['email'] = user.email
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
@@ -54,6 +56,7 @@ def test_recover_password_fail_after_using_token(app):
     user = UserFactory()
     StaffFactory(user=user)
     data = UserFactory.attributes()
+    data['email'] = user.email
 
     client = app.test_client()
     with app.test_request_context(), mail.record_messages() as outbox:
