@@ -25,6 +25,21 @@ def test_admin_list(app, user):
         assert len(users) == 11
 
 
+def test_admin_list_user_search(app, user):
+    UserFactory()
+    UserFactory(email='user@email.com')
+    UserFactory(email='user@email.ro')
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('admin.users', search='user'))
+        assert resp.status_code == 200
+        users = PyQuery(resp.data)('#users tbody tr')
+        assert len(users) == 2
+
+
 def test_login_fail_user_inactive(app, user):
     new_user = UserFactory()
     StaffFactory(user=new_user)
