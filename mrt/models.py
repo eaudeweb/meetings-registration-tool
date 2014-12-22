@@ -127,7 +127,7 @@ class User(db.Model):
         user_roles = RoleUser.query.filter_by(
             user_id=self.id, meeting_id=meeting_id)
         for user_role in user_roles:
-            if set(user_role.role.permissions).issuperset(perms):
+            if set(user_role.role.permissions).intersection(perms):
                 return True
         return False
 

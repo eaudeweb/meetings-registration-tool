@@ -46,7 +46,7 @@ def _media_participant_category_required(func):
 
 class Participants(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self):
         return render_template('meetings/participant/participant/list.html')
@@ -54,7 +54,8 @@ class Participants(PermissionRequiredMixin, MethodView):
 
 class MediaParticipants(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_media_participant',)
+    permission_required = ('view_media_participant',
+                           'manage_media_participant')
 
     def get(self):
         return render_template('meetings/participant/media/list.html')
@@ -62,7 +63,7 @@ class MediaParticipants(PermissionRequiredMixin, MethodView):
 
 class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def process_last_name(self, participant, val):
         html = HTMLBuilder('html')
@@ -97,7 +98,8 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
 class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
-    permission_required = ('view_media_participant',)
+    permission_required = ('view_media_participant',
+                           'manage_media_participant')
 
     def process_last_name(self, participant, val):
         html = HTMLBuilder('html')
@@ -132,7 +134,7 @@ class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
 class ParticipantSearch(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self):
         participants = search_for_participant(request.args['search'])
@@ -161,7 +163,7 @@ class BaseParticipantDetail(PermissionRequiredMixin, MethodView):
 
 class ParticipantDetail(BaseParticipantDetail):
 
-    permission_required = ('view_participant',)
+    permission_required = ('view_participant', 'manage_participant')
     form_class = ParticipantEditForm
     template = 'meetings/participant/participant/detail.html'
 
@@ -173,7 +175,8 @@ class ParticipantDetail(BaseParticipantDetail):
 
 class MediaParticipantDetail(BaseParticipantDetail):
 
-    permission_required = ('view_media_participant',)
+    permission_required = ('view_media_participant',
+                           'manage_media_participant')
     form_class = MediaParticipantEditForm
     template = 'meetings/participant/media/detail.html'
 
@@ -185,7 +188,7 @@ class MediaParticipantDetail(BaseParticipantDetail):
 
 class DefaultParticipantDetail(BaseParticipantDetail):
 
-    permission_required = ('manage_default',)
+    permission_required = ('view_participant', 'manage_participant')
     form_class = ParticipantEditForm
     template = 'meetings/participant/default/participant_detail.html'
 
@@ -197,7 +200,6 @@ class DefaultParticipantDetail(BaseParticipantDetail):
 
 class DefaultMediaParticipantDetail(BaseParticipantDetail):
 
-    permission_required = ('manage_default',)
     form_class = MediaParticipantEditForm
     template = 'meetings/participant/default/media_detail.html'
 
@@ -364,7 +366,7 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 
 class ParticipantBadge(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -381,7 +383,7 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
 
 class ParticipantLabel(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -397,7 +399,7 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
 
 class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -414,7 +416,7 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
 class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
 
     template_name = 'meetings/participant/acknowledge.html'
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get_participant(self, participant_id):
         return (
@@ -472,7 +474,9 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
                                form=form)
 
 
-class ParticipantAcknowledgePDF(MethodView):
+class ParticipantAcknowledgePDF(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -490,7 +494,7 @@ class ParticipantAcknowledgePDF(MethodView):
 
 class ParticipantsExport(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self):
 
@@ -519,7 +523,8 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['email'] = p.email
             data['language'] = p.language.value
             data['category_id'] = p.category.title
-            data['represented_country'] = p.represented_country.name
+            data['represented_country'] = (
+                p.represented_country.name if p.represented_country else None)
             data['represented_region'] = (
                 p.represented_region.value if p.represented_region else None)
             data['represented_organization'] = p.represented_organization

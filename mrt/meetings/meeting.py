@@ -24,15 +24,7 @@ def _meeting_type_required(func):
     return wrapper
 
 
-class MeetingsPermissionRequiredMixin(PermissionRequiredMixin):
-
-    def check_permissions(self):
-        if (user.is_superuser or RoleUser.query.filter_by(user=user).first()):
-            return True
-        return False
-
-
-class Meetings(MeetingsPermissionRequiredMixin, MethodView):
+class Meetings(MethodView):
 
     decorators = (login_required,)
 

@@ -20,7 +20,7 @@ def get_recipients(language, categories=None):
 class BulkEmail(PermissionRequiredMixin, MethodView):
 
     template_name = 'meetings/email/bulk.html'
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def get(self):
         form = BulkEmailForm()
@@ -57,7 +57,7 @@ class RecipientsCount(MethodView):
 
 class ResendEmail(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', )
+    permission_required = ('view_participant', 'manage_participant')
 
     def post(self, mail_id):
         mail = MailLog.query.get_or_404(mail_id)

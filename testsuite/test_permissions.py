@@ -47,6 +47,15 @@ def _login_user(client, user, password='eaudeweb'):
     ('meetings.participant_envelope', [], STATUS_DENIED),
     ('meetings.participant_envelope', ('view_participant',), STATUS_OK),
     ('meetings.participant_envelope', ('manage_participant',), STATUS_OK),
+
+    ('meetings.participant_acknowledge_pdf', [], STATUS_DENIED),
+    ('meetings.participant_acknowledge_pdf', ('view_participant',), STATUS_OK),
+    ('meetings.participant_acknowledge_pdf',
+        ('manage_participant',), STATUS_OK),
+
+    ('meetings.participants_export', [], STATUS_DENIED),
+    ('meetings.participants_export', ('view_participant',), STATUS_OK),
+    ('meetings.participants_export', ('manage_participant',), STATUS_OK),
 ])
 def test_permissions_participant(app, monkeypatch, pdf_renderer,
                                  url_name, perms, status, default_meeting):
