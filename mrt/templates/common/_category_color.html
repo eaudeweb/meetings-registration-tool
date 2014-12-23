@@ -32,7 +32,11 @@
         showInput: true,
         localStorageKey: "spectrum.categories",
         palette: {{ colors|safe }}
-      })
+      });
+
+      var color = $('#color').val();
+      if (!color)
+        $('#color').val('#000');
     });
   </script>
 
