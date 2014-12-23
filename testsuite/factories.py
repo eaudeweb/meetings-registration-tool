@@ -142,7 +142,7 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
             return
         if extracted:
             for meeting_type in extracted:
-                self.meeting_types.add(meeting_type)
+                self.meeting_types.append(meeting_type)
 
 
 class MeetingCategoryFactory(SQLAlchemyModelFactory):

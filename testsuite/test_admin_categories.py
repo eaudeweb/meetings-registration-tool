@@ -2,14 +2,12 @@ from StringIO import StringIO
 from flask import url_for
 from pyquery import PyQuery
 from py.path import local
-import pytest
 
 from mrt.models import CategoryDefault
 from .factories import CategoryDefaultFactory, normalize_data
 from .factories import MeetingTypeFactory
 
 
-@pytest.mark.xfail
 def test_category_list(app, user):
     meeting_type = MeetingTypeFactory()
     CategoryDefaultFactory.create_batch(5, meeting_types=(meeting_type,))

@@ -817,6 +817,15 @@ class PhraseDefault(PhraseMixin, db.Model):
             'default_phrases', cascade='all,delete'))
 
 
+association_table = db.Table(
+    'meeting_type_default_category',
+    db.Column(
+        'meeting_type_slug', db.String(16), db.ForeignKey('meeting_type.slug')),
+    db.Column(
+        'category_default_id', db.Integer, db.ForeignKey('category_default.id'))
+)
+
+
 class MeetingType(db.Model):
 
     __tablename__ = 'meeting_type'
@@ -827,10 +836,15 @@ class MeetingType(db.Model):
     label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
     default = db.Column(db.Boolean, nullable=False, default=False)
 
+    default_categories = db.relationship(
+        'CategoryDefault', secondary=association_table, backref=db.backref(
+            'meeting_types'))
+
     def load_default_phrases(self):
         with open(app.config['DEFAULT_PHRASES_PATH'], 'r') as f:
             default_phrases = json.load(f)
         self.default_phrases += [PhraseDefault(**d) for d in default_phrases]
+
 
 
 class MailLog(db.Model):

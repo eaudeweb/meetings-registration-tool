@@ -6,7 +6,7 @@ from wtforms_alchemy import ModelFormField
 from mrt.models import db, Meeting, Staff, Participant
 from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.models import CustomField, CustomFieldChoice
-from mrt.models import MeetingType
+from mrt.models import MeetingType, Category
 
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
 from mrt.forms.base import CategoryField, EmailRequired, EmailField
@@ -73,7 +73,7 @@ class MeetingEditForm(BaseForm):
         settings = dict(MEETING_SETTINGS)
         for key in field.data:
             if key not in settings:
-                raise ValidationError("Setting doesn's exist")
+                raise ValidationError("Setting doesn't exist")
 
     def _clean_badge_header(self, meeting):
         if not self.badge_header.data['english']:
@@ -95,6 +95,15 @@ class MeetingEditForm(BaseForm):
             db.session.add(phrase)
             db.session.flush()
 
+    def _save_categories(self, meeting):
+        for category_default in meeting.meeting_type.default_categories:
+            category = copy_attributes(Category(), category_default)
+            category.title = copy_attributes(Translation(),
+                                             category_default.title)
+            category.meeting = meeting
+            db.session.add(category)
+            db.session.flush()
+
     def save(self):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
@@ -102,6 +111,7 @@ class MeetingEditForm(BaseForm):
         if meeting.id is None:
             db.session.add(meeting)
             self._save_phrases(meeting)
+            self._save_categories(meeting)
             add_custom_fields_for_meeting(
                 meeting, form_class=ParticipantDummyForm)
         if meeting.media_participant_enabled:

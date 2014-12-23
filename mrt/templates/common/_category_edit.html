@@ -57,6 +57,21 @@
 
   </div> {# panel #}
 
+  {% if form.meeting_types %}
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <b>Meeting</b>
+      </div>
+
+      <div class="panel-body">
+        {{ form_group(form.meeting_types, label_size="2", input_size="4") }}
+      </div>
+
+
+    </div> {# panel #}
+  {% endif %}
+
   <div class="form-actions row">
     <div class="col-sm-6">
       <button type="submit" class="btn btn-primary">
