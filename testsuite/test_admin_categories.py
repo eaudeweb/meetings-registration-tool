@@ -10,7 +10,7 @@ from .factories import MeetingTypeFactory
 
 def test_category_list(app, user):
     meeting_type = MeetingTypeFactory()
-    CategoryDefaultFactory.create_batch(5, meeting_types=(meeting_type,))
+    CategoryDefaultFactory.create_batch(5, meeting_types=[meeting_type])
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -153,3 +153,77 @@ def test_category_delete_with_file(app, user):
         assert resp.status_code == 200
         assert CategoryDefault.query.count() == 0
         assert not upload_dir.join(category.background).check()
+
+
+def test_add_category_with_meeting_types(app, user):
+    meeting_types = MeetingTypeFactory.create_batch(2)
+    data = normalize_data(CategoryDefaultFactory.attributes())
+    data['title-english'] = 'Comitee'
+    data['meeting_type_slugs'] = [m.slug for m in meeting_types]
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('admin.category_edit')
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert CategoryDefault.query.count() == 1
+        category = CategoryDefault.query.first()
+        assert set(category.meeting_types) == set(meeting_types)
+
+
+def test_edit_category_add_meeting_types(app, user):
+    category = CategoryDefaultFactory()
+    meeting_type = MeetingTypeFactory()
+    data = normalize_data(CategoryDefaultFactory.attributes())
+    data['title-english'] = 'Comitee'
+    data['meeting_type_slugs'] = [meeting_type.slug]
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('admin.category_edit', category_id=category.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert category.meeting_types == [meeting_type]
+
+
+def test_edit_category_delete_meeting_types(app, user):
+    meeting_types = MeetingTypeFactory.create_batch(2)
+    category = CategoryDefaultFactory(meeting_types=meeting_types)
+    data = normalize_data(CategoryDefaultFactory.attributes())
+    data['title-english'] = 'Comitee'
+    data['meeting_type_slugs'] = []
+    assert category.meeting_types == meeting_types
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('admin.category_edit', category_id=category.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert category.meeting_types == []
+
+
+def test_edit_category_add_meeting_types_default(app, user,
+                                                 default_meeting_type):
+    category = CategoryDefaultFactory()
+    MeetingTypeFactory.create_batch(3)
+    data = normalize_data(CategoryDefaultFactory.attributes())
+    data['title-english'] = 'Comitee'
+    data['meeting_type_slugs'] = ['def']
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('admin.category_edit', category_id=category.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 200
+        errors = PyQuery(resp.data)('.text-danger small')
+        assert len(errors) == 1
+        assert errors[0].text == "'def' is not a valid choice for this field"
+        assert category.meeting_types == []

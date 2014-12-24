@@ -136,14 +136,6 @@ class CategoryDefaultFactory(SQLAlchemyModelFactory):
     title = SubFactory(CategoryDefaultNameFactory)
     color = '#93284c'
 
-    @post_generation
-    def meeting_types(self, create, extracted, **kwargs):
-        if not create:
-            return
-        if extracted:
-            for meeting_type in extracted:
-                self.meeting_types.append(meeting_type)
-
 
 class MeetingCategoryFactory(SQLAlchemyModelFactory):
 

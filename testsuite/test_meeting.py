@@ -94,6 +94,29 @@ def test_meeting_add(app, user):
     assert Meeting.query.count() == 1
 
 
+def test_meeting_add_default_categories_clone(app, user):
+    data = normalize_data(MeetingFactory.attributes())
+    categories = CategoryDefaultFactory.create_batch(3)
+    meeting_type = MeetingTypeFactory(default_categories=categories)
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.edit')
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert Meeting.query.count() == 1
+    meeting = Meeting.query.first()
+    assert meeting.categories.count() == 3
+
+
 def test_meeting_add_no_meeting_type(app, user):
     client = app.test_client()
     with app.test_request_context():
