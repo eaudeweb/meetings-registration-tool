@@ -29,7 +29,9 @@
     <h2>Default Categories</h2>
   </div>
 
-  {% include "common/_category_list.html"  %}
+  {% with default = True %}
+    {% include "common/_category_list.html"  %}
+  {% endwith %}
 
   <div class="actions">
     <a href="{{ url_for('.category_edit') }}"

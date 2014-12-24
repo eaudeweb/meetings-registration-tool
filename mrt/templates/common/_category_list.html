@@ -14,6 +14,9 @@
           <th>Category Group</th>
           <th>Visible on registration form?</th>
           <th>Badge color</th>
+          {% if default %}
+            <th>Meeting Types</th>
+          {% endif %}
         </tr>
       </thead>
 
@@ -38,6 +41,15 @@
               <span class="stripe" style="background: {{ category.color }}"></span>
               <span class="color">{{ category.color }}</span>
             </td>
+            {% if default %}
+              <td>
+                <ul class="list-unstyled">
+                  {% for meeting_type in category.meeting_types %}
+                    <li>- {{ meeting_type.label }}</li>
+                  {% endfor %}
+                </ul>
+              </td>
+            {% endif %}
           </tr>
         {% endfor %}
       </tbody>
