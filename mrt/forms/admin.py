@@ -139,7 +139,7 @@ class CategoryDefaultEditForm(CategoryEditBaseForm):
 
     def save(self):
         category = super(CategoryDefaultEditForm, self).save()
-        category.meeting_types = MeetingType.query.ignore_def().filter(
+        category.meeting_types = MeetingType.query.filter(
             MeetingType.slug.in_(self.meeting_type_slugs.data)).all()
 
         db.session.commit()

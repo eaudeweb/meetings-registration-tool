@@ -66,6 +66,9 @@
       <div class="panel-body">
         {{ form.meeting_type_slugs(class_="form-control form-reset-control select",
           **{"data-placeholder": "Select meeting types for this default category"}) }}
+        {% if form.meeting_type_slugs.errors %}
+          <div class="text-danger"><small>{{ form.meeting_type_slugs.errors[0] }}</small></div>
+        {% endif %}
       </div>
 
     </div> {# panel #}
