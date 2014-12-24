@@ -60,11 +60,12 @@
     <div class="panel panel-default">
 
       <div class="panel-heading">
-        <b>Meeting</b>
+        <b>Meeting types</b>
       </div>
 
       <div class="panel-body">
-        {{ form_group(form.meeting_type_slugs, label_size="2", input_size="4") }}
+        {{ form.meeting_type_slugs(class_="form-control form-reset-control select",
+          **{"data-placeholder": "Select meeting types for this default category"}) }}
       </div>
 
     </div> {# panel #}
