@@ -54,10 +54,9 @@
       {{ form_group(form.visible_on_registration_form, label_size="2", input_size="4") }}
     </div>
 
-
   </div> {# panel #}
 
-  {% if form.meeting_types %}
+  {% if form.meeting_type_slugs %}
     <div class="panel panel-default">
 
       <div class="panel-heading">
@@ -65,9 +64,8 @@
       </div>
 
       <div class="panel-body">
-        {{ form_group(form.meeting_types, label_size="2", input_size="4") }}
+        {{ form_group(form.meeting_type_slugs, label_size="2", input_size="4") }}
       </div>
-
 
     </div> {# panel #}
   {% endif %}

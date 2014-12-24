@@ -7,7 +7,7 @@ from flask_wtf.file import FileField, FileAllowed
 
 from sqlalchemy.orm.exc import NoResultFound
 from wtforms import ValidationError, BooleanField, fields
-from wtforms.validators import DataRequired, StopValidation
+from wtforms.validators import DataRequired
 from wtforms_alchemy import ModelFormField
 
 from mrt.mail import send_activation_mail
@@ -121,35 +121,29 @@ class CategoryEditBaseForm(BaseForm):
         return category
 
 
-class MeetingTypeSelectMultipleField(fields.SelectMultipleField):
-
-    def __init__(self, *args, **kwargs):
-        super(MeetingTypeSelectMultipleField, self).__init__(*args, **kwargs)
-        self.choices = [(m.slug, m.label) for m in
-                        MeetingType.query.ignore_def()]
-
-    def process_data(self, value):
-        self.data = [meeting_type.slug for meeting_type in value or []]
-
-    def process_formdata(self, valuelist):
-        self.data = MeetingType.query.ignore_def().filter(
-            MeetingType.slug.in_(valuelist)).all()
-
-    def pre_validate(self, form):
-        for meeting_type in self.data:
-            if meeting_type.slug not in [c[0] for c in self.choices]:
-                raise ValueError('{} is not a valid choice for this field'
-                                 .format(meeting_type.label))
-        raise StopValidation
-
-
 class CategoryDefaultEditForm(CategoryEditBaseForm):
 
     title = ModelFormField(DefaultCategoryTitleInputForm, label='Title')
-    meeting_types = MeetingTypeSelectMultipleField('Meeting types')
+    meeting_type_slugs = fields.SelectMultipleField('Meeting types')
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryDefaultEditForm, self).__init__(*args, **kwargs)
+        self.meeting_type_slugs.choices = [
+            (m.slug, m.label) for m in MeetingType.query.ignore_def()]
+        if self.obj and self.meeting_type_slugs.data is None:
+            self.meeting_type_slugs.data = [
+                m.slug for m in self.obj.meeting_types]
 
     class Meta:
         model = CategoryDefault
+
+    def save(self):
+        category = super(CategoryDefaultEditForm, self).save()
+        category.meeting_types = MeetingType.query.ignore_def().filter(
+            MeetingType.slug.in_(self.meeting_type_slugs.data)).all()
+
+        db.session.commit()
+        return category
 
 
 class CategoryEditForm(CategoryEditBaseForm):
