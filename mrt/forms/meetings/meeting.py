@@ -45,7 +45,6 @@ class MeetingEditForm(BaseForm):
     badge_header = ModelFormField(TranslationInputForm, label='Badge header')
     venue_city = ModelFormField(TranslationInputForm, label='City')
     meeting_type_slug = fields.SelectField('Meeting Type')
-    owner_id = fields.SelectField('Owner', coerce=int)
     photo_field_id = fields.SelectField('Photo Field', coerce=int)
     settings = MultiCheckboxField('Settings', choices=MEETING_SETTINGS)
 
@@ -55,15 +54,11 @@ class MeetingEditForm(BaseForm):
         delattr(self.badge_header.english.flags, 'required')
         self.meeting_type_slug.choices = [
             (mt.slug, mt.label) for mt in MeetingType.query.ignore_def()]
-        self.owner_id.choices = [
-            (x.id, x.full_name or x.user.email) for x in Staff.query.all()]
         self.photo_field_id.choices = [(0, '-----')]
         if self.obj:
             query = self.obj.custom_fields.filter_by(field_type='image')
             image_fields = [(x.id, x.label) for x in query]
             self.photo_field_id.choices += image_fields
-        if not self.owner_id.data:
-            self.owner_id.data = current_user.staff.id
 
     def validate_photo_field_id(self, field):
         if field.data == 0:
@@ -109,6 +104,7 @@ class MeetingEditForm(BaseForm):
         self.populate_obj(meeting)
         self._clean_badge_header(meeting)
         if meeting.id is None:
+            meeting.owner = current_user.staff
             db.session.add(meeting)
             self._save_phrases(meeting)
             self._save_categories(meeting)
@@ -117,7 +113,6 @@ class MeetingEditForm(BaseForm):
         if meeting.media_participant_enabled:
             add_custom_fields_for_meeting(
                 meeting, form_class=MediaParticipantDummyForm)
-
         db.session.commit()
         return meeting
 
@@ -195,6 +190,19 @@ class MeetingFilterForm(BaseForm):
         super(MeetingFilterForm, self).__init__(*args, **kwargs)
         choices = [(m.slug, m.label) for m in MeetingType.query.ignore_def()]
         self.meeting_type.choices = [('', 'All')] + choices
+
+
+class MeetingChangeOwnerForm(BaseForm):
+
+    owner_id = fields.SelectField('Owner', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(MeetingChangeOwnerForm, self).__init__(*args, **kwargs)
+        self.owner_id.choices = [(i.id, i) for i in Staff.query.all()]
+
+    def save(self):
+        self.populate_obj(self.obj)
+        db.session.commit()
 
 
 def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):

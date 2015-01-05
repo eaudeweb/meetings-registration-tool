@@ -2,7 +2,7 @@
 {% from "_bits.html" import breadcrumb %}
 
 
-{% set title = "Meeting (" ~ g.meeting.acronym ~ ") roles" %}
+{% set title = "Roles" %}
 
 {% block title %} {{ title }} {% endblock %}
 
@@ -12,28 +12,38 @@
   <script>
     $(function () {
       $('#roles').dataTable({"order": []});
+
+      $('#change-meeting-owner').on('submit', 'form', function (e) {
+        e.preventDefault();
+        var url = $(this).attr('action');
+        var data = $(this).serialize();
+        $.post(url, data, function (data) {
+          if(data.status == 'success') {
+            window.location.replace(data.url);
+          }
+          if(data.status == 'error') {
+            $('#change-meeting-owner').find('.modal-content')
+                                      .html(data.html);
+          }
+        });
+      });
     });
   </script>
 
 {% endblock %}
 
 
-{% block breadcrumb %}
-
-  {{ breadcrumb( [
-      ('', 'Roles')
-  ] ) }}
-
-{% endblock %}
+{% block breadcrumb %} {{ breadcrumb([('', 'Roles')]) }} {% endblock %}
 
 
 {% block content %}
 
   {{ super() }}
-  <h3 class="page-title">{{ title }}
-  </br>
-  <small>List of staff members who can manage this meeting</small></h3>
-  <p>The owner of this meeting is: {{ g.meeting.owner }}</p>
+  <h3 class="page-title">{{ title }}<br>
+    <small>
+      List of staff members who can manage this meeting. The owner of this meeting is: {{ g.meeting.owner }}.
+    </small>
+  </h3>
 
   <div class="table-responsive">
     <table id="roles" class="table table-bordered table-condensed">
@@ -62,10 +72,23 @@
   </div>
 
   <div class="actions">
-    <a href="{{ url_for('.role_user_edit') }}" class="btn btn-primary btn-sm">
+    <a href="{{ url_for('.role_user_edit') }}"
+       class="btn btn-primary btn-sm">
       <span class="glyphicon glyphicon-plus"></span>
       Add a new role</a>
+    {% if current_user.is_superuser %}
+      <a href="{{ url_for('.role_meeting_change_owner') }}"
+         class="btn btn-default btn-sm"
+         data-toggle="modal" data-target="#change-meeting-owner">
+        <span class="glyphicon glyphicon-user"></span>
+        Change meeting owner</a>
+    {% endif %}
   </div>
 
+  <div class="modal fade" id="change-meeting-owner" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content"></div>
+    </div>
+  </div> {# modal #}
 
 {% endblock %}

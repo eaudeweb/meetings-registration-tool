@@ -263,7 +263,7 @@ li.separator {
 .form-search .glyphicon {
     position: absolute;
     font-size: 11px;
-    z-index: 9999;
+    z-index: 999;
     color: #666;
     left: 9px;
     top: 9px;

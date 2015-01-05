@@ -4,14 +4,14 @@ from flask.ext.login import login_required
 from flask.views import MethodView
 
 from mrt.models import db, RoleUser
-from mrt.forms.meetings import RoleUserEditForm
+from mrt.forms.meetings import RoleUserEditForm, MeetingChangeOwnerForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 
 
 class Roles(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_meeting', )
+    permission_required = ('manage_meeting',)
 
     def get(self):
         role_users = RoleUser.query.filter(RoleUser.meeting == g.meeting)
@@ -22,7 +22,7 @@ class Roles(PermissionRequiredMixin, MethodView):
 class RoleUserEdit(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_meeting', )
+    permission_required = ('manage_meeting',)
 
     def get(self, role_user_id=None):
         role_user = role_user_id and RoleUser.query.get_or_404(role_user_id)
@@ -52,3 +52,25 @@ class RoleUserEdit(PermissionRequiredMixin, MethodView):
         db.session.commit()
         flash('Role User successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.roles'))
+
+
+class RoleMeetingChangeOwner(PermissionRequiredMixin, MethodView):
+
+    decorators = (login_required,)
+    permission_required = ('manage_meeting',)
+
+    def get(self):
+        form = MeetingChangeOwnerForm(obj=g.meeting)
+        return render_template('meetings/role/change_owner.html',
+                               form=form)
+
+    def post(self):
+        form = MeetingChangeOwnerForm(request.form, obj=g.meeting)
+        if form.validate():
+            form.save()
+            flash('Meeting owner changed to %s' % g.meeting.owner,
+                  'success')
+            return jsonify(status='success', url=url_for('.roles'))
+        html = render_template('meetings/role/change_owner.html',
+                               form=form)
+        return jsonify(status='error', html=html)

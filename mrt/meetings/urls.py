@@ -28,7 +28,7 @@ from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
 from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
 from mrt.meetings import CustomFieldUpdatePosition
 
-from mrt.meetings import Roles, RoleUserEdit
+from mrt.meetings import Roles, RoleUserEdit, RoleMeetingChangeOwner
 from mrt.meetings import BulkEmail, ActivityLogs
 from mrt.meetings import Statistics, MailLogs, MailLogDetail, ResendEmail
 
@@ -215,6 +215,9 @@ meetings.add_url_rule('/<int:meeting_id>/settings/roles/add',
                       view_func=role_user_edit_func)
 meetings.add_url_rule('/<int:meeting_id>/settings/roles/<int:role_user_id>',
                       view_func=role_user_edit_func)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/roles/change/meeting/owner',
+    view_func=RoleMeetingChangeOwner.as_view('role_meeting_change_owner'))
 
 # emails
 meetings.add_url_rule('/<int:meeting_id>/email/bulk',
