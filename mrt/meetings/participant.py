@@ -13,6 +13,7 @@ from mrt.forms.meetings import AcknowledgeEmailForm
 
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.mixins import FilterView
+from mrt.admin.mixins import PermissionRequiredMixin as AdminPermRequiredMixin
 
 from mrt.mail import send_single_message
 from mrt.models import db, Participant, CustomField, Category, Phrase
@@ -46,7 +47,8 @@ def _media_participant_category_required(func):
 
 class Participants(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get(self):
         return render_template('meetings/participant/participant/list.html')
@@ -54,7 +56,7 @@ class Participants(PermissionRequiredMixin, MethodView):
 
 class MediaParticipants(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_media_participant',
+    permission_required = ('manage_meeting', 'view_media_participant',
                            'manage_media_participant')
 
     def get(self):
@@ -63,7 +65,8 @@ class MediaParticipants(PermissionRequiredMixin, MethodView):
 
 class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def process_last_name(self, participant, val):
         html = HTMLBuilder('html')
@@ -98,7 +101,7 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
 class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
-    permission_required = ('view_media_participant',
+    permission_required = ('manage_meeting', 'view_media_participant',
                            'manage_media_participant')
 
     def process_last_name(self, participant, val):
@@ -134,7 +137,8 @@ class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
 class ParticipantSearch(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get(self):
         participants = search_for_participant(request.args['search'])
@@ -147,7 +151,7 @@ class ParticipantSearch(PermissionRequiredMixin, MethodView):
         return json.dumps(results)
 
 
-class BaseParticipantDetail(PermissionRequiredMixin, MethodView):
+class BaseParticipantDetail(MethodView):
 
     def _get_queryset(self):
         raise NotImplemented
@@ -161,9 +165,10 @@ class BaseParticipantDetail(PermissionRequiredMixin, MethodView):
                                form=form)
 
 
-class ParticipantDetail(BaseParticipantDetail):
+class ParticipantDetail(PermissionRequiredMixin, BaseParticipantDetail):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
     form_class = ParticipantEditForm
     template = 'meetings/participant/participant/detail.html'
 
@@ -173,9 +178,9 @@ class ParticipantDetail(BaseParticipantDetail):
                 .first_or_404())
 
 
-class MediaParticipantDetail(BaseParticipantDetail):
+class MediaParticipantDetail(PermissionRequiredMixin, BaseParticipantDetail):
 
-    permission_required = ('view_media_participant',
+    permission_required = ('manage_meeting', 'view_media_participant',
                            'manage_media_participant')
     form_class = MediaParticipantEditForm
     template = 'meetings/participant/media/detail.html'
@@ -186,9 +191,8 @@ class MediaParticipantDetail(BaseParticipantDetail):
                 .first_or_404())
 
 
-class DefaultParticipantDetail(BaseParticipantDetail):
+class DefaultParticipantDetail(AdminPermRequiredMixin, BaseParticipantDetail):
 
-    permission_required = ('view_participant', 'manage_participant')
     form_class = ParticipantEditForm
     template = 'meetings/participant/default/participant_detail.html'
 
@@ -198,7 +202,8 @@ class DefaultParticipantDetail(BaseParticipantDetail):
                 .first_or_404())
 
 
-class DefaultMediaParticipantDetail(BaseParticipantDetail):
+class DefaultMediaParticipantDetail(AdminPermRequiredMixin,
+                                    BaseParticipantDetail):
 
     form_class = MediaParticipantEditForm
     template = 'meetings/participant/default/media_detail.html'
@@ -210,7 +215,7 @@ class DefaultMediaParticipantDetail(BaseParticipantDetail):
                 .first_or_404())
 
 
-class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
+class BaseParticipantEdit(MethodView):
 
     def get_object(self):
         raise NotImplemented
@@ -265,9 +270,9 @@ class BaseParticipantEdit(PermissionRequiredMixin, MethodView):
         return jsonify(status='success', url=self.get_success_url())
 
 
-class ParticipantEdit(BaseParticipantEdit):
+class ParticipantEdit(PermissionRequiredMixin, BaseParticipantEdit):
 
-    permission_required = ('manage_participant',)
+    permission_required = ('manage_meeting', 'manage_participant')
     decorators = (_participant_category_required,)
     template = 'meetings/participant/participant/edit.html'
     form_class = ParticipantEditForm
@@ -288,7 +293,7 @@ class ParticipantEdit(BaseParticipantEdit):
 
 class MediaParticipantEdit(ParticipantEdit):
 
-    permission_required = ('manage_media_participant',)
+    permission_required = ('manage_meeting', 'manage_media_participant')
     decorators = (_media_participant_category_required,)
     template = 'meetings/participant/media/edit.html'
     form_class = MediaParticipantEditForm
@@ -309,9 +314,8 @@ class MediaParticipantEdit(ParticipantEdit):
         return url
 
 
-class DefaultParticipantEdit(BaseParticipantEdit):
+class DefaultParticipantEdit(AdminPermRequiredMixin, BaseParticipantEdit):
 
-    permission_required = ('manage_participant',)
     template = 'meetings/participant/default/edit.html'
     form_class = ParticipantEditForm
 
@@ -332,7 +336,6 @@ class DefaultParticipantEdit(BaseParticipantEdit):
 
 class DefaultMediaParticipantEdit(DefaultParticipantEdit):
 
-    permission_required = ('manage_participant',)
     template = 'meetings/participant/default/edit.html'
     form_class = MediaParticipantEditForm
 
@@ -349,7 +352,7 @@ class DefaultMediaParticipantEdit(DefaultParticipantEdit):
 
 class ParticipantRestore(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('manage_participant',)
+    permission_required = ('manage_meeting', 'manage_participant')
 
     def post(self, participant_id):
         participant = (
@@ -366,7 +369,8 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 
 class ParticipantBadge(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -383,7 +387,8 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
 
 class ParticipantLabel(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -399,7 +404,8 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
 
 class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -416,7 +422,8 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
 class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
 
     template_name = 'meetings/participant/acknowledge.html'
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get_participant(self, participant_id):
         return (
@@ -476,7 +483,8 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
 
 class ParticipantAcknowledgePDF(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get(self, participant_id):
         participant = (
@@ -494,7 +502,8 @@ class ParticipantAcknowledgePDF(PermissionRequiredMixin, MethodView):
 
 class ParticipantsExport(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('view_participant', 'manage_participant')
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
 
     def get(self):
 
