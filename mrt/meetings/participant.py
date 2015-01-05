@@ -528,9 +528,9 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['represented_region'] = (
                 p.represented_region.value if p.represented_region else None)
             data['represented_organization'] = p.represented_organization
-            data['attended'] = 'Yes' if p.attended == 'true' else None
-            data['verified'] = 'Yes' if p.verified == 'true' else None
-            data['credentials'] = 'Yes' if p.credentials == 'true' else None
+            data['attended'] = 'Yes' if p.attended else None
+            data['verified'] = 'Yes' if p.verified else None
+            data['credentials'] = 'Yes' if p.credentials else None
 
             rows.append([data.get(k) or '' for k in columns])
 
