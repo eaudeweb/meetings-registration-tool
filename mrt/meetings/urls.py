@@ -227,7 +227,7 @@ meetings.add_url_rule('/<int:meeting_id>/email/recipients-count',
 
 
 # logs
-meetings.add_url_rule('/<int:meeting_id>/logs/statistics',
+meetings.add_url_rule('/<int:meeting_id>/settings/statistics',
                       view_func=Statistics.as_view('statistics'))
 meetings.add_url_rule('/<int:meeting_id>/logs/mails',
                       view_func=MailLogs.as_view('mail_logs'))
