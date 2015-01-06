@@ -102,11 +102,11 @@ def test_permissions_media_participant(app, url_name, perms, status,
 
 @pytest.mark.parametrize("url_name, perms, status", [
     ('meetings.bulkemail', [], STATUS_DENIED),
-    ('meetings.bulkemail', ('view_participant',), STATUS_OK),
+    ('meetings.bulkemail', ('view_participant',), STATUS_DENIED),
     ('meetings.bulkemail', ('manage_participant',), STATUS_OK),
 
     ('meetings.participant_acknowledge', [], STATUS_DENIED),
-    ('meetings.participant_acknowledge', ('view_participant',), STATUS_OK),
+    ('meetings.participant_acknowledge', ('view_participant',), STATUS_DENIED),
     ('meetings.participant_acknowledge', ('manage_participant',), STATUS_OK),
 ])
 def test_permissions_emails(app, url_name, perms, status,

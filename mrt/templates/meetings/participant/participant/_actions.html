@@ -36,7 +36,7 @@
 
 </span>
 
-{% if current_user.can_manage_participants(g.meeting.id) %}
+{% if has_perm('manage_participant') %}
   {% set acknowledge_url = url_for('.participant_acknowledge',
                                    participant_id=participant.id) %}
   <a class="btn btn-default btn-sm" href="{{ acknowledge_url }}">

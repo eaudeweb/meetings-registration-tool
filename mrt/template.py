@@ -3,13 +3,14 @@ import time
 
 from flask import current_app as app
 from flask import request, g, url_for
+from flask.ext.login import current_user
 
 from babel import Locale
 from babel.dates import format_date
 from jinja2 import evalcontextfilter, Markup, escape
 from path import path
 
-from mrt.definitions import ACTIVITY_ACTIONS
+from mrt.definitions import ACTIVITY_ACTIONS, PERMISSIONS_HIERARCHY
 from mrt.utils import translate
 
 
@@ -34,6 +35,13 @@ def countries(persons):
     for person in persons:
         countries.add(person.country.name)
     return countries
+
+
+def has_perm(permission, meeting_id=None):
+    meeting_id = meeting_id or g.meeting.id
+    return (current_user.is_superuser or
+            current_user.has_perms(PERMISSIONS_HIERARCHY.get(permission, ()),
+                                   meeting_id))
 
 
 def date_processor(date_start, date_end, in_format='%Y-%m-%d',

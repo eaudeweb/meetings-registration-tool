@@ -4,7 +4,7 @@ from pyquery import PyQuery
 from .factories import ParticipantFactory, MeetingCategoryFactory
 
 
-def test_shortlist_printout(app):
+def test_shortlist_printout(app, user):
     cat = MeetingCategoryFactory(sort=1)
     cat_staff = MeetingCategoryFactory(meeting=cat.meeting,
                                        title__english='Staff',
@@ -20,6 +20,9 @@ def test_shortlist_printout(app):
                                     category=cat_obs)
     client = app.test_client()
     with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
         #TEST FIRST PAGE
         resp = client.get(url_for('meetings.printouts_short_list',
                                   meeting_id=cat.meeting.id))

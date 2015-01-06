@@ -22,22 +22,21 @@
 
   <ul class="nav nav-tabs meeting-navs" role="tablist">
 
-    {% if current_user.can_view_participants(g.meeting.id) %}
+    {% if has_perm('view_participant') %}
       <li class="{{ active('/participants') }}">
         <a href="{{ url_for('.participants') }}">
           Participants</a>
       </li>
     {% endif %}
 
-    {% if g.meeting.media_participant_enabled and
-        current_user.can_view_media_participants(g.meeting.id) %}
+    {% if g.meeting.media_participant_enabled and has_perm('view_media_participant') %}
       <li class="{{ active('/media_participants') }}">
         <a href="{{ url_for('.media_participants') }}">
           Media Participants</a>
       </li>
     {% endif %}
 
-    {% if current_user.can_view_participants(g.meeting.id) %}
+    {% if has_perm('view_participant') %}
       <li class="dropdown {{ active('/printouts') }}">
         <a class="dropdown-toggle" data-toggle="dropdown">
           Printouts <span class="caret"></span></a>
@@ -64,7 +63,7 @@
       </li>
     {% endif %}
 
-    {% if current_user.can_manage_participants(g.meeting.id) %}
+    {% if has_perm('manage_participant') %}
       <li class="{{ active('/email') }}">
         <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>
       </li>
@@ -73,7 +72,7 @@
         <a class="dropdown-toggle" data-toggle="dropdown">
           Logs <span class="caret"></span></a>
         <ul class="dropdown-menu" role="menu">
-          {% if current_user.can_manage_meeting(g.meeting.id) %}
+          {% if has_perm('manage_meeting') %}
             <li class="{{ active('/activity') }}">
               <a href="{{ url_for('.activity') }}">
                 Database activity</a>
@@ -87,7 +86,7 @@
       </li>
     {% endif %}
 
-    {% if current_user.can_manage_meeting(g.meeting.id) %}
+    {% if has_perm('manage_meeting') %}
       <li class="dropdown {{ active('/settings') }} pull-right">
         <a class="dropdown-toggle" data-toggle="dropdown">
           <small style="position:relative; left: -2px;"><span class="glyphicon glyphicon-cog"></span></small>
@@ -127,7 +126,7 @@
       </li>
     {% endif %}
 
-    {% if current_user.can_view_participants(g.meeting.id) %}
+    {% if has_perm('view_participant') %}
       <li class="pull-right hidden-xs hidden-sm">
         <form class="form-inline form-search" id="search-participant"
               action="{{ url_for('.participant_search') }}">

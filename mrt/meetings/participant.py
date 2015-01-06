@@ -369,8 +369,10 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
 
 class ParticipantBadge(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('manage_meeting', 'view_participant',
-                           'manage_participant')
+    permission_required = ('manage_meeting',
+                           'view_participant', 'manage_participant',
+                           'view_media_participant', 'manage_media_participant'
+                           )
 
     def get(self, participant_id):
         participant = (

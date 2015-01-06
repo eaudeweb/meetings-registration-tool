@@ -29,6 +29,16 @@ PERMISSIONS = (
     ('manage_meeting', 'Manage Meeting'),
 )
 
+PERMISSIONS_HIERARCHY = {
+    'manage_meeting': ('manage_meeting', ),
+    'manage_participant': ('manage_meeting', 'manage_participant'),
+    'view_participant': ('manage_meeting', 'manage_participant',
+                         'view_participant'),
+    'manage_media_participant': ('manage_meeting', 'manage_media_participant'),
+    'view_media_participant': ('manage_meeting', 'manage_media_participant',
+                               'view_media_participant'),
+}
+
 
 ACTIVITY_ACTIONS = {
     'add': 'Add participant',

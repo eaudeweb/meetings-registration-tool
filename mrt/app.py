@@ -24,7 +24,7 @@ from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 from mrt.template import pluralize, url_for_brand_static_path
 from mrt.template import sort_by_tuple_element
-from mrt.template import convert_to_dict
+from mrt.template import convert_to_dict, has_perm
 from mrt.utils import slugify
 
 
@@ -75,6 +75,7 @@ def create_app(config={}):
     app.add_template_global(url_for_brand_static_path)
     app.add_template_global(date_processor)
     app.add_template_global(inject_static_file)
+    app.add_template_global(has_perm)
 
     @app.context_processor
     def inject_context():

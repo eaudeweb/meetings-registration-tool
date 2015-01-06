@@ -22,7 +22,7 @@
                             participant_id=participant.id) %}
 
   <div class="actions">
-    {% if current_user.can_manage_media_participants(g.meeting.id) %}
+    {% if has_perm('manage_media_participant') %}
       <a href="{{ edit_url }}" class="btn btn-primary btn-sm">
         <span class="glyphicon glyphicon-pencil"></span> &nbsp;
         Edit participant</a>

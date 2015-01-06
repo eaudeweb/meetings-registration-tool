@@ -56,7 +56,7 @@
 
   </div> {# table-responsive #}
 
-  {% if current_user.can_manage_media_participants(g.meeting.id) %}
+  {% if has_perm('manage_media_participant') %}
     <div class="actions">
       <a href="{{ url_for('.media_participant_edit') }}" class="btn btn-primary btn-sm">
         <span class="glyphicon glyphicon-plus"></span>
