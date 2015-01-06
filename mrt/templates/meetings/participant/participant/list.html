@@ -66,10 +66,13 @@
   </div> {# table-responsive #}
 
   <div class="actions">
-    <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add a new participant
-    </a>
+    {% if current_user.can_manage_participants(g.meeting.id) %}
+      <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm">
+        <span class="glyphicon glyphicon-plus"></span>
+        Add a new participant
+      </a>
+    {% endif %}
+
     <a href="{{ url_for('.participants_export') }}" class="btn btn-default btn-sm">
       Export to excel
     </a>

@@ -53,8 +53,14 @@
 
       <tbody>
         {% for meeting in meetings %}
-          {% set url = url_for('.participants',
-                               meeting_id=meeting.id) %}
+          {% if current_user.can_view_participants(meeting.id) %}
+            {% set url = url_for('.participants', meeting_id=meeting.id) %}
+          {% elif current_user.can_view_media_participants(meeting.id) %}
+            {% set url = url_for('.media_participants', meeting_id=meeting.id) %}
+          {% else %}
+            {% set url = "" %}
+          {% endif %}
+
           <tr class="{% if meeting.online_registration %}info{% endif %}">
             <td class="text-center">{{ meeting.acronym }}</td>
             <td>
@@ -79,9 +85,9 @@
                 <div>{{ meeting.venue_state }}</div>
               {% endif %}
 
-              {{ row_link(
-                  [url_for('.edit', meeting_id=meeting.id), 'edit']
-                 ) }}
+              {% if current_user.can_manage_meeting(meeting.id) %}
+                {{ row_link([url_for('.edit', meeting_id=meeting.id), 'edit']) }}
+              {% endif %}
           </tr>
         {% endfor %}
       </tbody>

@@ -422,8 +422,7 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
 class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
 
     template_name = 'meetings/participant/acknowledge.html'
-    permission_required = ('manage_meeting', 'view_participant',
-                           'manage_participant')
+    permission_required = ('manage_meeting', 'manage_participant')
 
     def get_participant(self, participant_id):
         return (

@@ -37,7 +37,7 @@ class Statistics(PermissionRequiredMixin, MethodView):
 
 class MailLogs(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('manage_meeting', 'view_participant')
+    permission_required = ('manage_meeting', 'manage_participant')
 
     def get(self):
         mails = MailLog.query.filter_by(meeting_id=g.meeting.id)
@@ -47,7 +47,7 @@ class MailLogs(PermissionRequiredMixin, MethodView):
 
 class MailLogDetail(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('manage_meeting', 'view_participant')
+    permission_required = ('manage_meeting', 'manage_participant')
 
     def get(self, mail_id):
         mail = MailLog.query.get_or_404(mail_id)

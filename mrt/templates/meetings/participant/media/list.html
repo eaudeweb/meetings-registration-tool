@@ -56,11 +56,13 @@
 
   </div> {# table-responsive #}
 
-  <div class="actions">
-    <a href="{{ url_for('.media_participant_edit') }}" class="btn btn-primary btn-sm">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add a new media participant
-    </a>
-  </div>
+  {% if current_user.can_manage_media_participants(g.meeting.id) %}
+    <div class="actions">
+      <a href="{{ url_for('.media_participant_edit') }}" class="btn btn-primary btn-sm">
+        <span class="glyphicon glyphicon-plus"></span>
+        Add a new media participant
+      </a>
+    </div>
+  {% endif %}
 
 {% endblock %}

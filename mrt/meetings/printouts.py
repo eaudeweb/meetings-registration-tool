@@ -20,6 +20,7 @@ from mrt.models import Participant, Category, Meeting, Job
 from mrt.models import redis_store, db
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
+from mrt.meetings.mixins import PermissionRequiredMixin
 
 
 _PRINTOUT_MARGIN = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
@@ -45,9 +46,10 @@ def _add_to_printout_queue(method, job_name, *args):
           (job_name, url), 'success')
 
 
-class ProcessingFileList(MethodView):
+class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
-    decorators = (login_required,)
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
 
     def get(self):
         page = request.args.get('page', 1, type=int)
@@ -57,9 +59,10 @@ class ProcessingFileList(MethodView):
                                jobs=jobs)
 
 
-class Badges(MethodView):
+class Badges(PermissionRequiredMixin, MethodView):
 
-    decorators = (login_required,)
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
 
     JOB_NAME = 'participant categories'
 
@@ -147,12 +150,13 @@ class PDFDownload(MethodView):
                                    filename)
 
 
-class ShortList(MethodView):
+class ShortList(PermissionRequiredMixin, MethodView):
 
     JOB_NAME = 'short list'
     DOC_TITLE = 'List of announced participants'
 
-    decorators = (login_required,)
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
 
     @staticmethod
     def _get_query():
@@ -183,12 +187,13 @@ class ShortList(MethodView):
         return redirect(url_for('.printouts_short_list'))
 
 
-class DelegationsList(MethodView):
+class DelegationsList(PermissionRequiredMixin, MethodView):
 
     JOB_NAME = 'delegation list'
     DOC_TITLE = 'List of delegations (to prepare the meeting room)'
 
-    decorators = (login_required,)
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
 
     @staticmethod
     def _get_query():

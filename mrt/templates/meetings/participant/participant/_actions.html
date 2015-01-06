@@ -36,16 +36,18 @@
 
 </span>
 
-{% set acknowledge_url = url_for('.participant_acknowledge',
-                                 participant_id=participant.id) %}
-<a class="btn btn-default btn-sm" href="{{ acknowledge_url }}">
-  Acknowledge Email</a>
+{% if current_user.can_manage_participants(g.meeting.id) %}
+  {% set acknowledge_url = url_for('.participant_acknowledge',
+                                   participant_id=participant.id) %}
+  <a class="btn btn-default btn-sm" href="{{ acknowledge_url }}">
+    Acknowledge Email</a>
 
 
-{% set delete_url = url_for('.participant_edit',
-                            participant_id=participant.id) %}
-<a class="btn btn-danger btn-sm pull-right" data-toggle="delete"
-   data-href="{{ delete_url }}"
-   data-message="Are you sure you want to delete this participant?">
-  <span class="glyphicon glyphicon-remove"></span> &nbsp;
-    Delete participant</a>
+  {% set delete_url = url_for('.participant_edit',
+                              participant_id=participant.id) %}
+  <a class="btn btn-danger btn-sm pull-right" data-toggle="delete"
+     data-href="{{ delete_url }}"
+     data-message="Are you sure you want to delete this participant?">
+    <span class="glyphicon glyphicon-remove"></span> &nbsp;
+      Delete participant</a>
+{% endif %}

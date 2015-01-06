@@ -21,117 +21,135 @@
   </div>
 
   <ul class="nav nav-tabs meeting-navs" role="tablist">
-    <li class="{{ active('/participants') }}">
-      <a href="{{ url_for('.participants') }}">
-        Participants</a>
-    </li>
-    {% if g.meeting.media_participant_enabled %}
-    <li class="{{ active('/media_participants') }}">
-      <a href="{{ url_for('.media_participants') }}">
-        Media Participants</a>
-    </li>
-    {% endif %}
-    <li class="dropdown {{ active('/printouts') }}">
-      <a class="dropdown-toggle" data-toggle="dropdown">
-        Printouts <span class="caret"></span></a>
-        <ul class="dropdown-menu" role="menu">
-          <li>
-            <a href="{{ url_for('.printouts_short_list') }}">
-              Print short list</a>
-          </li>
-          <li>
-            <a href="{{ url_for('.printouts_delegation_list') }}">
-              Print list of delegations</a>
-          </li>
 
-          <li>
-            <a href="{{ url_for('.printouts_participant_badges') }}">
-              Print participant badges</a>
-          </li>
-          <li class="divider"></li>
-          <li>
-            <a href="{{ url_for('.processing_file_list') }}">
-              Processing file list</a>
+    {% if current_user.can_view_participants(g.meeting.id) %}
+      <li class="{{ active('/participants') }}">
+        <a href="{{ url_for('.participants') }}">
+          Participants</a>
+      </li>
+    {% endif %}
+
+    {% if g.meeting.media_participant_enabled and
+        current_user.can_view_media_participants(g.meeting.id) %}
+      <li class="{{ active('/media_participants') }}">
+        <a href="{{ url_for('.media_participants') }}">
+          Media Participants</a>
+      </li>
+    {% endif %}
+
+    {% if current_user.can_view_participants(g.meeting.id) %}
+      <li class="dropdown {{ active('/printouts') }}">
+        <a class="dropdown-toggle" data-toggle="dropdown">
+          Printouts <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li>
+              <a href="{{ url_for('.printouts_short_list') }}">
+                Print short list</a>
+            </li>
+            <li>
+              <a href="{{ url_for('.printouts_delegation_list') }}">
+                Print list of delegations</a>
+            </li>
+
+            <li>
+              <a href="{{ url_for('.printouts_participant_badges') }}">
+                Print participant badges</a>
+            </li>
+            <li class="divider"></li>
+            <li>
+              <a href="{{ url_for('.processing_file_list') }}">
+                Processing file list</a>
+            </li>
+          </ul>
+      </li>
+    {% endif %}
+
+    {% if current_user.can_manage_participants(g.meeting.id) %}
+      <li class="{{ active('/email') }}">
+        <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>
+      </li>
+
+      <li class="dropdown {{ active('/logs') }}">
+        <a class="dropdown-toggle" data-toggle="dropdown">
+          Logs <span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+          {% if current_user.can_manage_meeting(g.meeting.id) %}
+            <li class="{{ active('/activity') }}">
+              <a href="{{ url_for('.activity') }}">
+                Database activity</a>
+            </li>
+          {% endif %}
+          <li class="{{ active('/mails') }}">
+            <a href="{{ url_for('.mail_logs') }}">
+              Emails sent</a>
           </li>
         </ul>
-    </li>
-    <li class="{{ active('/email') }}">
-      <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>
-    </li>
-    <li class="dropdown {{ active('/logs') }}">
-      <a class="dropdown-toggle" data-toggle="dropdown">
-        Logs <span class="caret"></span></a>
-      <ul class="dropdown-menu" role="menu">
-        <li class="{{ active('/activity') }}">
-          <a href="{{ url_for('.activity') }}">
-            Database activity</a>
-        </li>
-        <li class="{{ active('/mails') }}">
-          <a href="{{ url_for('.mail_logs') }}">
-            Emails sent</a>
-        </li>
-      </ul>
-    </li>
+      </li>
+    {% endif %}
 
-    <li class="dropdown {{ active('/settings') }} pull-right">
-      <a class="dropdown-toggle" data-toggle="dropdown">
-        <small style="position:relative; left: -2px;"><span class="glyphicon glyphicon-cog"></span></small>
-        Settings <span class="caret"></span></a>
-      <ul class="dropdown-menu" role="menu">
-        <li class="{{ active('/categories') }}">
-          <a href="{{ url_for('.categories') }}">
-            Categories</a>
-        </li>
-        <li class="{{ active('/roles') }}">
-          <a href="{{ url_for('.roles') }}">
-            Roles</a>
-        </li>
-        <li class="{{ active('/notifications') }}">
-          <a href="{{ url_for('.notifications') }}">
-            Subscribers</a>
-        </li>
-        <li class="{{ active('/phrases') }}">
-          <a href="{{ url_for('.phrase_edit', meeting_type=g.meeting.meeting_type_slug) }}">
-            Phrases</a>
-        </li>
-        <li class="{{ active('/custom') }}">
-          <a href="{{ url_for('.custom_fields') }}">
-            Fields</a>
-        </li>
+    {% if current_user.can_manage_meeting(g.meeting.id) %}
+      <li class="dropdown {{ active('/settings') }} pull-right">
+        <a class="dropdown-toggle" data-toggle="dropdown">
+          <small style="position:relative; left: -2px;"><span class="glyphicon glyphicon-cog"></span></small>
+          Settings <span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+          <li class="{{ active('/categories') }}">
+            <a href="{{ url_for('.categories') }}">
+              Categories</a>
+          </li>
+          <li class="{{ active('/roles') }}">
+            <a href="{{ url_for('.roles') }}">
+              Roles</a>
+          </li>
+          <li class="{{ active('/notifications') }}">
+            <a href="{{ url_for('.notifications') }}">
+              Subscribers</a>
+          </li>
+          <li class="{{ active('/phrases') }}">
+            <a href="{{ url_for('.phrase_edit', meeting_type=g.meeting.meeting_type_slug) }}">
+              Phrases</a>
+          </li>
+          <li class="{{ active('/custom') }}">
+            <a href="{{ url_for('.custom_fields') }}">
+              Fields</a>
+          </li>
 
-        <li class="divider"></li>
-        <li>
-          <a href="{{ url_for('.edit') }}">
-            Edit this meeting</a>
-        </li>
-        <li class="{{ active('/statistics') }}">
-          <a href="{{ url_for('.statistics') }}">
-            Overview</a>
-        </li>
-      </ul>
-    </li>
+          <li class="divider"></li>
+          <li>
+            <a href="{{ url_for('.edit') }}">
+              Edit this meeting</a>
+          </li>
+          <li class="{{ active('/statistics') }}">
+            <a href="{{ url_for('.statistics') }}">
+              Overview</a>
+          </li>
+        </ul>
+      </li>
+    {% endif %}
 
-    <li class="pull-right hidden-xs hidden-sm">
-      <form class="form-inline form-search" id="search-participant"
-            action="{{ url_for('.participant_search') }}">
-        <div class="form-group">
-          <span class="glyphicon glyphicon-search"></span>
-          <input type="text" name="search" class="form-control input-sm"
-                 placeholder="Search for participants"
-                 tabindex="1">
-        </div>
-      </form>
-    </li>
-    {% set status_url = url_for('.printouts_queue_status',
-                                queue='printouts') %}
-    <li class="pull-right hide hiden-xs hidden-sm printout-count"
-        data-url="{{ status_url }}">
-      <a href="{{ url_for('.processing_file_list') }}"
-         data-toggle="tooltip" data-placement="bottom"
-         data-container="body">
-        <span class="badge"></span>
-      </a>
-    </li>
+    {% if current_user.can_view_participants(g.meeting.id) %}
+      <li class="pull-right hidden-xs hidden-sm">
+        <form class="form-inline form-search" id="search-participant"
+              action="{{ url_for('.participant_search') }}">
+          <div class="form-group">
+            <span class="glyphicon glyphicon-search"></span>
+            <input type="text" name="search" class="form-control input-sm"
+                   placeholder="Search for participants"
+                   tabindex="1">
+          </div>
+        </form>
+      </li>
+
+      {% set status_url = url_for('.printouts_queue_status', queue='printouts') %}
+      <li class="pull-right hide hiden-xs hidden-sm printout-count"
+          data-url="{{ status_url }}">
+        <a href="{{ url_for('.processing_file_list') }}"
+           data-toggle="tooltip" data-placement="bottom"
+           data-container="body">
+          <span class="badge"></span>
+        </a>
+      </li>
+    {% endif %}
 
   </ul>
 

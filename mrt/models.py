@@ -139,6 +139,32 @@ class User(db.Model):
             .filter(Participant.participant_type == participant_type)
             .scalar())
 
+    def can_manage_meeting(self, meeting_id):
+        return (self.is_superuser or
+                self.has_perms(('manage_meeting',), meeting_id))
+
+    def can_view_participants(self, meeting_id):
+        return (self.is_superuser or
+                self.has_perms(('manage_meeting', 'manage_participant',
+                                'view_participant'),
+                               meeting_id))
+
+    def can_view_media_participants(self, meeting_id):
+        return (self.is_superuser or
+                self.has_perms(('manage_meeting', 'manage_media_participant',
+                                'view_media_participant'),
+                               meeting_id))
+
+    def can_manage_participants(self, meeting_id):
+        return (self.is_superuser or
+                self.has_perms(('manage_meeting', 'manage_participant'),
+                               meeting_id))
+
+    def can_manage_media_participants(self, meeting_id):
+        return (self.is_superuser or
+                self.has_perms(('manage_meeting', 'manage_media_participant'),
+                               meeting_id))
+
 
 class UserNotification(db.Model):
 
