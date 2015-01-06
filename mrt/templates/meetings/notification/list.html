@@ -2,7 +2,7 @@
 {% from "_bits.html" import breadcrumb %}
 
 
-{% set title = "Meeting (" ~ g.meeting.acronym ~ ") subscribers" %}
+{% set title = "Subscribers" %}
 
 {% block title %} {{ title }} {% endblock %}
 
@@ -31,9 +31,8 @@
 
   {{ super() }}
 
-  <h3 class="page-title">{{ title }}
-  </br>
-  <small>List of staff who will receive an email when a participant is registered</small></h3>
+  <h3 class="page-title">{{ title }} <br>
+  <small>List of staff who will receive an email when a participant is registered.</small></h3>
 
   <div class="table-responsive">
     <table id="notifications" class="table table-bordered table-condensed">

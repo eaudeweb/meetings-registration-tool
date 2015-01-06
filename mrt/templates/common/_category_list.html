@@ -1,61 +1,65 @@
 
-<div class="category-container">
+{% if categories.count() %}
 
-  <div class="table-responsive">
+  <div class="category-container">
 
-    <table id="categories" class="table table-bordered table-condensed sortable table-hover"
-        data-url="{{ url_for('.category_update_position') }}">
+    <div class="table-responsive">
 
-      <thead>
-        <tr>
-          <th class="handler"></th>
-          <th>Name</th>
-          <th>Category Type</th>
-          <th>Category Group</th>
-          <th>Visible on registration form?</th>
-          <th>Badge color</th>
-          {% if default %}
-            <th>Meeting Types</th>
-          {% endif %}
-        </tr>
-      </thead>
+      <table id="categories" class="table table-bordered table-condensed sortable table-hover"
+          data-url="{{ url_for('.category_update_position') }}">
 
-      <tbody>
-        {% for category in categories %}
-          {% set url = url_for('.category_edit', category_id=category.id) %}
-          <tr id="items-{{ category.id }}">
-            <td class="handler">
-              <span class="glyphicon glyphicon-align-justify"></span>
-            </td>
-            <td>
-              <a href="{{ url }}">{{ category.title.english }}</a>
-            </td>
-            <td>{{ category.category_type }}</td>
-            <td>{{ category.group }}</td>
-            <td>
-              {% if category.visible_on_registration_form %}
-                <span class="glyphicon glyphicon-ok"></span>
-              {% endif %}
-            </td>
-            <td>
-              <span class="stripe" style="background: {{ category.color }}"></span>
-              <span class="color">{{ category.color }}</span>
-            </td>
+        <thead>
+          <tr>
+            <th class="handler"></th>
+            <th>Name</th>
+            <th>Category Type</th>
+            <th>Category Group</th>
+            <th>Visible on registration form?</th>
+            <th>Badge color</th>
             {% if default %}
-              <td>
-                <ul class="list-unstyled">
-                  {% for meeting_type in category.meeting_types %}
-                    <li>- {{ meeting_type.label }}</li>
-                  {% endfor %}
-                </ul>
-              </td>
+              <th>Meeting Types</th>
             {% endif %}
           </tr>
-        {% endfor %}
-      </tbody>
+        </thead>
 
-    </table>
+        <tbody>
+          {% for category in categories %}
+            {% set url = url_for('.category_edit', category_id=category.id) %}
+            <tr id="items-{{ category.id }}">
+              <td class="handler">
+                <span class="glyphicon glyphicon-align-justify"></span>
+              </td>
+              <td>
+                <a href="{{ url }}">{{ category.title.english }}</a>
+              </td>
+              <td>{{ category.category_type }}</td>
+              <td>{{ category.group }}</td>
+              <td>
+                {% if category.visible_on_registration_form %}
+                  <span class="glyphicon glyphicon-ok"></span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="stripe" style="background: {{ category.color }}"></span>
+                <span class="color">{{ category.color }}</span>
+              </td>
+              {% if default %}
+                <td>
+                  <ul class="list-unstyled">
+                    {% for meeting_type in category.meeting_types %}
+                      <li>- {{ meeting_type.label }}</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
 
-  </div> {# table-responsive #}
+      </table>
 
-</div> {# category-container #}
+    </div> {# table-responsive #}
+
+  </div> {# category-container #}
+
+{% endif %}

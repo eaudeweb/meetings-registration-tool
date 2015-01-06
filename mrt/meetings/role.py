@@ -6,6 +6,7 @@ from flask.views import MethodView
 from mrt.models import db, RoleUser
 from mrt.forms.meetings import RoleUserEditForm, MeetingChangeOwnerForm
 from mrt.meetings.mixins import PermissionRequiredMixin
+from mrt.admin.mixins import PermissionRequiredMixin as AdminPermRequiredMixin
 
 
 class Roles(PermissionRequiredMixin, MethodView):
@@ -54,10 +55,9 @@ class RoleUserEdit(PermissionRequiredMixin, MethodView):
         return jsonify(status="success", url=url_for('.roles'))
 
 
-class RoleMeetingChangeOwner(PermissionRequiredMixin, MethodView):
+class RoleMeetingChangeOwner(AdminPermRequiredMixin, MethodView):
 
     decorators = (login_required,)
-    permission_required = ('manage_meeting',)
 
     def get(self):
         form = MeetingChangeOwnerForm(obj=g.meeting)
