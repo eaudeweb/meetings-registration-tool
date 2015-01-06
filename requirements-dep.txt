@@ -2,4 +2,4 @@
 
 supervisor==3.1.0
 waitress==0.8.9
-raven==2.0.12.2
+raven==5.1.1

@@ -1,12 +1,12 @@
 -r requirements.txt
 
-Fabric==1.10.0
+Fabric==1.10.1
 factory-boy==2.4.1
 pyquery==1.2.9
 xlrd==0.9.3
 # pytest
-py==1.4.25
-pytest==2.6.3
+py==1.4.26
+pytest==2.6.4
 
 # git lint
 docopt==0.6.2
