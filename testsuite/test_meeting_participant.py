@@ -16,6 +16,7 @@ from mrt.forms.meetings import (add_custom_fields_for_meeting,
                                 MediaParticipantDummyForm)
 from mrt.mail import mail
 from mrt.models import Participant, CustomField, Category, ActivityLog
+from mrt.models import CustomFieldValue
 from mrt.utils import translate
 
 from testsuite.utils import populate_participant_form
@@ -124,6 +125,31 @@ def test_meeting_participant_detail(app, user):
         for i, custom_field in enumerate(image_custom_fields):
             image_label = image_details[i].text_content().strip()
             assert custom_field.label.english == image_label
+
+
+def test_meeting_participant_detail_event_list(app, user):
+    category = MeetingCategoryFactory()
+    CustomFieldFactory(field_type='event', meeting=category.meeting,
+                       required=False, label__english='Lunch')
+    CustomFieldFactory(field_type='event', meeting=category.meeting,
+                       required=False, label__english='Dinner')
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['lunch'] = 'y'
+    data['dinner'] = 'y'
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().participants().first()
+        assert CustomFieldValue.query.count() == 2
 
 
 def test_meeting_participant_add_success(app, user):
@@ -592,3 +618,61 @@ def test_meeting_default_participant_search_multiple_results(app, user,
                                   meeting_id=meeting.id, search='John'))
         data = json.loads(resp.data)
         assert len(data) == 4
+
+
+def test_meeting_participant_detail_custom_fields_grouping(app, user):
+    category = MeetingCategoryFactory()
+    meeting = category.meeting
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['diet'] = 'y'
+    data['lunch'] = 'y'
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        CustomFieldFactory(meeting=meeting, field_type='checkbox',
+                           label__english='diet', required=False, sort=30)
+        CustomFieldFactory(meeting=meeting)
+        CustomFieldFactory(field_type='event', meeting=category.meeting,
+                           required=False, label__english='Lunch')
+        CustomFieldFactory(field_type='event', meeting=category.meeting,
+                           required=False, label__english='Dinner')
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 302
+
+        resp = client.get(url_for('meetings.participant_detail',
+                                  meeting_id=category.meeting.id,
+                                  participant_id=1))
+
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        assert len(html('#Events tr')) == 2
+        assert len(html('#Flags tr')) == 4
+
+
+def test_meeting_participant_event_checkbox_add_form(app, user):
+    category = MeetingCategoryFactory()
+    meeting = category.meeting
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        CustomFieldFactory(meeting=meeting, field_type='checkbox',
+                           label__english='diet', required=False, sort=30)
+        CustomFieldFactory(meeting=meeting)
+        CustomFieldFactory(field_type='event', meeting=category.meeting,
+                           required=False, label__english='Lunch')
+        CustomFieldFactory(field_type='event', meeting=category.meeting,
+                           required=False, label__english='Dinner')
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.participant_edit',
+                                  meeting_id=meeting.id))
+        html = PyQuery(resp.data)
+        assert len(html('#Events div.form-group')) == 2
+        assert len(html('#Flags div.form-group')) == 4

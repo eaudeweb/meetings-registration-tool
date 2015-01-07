@@ -69,13 +69,22 @@ class CustomFieldEditForm(BaseForm):
         model = CustomField
 
     def __init__(self, *args, **kwargs):
+        custom_field_type = kwargs.pop('custom_field_type', None)
         super(CustomFieldEditForm, self).__init__(*args, **kwargs)
+
+        excluded_types = [CustomField.SELECT, CustomField.CATEGORY]
+        if custom_field_type == CustomField.MEDIA:
+            excluded_types.append(CustomField.EVENT)
         self.field_type.choices = [
             i for i in self.field_type.choices
-            if i[0] not in (CustomField.SELECT, CustomField.CATEGORY)]
-        if self.custom_field_type.data:
-            setattr(self.label.form, 'custom_field_type',
-                    self.custom_field_type.data)
+            if i[0] not in excluded_types]
+
+        if custom_field_type:
+            self.custom_field_type.data = custom_field_type
+            setattr(self.label.form, 'custom_field_type', custom_field_type)
+
+        if self.field_type.data == CustomField.EVENT:
+            self.required.data = False
 
     def save(self):
         custom_field = self.obj or CustomField()

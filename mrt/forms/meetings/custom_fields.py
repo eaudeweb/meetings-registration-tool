@@ -24,6 +24,7 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.COUNTRY: {'field': CountryField},
     CustomField.CATEGORY: {'field': CategoryField},
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
+    CustomField.EVENT: {'field': BooleanField},
 }
 
 

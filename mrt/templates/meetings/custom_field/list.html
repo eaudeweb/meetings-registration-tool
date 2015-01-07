@@ -67,6 +67,18 @@
 {% endmacro %}
 
 
+{% macro actions(type) %}
+
+    <div class="actions">
+        {% set url = url_for('.custom_field_edit', custom_field_type=type) %}
+        <a href="{{ url }}" class="btn btn-primary btn-sm">
+        <span class="glyphicon glyphicon-pencil"></span> &nbsp;
+        Add a new field</a>
+    </div> {# actions #}
+
+{% endmacro %}
+
+
 {% block content %}
 
   {{ super() }}
@@ -88,23 +100,21 @@
     </ul>
 
     <div class="tab-content">
+
       <div role="tabpanel" class="tab-pane active" id="participant">
         {{ render_fields(custom_fields_for_participants) }}
+        {{ actions(Participant.PARTICIPANT)}}
       </div>
+
       {% if custom_fields_for_media %}
       <div role="tabpanel" class="tab-pane" id="media">
         {{ render_fields(custom_fields_for_media) }}
+        {{ actions(Participant.MEDIA)}}
       </div>
       {% endif %}
+
     </div> {# tab-content #}
 
   </div> {# tabpanel #}
-
-  <div class="actions">
-    {% set url = url_for('.custom_field_edit') %}
-    <a href="{{ url }}" class="btn btn-primary btn-sm">
-      <span class="glyphicon glyphicon-pencil"></span> &nbsp;
-      Add a new field</a>
-  </div> {# actions #}
 
 {% endblock %}

@@ -1,3 +1,4 @@
+{% from "_bits.html" import custom_fields_box_view %}
 
 {% if form.has(CustomField.IMAGE)%}
   <h5>Photo Files</h5>
@@ -6,23 +7,6 @@
   {% endfor %}
 {% endif %}
 
-<h5>Flags</h5>
-<div class="table-responsive">
-  <table class="table table-bordered table-condensed
-                table-striped">
-    <tbody>
-      {% for field in form.filter([CustomField.CHECKBOX]) %}
-        <tr>
-          <th class="col-sm-5">{{ field.label.text }}</th>
-          <td>
-            {% if field.data %}
-              <span class="glyphicon glyphicon-ok"></span>
-            {% else %}
-              <span class="glyphicon glyphicon-minus"></span>
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div> {# table-responsive #}
+{{ custom_fields_box_view(form, CustomField.CHECKBOX, 'Flags')}}
+
+{{ custom_fields_box_view(form, CustomField.EVENT, 'Events')}}

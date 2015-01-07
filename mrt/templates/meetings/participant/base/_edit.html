@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb, form_group %}
+{% from "_bits.html" import breadcrumb, form_group, custom_fields_box_edit %}
 
 
 {% block title %} {{ title }} {% endblock %}
@@ -100,7 +100,8 @@
           <div class="panel-heading"><b>Participant details</b></div>
           <div class="panel-body">
             {% for field in form.exclude([CustomField.CHECKBOX,
-                                          CustomField.IMAGE]) %}
+                                          CustomField.IMAGE,
+                                          CustomField.EVENT]) %}
               {% if loop.first %}
                 {% set options = {'autofocus': '' } %}
               {% else %}
@@ -114,21 +115,9 @@
 
       </div> {# col-sm-9 #}
 
+      {{ custom_fields_box_edit(form, CustomField.CHECKBOX, 'Flags')}}
 
-      <div class="col-sm-3">
-
-        {% if form.has(CustomField.CHECKBOX) %}
-          <div class="panel panel-default">
-            <div class="panel-heading"><b>Meeting flags</b></div>
-            <div class="panel-body">
-              {% for field in form.filter([CustomField.CHECKBOX]) %}
-                {{ form_group(field, label_size="6", input_size="6") }}
-              {% endfor %}
-            </div>
-          </div> {# panel #}
-        {% endif %}
-
-      </div> {# col-sm-3 #}
+      {{ custom_fields_box_edit(form, CustomField.EVENT, 'Events')}}
 
     </div> {# row #}
 

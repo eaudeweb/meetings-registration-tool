@@ -32,24 +32,46 @@ def test_meeting_custom_field_add(app, user):
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
         resp = client.post(url_for('meetings.custom_field_edit',
-                                   meeting_id=meeting.id), data=data)
+                                   meeting_id=meeting.id,
+                                   custom_field_type=CustomField.PARTICIPANT),
+                           data=data)
         assert resp.status_code == 302
         assert CustomField.query.count() == 1
         custom_field = CustomField.query.get(1)
         assert custom_field.custom_field_type.code == CustomField.PARTICIPANT
 
 
-def test_meeting_custom_field_add_for_media_participant(app, user):
+def test_meeting_custom_field_event_add(app, user):
     meeting = MeetingFactory()
     data = CustomFieldFactory.attributes()
+    data['field_type'] = CustomField.EVENT
     data['label-english'] = data['label'].english
-    data['custom_field_type'] = CustomField.MEDIA
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
         resp = client.post(url_for('meetings.custom_field_edit',
-                                   meeting_id=meeting.id), data=data)
+                                   meeting_id=meeting.id,
+                                   custom_field_type=CustomField.PARTICIPANT),
+                           data=data)
+        assert resp.status_code == 302
+        assert CustomField.query.get(1)
+        custom_field = CustomField.query.get(1)
+        assert custom_field.field_type.code == CustomField.EVENT
+
+
+def test_meeting_custom_field_add_for_media_participant(app, user):
+    meeting = MeetingFactory()
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data['label'].english
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.custom_field_edit',
+                                   meeting_id=meeting.id,
+                                   custom_field_type=CustomField.MEDIA),
+                           data=data)
         assert resp.status_code == 302
         assert CustomField.query.count() == 1
         custom_field = CustomField.query.get(1)
@@ -61,13 +83,14 @@ def test_meeting_custom_field_add_with_same_slug_and_different_type(app, user):
     participant_field = CustomFieldFactory(meeting=meeting)
     data = CustomFieldFactory.attributes()
     data['label-english'] = data['label'].english
-    data['custom_field_type'] = CustomField.MEDIA
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
         resp = client.post(url_for('meetings.custom_field_edit',
-                                   meeting_id=meeting.id), data=data)
+                                   meeting_id=meeting.id,
+                                   custom_field_type=CustomField.MEDIA),
+                           data=data)
         assert resp.status_code == 302
         assert meeting.custom_fields.count() == 2
         media_field = CustomField.query.get(2)
@@ -85,7 +108,9 @@ def test_meeting_custom_field_add_with_same_slug_and_type_fails(app, user):
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
         resp = client.post(url_for('meetings.custom_field_edit',
-                                   meeting_id=meeting.id), data=data)
+                                   meeting_id=meeting.id,
+                                   custom_field_type=CustomField.PARTICIPANT),
+                           data=data)
         assert resp.status_code == 200
         assert len(PyQuery(resp.data)('.text-danger small')) == 1
         assert CustomField.query.filter_by(meeting=meeting).count() == 1
@@ -102,7 +127,9 @@ def test_meeting_custom_field_add_sort_init(app, user):
             sess['user_id'] = user.id
         max_sort = max([x.sort for x in CustomField.query.all()])
         resp = client.post(url_for('meetings.custom_field_edit',
-                                   meeting_id=meeting.id), data=data)
+                                   meeting_id=meeting.id,
+                                   custom_field_type=CustomField.PARTICIPANT),
+                           data=data)
         assert resp.status_code == 302
         new_max_sort = max([x.sort for x in CustomField.query.all()])
         assert new_max_sort == max_sort + 1

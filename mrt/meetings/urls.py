@@ -170,10 +170,10 @@ custom_field_edit_func = CustomFieldEdit.as_view('custom_field_edit')
 meetings.add_url_rule('/<int:meeting_id>/settings/custom/fields',
                       view_func=CustomFields.as_view('custom_fields'))
 meetings.add_url_rule(
-    '/<int:meeting_id>/settings/custom/fields/add',
+    '/<int:meeting_id>/settings/custom/fields/<int:custom_field_id>/edit',
     view_func=custom_field_edit_func)
 meetings.add_url_rule(
-    '/<int:meeting_id>/settings/custom/fields/<int:custom_field_id>/edit',
+    '/<int:meeting_id>/settings/custom/fields/<string:custom_field_type>/add',
     view_func=custom_field_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/custom/fields/update/position',

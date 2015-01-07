@@ -469,6 +469,7 @@ class CustomField(db.Model):
     SELECT = 'select'
     COUNTRY = 'country'
     CATEGORY = 'category'
+    EVENT = 'event'
 
     CUSTOM_FIELDS = (
         (TEXT, 'Text Field'),
@@ -478,6 +479,7 @@ class CustomField(db.Model):
         (SELECT, 'Select Field'),
         (COUNTRY, 'Country Field'),
         (CATEGORY, 'Category Field'),
+        (EVENT, 'Event Field'),
     )
 
     PARTICIPANT = u'participant'
@@ -930,7 +932,7 @@ class Job(db.Model):
     user = db.relationship('User', backref=db.backref('jobs', uselist=False))
     meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'))
     meeting = db.relationship('Meeting',
-                              backref=db.backref('jobs', uselist=False))
+                              backref=db.backref('jobs', cascade='delete'))
     date = db.Column(db.DateTime, nullable=False)
     status = db.Column(ChoiceType(STATUS), nullable=False)
     queue = db.Column(db.String(32))

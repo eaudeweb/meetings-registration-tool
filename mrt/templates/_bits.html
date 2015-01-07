@@ -1,4 +1,3 @@
-
 {% macro form_group(field, label_size="2", input_size="8",
                     class_="", options={}) %}
 
@@ -204,5 +203,51 @@
   {{ g.meeting.venue_city.english }}
   ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
   {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
+
+{% endmacro %}
+
+
+{% macro custom_fields_box_edit(form, field_type, title) %}
+
+  {% if form.has(field_type) %}
+    <div class="col-sm-3">
+      <div class="panel panel-default">
+        <div class="panel-heading"><b>{{ title }}</b></div>
+        <div class="panel-body" id="{{ title }}">
+          {% for field in form.filter([field_type]) %}
+            {{ form_group(field, label_size="6", input_size="6") }}
+          {% endfor %}
+        </div>
+      </div> {# panel #}
+    </div> {# col-sm-3 #}
+  {% endif %}
+
+{% endmacro %}
+
+
+{% macro custom_fields_box_view(form, field_type, title) %}
+
+  {% if form.has(field_type) %}
+    <h5>{{ title }}</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-condensed table-striped"
+             id="{{ title }}">
+        <tbody>
+          {% for field in form.filter([field_type]) %}
+            <tr>
+              <th class="col-sm-5">{{ field.label.text }}</th>
+              <td>
+                {% if field.data %}
+                  <span class="glyphicon glyphicon-ok"></span>
+                {% else %}
+                  <span class="glyphicon glyphicon-minus"></span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div> {# table-responsive #}
+  {% endif %}
 
 {% endmacro %}

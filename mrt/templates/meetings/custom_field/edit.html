@@ -13,6 +13,23 @@
 {% block title %} {{ title }} {% endblock %}
 
 
+{% block scripts %}
+
+<script>
+  $(function() {
+    var required = $('#required').parent().parent();
+    $('#field_type').on('change', function() {
+      if ($(this).val() == 'event')
+        required.hide();
+      else
+        required.show();
+    }).change();
+  });
+</script>
+
+{% endblock %}
+
+
 {% block breadcrumb %}
 
   {{ breadcrumb( [
@@ -45,8 +62,6 @@
         {{ form_group(form.required, input_size="3") }}
 
         {{ form_group(form.visible_on_registration_form, input_size="3") }}
-
-        {{ form_group(form.custom_field_type, input_size="3") }}
 
       </div>
     </div>

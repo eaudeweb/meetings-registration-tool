@@ -88,6 +88,7 @@ def create_app(config={}):
                 'SELECT': CustomField.SELECT,
                 'COUNTRY': CustomField.COUNTRY,
                 'CATEGORY': CustomField.CATEGORY,
+                'EVENT': CustomField.EVENT,
             },
             'Participant': {
                 'PARTICIPANT': Participant.PARTICIPANT,

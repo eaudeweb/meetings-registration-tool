@@ -49,16 +49,20 @@ class CustomFieldEdit(PermissionRequiredMixin, MethodView):
                 .first_or_404()
                 if custom_field_id else None)
 
-    def get(self, custom_field_id=None):
+    def get(self, custom_field_id=None, custom_field_type=None):
         custom_field = self._get_object(custom_field_id)
-        form = CustomFieldEditForm(obj=custom_field)
+        custom_field_type = custom_field_type or custom_field.custom_field_type
+        form = CustomFieldEditForm(obj=custom_field,
+                                   custom_field_type=custom_field_type)
         return render_template('meetings/custom_field/edit.html',
                                form=form,
                                custom_field=custom_field)
 
-    def post(self, custom_field_id=None):
+    def post(self, custom_field_id=None, custom_field_type=None):
         custom_field = self._get_object(custom_field_id)
-        form = CustomFieldEditForm(request.form, obj=custom_field)
+        custom_field_type = custom_field_type or custom_field.custom_field_type
+        form = CustomFieldEditForm(request.form, obj=custom_field,
+                                   custom_field_type=custom_field_type)
         if form.validate():
             form.save()
             flash('Custom field information saved', 'success')
@@ -113,7 +117,7 @@ class CustomFieldUpload(BaseCustomFieldFile):
                 form.save(participant)
                 data = cf.custom_field_values.first()
             except ValueError:
-                field_value = data = None
+                data = None
         else:
             return make_response(jsonify(form.errors), 400)
 

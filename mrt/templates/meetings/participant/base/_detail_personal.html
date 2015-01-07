@@ -6,7 +6,8 @@
   <table class="table table-bordered table-condensed table-striped">
     <tbody>
       {% for field in form.exclude([CustomField.CHECKBOX,
-                                    CustomField.IMAGE]) %}
+                                    CustomField.IMAGE,
+                                    CustomField.EVENT]) %}
         <tr>
           <th class="col-sm-3">{{ field.label.text }}</th>
           <td>
