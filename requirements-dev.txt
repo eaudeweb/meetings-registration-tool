@@ -17,3 +17,8 @@ pep8==1.5.7
 PyYAML==3.11
 template-remover==0.1.9
 termcolor==1.1.0
+
+# ci
+pytest-cov==1.8.1
+coverage==3.7.1
+coveralls==0.5
