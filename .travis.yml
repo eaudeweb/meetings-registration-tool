@@ -4,3 +4,7 @@ python:
 install: pip install -r requirements-dev.txt --use-mirrors
 script:  py.test --cov=mrt testsuite
 after_success: coveralls
+notifications:
+  email:
+      recipients:
+            - purepython@eaudeweb.ro
