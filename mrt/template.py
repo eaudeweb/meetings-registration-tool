@@ -37,11 +37,12 @@ def countries(persons):
     return countries
 
 
-def has_perm(permission, meeting_id=None):
-    meeting_id = meeting_id or g.meeting.id
+def has_perm(permission, meeting=None):
+    meeting = meeting or g.meeting
     return (current_user.is_superuser or
+            current_user.staff is meeting.owner or
             current_user.has_perms(PERMISSIONS_HIERARCHY.get(permission, ()),
-                                   meeting_id))
+                                   meeting.id))
 
 
 def date_processor(date_start, date_end, in_format='%Y-%m-%d',

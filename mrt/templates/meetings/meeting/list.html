@@ -53,9 +53,9 @@
 
       <tbody>
         {% for meeting in meetings %}
-          {% if has_perm('view_participant', meeting.id) %}
+          {% if has_perm('view_participant', meeting) %}
             {% set url = url_for('.participants', meeting_id=meeting.id) %}
-          {% elif has_perm('view_media_participant', meeting.id) %}
+          {% elif has_perm('view_media_participant', meeting) %}
             {% set url = url_for('.media_participants', meeting_id=meeting.id) %}
           {% else %}
             {% set url = "" %}
@@ -85,7 +85,7 @@
                 <div>{{ meeting.venue_state }}</div>
               {% endif %}
 
-              {% if has_perm('manage_meeting', meeting.id) %}
+              {% if has_perm('manage_meeting', meeting) %}
                 {{ row_link([url_for('.edit', meeting_id=meeting.id), 'edit']) }}
               {% endif %}
           </tr>

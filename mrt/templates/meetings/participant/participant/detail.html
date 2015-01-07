@@ -22,7 +22,8 @@
                             participant_id=participant.id) %}
   <div class="actions">
     {% if has_perm('manage_participant') %}
-      <a href="{{ edit_url }}" class="btn btn-primary btn-sm">
+      <a href="{{ edit_url }}" class="btn btn-primary btn-sm"
+         id="participant_edit">
         <span class="glyphicon glyphicon-pencil"></span> &nbsp;
         Edit participant</a>
     {% endif %}
