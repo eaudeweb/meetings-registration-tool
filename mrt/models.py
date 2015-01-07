@@ -765,8 +765,10 @@ class Translation(db.Model):
     def __repr__(self):
         return self.english
 
-    def __init__(self, english=None):
+    def __init__(self, english=None, french=None, spanish=None):
         self.english = english
+        self.french = french
+        self.spanish = spanish
 
 
 class PhraseMixin(object):
