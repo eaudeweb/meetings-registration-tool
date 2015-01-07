@@ -60,10 +60,6 @@ class MeetingEditForm(BaseForm):
             image_fields = [(x.id, x.label) for x in query]
             self.photo_field_id.choices += image_fields
 
-    def validate_photo_field_id(self, field):
-        if field.data == 0:
-            field.data = None
-
     def validate_settings(self, field):
         settings = dict(MEETING_SETTINGS)
         for key in field.data:
