@@ -146,6 +146,9 @@ def test_permissions_meeting_category(app, url_name, perms, status,
 
     ('meetings.role_user_edit', [], STATUS_DENIED),
     ('meetings.role_user_edit', ('manage_meeting',), STATUS_OK),
+
+    ('meetings.role_meeting_change_owner', [], STATUS_DENIED),
+    ('meetings.role_meeting_change_owner', ('manage_meeting'), STATUS_DENIED),
 ])
 def test_permissions_meeting_role(app, url_name, perms, status,
                                   default_meeting):

@@ -68,3 +68,48 @@ def test_meeting_role_delete(app, user):
         assert resp.status_code == 200
         assert 'success' in resp.data
         assert not RoleUser.query.filter_by(meeting=role.meeting).first()
+
+
+def test_meeting_owner_change_successfuly(app, user):
+    owner = StaffFactory()
+    meeting = MeetingFactory(owner=owner)
+    data = {
+        'owner_id': user.staff.id
+    }
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.role_meeting_change_owner',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 200
+        assert meeting.owner is user.staff
+
+
+def test_meeting_owner_change_button_visible(app, user):
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.roles',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        button = PyQuery(resp.data)('.glyphicon-user')
+        assert len(button) == 1
+
+
+def test_meeting_owner_change_button_not_visible(app):
+    role = RoleUserMeetingFactory(user__email='test@email.com')
+    client = app.test_client()
+
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = role.user.id
+        resp = client.get(url_for('meetings.roles',
+                                  meeting_id=role.meeting.id))
+        assert resp.status_code == 200
+        rows = PyQuery(resp.data)('.glyphicon-user')
+        assert len(rows) == 0
