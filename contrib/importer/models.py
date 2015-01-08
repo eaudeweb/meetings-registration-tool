@@ -4,6 +4,8 @@ from mrt.models import db
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
+from contrib.importer.definitions import COLORS, DEFAULT_COLOR
+from contrib.importer.definitions import REPRESENTING_TEMPLATES
 
 
 class Meeting(object):
@@ -26,6 +28,10 @@ class Category(object):
         return self.data['name_E']
 
 
+class CategoryMeeting(object):
+    pass
+
+
 def session(uri):
     engine = create_engine(uri)
     meta = MetaData(engine)
@@ -33,10 +39,12 @@ def session(uri):
     participant = Table('person', meta, autoload=True)
     participant_meeting = Table('personmeeting', meta, autoload=True)
     category = Table('category', meta, autoload=True)
+    category_meeting = Table('categorymeeting', meta, autoload=True)
     mapper(Meeting, meeting)
     mapper(Participant, participant)
     mapper(ParticipantMeeting, participant_meeting)
     mapper(Category, category)
+    mapper(CategoryMeeting, category_meeting)
     return sessionmaker(bind=engine)()
 
 
@@ -89,3 +97,47 @@ def migrate_meeting(meeting):
         else False)
 
     db.session.commit()
+
+
+def migrate_category(category_and_category_meeting):
+    category, category_meeting = category_and_category_meeting
+    migrated_category = models.Category()
+    title = models.Translation(english=meeting.data['name_E'],
+                               french=meeting.data['name_F'],
+                               spanish=meeting.data['name_S'])
+    db.session.add(title)
+    db.session.flush()
+    migrated_category.title = title
+
+    color = COLORS.get(meeting.data['badge_color'], DEFAULT_COLOR)
+    migrated_category.color = color
+
+    representing = REPRESENTING_TEMPLATES.get(meeting.data['templates_list'])
+    if not representing:
+        click.echo('Value error for %s' % meeting.data['templates_list'])
+        raise ValueError()
+
+    if meeting.data['stat'] == 'Media':
+        category_type = models.Category.MEDIA
+    else:
+        category_type = models.Category.PARTICIPANT
+
+    migrated_category.category_type = category_type
+
+    form_type = category_meeting.form_type
+    if form_type == 'media':
+        migrated_category.group = models.Category.ORGANIZATION
+    else:
+        migrated_category.group = models.Category.COUNTRY
+
+    try:
+        sort = int(category.data['form_sort'])
+    except TypeError, ValueError:
+        sort = None
+    migrated_category.sort = sort
+
+    if form_type:
+        migrated_category.visible_on_registration_form = True
+    else:
+        migrated_category.visible_on_registration_form = False
+

@@ -77,7 +77,7 @@ REPRESENTING_REGIONS = (
 
 CATEGORY_REPRESENTING = (
     ('organization.html', 'Organization'),
-    ('region_country.html', 'Region - Organization'),
+    ('region_country.html', 'Region - Country'),
     ('region_country_translated.html',
         'Region E / Region S / Region F - Country E / Country S / Country F'),
     ('region_translated.html', 'Region E / Region S / Region F'),

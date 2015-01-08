@@ -693,9 +693,11 @@ class CategoryMixin(object):
         (MEDIA, 'Category for media participants'),
     )
 
+    COUNTRY = 'country'
+    ORGANIZATION = 'organization'
     CATEGORY_GROUPS = (
-        ('country', 'Group category by country'),
-        ('organization', 'Group category by organization'),
+        (COUNTRY, 'Group category by country'),
+        (ORGANIZATION, 'Group category by organization'),
     )
 
     id = db.Column(db.Integer, primary_key=True)
