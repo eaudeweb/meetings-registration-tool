@@ -62,6 +62,19 @@ def _login_user(client, user, password='eaudeweb'):
         '#settings_tab', DISPLAYED),
     ('meetings.participants', ('view_participant',),
         '#settings_tab', HIDDEN),
+    ('meetings.participants', ('manage_meeting',),
+        '#participant_add', DISPLAYED),
+    ('meetings.participants', ('manage_participant',),
+        '#participant_add', DISPLAYED),
+    ('meetings.participants', ('view_participant',),
+        '#participant_add', HIDDEN),
+    ('meetings.media_participants', ('manage_meeting',),
+        '#media_participant_add', DISPLAYED),
+    ('meetings.media_participants', ('manage_media_participant',),
+        '#media_participant_add', DISPLAYED),
+    ('meetings.media_participants', ('view_media_participant',),
+        '#media_participant_add', HIDDEN),
+    ('meetings.roles', ('manage_meeting',), '.glyphicon-user', HIDDEN)
 ])
 def test_meeting_tab_menu(app, url_name, perms, element_id, status):
     role = RoleUserMeetingFactory(role__permissions=perms,
@@ -140,6 +153,7 @@ def test_meeting_media_participant_buttons(app, url_name, perms,
     ('meetings.participants', '#printouts_tab', DISPLAYED),
     ('meetings.participants', '#printouts_tab', DISPLAYED),
     ('meetings.participants', '#email_tab', DISPLAYED),
+    ('meetings.roles', '.glyphicon-user', HIDDEN)
 ])
 def test_meeting_owner_tab_menu(app, url_name, element_id, status):
     owner = StaffFactory()
@@ -189,4 +203,23 @@ def test_meeting_owner_media_participant_buttons(app, url_name, element_id,
         _login_user(client, owner.user)
         _test(client, url_for(url_name, meeting_id=meeting.id,
                               participant_id=media.id),
+              element_id, status)
+
+
+@pytest.mark.parametrize("url_name, element_id, status", [
+    ('meetings.participants', '#participants_tab', DISPLAYED),
+    ('meetings.participants', '#media_participants_tab', DISPLAYED),
+    ('meetings.participants', '#printouts_tab', DISPLAYED),
+    ('meetings.participants', '#printouts_tab', DISPLAYED),
+    ('meetings.participants', '#email_tab', DISPLAYED),
+    ('meetings.roles', '.glyphicon-user', DISPLAYED),
+    ('meetings.roles', '#admin_dropdown', DISPLAYED)
+])
+def test_meeting_superuser_sees_everything(app, user, url_name, element_id,
+                                           status):
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    client = app.test_client()
+    with app.test_request_context():
+        _login_user(client, user)
+        _test(client, url_for(url_name, meeting_id=meeting.id),
               element_id, status)

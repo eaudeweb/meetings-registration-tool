@@ -67,7 +67,8 @@
 
   <div class="actions">
     {% if has_perm('manage_participant') %}
-      <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm">
+      <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm"
+         id="participant_add">
         <span class="glyphicon glyphicon-plus"></span>
         Add a new participant
       </a>

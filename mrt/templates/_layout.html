@@ -54,7 +54,7 @@
               Meetings</a>
           </li>
           {% if current_user.is_superuser %}
-            <li class="{{ active('/admin') }} dropdown">
+            <li class="{{ active('/admin') }} dropdown" id="admin_dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown">
                 Admin <span class="caret"></span>
               </a>

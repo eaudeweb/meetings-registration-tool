@@ -58,7 +58,7 @@
 
   {% if has_perm('manage_media_participant') %}
     <div class="actions">
-      <a href="{{ url_for('.media_participant_edit') }}" class="btn btn-primary btn-sm">
+      <a href="{{ url_for('.media_participant_edit') }}" class="btn btn-primary btn-sm" id="media_participant_add">
         <span class="glyphicon glyphicon-plus"></span>
         Add a new media participant
       </a>
