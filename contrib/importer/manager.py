@@ -25,22 +25,21 @@ def import_(ctx, database, meeting_id):
 
     app = ctx.obj['app']
     with app.app_context():
-        models.migrate_meeting(meeting)
+        migrated_meeting = models.migrate_meeting(meeting)
 
     for participant, category_id in participants.all():
-        category = (
+        category_and_category_meeting = (
             ses.query(models.Category, models.CategoryMeeting)
             .join(models.CategoryMeeting)
             .filter(models.Category.data['id'] == str(category_id))
             .first()
         )
-        import pdb;pdb.set_trace()
         with app.app_context():
-            models.migrate_meeting(category)
+            models.migrate_category(category_and_category_meeting,
+                                    migrated_meeting)
 
         click.echo('Participant %r in category %r processed' %
-                   (participant, category))
+                   (participant, category_and_category_meeting[0]))
 
     click.echo('Total participants processed %d' % participants.count())
-
 

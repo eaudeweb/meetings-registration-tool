@@ -84,7 +84,6 @@ def migrate_meeting(meeting):
     migrated_meeting.date_start = date_start
     migrated_meeting.date_end = date_end
 
-
     city = models.Translation(english=meeting.data['info_venue_city_E'],
                               french=meeting.data['info_venue_city_F'],
                               spanish=meeting.data['info_venue_city_S'])
@@ -97,27 +96,36 @@ def migrate_meeting(meeting):
         else False)
 
     db.session.commit()
+    return migrated_meeting
 
 
-def migrate_category(category_and_category_meeting):
+def migrate_category(category_and_category_meeting, migrated_meeting):
     category, category_meeting = category_and_category_meeting
+
+    try:
+        models.Category.query.filter(
+            models.Category.title.has(english=category.data['name_E'])
+        ).one()
+        return
+    except NoResultFound:
+        pass
+
     migrated_category = models.Category()
-    title = models.Translation(english=meeting.data['name_E'],
-                               french=meeting.data['name_F'],
-                               spanish=meeting.data['name_S'])
+    title = models.Translation(english=category.data['name_E'],
+                               french=category.data['name_F'],
+                               spanish=category.data['name_S'])
     db.session.add(title)
     db.session.flush()
     migrated_category.title = title
 
-    color = COLORS.get(meeting.data['badge_color'], DEFAULT_COLOR)
+    color = COLORS.get(category.data['badge_color'], DEFAULT_COLOR)
     migrated_category.color = color
 
-    representing = REPRESENTING_TEMPLATES.get(meeting.data['templates_list'])
-    if not representing:
-        click.echo('Value error for %s' % meeting.data['templates_list'])
-        raise ValueError()
+    representing = REPRESENTING_TEMPLATES.get(category.data['templates_list'])
+    if representing:
+        migrated_category.representing = representing
 
-    if meeting.data['stat'] == 'Media':
+    if category.data['stat'] == 'Media':
         category_type = models.Category.MEDIA
     else:
         category_type = models.Category.PARTICIPANT
@@ -132,7 +140,7 @@ def migrate_category(category_and_category_meeting):
 
     try:
         sort = int(category.data['form_sort'])
-    except TypeError, ValueError:
+    except (TypeError, ValueError):
         sort = None
     migrated_category.sort = sort
 
@@ -141,3 +149,9 @@ def migrate_category(category_and_category_meeting):
     else:
         migrated_category.visible_on_registration_form = False
 
+    migrated_category.meeting = migrated_meeting
+
+    db.session.add(migrated_category)
+    db.session.commit()
+
+    return migrated_category
