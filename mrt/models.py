@@ -254,7 +254,7 @@ class Participant(db.Model):
         ('Spanish', __('Spanish')),
         ('French', __('French')),
     )
-    PARTICIPANT = u'participant'
+    PARTICIPANT = 'participant'
     MEDIA = 'media'
     DEFAULT = 'default'
     DEFAULT_MEDIA = 'default_media'
@@ -284,7 +284,7 @@ class Participant(db.Model):
     last_name = db.Column(db.String(64), nullable=False,
                           info={'label': _('Family name')})
 
-    email = db.Column(db.String(64), nullable=False,
+    email = db.Column(db.String(128), nullable=False,
                       info={'label': _('Email')})
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

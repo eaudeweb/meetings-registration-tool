@@ -47,3 +47,24 @@ REPRESENTING_TEMPLATES = {
     '${representing/country/F}': 'representing_country_translated.html',
     '${personal/category}': 'category.html',
 }
+
+
+LANGUAGES = {
+    'E': 'English',
+    'F': 'French',
+    'S': 'Spanish',
+}
+
+
+REGIONS = {
+    '1': 'Africa',
+    '2': 'Asia',
+    '3': 'Central and South America and the Carribean',
+    '4': 'Europe',
+    '5': 'North America',
+    '6': 'Oceania',
+    '7': 'Depositary Government',
+    '8': 'Previous host country',
+    '9': 'Next host country',
+    '10': 'Nomenclature specialist',
+}

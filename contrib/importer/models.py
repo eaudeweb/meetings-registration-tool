@@ -1,11 +1,17 @@
 from datetime import datetime
+
 from mrt import models
 from mrt.models import db
+from mrt.utils import copy_attributes
+
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy_utils import Country
+
 from contrib.importer.definitions import COLORS, DEFAULT_COLOR
 from contrib.importer.definitions import REPRESENTING_TEMPLATES
+from contrib.importer.definitions import LANGUAGES, REGIONS
 
 
 class Meeting(object):
@@ -95,18 +101,18 @@ def migrate_meeting(meeting):
         True if meeting.data['info_online_registration'] == 'allowed'
         else False)
 
+    db.session.add(migrated_meeting)
     db.session.commit()
     return migrated_meeting
 
 
 def migrate_category(category_and_category_meeting, migrated_meeting):
     category, category_meeting = category_and_category_meeting
-
     try:
-        models.Category.query.filter(
+        migrated_category = models.Category.query.filter(
             models.Category.title.has(english=category.data['name_E'])
         ).one()
-        return
+        return migrated_category
     except NoResultFound:
         pass
 
@@ -152,6 +158,75 @@ def migrate_category(category_and_category_meeting, migrated_meeting):
     migrated_category.meeting = migrated_meeting
 
     db.session.add(migrated_category)
-    db.session.commit()
 
+    try:
+        models.CategoryDefault.query.filter(
+            models.CategoryDefault.title.has(english=category.data['name_E'])
+        ).one()
+    except NoResultFound:
+        migrated_category_default = copy_attributes(models.CategoryDefault(),
+                                                    migrated_category)
+        title = models.Translation(english=category.data['name_E'],
+                                   french=category.data['name_F'],
+                                   spanish=category.data['name_S'])
+        db.session.add(title)
+        db.session.flush()
+        migrated_category_default.title = title
+        db.session.add(migrated_category_default)
+
+    db.session.commit()
     return migrated_category
+
+
+def migrate_participant(participant, participant_meeting, migrated_category,
+                        migrated_meeting):
+    try:
+        models.Participant.query.filter_by(
+            first_name=participant.data['personal_first_name'],
+            last_name=participant.data['personal_last_name'],
+            email=participant.data['personal_email'],
+            meeting=migrated_meeting).one()
+        return
+    except NoResultFound:
+        pass
+
+    migrated_participant = models.Participant()
+    migrated_participant.title = participant.data['personal_name_title']
+    migrated_participant.first_name = participant.data['personal_first_name']
+    migrated_participant.last_name = participant.data['personal_last_name']
+    migrated_participant.email = participant.data['personal_email']
+
+    migrated_participant.category = migrated_category
+
+    lang = LANGUAGES[participant.data['personal_language']]
+    migrated_participant.language = lang
+
+    country_iso = participant.data['personal_country']
+    if country_iso:
+        migrated_participant.country = Country(country_iso)
+
+    represented_country_iso = participant.data['representing_country']
+    if represented_country_iso:
+        migrated_participant.represented_country = \
+            Country(represented_country_iso)
+
+    region = REGIONS.get(participant.data['representing_region'])
+    if region:
+        migrate_participant.represented_region = region
+
+    represented_org = participant.data['representing_organization']
+    migrate_participant.represented_organization = represented_org
+
+    migrated_participant.participant_type = models.Participant.PARTICIPANT
+
+    attended = participant_meeting.data['meeting_flags_attended']
+    verified = participant_meeting.data['meeting_flags_verified']
+    credentials = participant_meeting.data['meeting_flags_credentials']
+    migrated_participant.attended = attended or False
+    migrated_participant.verified = verified or False
+    migrated_participant.credentials = credentials or False
+
+    migrated_participant.meeting = migrated_meeting
+
+    db.session.add(migrated_participant)
+    db.session.commit()
