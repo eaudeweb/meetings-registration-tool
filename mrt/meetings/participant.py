@@ -151,6 +151,60 @@ class ParticipantSearch(PermissionRequiredMixin, MethodView):
         return json.dumps(results)
 
 
+class BaseParticipantSearch(PermissionRequiredMixin, MethodView):
+
+    def _get_queryset(self):
+        raise NotImplemented
+
+    def _serialize_participant(self, form):
+        raise NotImplemented
+
+    def get(self):
+        queryset = self._get_queryset()
+        participants = search_for_participant(request.args['search'], queryset)
+        results = []
+        Form = custom_form_factory(self.form_class)
+        for p in participants:
+            Object = custom_object_factory(p)
+            form = Form(obj=Object())
+            info = self._serialize_participant(form)
+            info['value'] = p.name
+            results.append(info)
+        return json.dumps(results)
+
+
+class DefaultParticipantSearch(BaseParticipantSearch):
+
+    permission_required = ('manage_meeting', 'manage_participant')
+    form_class = ParticipantEditForm
+
+    def _get_queryset(self):
+        return Participant.query.default_participants()
+
+    def _serialize_participant(self, form):
+        info = {x: y.data for x, y in form._fields.iteritems()}
+        info['represented_country'] = (
+            info['represented_country'] and
+            info['represented_country'].code)
+        info['country'] = (
+            info['country'] and
+            info['country'].code)
+        return info
+
+
+class DefaultMediaParticipantSearch(BaseParticipantSearch):
+
+    permission_required = ('manage_meeting', 'manage_media_participant')
+    form_class = MediaParticipantEditForm
+
+    def _get_queryset(self):
+        return Participant.query.default_media_participants()
+
+    def _serialize_participant(self, form):
+        info = {x: y.data for x, y in form._fields.iteritems()}
+        return info
+
+
 class BaseParticipantDetail(MethodView):
 
     def _get_queryset(self):

@@ -1,8 +1,7 @@
 {% extends 'meetings/participant/base/_edit.html' %}
 
-
 {% set title = "Edit media participant" if participant else "Add a new media participant" %}
-
+{% set search_default_url = url_for('.default_media_participant_search') %}
 
 {% block breadcrumb %}
 

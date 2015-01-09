@@ -530,3 +530,49 @@ def test_meeting_participant_absolute_url(app):
                       meeting_id=def_media.meeting.id,
                       participant_id=def_media.id)
         assert url == def_media.get_absolute_url()
+
+
+def test_meeting_default_participant_search(app, user, default_meeting):
+    meeting = MeetingCategoryFactory()
+    participant = ParticipantFactory(participant_type=Participant.DEFAULT,
+                                     meeting=default_meeting)
+    ParticipantFactory(participant_type=Participant.DEFAULT_MEDIA,
+                       meeting=default_meeting)
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(default_meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.default_participant_search',
+                                  meeting_id=meeting.id, search='John'))
+        data = json.loads(resp.data)
+        assert len(data) == 1
+        assert data[0]['email'] == participant.email
+        assert data[0]['first_name'] == participant.first_name
+        assert data[0]['last_name'] == participant.last_name
+        assert data[0]['title'] == participant.title.code
+        assert data[0]['language'] == participant.language.code
+        assert data[0]['country'] == participant.country.code
+
+
+def test_meeting_default_media_participant_search(app, user, default_meeting):
+    meeting = MeetingCategoryFactory()
+    ParticipantFactory(participant_type=Participant.DEFAULT,
+                       meeting=default_meeting)
+    participant = ParticipantFactory(
+        participant_type=Participant.DEFAULT_MEDIA,
+        meeting=default_meeting)
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(default_meeting,
+                                      form_class=MediaParticipantDummyForm)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.default_media_participant_search',
+                                  meeting_id=meeting.id, search='John'))
+        data = json.loads(resp.data)
+        assert len(data) == 1
+        assert data[0]['email'] == participant.email
+        assert data[0]['first_name'] == participant.first_name
+        assert data[0]['last_name'] == participant.last_name
+        assert data[0]['title'] == participant.title.code

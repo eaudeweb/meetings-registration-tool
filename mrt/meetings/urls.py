@@ -12,6 +12,8 @@ from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
 from mrt.meetings import DefaultParticipantDetail, DefaultParticipantEdit
 from mrt.meetings import DefaultMediaParticipantDetail
 from mrt.meetings import DefaultMediaParticipantEdit
+from mrt.meetings import DefaultParticipantSearch
+from mrt.meetings import DefaultMediaParticipantSearch
 from mrt.meetings import ParticipantRestore, ParticipantLabel
 from mrt.meetings import ParticipantEnvelope, ParticipantsExport
 from mrt.meetings import ParticipantAcknowledgeEmail, ParticipantAcknowledgePDF
@@ -114,6 +116,12 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/default_participant/media/<int:participant_id>/edit',
     view_func=DefaultMediaParticipantEdit.as_view('default_media_participant_edit'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/default_participant/search',
+    view_func=DefaultParticipantSearch.as_view('default_participant_search'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/default_participant/media/search',
+    view_func=DefaultMediaParticipantSearch.as_view('default_media_participant_search'))
 
 # media participants
 meetings.add_url_rule(

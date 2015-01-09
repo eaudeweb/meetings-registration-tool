@@ -4,6 +4,48 @@
 
 {% block title %} {{ title }} {% endblock %}
 
+{% block scripts %}
+
+  <script>
+    $(function () {
+      var search_default_participant = $('#search-default-participant');
+      var search_default_participant_empty_template = [
+          '<div class="tt-suggestion">',
+          '<small><em>No participants found</em></small>',
+          '</div>'
+      ].join('\n');
+      var searchDefaultSelected = function (e, suggestion, name) {
+          if(suggestion && suggestion.email) {
+              $('input#email').val(suggestion.email);
+              $('input#first_name').val(suggestion.first_name);
+              $('input#last_name').val(suggestion.last_name);
+              $('select#title').val(suggestion.title);
+              $('select#language').val(suggestion.language);
+              $('select#country').val(suggestion.country);
+              $('select#represented_country').val(suggestion.represented_country);
+              $('select#represented_region').val(suggestion.represented_region);
+              $('input#represented_organization').val(suggestion.represented_organization);
+          }
+      }
+      var searchDefault = new Bloodhound({
+          datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+          queryTokenizer: Bloodhound.tokenizers.whitespace,
+          remote: search_default_participant.attr('action') + '?search=%QUERY'
+      });
+      searchDefault.initialize();
+      search_default_participant.find('input').typeahead(null, {
+          name: 'search',
+          displayKey: 'value',
+          source: searchDefault.ttAdapter(),
+          templates: {
+              empty: search_default_participant_empty_template
+          }
+      }).on('typeahead:selected', searchDefaultSelected);
+    });
+  </script>
+
+{% endblock %}
+
 
 {% block content %}
 
@@ -12,6 +54,18 @@
   {% endif %}
 
   <h3 class="page-title">{{ title }}</h3>
+
+  {% if not participant %}
+    <form class="form-inline form-search" id="search-default-participant"
+          action="{{ search_default_url }}">
+      <div class="form-group">
+        <span class="glyphicon glyphicon-search"></span>
+        <input type="text" name="search-default" class="form-control input-sm"
+               placeholder="Search for participant">
+      </div>
+    </form>
+    </br>
+  {% endif %}
 
   <form class="form-horizontal" method="post">
 

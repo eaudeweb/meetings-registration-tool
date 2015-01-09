@@ -1,7 +1,7 @@
 {% extends 'meetings/participant/base/_edit.html' %}
 
 {% set title = "Edit participant" if participant else "Add a new participant" %}
-
+{% set search_default_url = url_for('.default_participant_search') %}
 
 {% block breadcrumb %}
 
