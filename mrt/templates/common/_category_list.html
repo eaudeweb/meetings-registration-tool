@@ -14,11 +14,11 @@
             <th>Name</th>
             <th>Category Type</th>
             <th>Category Group</th>
-            <th>Registration</th>
             <th>Badge color</th>
             {% if default %}
               <th>Meeting Types</th>
             {% endif %}
+            <th>Registration</th>
           </tr>
         </thead>
 
@@ -34,11 +34,6 @@
               </td>
               <td>{{ category.category_type }}</td>
               <td>{{ category.group }}</td>
-              <td class="text-center" style="width: 60px;">
-                {% if category.visible_on_registration_form %}
-                  <span class="glyphicon glyphicon-ok"></span>
-                {% endif %}
-              </td>
               <td>
                 <span class="stripe" style="background: {{ category.color }}"></span>
                 <span class="color">{{ category.color }}</span>
@@ -52,6 +47,13 @@
                   </ul>
                 </td>
               {% endif %}
+
+              <td class="text-center" style="width: 60px;">
+                {% if category.visible_on_registration_form %}
+                  <span class="glyphicon glyphicon-ok"></span>
+                {% endif %}
+              </td>
+
             </tr>
           {% endfor %}
         </tbody>
