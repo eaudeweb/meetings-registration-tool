@@ -34,7 +34,7 @@
               </td>
               <td>{{ category.category_type }}</td>
               <td>{{ category.group }}</td>
-              <td>
+              <td style="width: 60px;">
                 {% if category.visible_on_registration_form %}
                   <span class="glyphicon glyphicon-ok"></span>
                 {% endif %}
@@ -47,7 +47,7 @@
                 <td>
                   <ul class="list-unstyled">
                     {% for meeting_type in category.meeting_types %}
-                      <li>- {{ meeting_type.label }}</li>
+                      <li>- {{ meeting_type.slug }}</li>
                     {% endfor %}
                   </ul>
                 </td>
