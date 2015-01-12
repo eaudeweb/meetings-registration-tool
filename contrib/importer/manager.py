@@ -13,7 +13,7 @@ def cli():
 @click.pass_context
 def import_(ctx, database, meeting_id):
     app = ctx.obj['app']
-    with app.app_context():
+    with app.test_request_context():
         uri_from_config = ctx.obj['app'].config['SQLALCHEMY_DATABASE_URI']
         uri = '%s/%s' % (uri_from_config.rsplit('/', 1)[0], database)
         ses = models.session(uri)

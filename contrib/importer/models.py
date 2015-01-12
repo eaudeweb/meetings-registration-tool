@@ -2,6 +2,7 @@ from datetime import datetime
 
 from mrt import models
 from mrt.models import db
+from mrt.forms.meetings import add_custom_fields_for_meeting
 from mrt.utils import copy_attributes
 
 from sqlalchemy import create_engine, MetaData, Table
@@ -10,8 +11,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import Country
 
 from contrib.importer.definitions import COLORS, DEFAULT_COLOR
-from contrib.importer.definitions import REPRESENTING_TEMPLATES
 from contrib.importer.definitions import LANGUAGES, REGIONS
+from contrib.importer.definitions import REPRESENTING_TEMPLATES
 
 
 class Meeting(object):
@@ -102,6 +103,7 @@ def migrate_meeting(meeting):
         else False)
 
     db.session.add(migrated_meeting)
+    add_custom_fields_for_meeting(migrated_meeting)
     db.session.commit()
     return migrated_meeting
 
