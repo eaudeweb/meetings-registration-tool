@@ -576,3 +576,19 @@ def test_meeting_default_media_participant_search(app, user, default_meeting):
         assert data[0]['first_name'] == participant.first_name
         assert data[0]['last_name'] == participant.last_name
         assert data[0]['title'] == participant.title.code
+
+
+def test_meeting_default_participant_search_multiple_results(app, user,
+                                                             default_meeting):
+    meeting = MeetingCategoryFactory()
+    ParticipantFactory.create_batch(4, participant_type=Participant.DEFAULT,
+                                    meeting=default_meeting)
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(default_meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.default_participant_search',
+                                  meeting_id=meeting.id, search='John'))
+        data = json.loads(resp.data)
+        assert len(data) == 4
