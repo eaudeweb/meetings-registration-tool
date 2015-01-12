@@ -147,7 +147,7 @@ def generate_excel(header, rows):
     for item in rows:
         row += 1
         for col in range(len(item)):
-            ws.row(row).set_cell_text(col, str(item[col]), style)
+            ws.row(row).set_cell_text(col, unicode(item[col]), style)
 
     output = StringIO()
     wb.save(output)
