@@ -4,6 +4,7 @@
 
 {% block title %} {{ title }} {% endblock %}
 
+
 {% block scripts %}
 
   <script>
@@ -14,19 +15,20 @@
           '<small><em>No participants found</em></small>',
           '</div>'
       ].join('\n');
+
       var searchDefaultSelected = function (e, suggestion, name) {
           if(suggestion && suggestion.email) {
-              $('input#email').val(suggestion.email);
-              $('input#first_name').val(suggestion.first_name);
-              $('input#last_name').val(suggestion.last_name);
-              $('select#title').val(suggestion.title);
-              $('select#language').val(suggestion.language);
-              $('select#country').val(suggestion.country);
-              $('select#represented_country').val(suggestion.represented_country);
-              $('select#represented_region').val(suggestion.represented_region);
-              $('input#represented_organization').val(suggestion.represented_organization);
+              $.each(suggestion, function (key, value) {
+                var input = $('#' + key);
+                if(input.attr('type') == 'checkbox') {
+                  input.prop('checked', value)
+                } else {
+                  input.val(value);
+                }
+              });
           }
       }
+
       var searchDefault = new Bloodhound({
           datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
           queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -47,25 +49,47 @@
 {% endblock %}
 
 
+{% block head %}
+
+<style type="text/css">
+  .form-default-search {
+    position: relative;
+    top: 20px;
+    margin-left: 20px;
+  }
+</style>
+
+{% endblock %}
+
+
 {% block content %}
 
   {% if not disable_super %}
     {{ super() }}
   {% endif %}
 
-  <h3 class="page-title">{{ title }}</h3>
 
-  {% if not participant %}
-    <form class="form-inline form-search" id="search-default-participant"
-          action="{{ search_default_url }}">
-      <div class="form-group">
-        <span class="glyphicon glyphicon-search"></span>
-        <input type="text" name="search-default" class="form-control input-sm"
-               placeholder="Search for participant">
-      </div>
-    </form>
-    </br>
-  {% endif %}
+  <div class="clearfix">
+    <div class="pull-left">
+      <h3 class="page-title">{{ title }}</h3>
+    </div>
+
+    {% if not participant %}
+    <div class="pull-left">
+      <form class="form-inline form-search form-default-search"
+            id="search-default-participant"
+            action="{{ search_default_url }}">
+        <div class="form-group">
+          <span class="glyphicon glyphicon-search"></span>
+          <input type="text" name="search-default"
+                 class="form-control input-sm"
+                 placeholder="Search for default participant"
+                 tabindex="2">
+        </div>
+      </form>
+    </div>
+    {% endif %}
+  </div>
 
   <form class="form-horizontal" method="post">
 
