@@ -15,7 +15,8 @@
   <body>
 
     <div class="container content">
-      <h2> You tried to upload a file larger than  }}MB. </h2>
+      <h2> You tried to upload a file larger than
+          {{ config.UPLOAD_SIZE // (1024 * 1024) }}MB. </h2>
       <p>Please go <a href="{{ url }}">back</a> and try again! </p>
   </body>
 

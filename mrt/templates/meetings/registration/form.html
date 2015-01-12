@@ -1,8 +1,19 @@
 {% extends "meetings/registration/_base.html" %}
 {% from "_bits.html" import form_group, flashed_messages %}
 
+{% block head %}
+  <meta id='max-upload-size' data-bytes="{{ config.UPLOAD_SIZE }}">
+{% endblock %}
 
 {% block scripts %}
+
+  {% assets "upload_js" %}
+     <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+  {% assets "image_js" %}
+     <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
 
   <script>
     $(function () {
