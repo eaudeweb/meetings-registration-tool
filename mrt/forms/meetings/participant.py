@@ -5,6 +5,7 @@ from flask import g
 from flask.ext.uploads import UploadSet, IMAGES
 from werkzeug import FileStorage
 from wtforms import fields, compat
+from sqlalchemy_utils import Country
 
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
@@ -57,6 +58,8 @@ class BaseParticipantForm(BaseForm):
                     cfv.value = custom_upload.save(
                         field.data, name=str(uuid4()) + '.')
                     unlink_participant_photo(current_filename)
+                elif isinstance(field.data, Country):
+                    cfv.value = field.data.code
                 else:
                     cfv.value = field.data
                 if not cfv.id:

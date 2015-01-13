@@ -254,7 +254,7 @@ class Participant(db.Model):
         ('Spanish', __('Spanish')),
         ('French', __('French')),
     )
-    PARTICIPANT = 'participant'
+    PARTICIPANT = u'participant'
     MEDIA = 'media'
     DEFAULT = 'default'
     DEFAULT_MEDIA = 'default_media'
