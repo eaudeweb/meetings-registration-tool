@@ -56,7 +56,9 @@ class MeetingEditForm(BaseForm):
             (mt.slug, mt.label) for mt in MeetingType.query.ignore_def()]
         self.photo_field_id.choices = [(0, '-----')]
         if self.obj:
-            query = self.obj.custom_fields.filter_by(field_type='image')
+            query = self.obj.custom_fields.filter_by(
+                field_type=CustomField.IMAGE,
+                custom_field_type=CustomField.PARTICIPANT)
             image_fields = [(x.id, x.label) for x in query]
             self.photo_field_id.choices += image_fields
 
