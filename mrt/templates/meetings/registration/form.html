@@ -49,9 +49,23 @@
   <form method="POST" class="form-horizontal"
         enctype="multipart/form-data">
 
-    {% for field in form %}
+    {% for field in form.exclude([CustomField.EVENT]) %}
       {{ form_group(field, label_size="2", input_size="10") }}
     {% endfor %}
+
+    {% set events = form.filter([CustomField.EVENT]) %}
+    {% if events %}
+      <div class="form-group">
+        <label class="col-sm-2">I would also like to attend</label>
+        <div class="col-sm-10">
+          {% for field in events %}
+            {{ field() }}
+            <label>{{ field.label.text }}</label>
+            <div class="help-block">{{ field.description }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
 
     <div class="form-actions row">
       <div class="col-sm-4 col-sm-push-2">

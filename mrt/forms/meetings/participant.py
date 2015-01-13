@@ -21,14 +21,16 @@ class BaseParticipantForm(BaseForm):
     def filter(self, field_types=[]):
         fields = OrderedDict([
             (slug, field) for slug, field in self._fields.items()
-            if self._custom_fields[slug].field_type in field_types
+            if slug in self._custom_fields and
+            self._custom_fields[slug].field_type in field_types
         ])
         return iter(compat.itervalues(fields))
 
     def exclude(self, field_types):
         fields = OrderedDict([
             (slug, field) for slug, field in self._fields.items()
-            if self._custom_fields[slug].field_type not in field_types
+            if slug in self._custom_fields and
+            self._custom_fields[slug].field_type not in field_types
         ])
         return iter(compat.itervalues(fields))
 
