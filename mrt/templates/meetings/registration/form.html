@@ -7,14 +7,6 @@
 
 {% block scripts %}
 
-  {% assets "upload_js" %}
-     <script src="{{ ASSET_URL }}"></script>
-  {% endassets %}
-
-  {% assets "image_js" %}
-     <script src="{{ ASSET_URL }}"></script>
-  {% endassets %}
-
   <script>
     $(function () {
       $('.use-current-file').on('change', function () {

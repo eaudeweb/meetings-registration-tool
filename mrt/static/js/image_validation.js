@@ -29,10 +29,8 @@ $(function () {
     element.parents('.file-field-container').after(error_div);
   }
 
-  fileInputs.fileupload({
-    replaceFileInput: false,
-    add: function(e, data) {
-      var file = data.files[0];
+  fileInputs.on('change', function() {
+      var file = this.files[0];
       var fileExtension = file.name.split('.').pop();
       var message;
 
@@ -45,14 +43,18 @@ $(function () {
       // calculate sum of values in file sizes array
       var totalUploadSize = fileSizes.reduce(function (a, b) {return a + b});
 
-      if (allowedExtensions.indexOf(fileExtension) == -1)
+      if (allowedExtensions.indexOf(fileExtension) == -1) {
         message = file.name + ' is not in the allowed extensions: ' + allowedExtensions.join(', ');
-      else if (file.size >= 1024 * 1024)
+      }
+      else if (file.size >= 1024 * 1024) {
         message = file.name + ' exceeds the maximum upload size (' + maxUploadSizeMB + 'MB)';
-      else if (totalUploadSize >= maxUploadSize)
+      }
+      else if (totalUploadSize >= maxUploadSize) {
         message = 'Maximum upload size (' + maxUploadSizeMB + 'MB) has been exceeded';
-      else
+      }
+      else {
         removeErrors($(this));
+      }
 
       if (message) {
         // remove errors belonging to previously uploaded file (if any)
@@ -67,6 +69,5 @@ $(function () {
         // set file size to 0, as the upload is unsuccessful
         fileSizes[inputIdx] = 0;
       }
-    },
-  });
+    });
 });

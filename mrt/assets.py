@@ -51,10 +51,6 @@ _BUNDLE_UPLOAD_JS = (
     'js/lib/jquery.Jcrop.js'
 )
 
-_BUNDLE_IMAGE_VALIDATION_JS = (
-    'js/image_validation.js',
-)
-
 _BUNDLE_UPLOAD_CSS = (
     'css/jcrop/jquery.Jcrop.css',
 )
@@ -67,6 +63,7 @@ _BUNDLE_REGISTRATION_CSS = (
 )
 _BUNDLE_REGISTRATION_JS = (
     'js/lib/jquery.min.js',
+    'js/image_validation.js',
 )
 
 _BUNDLE_ERROR_CSS = (
@@ -81,8 +78,6 @@ datepicker = Bundle(*_BUNDLE_DATEPICKER,
 upload_js = Bundle(*_BUNDLE_UPLOAD_JS, output='gen/jquery.file.upload.min.js')
 upload_css = Bundle(*_BUNDLE_UPLOAD_CSS,
                     output='gen/jquery.file.upload.min.css')
-image_js = Bundle(*_BUNDLE_IMAGE_VALIDATION_JS,
-                  output='gen/jquery.file.imagevalidation.min.js')
 colorpicker_js = Bundle(*_BUNDLE_COLORPICKER_JS,
                         output='gen/spectrum.min.js')
 colorpicker_css = Bundle(*_BUNDLE_COLORPICKER_CSS,
@@ -100,7 +95,6 @@ assets_env.register('js', js)
 assets_env.register('datepicker', datepicker)
 assets_env.register('upload_js', upload_js)
 assets_env.register('upload_css', upload_css)
-assets_env.register('image_js', image_js)
 
 assets_env.register('colorpicker_js', colorpicker_js)
 assets_env.register('colorpicker_css', colorpicker_css)
