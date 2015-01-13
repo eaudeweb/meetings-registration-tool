@@ -165,7 +165,8 @@ class ShortList(PermissionRequiredMixin, MethodView):
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
-            .order_by(Category.sort, Participant.last_name, Participant.id)
+            .order_by(Category.sort, Category.id,
+                      Participant.last_name, Participant.id)
         )
 
     def get(self):
@@ -202,7 +203,8 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
-            .order_by(Category.sort, Participant.last_name, Participant.id)
+            .order_by(Category.sort, Category.id,
+                      Participant.last_name, Participant.id)
         )
 
     def get(self):
