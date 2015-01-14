@@ -2,73 +2,40 @@ from flask import Blueprint, g
 from flask import current_app as app
 
 from mrt.models import Meeting
-
-from mrt.meetings import Meetings, MeetingEdit, RecipientsCount
-from mrt.meetings import Registration, UserRegistration, UserRegistrationLogin
-from mrt.meetings import UserRegistrationLogout, MediaRegistration
-
-from mrt.meetings import Participants, ParticipantsFilter, ParticipantSearch
-from mrt.meetings import ParticipantEdit, ParticipantDetail, ParticipantBadge
-from mrt.meetings import DefaultParticipantDetail, DefaultParticipantEdit
-from mrt.meetings import DefaultMediaParticipantDetail
-from mrt.meetings import DefaultMediaParticipantEdit
-from mrt.meetings import DefaultParticipantSearch
-from mrt.meetings import DefaultMediaParticipantSearch
-from mrt.meetings import ParticipantRestore, ParticipantLabel
-from mrt.meetings import ParticipantEnvelope, ParticipantsExport
-from mrt.meetings import ParticipantAcknowledgeEmail, ParticipantAcknowledgePDF
-
-from mrt.meetings import MediaParticipants, MediaParticipantsFilter
-from mrt.meetings import MediaParticipantDetail, MediaParticipantEdit
-
-from mrt.meetings import Categories, CategoryEdit, CategoryUpdatePosition
-from mrt.meetings import PhraseEdit
-
-from mrt.meetings import Notifications, NotificationEdit
-
-from mrt.meetings import CustomFields, CustomFieldEdit, CustomFieldUpload
-from mrt.meetings import CustomFieldRotate, CustomFieldCropUpload
-from mrt.meetings import CustomFieldUpdatePosition
-
-from mrt.meetings import Roles, RoleUserEdit, RoleMeetingChangeOwner
-from mrt.meetings import BulkEmail, ActivityLogs
-from mrt.meetings import Statistics, MailLogs, MailLogDetail, ResendEmail
-
-from mrt.meetings import Badges, JobStatus, QueueStatus, PDFDownload
-from mrt.meetings import ProcessingFileList
-from mrt.meetings import ShortList, DelegationsList, PrintoutFooter
+from mrt.meetings import views
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
 
 
-meetings.add_url_rule('', view_func=Meetings.as_view('home'))
-meeting_edit_func = MeetingEdit.as_view('edit')
+meetings.add_url_rule('', view_func=views.Meetings.as_view('home'))
+meeting_edit_func = views.MeetingEdit.as_view('edit')
 meetings.add_url_rule('/add', view_func=meeting_edit_func)
 meetings.add_url_rule('/<int:meeting_id>/edit', view_func=meeting_edit_func)
 
 #  registration
 meetings.add_url_rule('/<int:meeting_id>/registration',
-                      view_func=Registration.as_view('registration'))
+                      view_func=views.Registration.as_view('registration'))
 meetings.add_url_rule(
     '/<int:meeting_id>/registration/media',
-    view_func=MediaRegistration.as_view('media_registration'))
-meetings.add_url_rule('/<int:meeting_id>/registration/user',
-                      view_func=UserRegistration.as_view('registration_user'))
+    view_func=views.MediaRegistration.as_view('media_registration'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/registration/user',
+    view_func=views.UserRegistration.as_view('registration_user'))
 meetings.add_url_rule(
     '/<int:meeting_id>/registration/login',
-    view_func=UserRegistrationLogin.as_view('registration_user_login'))
+    view_func=views.UserRegistrationLogin.as_view('registration_user_login'))
 meetings.add_url_rule(
     '/<int:meeting_id>/registration/logout',
-    view_func=UserRegistrationLogout.as_view('registration_user_logout'))
+    view_func=views.UserRegistrationLogout.as_view('registration_user_logout'))
 
 # participants
 meetings.add_url_rule('/<int:meeting_id>/participants',
-                      view_func=Participants.as_view('participants'))
+                      view_func=views.Participants.as_view('participants'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/filter',
-    view_func=ParticipantsFilter.as_view('participants_filter'))
-participant_edit_func = ParticipantEdit.as_view('participant_edit')
+    view_func=views.ParticipantsFilter.as_view('participants_filter'))
+participant_edit_func = views.ParticipantEdit.as_view('participant_edit')
 meetings.add_url_rule('/<int:meeting_id>/participants/add',
                       view_func=participant_edit_func)
 meetings.add_url_rule(
@@ -76,61 +43,69 @@ meetings.add_url_rule(
     view_func=participant_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/detail',
-    view_func=ParticipantDetail.as_view('participant_detail'))
+    view_func=views.ParticipantDetail.as_view('participant_detail'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/badge',
-    view_func=ParticipantBadge.as_view('participant_badge'))
+    view_func=views.ParticipantBadge.as_view('participant_badge'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/label',
-    view_func=ParticipantLabel.as_view('participant_label'))
+    view_func=views.ParticipantLabel.as_view('participant_label'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/envelope',
-    view_func=ParticipantEnvelope.as_view('participant_envelope'))
+    view_func=views.ParticipantEnvelope.as_view('participant_envelope'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/acknowledge',
-    view_func=ParticipantAcknowledgeEmail.as_view('participant_acknowledge'))
+    view_func=views.ParticipantAcknowledgeEmail.as_view(
+        'participant_acknowledge'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/acknowledge/pdf',
-    view_func=ParticipantAcknowledgePDF.as_view('participant_acknowledge_pdf'))
+    view_func=views.ParticipantAcknowledgePDF.as_view(
+        'participant_acknowledge_pdf'))
 
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/search',
-    view_func=ParticipantSearch.as_view('participant_search'))
+    view_func=views.ParticipantSearch.as_view('participant_search'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/restore',
-    view_func=ParticipantRestore.as_view('participant_restore'))
+    view_func=views.ParticipantRestore.as_view('participant_restore'))
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/export',
-    view_func=ParticipantsExport.as_view('participants_export'))
+    view_func=views.ParticipantsExport.as_view('participants_export'))
 
 # default participants
 meetings.add_url_rule(
     '/<int:meeting_id>/default_participant/<int:participant_id>/detail',
-    view_func=DefaultParticipantDetail.as_view('default_participant_detail'))
+    view_func=views.DefaultParticipantDetail.as_view(
+        'default_participant_detail'))
 meetings.add_url_rule(
     '/<int:meeting_id>/default_participant/media/<int:participant_id>/detail',
-    view_func=DefaultMediaParticipantDetail.as_view('default_media_participant_detail'))
+    view_func=views.DefaultMediaParticipantDetail.as_view(
+        'default_media_participant_detail'))
 meetings.add_url_rule(
     '/<int:meeting_id>/default_participant/<int:participant_id>/edit',
-    view_func=DefaultParticipantEdit.as_view('default_participant_edit'))
+    view_func=views.DefaultParticipantEdit.as_view('default_participant_edit'))
 meetings.add_url_rule(
     '/<int:meeting_id>/default_participant/media/<int:participant_id>/edit',
-    view_func=DefaultMediaParticipantEdit.as_view('default_media_participant_edit'))
+    view_func=views.DefaultMediaParticipantEdit.as_view(
+        'default_media_participant_edit'))
 meetings.add_url_rule(
     '/<int:meeting_id>/default_participant/search',
-    view_func=DefaultParticipantSearch.as_view('default_participant_search'))
+    view_func=views.DefaultParticipantSearch.as_view(
+        'default_participant_search'))
 meetings.add_url_rule(
     '/<int:meeting_id>/default_participant/media/search',
-    view_func=DefaultMediaParticipantSearch.as_view('default_media_participant_search'))
+    view_func=views.DefaultMediaParticipantSearch.as_view(
+        'default_media_participant_search'))
 
 # media participants
 meetings.add_url_rule(
     '/<int:meeting_id>/media_participants',
-    view_func=MediaParticipants.as_view('media_participants'))
+    view_func=views.MediaParticipants.as_view('media_participants'))
 meetings.add_url_rule(
     '/<int:meeting_id>/media_participants/filter',
-    view_func=MediaParticipantsFilter.as_view('media_participants_filter'))
-media_participant_edit_func = MediaParticipantEdit.as_view(
+    view_func=views.MediaParticipantsFilter.as_view(
+        'media_participants_filter'))
+media_participant_edit_func = views.MediaParticipantEdit.as_view(
     'media_participant_edit')
 meetings.add_url_rule('/<int:meeting_id>/media_participants/add',
                       view_func=media_participant_edit_func)
@@ -139,13 +114,13 @@ meetings.add_url_rule(
     view_func=media_participant_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/media_participants/<int:participant_id>/detail',
-    view_func=MediaParticipantDetail.as_view('media_participant_detail'))
+    view_func=views.MediaParticipantDetail.as_view('media_participant_detail'))
 
 
 # categories
 meetings.add_url_rule('/<int:meeting_id>/settings/categories',
-                      view_func=Categories.as_view('categories'))
-category_edit_func = CategoryEdit.as_view('category_edit')
+                      view_func=views.Categories.as_view('categories'))
+category_edit_func = views.CategoryEdit.as_view('category_edit')
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/categories/add',
     view_func=category_edit_func)
@@ -154,21 +129,22 @@ meetings.add_url_rule(
     view_func=category_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/categories/update/position',
-    view_func=CategoryUpdatePosition.as_view('category_update_position'))
+    view_func=views.CategoryUpdatePosition.as_view('category_update_position'))
 
 # phrases
-phrase_edit_func = PhraseEdit.as_view('phrase_edit')
+phrase_edit_func = views.PhraseEdit.as_view('phrase_edit')
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/phrases/<string:meeting_type>',
     view_func=phrase_edit_func)
 meetings.add_url_rule(
-    '/<int:meeting_id>/settings/phrases/<string:meeting_type>/<int:phrase_id>/edit',
+    '/<int:meeting_id>/settings/phrases/<string:meeting_type>/'
+    '<int:phrase_id>/edit',
     view_func=phrase_edit_func)
 
 # custom fields
-custom_field_edit_func = CustomFieldEdit.as_view('custom_field_edit')
+custom_field_edit_func = views.CustomFieldEdit.as_view('custom_field_edit')
 meetings.add_url_rule('/<int:meeting_id>/settings/custom/fields',
-                      view_func=CustomFields.as_view('custom_fields'))
+                      view_func=views.CustomFields.as_view('custom_fields'))
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/custom/fields/<int:custom_field_id>/edit',
     view_func=custom_field_edit_func)
@@ -177,79 +153,85 @@ meetings.add_url_rule(
     view_func=custom_field_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/custom/fields/update/position',
-    view_func=CustomFieldUpdatePosition.as_view('custom_field_update_position'))
+    view_func=views.CustomFieldUpdatePosition.as_view(
+        'custom_field_update_position'))
 
 meetings.add_url_rule(
-    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:field_slug>/upload',
-    view_func=CustomFieldUpload.as_view('custom_field_upload'))
+    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/'
+    '<string:field_slug>/upload',
+    view_func=views.CustomFieldUpload.as_view('custom_field_upload'))
 meetings.add_url_rule(
-    '/<int:meeting_id>/participants/<int:participant_id>/custom/fields/<string:field_slug>/crop',
-    view_func=CustomFieldCropUpload.as_view('custom_field_crop'))
+    '/<int:meeting_id>/participants/<int:participant_id>/custom/fields/'
+    '<string:field_slug>/crop',
+    view_func=views.CustomFieldCropUpload.as_view('custom_field_crop'))
 meetings.add_url_rule(
-    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/<string:field_slug>/rotate',
-    view_func=CustomFieldRotate.as_view('custom_field_rotate'))
+    '/<int:meeting_id>/participant/<int:participant_id>/custom/fields/'
+    '<string:field_slug>/rotate',
+    view_func=views.CustomFieldRotate.as_view('custom_field_rotate'))
 
 # printouts
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/processing',
-    view_func=ProcessingFileList.as_view('processing_file_list'))
+    view_func=views.ProcessingFileList.as_view('processing_file_list'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/job/status',
-    view_func=JobStatus.as_view('printouts_job_status'))
+    view_func=views.JobStatus.as_view('printouts_job_status'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/queue/<string:queue>/status',
-    view_func=QueueStatus.as_view('printouts_queue_status'))
+    view_func=views.QueueStatus.as_view('printouts_queue_status'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/participant/badges',
-    view_func=Badges.as_view('printouts_participant_badges'))
+    view_func=views.Badges.as_view('printouts_participant_badges'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/download/<string:filename>',
-    view_func=PDFDownload.as_view('printouts_download'))
+    view_func=views.PDFDownload.as_view('printouts_download'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/shortlist',
-    view_func=ShortList.as_view('printouts_short_list'))
+    view_func=views.ShortList.as_view('printouts_short_list'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/delegationlist',
-    view_func=DelegationsList.as_view('printouts_delegation_list'))
+    view_func=views.DelegationsList.as_view('printouts_delegation_list'))
 meetings.add_url_rule(
     '/printouts/footer',
-    view_func=PrintoutFooter.as_view('printouts_footer'))
+    view_func=views.PrintoutFooter.as_view('printouts_footer'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',
-                      view_func=Roles.as_view('roles'))
-role_user_edit_func = RoleUserEdit.as_view('role_user_edit')
+                      view_func=views.Roles.as_view('roles'))
+role_user_edit_func = views.RoleUserEdit.as_view('role_user_edit')
 meetings.add_url_rule('/<int:meeting_id>/settings/roles/add',
                       view_func=role_user_edit_func)
 meetings.add_url_rule('/<int:meeting_id>/settings/roles/<int:role_user_id>',
                       view_func=role_user_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/roles/change/meeting/owner',
-    view_func=RoleMeetingChangeOwner.as_view('role_meeting_change_owner'))
+    view_func=views.RoleMeetingChangeOwner.as_view(
+        'role_meeting_change_owner'))
 
 # emails
 meetings.add_url_rule('/<int:meeting_id>/email/bulk',
-                      view_func=BulkEmail.as_view('bulkemail'))
-meetings.add_url_rule('/<int:meeting_id>/email/recipients-count',
-                      view_func=RecipientsCount.as_view('recipients_count'))
+                      view_func=views.BulkEmail.as_view('bulkemail'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/email/recipients-count',
+    view_func=views.RecipientsCount.as_view('recipients_count'))
 
 
 # logs
 meetings.add_url_rule('/<int:meeting_id>/settings/statistics',
-                      view_func=Statistics.as_view('statistics'))
+                      view_func=views.Statistics.as_view('statistics'))
 meetings.add_url_rule('/<int:meeting_id>/logs/mails',
-                      view_func=MailLogs.as_view('mail_logs'))
+                      view_func=views.MailLogs.as_view('mail_logs'))
 meetings.add_url_rule('/<int:meeting_id>/logs/mails/<int:mail_id>/detail',
-                      view_func=MailLogDetail.as_view('mail_detail'))
+                      view_func=views.MailLogDetail.as_view('mail_detail'))
 meetings.add_url_rule('/<int:meeting_id>/logs/mails/<int:mail_id>/resend',
-                      view_func=ResendEmail.as_view('mail_resend'))
+                      view_func=views.ResendEmail.as_view('mail_resend'))
 meetings.add_url_rule('/<int:meeting_id>/logs/activity',
-                      view_func=ActivityLogs.as_view('activity'))
+                      view_func=views.ActivityLogs.as_view('activity'))
 
 # notifications
 meetings.add_url_rule('/<int:meeting_id>/settings/notifications',
-                      view_func=Notifications.as_view('notifications'))
-notification_edit = NotificationEdit.as_view('notification_edit')
+                      view_func=views.Notifications.as_view('notifications'))
+notification_edit = views.NotificationEdit.as_view('notification_edit')
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/notifications/add',
     view_func=notification_edit)
