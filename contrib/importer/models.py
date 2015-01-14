@@ -39,6 +39,14 @@ class CategoryMeeting(object):
     pass
 
 
+class Event(object):
+    pass
+
+
+class ParticipantEvent(object):
+    pass
+
+
 def session(uri):
     engine = create_engine(uri)
     meta = MetaData(engine)
@@ -47,11 +55,15 @@ def session(uri):
     participant_meeting = Table('personmeeting', meta, autoload=True)
     category = Table('category', meta, autoload=True)
     category_meeting = Table('categorymeeting', meta, autoload=True)
+    event = Table('event', meta, autoload=True)
+    participant_event = Table('personevent', meta, autoload=True)
     mapper(Meeting, meeting)
     mapper(Participant, participant)
     mapper(ParticipantMeeting, participant_meeting)
     mapper(Category, category)
     mapper(CategoryMeeting, category_meeting)
+    mapper(Event, event)
+    mapper(ParticipantEvent, participant_event)
     return sessionmaker(bind=engine)()
 
 
@@ -231,4 +243,48 @@ def migrate_participant(participant, participant_meeting, migrated_category,
     migrated_participant.meeting = migrated_meeting
 
     db.session.add(migrated_participant)
+    db.session.commit()
+
+    return migrated_participant
+
+
+def migrate_event(event, migrated_meeting):
+    migrated_event = models.CustomField()
+
+    date = event.data['date']
+    date_end = event.data.get('date_end', None)
+    if date_end and date_end != date:
+        date += u' - {}'.format(date_end)
+
+    def add_date(label):
+        return u'{}, {}'.format(label, date)
+
+    label = models.Translation(english=add_date(event.data['description_E']),
+                               french=add_date(event.data['description_F']),
+                               spanish=add_date(event.data['description_S']))
+    db.session.add(label)
+    db.session.flush()
+    migrated_event.label = label
+
+    migrated_event.description = event.data['venue']
+    migrated_event.field_type = models.CustomField.EVENT
+    migrated_event.custom_field_type = models.CustomField.PARTICIPANT
+    migrated_event.visible_on_registration_form = True
+
+    migrated_event.meeting = migrated_meeting
+
+    db.session.add(migrated_event)
+    db.session.commit()
+
+    return migrated_event
+
+
+def migrate_event_answer(migrated_participant, migrated_event):
+    migrated_answer = models.CustomFieldValue()
+
+    migrated_answer.custom_field = migrated_event
+    migrated_answer.participant = migrated_participant
+    migrated_answer.value = 'true'
+
+    db.session.add(migrated_answer)
     db.session.commit()
