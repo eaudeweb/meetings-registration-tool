@@ -338,10 +338,10 @@ class Participant(db.Model):
 
     def get_absolute_url(self):
         url = {
-            Participant.PARTICIPANT: 'meetings.participant_detail',
-            Participant.MEDIA: 'meetings.media_participant_detail',
-            Participant.DEFAULT: 'meetings.default_participant_detail',
-            Participant.DEFAULT_MEDIA: 'meetings.default_media_participant_detail',
+            self.PARTICIPANT: 'meetings.participant_detail',
+            self.MEDIA: 'meetings.media_participant_detail',
+            self.DEFAULT: 'meetings.default_participant_detail',
+            self.DEFAULT_MEDIA: 'meetings.default_media_participant_detail',
         }.get(self.participant_type.code, 'meetings.participant_detail')
         return url_for(url, participant_id=self.id, meeting_id=self.meeting.id)
 
@@ -825,10 +825,12 @@ class PhraseDefault(PhraseMixin, db.Model):
 
 association_table = db.Table(
     'meeting_type_default_category',
-    db.Column(
-        'meeting_type_slug', db.String(16), db.ForeignKey('meeting_type.slug')),
-    db.Column(
-        'category_default_id', db.Integer, db.ForeignKey('category_default.id'))
+    db.Column('meeting_type_slug',
+              db.String(16),
+              db.ForeignKey('meeting_type.slug')),
+    db.Column('category_default_id',
+              db.Integer,
+              db.ForeignKey('category_default.id'))
 )
 
 
@@ -850,7 +852,6 @@ class MeetingType(db.Model):
         with open(app.config['DEFAULT_PHRASES_PATH'], 'r') as f:
             default_phrases = json.load(f)
         self.default_phrases += [PhraseDefault(**d) for d in default_phrases]
-
 
 
 class MailLog(db.Model):
@@ -949,6 +950,41 @@ class Job(db.Model):
     @property
     def is_started(self):
         return self.status == self.STARTED
+
+
+class Rule(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'))
+    meeting = db.relationship(
+        'Meeting',
+        backref=db.backref('rules', cascade='delete'))
+
+
+class Condition(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
+    field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
+
+
+class ConditionValue(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    condition_id = db.Column(db.Integer, db.ForeignKey('condition.id'))
+    value = db.Column(db.String(255), nullable=False)
+
+
+class Action(db.Model):
+
+    HIDE = 'hide'
+    REQUIRED = 'required'
+    ACTION_TYPE_CHOICES = ((HIDE, 'Hide/Show'), (REQUIRED, 'Required'))
+
+    id = db.Column(db.Integer, primary_key=True)
+    rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
+    action_type = db.Column(ChoiceType(ACTION_TYPE_CHOICES), nullable=False)
+    field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
 
 
 def get_or_create_role(name):
