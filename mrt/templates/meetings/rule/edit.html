@@ -1,0 +1,30 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% if rule %}
+  {% set title = "Edit rule" %}
+{% else %}
+  {% set title = "Add rule" %}
+{% endif %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('meetings.rules'), 'Rules'),
+      ('', title),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+{% endblock %}
