@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, form_group %}
 
 
 {% if rule %}
@@ -21,10 +21,81 @@
 {% endblock %}
 
 
+{% block scripts %}
+
+  <script>
+    $(function () {
+
+      var updatePrefix = function () {
+        $('#conditions-container .condition').each(function (i) {
+          var field_label = 'conditions-' + i + '-field';
+          var value_label = 'conditions-' + i + '-values';
+          $(this).find('label').eq(0).attr('for', field_label);
+          $(this).find('select').eq(0).attr('id', field_label)
+                 .attr('name', field_label)
+          $(this).find('label').eq(1).attr('for', value_label);
+          $(this).find('select').eq(1).attr('id', value_label)
+                 .attr('name', value_label)
+        });
+      };
+
+      $('#condition-add').on('click', function () {
+        var form = $('#default-condition-form').clone();
+        form.find('select').eq(1).addClass('select');
+        form.removeClass('hide');
+        $('#conditions-container').append(form);
+        form.find('.select').select2({width: 'resolve'});
+        updatePrefix();
+      });
+    });
+  </script>
+
+{% endblock %}
+
+
 {% block content %}
 
   {{ super() }}
 
   <h3 class="page-title">{{ title }}</h3>
+
+  <form class="form-horizontal" method="POST">
+    {{ form.csrf_token }}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <b>Conditions</b>
+      </div>
+
+      <div class="panel-body">
+        <div id="default-condition-form" class="hide">
+          <div class="condition">
+            {{ form_group(form.conditions[0].field) }}
+            {{ form_group(form.conditions[0].values) }}
+          </div>
+        </div>
+        <div id="conditions-container">
+          {% for condition in form.conditions %}
+            <div class="condition">
+              {{ form_group(condition.field) }}
+              {{ form_group(condition.values, class_='select') }}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-8">
+            <a id="condition-add">
+              <small>
+                <span class="glyphicon glyphicon-plus"></span>
+                Add a new condition</a>
+              </small>
+          </div>
+        </div>
+
+      </div> {# panel-body #}
+
+    </div>
+
+  </form>
 
 {% endblock %}

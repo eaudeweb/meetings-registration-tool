@@ -171,3 +171,23 @@ class UserNotificationForm(BaseForm):
             user_notification.meeting = g.meeting
             db.session.add(user_notification)
         db.session.commit()
+
+
+class ConditionForm(BaseForm):
+
+    field = fields.SelectField('Field', choices=[])
+    values = fields.SelectMultipleField('Values', choices=[])
+
+    def __init__(self, *args, **kwargs):
+        super(ConditionForm, self).__init__(*args, **kwargs)
+        query = (
+            CustomField.query.filter_by(meeting_id=g.meeting.id)
+            .filter_by(custom_field_type=CustomField.PARTICIPANT)
+            .order_by(CustomField.sort))
+        self.field.choices = [(c.id, c) for c in query]
+
+
+class RuleForm(BaseForm):
+
+    conditions = fields.FieldList(fields.FormField(ConditionForm),
+                                  min_entries=1)

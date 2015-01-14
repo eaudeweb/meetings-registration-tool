@@ -1,5 +1,6 @@
 from flask.views import MethodView
 from flask import render_template
+from mrt.forms.meetings import RuleForm
 
 
 class Rules(MethodView):
@@ -11,7 +12,8 @@ class Rules(MethodView):
 class RuleEdit(MethodView):
 
     def get(self):
-        return render_template('meetings/rule/edit.html')
+        form = RuleForm()
+        return render_template('meetings/rule/edit.html', form=form)
 
     def post(self):
         pass

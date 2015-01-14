@@ -272,6 +272,10 @@ li.separator {
 .form-search .form-control {
     padding-left: 25px;
 }
+.form-control.select {
+    padding: 0;
+    border: none;
+}
 
 .tt-dropdown-menu {
     -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
