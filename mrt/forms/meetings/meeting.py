@@ -115,6 +115,7 @@ class MeetingEditForm(BaseForm):
     def save(self):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
+        meeting.photo_field_id = meeting.photo_field_id or None
         self._clean_badge_header(meeting)
         if meeting.id is None:
             meeting.owner = current_user.staff
