@@ -68,3 +68,13 @@ REGIONS = {
     '9': 'Next host country',
     '10': 'Nomenclature specialist',
 }
+
+
+CUSTOM_FIELDS = {
+    'personal_fax': u'Fax',
+    'more_info_text': u'More info',
+    'personal_phone': u'Phone',
+    'personal_place': u'Personal place',
+    'personal_address': u'Address',
+    'personal_cellular': u'Mobile',
+}

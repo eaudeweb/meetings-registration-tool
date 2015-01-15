@@ -26,6 +26,7 @@ def import_(ctx, database, meeting_id):
         )
 
         migrated_meeting = models.migrate_meeting(meeting)
+        custom_fields = models.create_custom_fields(migrated_meeting)
 
         migrated_participants = {}
         for participant, participant_meeting in participants_meeting.all():
@@ -42,7 +43,8 @@ def import_(ctx, database, meeting_id):
                 participant,
                 participant_meeting,
                 migrated_category,
-                migrated_meeting)
+                migrated_meeting,
+                custom_fields)
 
             if migrated_participant:
                 migrated_participants[participant.id] = migrated_participant
@@ -65,7 +67,7 @@ def import_(ctx, database, meeting_id):
             )
             for answer in answers.all():
                 if answer.person_id in migrated_participants:
-                    models.migrate_event_answer(
+                    models.create_custom_field_value(
                         migrated_participants[answer.person_id],
-                        migrated_event)
+                        migrated_event, 'true')
             click.echo('Event %r processed' % migrated_event.label.english)

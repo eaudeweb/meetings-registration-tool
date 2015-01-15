@@ -11,7 +11,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import Country
 
 from contrib.importer.definitions import COLORS, DEFAULT_COLOR
-from contrib.importer.definitions import LANGUAGES, REGIONS
+from contrib.importer.definitions import LANGUAGES, REGIONS, CUSTOM_FIELDS
 from contrib.importer.definitions import REPRESENTING_TEMPLATES
 
 
@@ -193,7 +193,7 @@ def migrate_category(category_and_category_meeting, migrated_meeting):
 
 
 def migrate_participant(participant, participant_meeting, migrated_category,
-                        migrated_meeting):
+                        migrated_meeting, custom_fields):
     try:
         models.Participant.query.filter_by(
             first_name=participant.data['personal_first_name'],
@@ -245,6 +245,10 @@ def migrate_participant(participant, participant_meeting, migrated_category,
     db.session.add(migrated_participant)
     db.session.commit()
 
+    for key, custom_field in custom_fields.iteritems():
+        create_custom_field_value(migrated_participant, custom_field,
+                                  participant.data[key])
+
     return migrated_participant
 
 
@@ -279,12 +283,40 @@ def migrate_event(event, migrated_meeting):
     return migrated_event
 
 
-def migrate_event_answer(migrated_participant, migrated_event):
-    migrated_answer = models.CustomFieldValue()
+def create_custom_field(migrated_meeting, **kwargs):
+    label = models.Translation(**kwargs.pop('label'))
+    db.session.add(label)
+    db.session.flush()
 
-    migrated_answer.custom_field = migrated_event
-    migrated_answer.participant = migrated_participant
-    migrated_answer.value = 'true'
+    custom_field = models.CustomField(**kwargs)
+    custom_field.label = label
+    custom_field.meeting = migrated_meeting
 
-    db.session.add(migrated_answer)
+    db.session.add(custom_field)
     db.session.commit()
+
+    return custom_field
+
+
+def create_custom_field_value(migrated_participant, migrated_custom_field,
+                              value):
+    migrated_cfv = models.CustomFieldValue()
+
+    migrated_cfv.custom_field = migrated_custom_field
+    migrated_cfv.participant = migrated_participant
+    migrated_cfv.value = value
+
+    db.session.add(migrated_cfv)
+    db.session.commit()
+
+
+def create_custom_fields(migrated_meeting):
+    custom_fields = {}
+    for participant_field, label in CUSTOM_FIELDS.iteritems():
+        custom_fields[participant_field] = create_custom_field(
+            migrated_meeting,
+            label={'english': label},
+            field_type=models.CustomField.TEXT,
+            visible_on_registration_form=True,
+            custom_field_type=models.CustomField.PARTICIPANT)
+    return custom_fields
