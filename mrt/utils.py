@@ -6,11 +6,13 @@ from uuid import uuid4
 import os
 import re
 import xlwt
+import operator
 
 from flask import _request_ctx_stack, current_app as app
 from flask import g
 from flask.ext.babel import refresh
 from flask.ext.uploads import IMAGES
+from sqlalchemy_utils import i18n
 
 from babel import support, Locale
 from path import path
@@ -222,3 +224,12 @@ def clean_email(emails):
         if validate_email(email):
             return email
     return None
+
+
+def get_all_countries():
+    territories = [
+        (code, name)
+        for code, name in i18n.get_locale().territories.items()
+        if len(code) == 2 and code not in ('QO', 'QU', 'ZZ')
+    ]
+    return sorted(territories, key=operator.itemgetter(1))

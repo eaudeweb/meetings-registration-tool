@@ -2,7 +2,7 @@ $(function () {
 
     $(".autosize").autosize();
 
-    $(".select").select2({width: 'resolve'});
+    $(".select").select2();
 
     $("[data-toggle=delete]").on("click", function () {
         var msg = $(this).data("message");

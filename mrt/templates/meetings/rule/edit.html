@@ -21,6 +21,31 @@
 {% endblock %}
 
 
+{% block head %}
+
+  <style type="text/css">
+    .condition-border {
+      border-top: 2px solid #eee;
+      padding-top: 15px;
+    }
+    .condition {
+      position: relative;
+    }
+    .condition-remove {
+      position: absolute;
+      right: 75px;
+      top: 50px;
+      color: #666;
+    }
+    .condition-remove:hover {
+      color: #e30909;
+    }
+
+  </style>
+
+{% endblock %}
+
+
 {% block scripts %}
 
   <script>
@@ -44,9 +69,25 @@
         form.find('select').eq(1).addClass('select');
         form.removeClass('hide');
         $('#conditions-container').append(form);
-        form.find('.select').select2({width: 'resolve'});
+        form.find('.select').select2({});
         updatePrefix();
       });
+
+      $('#conditions-container').on('click', '.condition-remove', function () {
+        $(this).parents('.condition').fadeOut('fast', function () {
+          $(this).remove();
+          updatePrefix();
+        });
+      });
+
+      $('#conditions-container').on('change', '.field', function () {
+        var url = $('#conditions-container').data('url');
+        var id = $(this).val();
+        $.get(url, {'id': id}, function (data) {
+          console.log(data);
+        });
+      });
+
     });
   </script>
 
@@ -69,15 +110,19 @@
 
       <div class="panel-body">
         <div id="default-condition-form" class="hide">
-          <div class="condition">
+          <div class="condition condition-border">
             {{ form_group(form.conditions[0].field) }}
             {{ form_group(form.conditions[0].values) }}
+            <a class="condition-remove">
+              <small><span class="glyphicon glyphicon-remove"></span></small>
+            </a>
           </div>
         </div>
-        <div id="conditions-container">
+        {% set url = url_for('.rules_data') %}
+        <div id="conditions-container" data-url="{{ url }}">
           {% for condition in form.conditions %}
             <div class="condition">
-              {{ form_group(condition.field) }}
+              {{ form_group(condition.field, class_='field') }}
               {{ form_group(condition.values, class_='select') }}
             </div>
           {% endfor %}

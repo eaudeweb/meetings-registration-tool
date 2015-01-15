@@ -183,6 +183,9 @@ class ConditionForm(BaseForm):
         query = (
             CustomField.query.filter_by(meeting_id=g.meeting.id)
             .filter_by(custom_field_type=CustomField.PARTICIPANT)
+            .filter(CustomField.field_type.in_(
+                [CustomField.CATEGORY, CustomField.COUNTRY])
+            )
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
 
