@@ -2,6 +2,7 @@ from flask.ext.login import current_user
 from wtforms import fields, widgets
 from wtforms.validators import ValidationError, InputRequired
 from wtforms_alchemy import ModelFormField
+from sqlalchemy.orm.exc import NoResultFound
 
 from mrt.models import db, Meeting, Staff, Participant
 from mrt.models import Phrase, PhraseDefault, Translation
@@ -25,6 +26,19 @@ _CUSTOM_FIELD_MAPPER = {
 }
 
 
+def _meeting_acronym_unique(*args, **kwargs):
+    def validate(form, field):
+        if form.obj and form.obj.acronym == field.data:
+            return True
+        try:
+            Meeting.query.filter_by(acronym=field.data).one()
+            raise ValidationError(
+                'Another meeting with this acronym exists')
+        except NoResultFound:
+            pass
+    return validate
+
+
 class MeetingEditForm(BaseForm):
 
     class Meta:
@@ -40,6 +54,7 @@ class MeetingEditForm(BaseForm):
                 'format': '%d.%m.%Y',
             }
         }
+        unique_validator = _meeting_acronym_unique
 
     title = ModelFormField(TranslationInputForm, label='Description')
     badge_header = ModelFormField(TranslationInputForm, label='Badge header')

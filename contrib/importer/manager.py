@@ -1,4 +1,6 @@
 import click
+from sqlalchemy.exc import IntegrityError
+
 from contrib.importer import models
 
 
@@ -25,7 +27,11 @@ def import_(ctx, database, meeting_id):
             .filter(models.ParticipantMeeting.meeting_id == meeting.id)
         )
 
-        migrated_meeting = models.migrate_meeting(meeting)
+        try:
+            migrated_meeting = models.migrate_meeting(meeting)
+        except IntegrityError:
+            click.echo('Another meeting with this acronym exists')
+            ctx.exit()
         custom_fields = models.create_custom_fields(migrated_meeting)
 
         migrated_participants = {}

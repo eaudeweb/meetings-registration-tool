@@ -621,7 +621,7 @@ class Meeting(db.Model):
 
     badge_header = db.relationship('Translation', foreign_keys=badge_header_id)
 
-    acronym = db.Column(db.String(16), nullable=False,
+    acronym = db.Column(db.String(16), nullable=False, unique=True,
                         info={'label': 'Acronym'})
 
     meeting_type_slug = db.Column(
