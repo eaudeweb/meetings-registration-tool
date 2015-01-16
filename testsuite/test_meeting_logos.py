@@ -128,7 +128,7 @@ def test_meeting_left_custom_logo_change_removes_old_logo(app, user,
         assert not upload_dir.join(old_logo_filename).check()
 
 
-def test_meeting_right_custom_logo_change_removes_old_logo(app, user
+def test_meeting_right_custom_logo_change_removes_old_logo(app, user,
                                                            brand_dir):
     meeting = MeetingFactory()
     old_logo = (StringIO('Old'), 'old.png')
