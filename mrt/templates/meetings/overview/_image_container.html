@@ -1,0 +1,10 @@
+{% if data %}
+  {% set url = url_for('files', filename=config['PATH_LOGOS_KEY'] ~ '/' ~ data) %}
+  {% set file_path = (config['PATH_LOGOS_KEY'] ~ '/' ~ data)|crop|thumbnail('200x200')|no_image_cache %}
+{% else %}
+  {% set url = url_for_brand_static_path(config[title]) %}
+  {% set file_path = url %}
+{% endif %}
+<a href="{{ url }}" rel="fancybox">
+  <img src="{{ file_path }}" alt="" width="200" height="200">
+</a>

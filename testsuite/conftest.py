@@ -20,6 +20,7 @@ def app(request, tmpdir):
     thumb_path = path(tmpdir.ensure_dir('thumbnails'))
     crop_path = path(tmpdir.ensure_dir('crops'))
     printouts_path = path(tmpdir.ensure_dir('printouts'))
+    logos_path = path(tmpdir.ensure_dir('logos'))
 
     test_config = {
         'SECRET_KEY': 'test',
@@ -32,6 +33,7 @@ def app(request, tmpdir):
         'UPLOADED_THUMBNAIL_DEST': thumb_path,
         'UPLOADED_CROP_DEST': crop_path,
         'MEDIA_THUMBNAIL_FOLDER': thumb_path,
+        'UPLOADED_LOGOS_DEST': logos_path,
         'MEDIA_FOLDER': path(tmpdir),
         'HOSTNAME': 'http://meetings.edw.ro/',
         'DEFAULT_MAIL_SENDER': 'noreply',
@@ -95,3 +97,14 @@ def pdf_renderer(app):
             shutil.copy2(self.template_path, self.pdf_path)
 
     return RendererMock
+
+
+@fixture
+def brand_dir(app, tmpdir):
+    brand_path = tmpdir.ensure_dir('brand/static')
+    app.config['PRODUCT_LOGO'] = product_logo = 'product_logo.png'
+    app.config['PRODUCT_SIDE_LOGO'] = side_logo = 'product_side_logo.png'
+    brand_path.ensure(product_logo)
+    brand_path.ensure(side_logo)
+    app.config['BRAND_PATH'] = path(brand_path)
+    return app.config['BRAND_PATH']

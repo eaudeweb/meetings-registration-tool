@@ -1,4 +1,4 @@
-from flask import g, render_template
+from flask import g, render_template, current_app as app
 from flask import jsonify, flash, url_for, request
 from flask.views import MethodView
 
@@ -6,10 +6,12 @@ from blinker import ANY
 from datetime import datetime, timedelta
 from sqlalchemy import or_
 
+from mrt.forms.meetings import MeetingLogoEditForm
 from mrt.models import db, Participant
 from mrt.models import ActivityLog, MailLog, RoleUser
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.signals import activity_signal
+from mrt.utils import get_meeting_logo
 
 
 @activity_signal.connect_via(ANY)
@@ -30,9 +32,15 @@ class Statistics(PermissionRequiredMixin, MethodView):
         query = Participant.query.current_meeting()
         participants = query.participants()
         media_participants = query.media_participants()
-        return render_template('meetings/log/statistics.html',
+        left_logo = get_meeting_logo(app.config['PRODUCT_LOGO'])
+        left_logo_form = MeetingLogoEditForm(logo=left_logo)
+        right_logo = get_meeting_logo(app.config['PRODUCT_SIDE_LOGO'])
+        right_logo_form = MeetingLogoEditForm(logo=right_logo)
+        return render_template('meetings/overview/statistics.html',
                                participants=participants,
-                               media_participants=media_participants)
+                               media_participants=media_participants,
+                               left_logo_form=left_logo_form,
+                               right_logo_form=right_logo_form)
 
 
 class MailLogs(PermissionRequiredMixin, MethodView):

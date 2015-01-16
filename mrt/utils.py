@@ -10,6 +10,7 @@ import xlwt
 from flask import _request_ctx_stack, current_app as app
 from flask import g
 from flask.ext.babel import refresh
+from flask.ext.uploads import IMAGES
 
 from babel import support, Locale
 from path import path
@@ -21,6 +22,11 @@ def unlink_participant_photo(filename):
                          dir_name=app.config['PATH_CUSTOM_KEY'])
     unlink_thumbnail_file(filename, dir_name='custom_uploads')
     unlink_thumbnail_file(filename, dir_name='crops')
+
+
+def unlink_meeting_logo(filename):
+    unlink_uploaded_file(filename, 'logos')
+    unlink_thumbnail_file(filename, dir_name='logos')
 
 
 def unlink_uploaded_file(filename, config_key, dir_name=None):
@@ -59,6 +65,22 @@ def duplicate_uploaded_file(filename, config_key):
             full_path.copyfile(new_path)
             return new_path
     return False
+
+
+def get_meeting_logo(filename):
+    meeting_filename = create_meeting_logo_name(filename)
+    path_from_config = app.config['UPLOADED_LOGOS_DEST']
+    full_path = path_from_config / meeting_filename
+    for extension in IMAGES:
+        if (full_path + extension).isfile():
+            return meeting_filename + extension
+    return None
+
+
+def create_meeting_logo_name(filename):
+    basename, extension = path(filename).splitext()
+    filename = 'meeting_%d_%s.' % (g.meeting.id, str(basename))
+    return filename
 
 
 def copy_attributes(destination, source, exclude_pk=True, exclude_fk=True,

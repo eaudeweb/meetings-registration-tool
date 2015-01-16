@@ -134,9 +134,15 @@ def pluralize(value, arg='s'):
     return singular_suffix
 
 
+# def url_for_brand_static_path(filename):
+#     if g.get('is_pdf_process'):
+#         return app.config['BRAND_PATH'] / 'static' / filename
+#     return url_for('brand', filename=filename)
+
+
 def url_for_brand_static_path(filename):
-    if g.get('is_pdf_process'):
-        return app.config['BRAND_PATH'] / 'static' / filename
+    if g.get('meeting'):
+        return g.meeting.get_logo(filename)
     return url_for('brand', filename=filename)
 
 

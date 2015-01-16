@@ -1,7 +1,7 @@
 from functools import wraps
 
 from flask import request, redirect, render_template, jsonify
-from flask import g, url_for, flash
+from flask import g, url_for, flash, make_response
 from flask.views import MethodView
 from flask.ext.login import login_required, current_user as user
 
@@ -9,7 +9,9 @@ from sqlalchemy import desc
 
 from mrt.models import Meeting, db, RoleUser, MeetingType
 from mrt.forms.meetings import MeetingEditForm, MeetingFilterForm
+from mrt.forms.meetings import MeetingLogoEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
+from mrt.utils import unlink_meeting_logo, get_meeting_logo
 
 
 def _check_meeting_type():
@@ -70,3 +72,24 @@ class MeetingEdit(PermissionRequiredMixin, MethodView):
         db.session.commit()
         flash('Meeting successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.home'))
+
+
+class MeetingLogoUpload(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting',)
+
+    def post(self, logo_slug):
+        form = MeetingLogoEditForm(request.files)
+        if form.validate():
+            data = form.save(logo_slug)
+        else:
+            return make_response(jsonify(form.errors), 400)
+
+        html = render_template('meetings/overview/_image_container.html',
+                               data=data)
+        return jsonify(html=html)
+
+    def delete(self, logo_slug):
+        old_logo = get_meeting_logo(logo_slug)
+        unlink_meeting_logo(old_logo)
+        return jsonify(status="success", url=url_for('.statistics'))

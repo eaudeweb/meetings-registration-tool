@@ -1,5 +1,7 @@
 from flask.ext.login import current_user
-from wtforms import fields, widgets
+from flask.ext.uploads import UploadSet, IMAGES
+from flask_wtf.file import FileField, FileAllowed
+from wtforms import fields, widgets, Form
 from wtforms.validators import ValidationError, InputRequired
 from wtforms_alchemy import ModelFormField
 from sqlalchemy.orm.exc import NoResultFound
@@ -12,7 +14,8 @@ from mrt.models import MeetingType, Category
 from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
 from mrt.forms.base import CategoryField, EmailRequired, EmailField
 
-from mrt.utils import copy_attributes
+from mrt.utils import copy_attributes, get_meeting_logo
+from mrt.utils import unlink_meeting_logo, create_meeting_logo_name
 from mrt.definitions import MEETING_SETTINGS
 
 
@@ -24,6 +27,8 @@ _CUSTOM_FIELD_MAPPER = {
     'CategoryField': CustomField.CATEGORY,
     'EmailField': CustomField.EMAIL,
 }
+
+meeting_logos = UploadSet('logos', IMAGES)
 
 
 def _meeting_acronym_unique(*args, **kwargs):
@@ -217,6 +222,19 @@ class MeetingChangeOwnerForm(BaseForm):
     def save(self):
         self.populate_obj(self.obj)
         db.session.commit()
+
+
+class MeetingLogoEditForm(Form):
+
+    logo = FileField('Image', [FileAllowed(meeting_logos,
+                                           'Image is not valid')])
+
+    def save(self, filename):
+        if self.logo.data:
+            old_logo = get_meeting_logo(filename)
+            unlink_meeting_logo(old_logo)
+            new_logo = create_meeting_logo_name(filename)
+            return meeting_logos.save(self.logo.data, name=new_logo)
 
 
 def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):

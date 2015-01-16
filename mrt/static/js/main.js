@@ -96,6 +96,9 @@ $(function () {
             var url = $(this).data('url');
             if(confirm(msg)) {
                 $.ajax({ url: url, type: 'DELETE' }).done(function (resp) {
+                    if(resp.status == "success") {
+                        window.location.replace(resp.url);
+                    }
                     parent.find('.image-container').fadeOut('fast');
                     parent.find('button').not('.change-photo').addClass('disabled');
                 });

@@ -239,6 +239,10 @@ meetings.add_url_rule(
     '/<int:meeting_id>/settings/notifications/<int:notification_id>/edit',
     view_func=notification_edit)
 
+# logos
+meetings.add_url_rule('/<int:meeting_id>/logo/<string:logo_slug>/upload',
+                      view_func=views.MeetingLogoUpload.as_view('logo_upload'))
+
 
 @meetings.url_defaults
 def add_meeting_id(endpoint, values):

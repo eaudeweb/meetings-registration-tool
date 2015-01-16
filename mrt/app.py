@@ -14,7 +14,7 @@ from mrt.admin.urls import admin
 from mrt.assets import assets_env
 from mrt.auth.urls import auth
 from mrt.forms.admin import backgrounds
-from mrt.forms.meetings import custom_upload
+from mrt.forms.meetings import custom_upload, meeting_logos
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
 from mrt.models import db, redis_store, User, CustomField, Participant
@@ -177,7 +177,7 @@ def _configure_uploads(app):
 
     # limit upload size to 1MB
     patch_request_class(app, app.config.get('UPLOAD_SIZE', 1 * 1024 * 1024))
-    configure_uploads(app, (backgrounds, custom_upload))
+    configure_uploads(app, (backgrounds, custom_upload, meeting_logos))
     Thumbnail(app)
 
 
