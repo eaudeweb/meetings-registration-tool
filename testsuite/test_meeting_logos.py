@@ -11,7 +11,7 @@ from .factories import MeetingFactory, ParticipantFactory
 from .factories import MeetingCategoryFactory
 
 
-def test_meeting_default_logos(app, user):
+def test_meeting_default_logos(app, user, brand_dir):
     meeting = MeetingFactory()
 
     client = app.test_client()
@@ -33,7 +33,7 @@ def test_meeting_default_logos(app, user):
         assert len(remove_buttons) == 2
 
 
-def test_meeting_custom_logos(app, user):
+def test_meeting_custom_logos(app, user, brand_dir):
     meeting = MeetingFactory()
     right_logo = (StringIO('Right'), 'right.png')
     left_logo = (StringIO('Left'), 'left.jpg')
@@ -72,7 +72,7 @@ def test_meeting_custom_logos(app, user):
         assert len(remove_buttons) == 0
 
 
-def test_meeting_custom_logos_remove(app, user):
+def test_meeting_custom_logos_remove(app, user, brand_dir):
     meeting = MeetingFactory()
     right_logo = (StringIO('Right'), 'right.png')
     left_logo = (StringIO('Left'), 'left.jpg')
@@ -105,7 +105,8 @@ def test_meeting_custom_logos_remove(app, user):
         assert not upload_dir.join(right_logo_filename).check()
 
 
-def test_meeting_left_custom_logo_change_removes_old_logo(app, user):
+def test_meeting_left_custom_logo_change_removes_old_logo(app, user,
+                                                          brand_dir):
     meeting = MeetingFactory()
     old_logo = (StringIO('Old'), 'old.png')
     new_logo = (StringIO('new'), 'new.jpg')
@@ -127,7 +128,8 @@ def test_meeting_left_custom_logo_change_removes_old_logo(app, user):
         assert not upload_dir.join(old_logo_filename).check()
 
 
-def test_meeting_right_custom_logo_change_removes_old_logo(app, user):
+def test_meeting_right_custom_logo_change_removes_old_logo(app, user
+                                                           brand_dir):
     meeting = MeetingFactory()
     old_logo = (StringIO('Old'), 'old.png')
     new_logo = (StringIO('new'), 'new.jpg')
@@ -217,4 +219,3 @@ def upload_new_logo(app, user, meeting_id, logo_slug, new_logo):
                            data={'logo': new_logo})
         assert resp.status_code == 200
         return resp
-
