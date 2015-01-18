@@ -27,10 +27,19 @@ def staging():
 
 
 @task
+def aewa():
+    enviroment('aewa')
+
+
+@task
 def deploy():
     require('deployment_location', used_for=USED_FOR_MSG)
+    if hasattr(env, 'brand_path'):
+        with cd(env.brand_path), prefix('source %(sandbox_activate)s' % env):
+            run('git pull --rebase')
+
     with cd(env.project_root), prefix('source %(sandbox_activate)s' % env):
         run('git pull --rebase')
-        run('pip install -r requirements.txt')
+        run('pip install -r requirements-dep.txt')
         run('python manage.py alembic upgrade head')
         run('supervisorctl -c %(supervisord_conf)s restart all' % env)
