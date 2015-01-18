@@ -12,6 +12,12 @@ Prerequisites - System packages
 
 These packages should be installed as superuser (root).
 
+RedHat based systems
+~~~~~~~~~~~~~~~~~~~~
+Install these before setting up an environment::
+
+    yum install postgresql-devel
+
 Debian based systems
 ~~~~~~~~~~~~~~~~~~~~
 Install these before setting up an environment::
@@ -186,16 +192,20 @@ i18n deployment
 ---------------
 
 Run the `pybabel` command that comes with Babel to extract your strings::
+
     pybabel extract -F mrt/babel.cfg -o mrt/translations/messages.pot .
 
 Create translations::
+
     pybabel init -i mrt/translations/messages.pot -d cites/translations -l es
     pybabel init -i mrt/translations/messages.pot -d cites/translations -l fr
 
 To compile the translations for use, pybabel helps again::
+
     pybabel compile -d mrt/translations
 
 Merge the changes::
+
     pybabel update -i mrt/translations/messages.pot -d mrt/translations
 
 
