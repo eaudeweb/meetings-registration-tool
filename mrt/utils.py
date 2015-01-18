@@ -210,7 +210,7 @@ def set_language(lang='english'):
 
 def validate_email(email):
     """Email validation function used by create_user command"""
-    if re.match("^[a-zA-Z0-9._%-+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$", email):
+    if re.match("^[a-zA-Z0-9._%\-+]+@[a-zA-Z0-9._%-]+.[a-zA-Z]{2,6}$", email):
         return True
     return False
 
