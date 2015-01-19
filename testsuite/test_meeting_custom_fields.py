@@ -181,7 +181,7 @@ def test_meeting_custom_fields_list_with_media_participant_enabled(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.post(url_for('meetings.edit'), data=data)
+        resp = client.post(url_for('meetings.add'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
 

@@ -9,9 +9,12 @@ meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
 
 
 meetings.add_url_rule('', view_func=views.Meetings.as_view('home'))
+meeting_add_func = views.MeetingAdd.as_view('add')
 meeting_edit_func = views.MeetingEdit.as_view('edit')
-meetings.add_url_rule('/add', view_func=meeting_edit_func)
+meeting_clone_func = views.MeetingClone.as_view('clone')
+meetings.add_url_rule('/add', view_func=meeting_add_func)
 meetings.add_url_rule('/<int:meeting_id>/edit', view_func=meeting_edit_func)
+meetings.add_url_rule('/<int:meeting_id>/clone', view_func=meeting_clone_func)
 
 #  registration
 meetings.add_url_rule('/<int:meeting_id>/registration',

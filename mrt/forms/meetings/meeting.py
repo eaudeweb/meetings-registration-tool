@@ -136,6 +136,45 @@ class MeetingEditForm(BaseForm):
         return meeting
 
 
+class MeetingCloneForm(MeetingEditForm):
+    def __init__(self, *args, **kwargs):
+        super(MeetingCloneForm, self).__init__(*args, **kwargs)
+        if not self.acronym.raw_data and self.acronym.data == self.obj.acronym:
+            self.acronym.data = None
+
+    def _clone_relation(self, meeting, children, translation_attrs=[],
+                        exclude_fk=True):
+        for child in children:
+            clone = copy_attributes(child.__class__(), child,
+                                    exclude_fk=exclude_fk)
+            for attr in translation_attrs:
+                setattr(clone, attr,
+                        copy_attributes(Translation(), getattr(child, attr)))
+            clone.meeting = meeting
+            db.session.add(clone)
+            db.session.flush()
+
+    def save(self):
+        meeting = Meeting()
+        self.populate_obj(meeting)
+        self._clone_relation(meeting, self.obj.custom_fields, ('label', ))
+        self._clone_relation(meeting, self.obj.categories, ('title', ))
+        self._clone_relation(meeting, self.obj.phrases, ('description', ))
+        self._clone_relation(meeting, self.obj.role_users, exclude_fk=False)
+        self._clone_relation(meeting, self.obj.user_notifications,
+                             exclude_fk=False)
+        meeting.owner = self.obj.owner
+        if meeting.photo_field_id:
+            meeting.photo_field = (meeting.custom_fields
+                                   .filter_by(slug=self.obj.photo_field.slug)
+                                   .first())
+        else:
+            meeting.photo_field_id = None
+        db.session.add(meeting)
+        db.session.commit()
+        return meeting
+
+
 class ParticipantDummyForm(BaseForm):
 
     CUSTOM_FIELD_TYPE = 'participant'

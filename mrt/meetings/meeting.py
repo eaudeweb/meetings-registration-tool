@@ -8,8 +8,8 @@ from flask.ext.login import login_required, current_user as user
 from sqlalchemy import desc
 
 from mrt.models import Meeting, db, RoleUser, MeetingType
-from mrt.forms.meetings import MeetingEditForm, MeetingFilterForm
-from mrt.forms.meetings import MeetingLogoEditForm
+from mrt.forms.meetings import MeetingEditForm, MeetingCloneForm
+from mrt.forms.meetings import MeetingFilterForm, MeetingLogoEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.utils import unlink_meeting_logo, get_meeting_logo
 
@@ -45,33 +45,49 @@ class Meetings(MethodView):
                                meetings=qs, filter_form=filter_form)
 
 
-class MeetingEdit(PermissionRequiredMixin, MethodView):
+class MeetingBase(PermissionRequiredMixin, MethodView):
 
     decorators = (login_required, _meeting_type_required)
     permission_required = ('manage_meeting',)
 
     def get(self):
-        form = MeetingEditForm(obj=g.meeting)
-        return render_template('meetings/meeting/edit.html',
-                               form=form)
+        form = self.form_class(obj=g.meeting)
+        return render_template('meetings/meeting/edit.html', form=form,
+                               **self.template_vars)
 
     def post(self):
-        form = MeetingEditForm(request.form, obj=g.meeting)
+        form = self.form_class(request.form, obj=g.meeting)
         if form.validate():
             meeting = form.save()
-            if g.meeting:
-                flash('Meeting successfully updated', 'success')
-            else:
-                flash('Meeting successfully added', 'success')
+            flash(self.success_message, 'success')
             return redirect(url_for('.participants', meeting_id=meeting.id))
         flash('Meeting was not saved. Please see the errors bellow', 'danger')
-        return render_template('meetings/meeting/edit.html', form=form)
+        return render_template('meetings/meeting/edit.html', form=form,
+                               **self.template_vars)
 
     def delete(self):
         db.session.delete(g.meeting)
         db.session.commit()
         flash('Meeting successfully deleted', 'warning')
         return jsonify(status="success", url=url_for('.home'))
+
+
+class MeetingAdd(MeetingBase):
+    form_class = MeetingEditForm
+    success_message = 'Meeting successfully added'
+    template_vars = {'title': 'Add a new meeting', 'can_delete': False}
+
+
+class MeetingEdit(MeetingBase):
+    form_class = MeetingEditForm
+    success_message = 'Meeting successfully updated'
+    template_vars = {'title': 'Edit meeting', 'can_delete': True}
+
+
+class MeetingClone(MeetingBase):
+    form_class = MeetingCloneForm
+    success_message = 'Meeting successfully added'
+    template_vars = {'title': 'Clone meeting', 'can_delete': False}
 
 
 class MeetingLogoUpload(PermissionRequiredMixin, MethodView):

@@ -87,7 +87,7 @@ def test_meeting_add(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        url = url_for('meetings.edit')
+        url = url_for('meetings.add')
         resp = client.post(url, data=data)
 
     assert resp.status_code == 302
@@ -108,7 +108,7 @@ def test_meeting_add_default_categories_clone(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        url = url_for('meetings.edit')
+        url = url_for('meetings.add')
         resp = client.post(url, data=data)
 
     assert resp.status_code == 302
@@ -122,7 +122,7 @@ def test_meeting_add_no_meeting_type(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        url = url_for('meetings.edit')
+        url = url_for('meetings.add')
         resp = client.get(url)
 
     assert resp.status_code == 200
@@ -142,7 +142,7 @@ def test_meeting_add_without_badge_header(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        url = url_for('meetings.edit')
+        url = url_for('meetings.add')
         resp = client.post(url, data=data)
 
     assert resp.status_code == 302
@@ -164,7 +164,7 @@ def test_meeting_add_participant_custom_field_generation(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.post(url_for('meetings.edit'), data=data)
+        resp = client.post(url_for('meetings.add'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
 
@@ -194,7 +194,7 @@ def test_meeting_add_with_media_participants_disabled(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.post(url_for('meetings.edit'), data=data)
+        resp = client.post(url_for('meetings.add'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
 
@@ -224,7 +224,7 @@ def test_meeting_add_custom_field_choice_generation(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.post(url_for('meetings.edit'), data=data)
+        resp = client.post(url_for('meetings.add'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
 
@@ -254,7 +254,7 @@ def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        url = url_for('meetings.edit')
+        url = url_for('meetings.add')
         resp = client.post(url, data=data)
 
         assert resp.status_code == 302
@@ -552,7 +552,7 @@ def test_meeting_add_phrase_edit(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.post(url_for('meetings.edit'), data=data)
+        resp = client.post(url_for('meetings.add'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
         assert Phrase.query.filter_by(meeting_id=1).scalar()
@@ -580,7 +580,7 @@ def test_meeting_add_default_phrase_edit(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.post(url_for('meetings.edit'), data=data)
+        resp = client.post(url_for('meetings.add'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
         assert Phrase.query.filter_by(meeting_id=1).scalar()
@@ -610,7 +610,7 @@ def test_meeting_add_default_phrase_copies(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.post(url_for('meetings.edit'), data=data)
+        resp = client.post(url_for('meetings.add'), data=data)
         assert resp.status_code == 302
         assert Meeting.query.count() == 1
         assert Phrase.query.filter_by(meeting_id=1).count() == 10
@@ -630,7 +630,7 @@ def test_meeting_add_with_meeting_settings(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        url = url_for('meetings.edit')
+        url = url_for('meetings.add')
         resp = client.post(url, data=data)
 
     assert resp.status_code == 302

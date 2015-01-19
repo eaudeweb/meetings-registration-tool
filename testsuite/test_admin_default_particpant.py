@@ -152,7 +152,7 @@ def add_new_meeting(client, user):
     data['photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
-    url = url_for('meetings.edit')
+    url = url_for('meetings.add')
     resp = client.post(url, data=data)
 
     assert resp.status_code == 302

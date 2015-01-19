@@ -1,11 +1,9 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, form_group,
-                            form_group_with_list_inputs %}
+{% from "_bits.html" import breadcrumb, form_group, form_group_with_list_inputs %}
 
-
-{% set title = 'Edit meeting (%s)'|format(g.meeting.acronym)
-               if g.meeting else 'Add a new meeting' %}
-
+{% if g.meeting %}
+  {% set title = title ~ ' (%s)'|format(g.meeting.acronym) %}
+{% endif %}
 
 {% block title %} {{ title }} {% endblock %}
 
@@ -182,7 +180,7 @@
           Save changes</button>
           <small>or <a href="{{ url }}">Cancel</a></small>
       </div>
-      {% if g.meeting %}
+      {% if can_delete %}
         <div class="col-sm-6 text-right">
           <a class="delete" data-toggle="delete"
              data-href="{{ url_for('.edit') }}"
