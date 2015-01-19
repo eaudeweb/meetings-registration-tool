@@ -2,12 +2,7 @@
 {% from "_bits.html" import breadcrumb, form_group %}
 
 
-{% if rule %}
-  {% set title = "Edit rule" %}
-{% else %}
-  {% set title = "Add rule" %}
-{% endif %}
-
+{% set title = "Edit rule"  if rule else "Add rule" %}
 {% block title %} {{ title }} {% endblock %}
 
 
@@ -40,56 +35,18 @@
     .condition-remove:hover {
       color: #e30909;
     }
+    .condition-and {
+      text-transform: uppercase;
+      position: absolute;
+      top: -13px;
+      margin: auto;
+      left: 50%;
+      background: #fff;
+      padding: 3px 6px;
+      color: #666;
+    }
 
   </style>
-
-{% endblock %}
-
-
-{% block scripts %}
-
-  <script>
-    $(function () {
-
-      var updatePrefix = function () {
-        $('#conditions-container .condition').each(function (i) {
-          var field_label = 'conditions-' + i + '-field';
-          var value_label = 'conditions-' + i + '-values';
-          $(this).find('label').eq(0).attr('for', field_label);
-          $(this).find('select').eq(0).attr('id', field_label)
-                 .attr('name', field_label)
-          $(this).find('label').eq(1).attr('for', value_label);
-          $(this).find('select').eq(1).attr('id', value_label)
-                 .attr('name', value_label)
-        });
-      };
-
-      $('#condition-add').on('click', function () {
-        var form = $('#default-condition-form').clone();
-        form.find('select').eq(1).addClass('select');
-        form.removeClass('hide');
-        $('#conditions-container').append(form);
-        form.find('.select').select2({});
-        updatePrefix();
-      });
-
-      $('#conditions-container').on('click', '.condition-remove', function () {
-        $(this).parents('.condition').fadeOut('fast', function () {
-          $(this).remove();
-          updatePrefix();
-        });
-      });
-
-      $('#conditions-container').on('change', '.field', function () {
-        var url = $('#conditions-container').data('url');
-        var id = $(this).val();
-        $.get(url, {'id': id}, function (data) {
-          console.log(data);
-        });
-      });
-
-    });
-  </script>
 
 {% endblock %}
 
@@ -111,11 +68,14 @@
       <div class="panel-body">
         <div id="default-condition-form" class="hide">
           <div class="condition condition-border">
-            {{ form_group(form.conditions[0].field) }}
-            {{ form_group(form.conditions[0].values) }}
+            {{ form_group(form.conditions[0].field,
+                          class_='field') }}
+            {{ form_group(form.conditions[0].values,
+                          class_='values') }}
             <a class="condition-remove">
               <small><span class="glyphicon glyphicon-remove"></span></small>
             </a>
+            <div class="condition-and"><small>and</small></div>
           </div>
         </div>
         {% set url = url_for('.rules_data') %}
@@ -123,7 +83,8 @@
           {% for condition in form.conditions %}
             <div class="condition">
               {{ form_group(condition.field, class_='field') }}
-              {{ form_group(condition.values, class_='select') }}
+              {{ form_group(condition.values,
+                            class_='select values') }}
             </div>
           {% endfor %}
         </div>

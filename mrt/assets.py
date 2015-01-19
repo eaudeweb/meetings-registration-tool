@@ -28,6 +28,7 @@ _BUNDLE_JS = (
     'js/lib/jquery.infinitescroll.min.js',
     'js/main.js',
     'js/printouts.js',
+    'js/rule.js',
 )
 
 
