@@ -10,7 +10,6 @@ from flask.ext.babel import lazy_gettext as __
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask_redis import Redis
 from jinja2.exceptions import TemplateNotFound
-from path import path
 
 from sqlalchemy import cast
 from sqlalchemy.ext.declarative import declared_attr
@@ -511,7 +510,7 @@ class CustomField(db.Model):
         db.Integer, db.ForeignKey('translation.id'),
         nullable=False)
 
-    label = db.relationship('Translation')
+    label = db.relationship('Translation', cascade='all, delete')
 
     description = db.Column(db.String(512), info={'label': 'Description'})
 
@@ -617,11 +616,13 @@ class Meeting(db.Model):
     title_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
                          nullable=False)
 
-    title = db.relationship('Translation', foreign_keys=title_id)
+    title = db.relationship('Translation', foreign_keys=title_id,
+                            cascade='all, delete')
 
     badge_header_id = db.Column(db.Integer, db.ForeignKey('translation.id'))
 
-    badge_header = db.relationship('Translation', foreign_keys=badge_header_id)
+    badge_header = db.relationship('Translation', foreign_keys=badge_header_id,
+                                   cascade='all, delete')
 
     acronym = db.Column(db.String(16), nullable=False, unique=True,
                         info={'label': 'Acronym'})
@@ -646,7 +647,8 @@ class Meeting(db.Model):
     venue_city_id = db.Column(db.Integer, db.ForeignKey('translation.id'),
                               nullable=False)
 
-    venue_city = db.relationship('Translation', foreign_keys=venue_city_id)
+    venue_city = db.relationship('Translation', foreign_keys=venue_city_id,
+                                 cascade='all, delete')
 
     venue_country = db.Column(CountryType, nullable=False,
                               info={'label': 'Country'})
@@ -726,7 +728,7 @@ class CategoryMixin(object):
 
     @declared_attr
     def title(cls):
-        return db.relationship('Translation')
+        return db.relationship('Translation', cascade='all, delete')
 
     color = db.Column(db.String(7), nullable=False, info={'label': 'Color'})
 
@@ -805,7 +807,7 @@ class PhraseMixin(object):
 
     @declared_attr
     def description(cls):
-        return db.relationship('Translation')
+        return db.relationship('Translation', cascade='all, delete')
 
     group = db.Column(db.String(32))
     sort = db.Column(db.Integer, default=0)
