@@ -47,6 +47,10 @@ class ParticipantEvent(object):
     pass
 
 
+class Phrase(object):
+    pass
+
+
 def session(uri):
     engine = create_engine(uri)
     meta = MetaData(engine)
@@ -57,6 +61,7 @@ def session(uri):
     category_meeting = Table('categorymeeting', meta, autoload=True)
     event = Table('event', meta, autoload=True)
     participant_event = Table('personevent', meta, autoload=True)
+    phrase = Table('phrase', meta, autoload=True)
     mapper(Meeting, meeting)
     mapper(Participant, participant)
     mapper(ParticipantMeeting, participant_meeting)
@@ -64,6 +69,7 @@ def session(uri):
     mapper(CategoryMeeting, category_meeting)
     mapper(Event, event)
     mapper(ParticipantEvent, participant_event)
+    mapper(Phrase, phrase)
     return sessionmaker(bind=engine)()
 
 
@@ -93,6 +99,7 @@ def migrate_meeting(meeting):
         meeting_type = models.MeetingType(slug=meeting.data['info_type'],
                                           label=meeting.data['info_type'])
         db.session.add(meeting_type)
+        meeting_type.load_default_phrases()
         db.session.flush()
     migrated_meeting.meeting_type = meeting_type
 
@@ -190,6 +197,26 @@ def migrate_category(category_and_category_meeting, migrated_meeting):
 
     db.session.commit()
     return migrated_category
+
+
+def migrate_phrase(phrase, migrated_meeting):
+    migrated_phrase = models.Phrase()
+
+    description= models.Translation(english=phrase.data['description_E'],
+                                    french=phrase.data['description_F'],
+                                    spanish=phrase.data['description_S'])
+    db.session.add(description)
+    db.session.flush()
+    migrated_phrase.description = description
+
+    migrated_phrase.name = phrase.data['label']
+    migrated_phrase.group = phrase.data['group']
+    migrated_phrase.sort = phrase.data['sort']
+
+    migrated_phrase.meeting = migrated_meeting
+
+    db.session.add(migrated_phrase)
+    db.session.commit()
 
 
 def migrate_participant(participant, participant_meeting, migrated_category,

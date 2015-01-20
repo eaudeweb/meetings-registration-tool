@@ -77,3 +77,10 @@ def import_(ctx, database, meeting_id):
                         migrated_participants[answer.person_id],
                         migrated_event, 'true')
             click.echo('Event %r processed' % migrated_event.label.english)
+
+        phrases = (
+            ses.query(models.Phrase)
+            .filter(models.Phrase.meeting_id == meeting.id)
+        )
+        for phrase in phrases.all():
+            models.migrate_phrase(phrase, migrated_meeting)
