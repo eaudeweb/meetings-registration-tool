@@ -1,7 +1,12 @@
 import click
 from sqlalchemy.exc import IntegrityError
 
-from contrib.importer import models
+from contrib.importer.models import (
+    Category, CategoryMeeting, Event, Meeting, Participant, ParticipantEvent,
+    ParticipantMeeting, Phrase, session,
+    create_custom_field_value, create_custom_fields, migrate_category,
+    migrate_event, migrate_meeting, migrate_participant, migrate_phrase,
+)
 
 
 @click.group()
@@ -18,69 +23,60 @@ def import_(ctx, database, meeting_id):
     with app.test_request_context():
         uri_from_config = ctx.obj['app'].config['SQLALCHEMY_DATABASE_URI']
         uri = '%s/%s' % (uri_from_config.rsplit('/', 1)[0], database)
-        ses = models.session(uri)
-        meeting = ses.query(models.Meeting).get(meeting_id)
-        participants_meeting = (
-            ses.query(models.Participant)
-            .join(models.ParticipantMeeting)
-            .with_entities(models.Participant, models.ParticipantMeeting)
-            .filter(models.ParticipantMeeting.meeting_id == meeting.id)
+        ses = session(uri)
+        meeting = ses.query(Meeting).get(meeting_id)
+        participants = (
+            ses.query(Participant)
+            .join(ParticipantMeeting)
+            .outerjoin(ParticipantEvent)
+            .with_entities(Participant, ParticipantMeeting, ParticipantEvent)
+            .filter(ParticipantMeeting.meeting_id == meeting.id)
         )
 
         try:
-            migrated_meeting = models.migrate_meeting(meeting)
+            migrated_meeting = migrate_meeting(meeting)
         except IntegrityError:
             click.echo('Another meeting with this acronym exists')
             ctx.exit()
-        custom_fields = models.create_custom_fields(migrated_meeting)
+
+        custom_fields = create_custom_fields(migrated_meeting)
+
+        events = ses.query(Event).filter(Event.meeting_id == meeting.id)
+        migrated_events = {}
+        for event in events.all():
+            migrated_events[event.id] = migrate_event(event, migrated_meeting)
+
+        phrases = ses.query(Phrase).filter(Phrase.meeting_id == meeting.id)
+        for phrase in phrases.all():
+            migrate_phrase(phrase, migrated_meeting)
 
         migrated_participants = {}
-        for participant, participant_meeting in participants_meeting.all():
-            category_id = participant_meeting.category
-            category_meeting = (
-                ses.query(models.Category, models.CategoryMeeting)
-                .join(models.CategoryMeeting)
-                .filter(models.Category.data['id'] == str(category_id))
-                .first()
-            )
-            migrated_category = models.migrate_category(category_meeting,
-                                                        migrated_meeting)
-            migrated_participant = models.migrate_participant(
-                participant,
-                participant_meeting,
-                migrated_category,
-                migrated_meeting,
-                custom_fields)
+        for participant, participant_meeting, participant_event in participants:
+            if participant not in migrated_participants:
+                category_id = participant_meeting.category
+                category_meeting = (
+                    ses.query(Category, CategoryMeeting)
+                    .join(CategoryMeeting)
+                    .filter(Category.data['id'] == str(category_id))
+                    .first()
+                )
+                migrated_category = migrate_category(category_meeting,
+                                                     migrated_meeting)
+                migrated_participants[participant] = migrate_participant(
+                    participant,
+                    participant_meeting,
+                    migrated_category,
+                    migrated_meeting,
+                    custom_fields)
 
-            if migrated_participant:
-                migrated_participants[participant.id] = migrated_participant
+                click.echo('Participant %r in category %r processed' %
+                           (participant, category_meeting[0]))
 
-            click.echo('Participant %r in category %r processed' %
-                       (participant, category_meeting[0]))
+            if participant_event and migrated_participants.get(participant):
+                create_custom_field_value(
+                    migrated_participants[participant],
+                    migrated_events[participant_event.event_id],
+                    'true'
+                )
 
-        click.echo('Total participants processed %d' %
-                   participants_meeting.count())
-
-        events = (
-            ses.query(models.Event)
-            .filter(models.Event.meeting_id == meeting.id)
-        )
-        for event in events.all():
-            migrated_event = models.migrate_event(event, migrated_meeting)
-            answers = (
-                ses.query(models.ParticipantEvent)
-                .filter(models.ParticipantEvent.event_id == event.id)
-            )
-            for answer in answers.all():
-                if answer.person_id in migrated_participants:
-                    models.create_custom_field_value(
-                        migrated_participants[answer.person_id],
-                        migrated_event, 'true')
-            click.echo('Event %r processed' % migrated_event.label.english)
-
-        phrases = (
-            ses.query(models.Phrase)
-            .filter(models.Phrase.meeting_id == meeting.id)
-        )
-        for phrase in phrases.all():
-            models.migrate_phrase(phrase, migrated_meeting)
+        click.echo('Total participants processed %d' % participants.count())
