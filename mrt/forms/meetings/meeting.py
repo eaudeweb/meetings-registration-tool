@@ -31,19 +31,6 @@ _CUSTOM_FIELD_MAPPER = {
 meeting_logos = UploadSet('logos', IMAGES)
 
 
-def _meeting_acronym_unique(*args, **kwargs):
-    def validate(form, field):
-        if form.obj and form.obj.acronym == field.data:
-            return True
-        try:
-            Meeting.query.filter_by(acronym=field.data).one()
-            raise ValidationError(
-                'Another meeting with this acronym exists')
-        except NoResultFound:
-            pass
-    return validate
-
-
 class MeetingEditForm(BaseForm):
 
     class Meta:
@@ -59,7 +46,6 @@ class MeetingEditForm(BaseForm):
                 'format': '%d.%m.%Y',
             }
         }
-        unique_validator = _meeting_acronym_unique
 
     title = ModelFormField(TranslationInputForm, label='Description')
     badge_header = ModelFormField(TranslationInputForm, label='Badge header')
@@ -142,6 +128,13 @@ class MeetingCloneForm(MeetingEditForm):
         if not self.acronym.raw_data and self.acronym.data == self.obj.acronym:
             self.acronym.data = None
 
+    def validate_acronym(self, field):
+        try:
+            Meeting.query.filter_by(acronym=field.data).one()
+            raise ValidationError('Acronym exists')
+        except NoResultFound:
+            pass
+
     def _clone_relation(self, meeting, children, translation_attrs=[],
                         exclude_fk=True):
         for child in children:
@@ -157,6 +150,7 @@ class MeetingCloneForm(MeetingEditForm):
     def save(self):
         meeting = Meeting()
         self.populate_obj(meeting)
+        meeting.photo_field_id = meeting.photo_field_id or None
         self._clone_relation(meeting, self.obj.custom_fields, ('label', ))
         self._clone_relation(meeting, self.obj.categories, ('title', ))
         self._clone_relation(meeting, self.obj.phrases, ('description', ))
@@ -164,12 +158,10 @@ class MeetingCloneForm(MeetingEditForm):
         self._clone_relation(meeting, self.obj.user_notifications,
                              exclude_fk=False)
         meeting.owner = self.obj.owner
-        if meeting.photo_field_id:
+        if self.obj.photo_field_id:
             meeting.photo_field = (meeting.custom_fields
-                                   .filter_by(slug=self.obj.photo_field.slug)
+                                   .filter_by(slug=meeting.photo_field.slug)
                                    .first())
-        else:
-            meeting.photo_field_id = None
         db.session.add(meeting)
         db.session.commit()
         return meeting
