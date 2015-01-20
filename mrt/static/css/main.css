@@ -399,3 +399,30 @@ li.separator {
     padding-left: 18px!important;
 }
 
+.rule-border {
+    border-top: 2px solid #eee;
+    padding-top: 15px;
+}
+.rule {
+    position: relative;
+}
+.rule-remove {
+    position: absolute;
+    right: 75px;
+    top: 50px;
+    color: #666;
+}
+.rule-remove:hover {
+    color: #e30909;
+}
+.rule-and {
+    text-transform: uppercase;
+    position: absolute;
+    background: #fff;
+    padding: 3px 6px;
+    margin: auto;
+    color: #666;
+    top: -13px;
+    left: 50%;
+}
+

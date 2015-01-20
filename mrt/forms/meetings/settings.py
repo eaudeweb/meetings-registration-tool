@@ -173,13 +173,12 @@ class UserNotificationForm(BaseForm):
         db.session.commit()
 
 
-class ConditionForm(BaseForm):
+class _FieldMixin(object):
 
     field = fields.SelectField('Field', choices=[])
-    values = fields.SelectMultipleField('Values', choices=[])
 
     def __init__(self, *args, **kwargs):
-        super(ConditionForm, self).__init__(*args, **kwargs)
+        super(_FieldMixin, self).__init__(*args, **kwargs)
         query = (
             CustomField.query.filter_by(meeting_id=g.meeting.id)
             .filter_by(custom_field_type=CustomField.PARTICIPANT)
@@ -190,7 +189,20 @@ class ConditionForm(BaseForm):
         self.field.choices = [(c.id, c) for c in query]
 
 
+class ConditionForm(_FieldMixin, BaseForm):
+
+    values = fields.SelectMultipleField('Values', choices=[])
+
+
+class ActionForm(_FieldMixin, BaseForm):
+
+    is_required = fields.BooleanField()
+    is_visible = fields.BooleanField()
+
+
 class RuleForm(BaseForm):
 
     conditions = fields.FieldList(fields.FormField(ConditionForm),
                                   min_entries=1)
+    actions = fields.FieldList(fields.FormField(ActionForm),
+                               min_entries=1)

@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb, form_group %}
+{% from "_bits.html" import breadcrumb %}
 
 
 {% set title = "Edit rule"  if rule else "Add rule" %}
@@ -16,41 +16,6 @@
 {% endblock %}
 
 
-{% block head %}
-
-  <style type="text/css">
-    .condition-border {
-      border-top: 2px solid #eee;
-      padding-top: 15px;
-    }
-    .condition {
-      position: relative;
-    }
-    .condition-remove {
-      position: absolute;
-      right: 75px;
-      top: 50px;
-      color: #666;
-    }
-    .condition-remove:hover {
-      color: #e30909;
-    }
-    .condition-and {
-      text-transform: uppercase;
-      position: absolute;
-      top: -13px;
-      margin: auto;
-      left: 50%;
-      background: #fff;
-      padding: 3px 6px;
-      color: #666;
-    }
-
-  </style>
-
-{% endblock %}
-
-
 {% block content %}
 
   {{ super() }}
@@ -58,49 +23,12 @@
   <h3 class="page-title">{{ title }}</h3>
 
   <form class="form-horizontal" method="POST">
+
     {{ form.csrf_token }}
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <b>Conditions</b>
-      </div>
+    {% include "meetings/rule/_condition_fields.html" %}
 
-      <div class="panel-body">
-        <div id="default-condition-form" class="hide">
-          <div class="condition condition-border">
-            {{ form_group(form.conditions[0].field,
-                          class_='field') }}
-            {{ form_group(form.conditions[0].values,
-                          class_='values') }}
-            <a class="condition-remove">
-              <small><span class="glyphicon glyphicon-remove"></span></small>
-            </a>
-            <div class="condition-and"><small>and</small></div>
-          </div>
-        </div>
-        {% set url = url_for('.rules_data') %}
-        <div id="conditions-container" data-url="{{ url }}">
-          {% for condition in form.conditions %}
-            <div class="condition">
-              {{ form_group(condition.field, class_='field') }}
-              {{ form_group(condition.values,
-                            class_='select values') }}
-            </div>
-          {% endfor %}
-        </div>
-        <div class="form-group">
-          <div class="col-sm-offset-2 col-sm-8">
-            <a id="condition-add">
-              <small>
-                <span class="glyphicon glyphicon-plus"></span>
-                Add a new condition</a>
-              </small>
-          </div>
-        </div>
-
-      </div> {# panel-body #}
-
-    </div>
+    {% include "meetings/rule/_action_fields.html" %}
 
   </form>
 

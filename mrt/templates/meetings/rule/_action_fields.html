@@ -1,0 +1,48 @@
+{% from "_bits.html" import form_group %}
+
+
+<div id="default-actions-form" class="hide">
+
+  <div class="rule rule-border">
+    {{ form_group(form.actions[0].field) }}
+    {{ form_group(form.actions[0].is_required) }}
+    {{ form_group(form.actions[0].is_visible) }}
+    <a class="rule-remove"><small>
+      <span class="glyphicon glyphicon-remove"></span></small>
+    </a>
+
+    <div class="rule-and"><small>and</small></div>
+  </div>
+
+</div> {# default-condition-form #}
+
+<div class="panel panel-default">
+
+  <div class="panel-heading"><b>Actions</b></div>
+
+  <div class="panel-body">
+
+    <div id="actions-container" class="rule-container">
+      {% for action in form.actions %}
+        <div class="rule">
+          {{ form_group(action.field) }}
+          {{ form_group(action.is_required) }}
+          {{ form_group(action.is_visible) }}
+        </div>
+      {% endfor %}
+    </div> {# actions-container #}
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-8">
+        <a class="rule-add"
+           data-from="#default-actions-form"
+           data-to="#actions-container"><small>
+            <span class="glyphicon glyphicon-plus"></span>
+            Add a new action</small>
+        </a>
+      </div>
+    </div>
+
+  </div> {# panel-body #}
+
+</div> {# actions #}
