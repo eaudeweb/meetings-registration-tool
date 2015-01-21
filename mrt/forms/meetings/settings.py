@@ -10,9 +10,11 @@ from mrt.models import CategoryDefault, Category, CustomField
 from mrt.models import db
 from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import Translation, UserNotification
+from mrt.models import Rule, Condition, ConditionValue, Action
 
 from mrt.definitions import NOTIFICATION_TYPES
 from mrt.utils import copy_attributes, duplicate_uploaded_file
+from mrt.utils import get_all_countries
 
 from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
 
@@ -173,12 +175,14 @@ class UserNotificationForm(BaseForm):
         db.session.commit()
 
 
-class _FieldMixin(object):
+class ConditionForm(BaseForm):
 
-    field = fields.SelectField('Field', choices=[])
+    field = fields.SelectField('Field', coerce=int)
+    values = fields.SelectMultipleField('Values', [DataRequired()],
+                                        choices=[], coerce=int)
 
     def __init__(self, *args, **kwargs):
-        super(_FieldMixin, self).__init__(*args, **kwargs)
+        super(ConditionForm, self).__init__(*args, **kwargs)
         query = (
             CustomField.query.filter_by(meeting_id=g.meeting.id)
             .filter_by(custom_field_type=CustomField.PARTICIPANT)
@@ -188,16 +192,52 @@ class _FieldMixin(object):
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
 
+        self.cf = cf = None
+        if self.field.data:
+            cf = (
+                CustomField.query
+                .filter_by(id=self.field.data, meeting=g.meeting)
+                .one()
+            )
+            if cf.field_type == CustomField.CATEGORY:
+                query = Category.get_categories_for_meeting(
+                    Category.PARTICIPANT)
+                self.values.choices = [(c.id, unicode(c)) for c in query]
+            if cf.field_type == CustomField.COUNTRY:
+                self.value.choices = get_all_countries()
 
-class ConditionForm(_FieldMixin, BaseForm):
+    # def save(self, rule):
+    #     # condition = rule.condition or Condition(rule=rule)
+    #     # condition.field = self.field
+    #     # clear all condition values before
+    #     if rule.id:
+    #         Condition.query.filter_by(rule=rule).delete()
 
-    values = fields.SelectMultipleField('Values', choices=[])
+    #     for condition in self.condi
+    #     db.session.add(condition)
+    #     db.session.flush()
+    #     for value in self.values:
+    #         condition_value = ConditionValue(condition=condition, value=value)
+    #         db.session.add(condition_value)
+    #     return condition
 
 
-class ActionForm(_FieldMixin, BaseForm):
+class ActionForm(BaseForm):
 
+    field = fields.SelectField('Field', coerce=int)
     is_required = fields.BooleanField()
     is_visible = fields.BooleanField()
+
+    def __init__(self, *args, **kwargs):
+        super(ActionForm, self).__init__(*args, **kwargs)
+        query = (
+            CustomField.query.filter_by(meeting_id=g.meeting.id)
+            .filter_by(custom_field_type=CustomField.PARTICIPANT)
+            .order_by(CustomField.sort))
+        self.field.choices = [(c.id, c) for c in query]
+
+    def save(self):
+        action = rule.
 
 
 class RuleForm(BaseForm):
@@ -206,3 +246,22 @@ class RuleForm(BaseForm):
                                   min_entries=1)
     actions = fields.FieldList(fields.FormField(ActionForm),
                                min_entries=1)
+
+    def save(self):
+        rule = self.obj or Rule(meeting=g.meeting)
+        # if edit, delete all conditions for this rule and their
+        # corresponding values
+        if rule.id:
+            Condition.query.filter_by(rule=rule).delete()
+        for condition in self.conditions:
+            condition = Condition(rule=rule, field=condition.cf)
+            db.session.add(condition)
+            db.session.flush()
+            for value in condition.values.data:
+                condition_value = ConditionValue(condition=condition,
+                                                 value=value)
+                db.session.add(condition_value)
+        self.conditions.save(rule)
+        self.actions.save(rule)
+        if not rule.id:
+            db.session.add(rule)

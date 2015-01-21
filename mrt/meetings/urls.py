@@ -251,6 +251,8 @@ meetings.add_url_rule('/<int:meeting_id>/settings/rules/',
 rule_edit_func = views.RuleEdit.as_view('rule_edit')
 meetings.add_url_rule('/<int:meeting_id>/settings/rules/add',
                       view_func=rule_edit_func)
+meetings.add_url_rule('/<int:meeting_id>/settings/rules/<int:rule_id>/edit',
+                      view_func=rule_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/rules/data',
     view_func=views.RulesData.as_view('rules_data'))

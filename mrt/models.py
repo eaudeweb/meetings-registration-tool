@@ -769,6 +769,13 @@ class Category(CategoryMixin, db.Model):
         'Meeting',
         backref=db.backref('categories', lazy='dynamic', cascade="delete"))
 
+    @classmethod
+    def get_categories_for_meeting(cls, category_type=None):
+        return (
+            cls.query.filter_by(meeting=g.meeting)
+            .filter_by(category_type=category_type or cls.PARTICIPANT)
+            .order_by(cls.group, cls.sort))
+
 
 class CategoryDefault(CategoryMixin, db.Model):
 
@@ -982,6 +989,10 @@ class Condition(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
+    rule = db.relationship(
+        'Rule',
+        backref=db.backref('conditions', lazy='dynamic', cascade='delete'))
+
     field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
 
 
@@ -989,6 +1000,11 @@ class ConditionValue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     condition_id = db.Column(db.Integer, db.ForeignKey('condition.id'))
+    condition = db.relationship(
+        'Condition',
+        backref=db.backref('value', uselist=False, cascade='delete'))
+
+    )
     value = db.Column(db.String(255), nullable=False)
 
 

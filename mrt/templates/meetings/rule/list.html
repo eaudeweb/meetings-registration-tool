@@ -1,0 +1,26 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+{% set title = "Rules" %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [('', 'Rules'),] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="table-responsive">
+    <table id="rules" class="table table-bordered table-condensed">
+
+    </table>
+  </div>
+
+{% endblock %}

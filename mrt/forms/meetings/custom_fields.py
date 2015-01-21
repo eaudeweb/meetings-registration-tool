@@ -78,9 +78,8 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
             attrs['coerce'] = unicode
 
         if f.field_type.code == CustomField.CATEGORY:
-            query = (Category.query.filter_by(meeting=g.meeting)
-                     .filter_by(category_type=form.CUSTOM_FIELDS_TYPE)
-                     .order_by(Category.group, Category.sort))
+            query = Category.get_categories_for_meeting(
+                form.CUSTOM_FIELDS_TYPE)
             if registration_fields:
                 query = query.filter_by(visible_on_registration_form=True)
             attrs['choices'] = [(c.id, c) for c in query]

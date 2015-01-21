@@ -30,6 +30,20 @@
 
     {% include "meetings/rule/_action_fields.html" %}
 
+    {% if rule %}
+      {% set url = url_for('.rule_edit', rule_id=rule.id) %}
+    {% else %}
+      {% set url = url_for('.rules') %}
+    {% endif %}
+
+    <div class="form-actions row">
+      <div class="col-sm-6">
+        <button type="submit" class="btn btn-primary">
+          Save changes</button>
+        <small>or <a href="{{ url }}">Cancel</a></small>
+      </div>
+    </div> {# form-actions #}
+
   </form>
 
 {% endblock %}
