@@ -58,9 +58,12 @@ settings.example for an settings example file::
     echo '*' >> instance/.gitignore
     touch instance/settings.py
 
-.. Create a directory named 'logos' inside instance directory which is the
-.. location for product logo images. Add to settings.py PRODUCT_LOGO and
-.. PRODUCT_SIDE_LOGO filenames.
+    Create a directory named 'logos' inside instance directory which is the
+    location for product logo images. Add to settings.py PRODUCT_LOGO and
+    PRODUCT_SIDE_LOGO filenames.
+
+    Set the GOOGLE_ANALYTICS_KEY in the instance/settings.py example if you
+    want to enable the Google Analytics tracking.
 
 
 5. Set up the PostgreSQL database::
@@ -100,7 +103,7 @@ If you don't have this version installed, add it to your virtualenv.
    corresponding with your system. Copy the direct link into your clipboard
 
 2. Install it locally in your virtualenv
-    
+
     * For RedHat-based systems in production::
 
          wget $PASTE_URL_COPIED_AT_STEP_1
