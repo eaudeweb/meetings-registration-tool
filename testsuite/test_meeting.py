@@ -665,3 +665,54 @@ def test_meeting_edit_with_meeting_settings(app, user):
 
         assert resp.status_code == 302
         assert not Meeting.query.get(1).media_participant_enabled
+
+
+def test_clone_meeting_default_values(app, user):
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.get(url)
+        html = PyQuery(resp.data)
+        assert html('#title-english').val() == meeting.title.english
+        assert html('#title-french').val() == meeting.title.french
+        assert html('#title-spanish').val() == meeting.title.spanish
+        assert (html('#badge_header-english').val() ==
+                meeting.badge_header.english)
+        assert (html('#badge_header-french').val() ==
+                meeting.badge_header.french)
+        assert (html('#badge_header-spanish').val() ==
+                meeting.badge_header.spanish)
+        assert html('#venue_address').val() == meeting.venue_address
+        assert (html('#venue_country option:selected').val() ==
+                meeting.venue_country)
+        assert html('#venue_city-english').val() == meeting.venue_city.english
+        assert html('#venue_city-french').val() == meeting.venue_city.french
+        assert html('#venue_city-spanish').val() == meeting.venue_city.spanish
+        assert (html('#date_start').val() ==
+                meeting.date_start.strftime('%d.%m.%Y'))
+        assert html('#date_end').val() == meeting.date_end.strftime('%d.%m.%Y')
+        assert (html('#meeting_type_slug option:selected').val() ==
+                meeting.meeting_type_slug)
+        assert html('#acronym').val() is None
+        assert (html('#online_registration').is_(':checked') ==
+               meeting.online_registration)
+        assert (html('#settings-0').is_(':checked') ==
+               bool(meeting.media_participant_enabled))
+        assert html('#photo_field_id').val() == meeting.photo_field_id or 0
+
+
+def test_clone_meeting_same_acronym(app, user):
+    meeting = MeetingFactory()
+    data = normalize_data(MeetingFactory.attributes())
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data)
+        html = PyQuery(resp.data)
