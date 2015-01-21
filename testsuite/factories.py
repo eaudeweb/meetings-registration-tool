@@ -90,6 +90,7 @@ class MeetingFactory(SQLAlchemyModelFactory):
 
     title = SubFactory(MeetingTitleFactory)
     badge_header = SubFactory(BadgeHaderFactory)
+    venue_address = 'Main Street, Nr. 7'
     acronym = Sequence(lambda n: 'MOTPC{}'.format(n))
     meeting_type = SubFactory(MeetingTypeFactory)
     date_start = date.today()

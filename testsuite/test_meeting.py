@@ -6,12 +6,14 @@ import json
 from mrt.models import Meeting, Category, Phrase, CustomField
 from mrt.models import CustomFieldChoice, Translation, Participant
 from mrt.forms.meetings import ParticipantDummyForm, MediaParticipantDummyForm
+from mrt.forms.meetings import MeetingCloneForm, add_custom_fields_for_meeting
 
 from .factories import CategoryDefaultFactory, StaffFactory
 from .factories import PhraseDefaultFactory, RoleUserMeetingFactory
 from .factories import PhraseMeetingFactory, ParticipantFactory
 from .factories import CustomFieldFactory, MeetingCategoryFactory
 from .factories import MeetingFactory, MeetingTypeFactory, normalize_data
+from .factories import UserNotificationFactory, MediaParticipantFactory
 
 
 def test_meeting_list(app, user, default_meeting):
@@ -665,3 +667,304 @@ def test_meeting_edit_with_meeting_settings(app, user):
 
         assert resp.status_code == 302
         assert not Meeting.query.get(1).media_participant_enabled
+
+
+def test_clone_meeting_default_values(app, user):
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.get(url)
+        html = PyQuery(resp.data)
+        assert html('#title-english').val() == meeting.title.english
+        assert html('#title-french').val() == meeting.title.french
+        assert html('#title-spanish').val() == meeting.title.spanish
+        assert (html('#badge_header-english').val() ==
+                meeting.badge_header.english)
+        assert (html('#badge_header-french').val() ==
+                meeting.badge_header.french)
+        assert (html('#badge_header-spanish').val() ==
+                meeting.badge_header.spanish)
+        assert html('#venue_address').text() == meeting.venue_address
+        assert (html('#venue_country option:selected').val() ==
+                meeting.venue_country)
+        assert html('#venue_city-english').val() == meeting.venue_city.english
+        assert html('#venue_city-french').val() == meeting.venue_city.french
+        assert html('#venue_city-spanish').val() == meeting.venue_city.spanish
+        assert (html('#date_start').val() ==
+                meeting.date_start.strftime('%d.%m.%Y'))
+        assert html('#date_end').val() == meeting.date_end.strftime('%d.%m.%Y')
+        assert (html('#meeting_type_slug option:selected').val() ==
+                meeting.meeting_type_slug)
+        assert html('#acronym').val() is None
+        assert (html('#online_registration').is_(':checked') ==
+                meeting.online_registration)
+        assert (html('#settings-0').is_(':checked') ==
+                bool(meeting.media_participant_enabled))
+        assert html('#photo_field_id').val() == meeting.photo_field_id or 0
+
+
+def test_clone_meeting_same_acronym(app, user):
+    meeting = MeetingFactory()
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+    data['acronym'] = meeting.acronym
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        acronym_error = PyQuery(resp.data)('div.text-danger small')
+        assert len(acronym_error) == 1
+        assert acronym_error.text() == 'Acronym exists'
+
+
+def test_clone_meeting_attributes_are_equal(app, user):
+    meeting = MeetingFactory()
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 2
+        clone = Meeting.query.get(2)
+        check_translations_are_equal(meeting.title, clone.title)
+        check_translations_are_equal(meeting.badge_header,
+                                     clone.badge_header)
+        check_translations_are_equal(meeting.venue_city,
+                                     clone.venue_city)
+        assert meeting.venue_address is not clone.venue_address
+        assert meeting.venue_address == clone.venue_address
+        assert meeting.venue_country is not clone.venue_country
+        assert meeting.venue_country == clone.venue_country
+        assert meeting.date_start is not clone.date_start
+        assert meeting.date_start == clone.date_start
+        assert meeting.date_end is not clone.date_end
+        assert meeting.date_end == clone.date_end
+        assert (meeting.meeting_type_slug is not clone.meeting_type_slug)
+        assert (meeting.meeting_type_slug == clone.meeting_type_slug)
+        assert meeting.acronym != clone.acronym
+        assert meeting.online_registration == clone.online_registration
+
+
+def test_clone_meeting_custom_fields_clones(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    CustomFieldFactory(meeting=meeting, field_type='checkbox',
+                       label__english='diet')
+    CustomFieldFactory(custom_field_type=CustomField.MEDIA,
+                       meeting=meeting, field_type='checkbox', sort=30,
+                       required=False)
+    CustomFieldFactory(meeting=meeting)
+    CustomFieldFactory(meeting=meeting, field_type='text',
+                       label__english='Info',
+                       visible_on_registration_form=False)
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        add_custom_fields_for_meeting(meeting,
+                                      form_class=MediaParticipantDummyForm)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 2
+        clone = Meeting.query.get(2)
+        fields = meeting.custom_fields.order_by(CustomField.sort).all()
+        cloned_fields = clone.custom_fields.order_by(CustomField.sort).all()
+        assert len(fields) == len(cloned_fields)
+        for (field, cloned_field) in zip(fields, cloned_fields):
+            check_fields_are_equal(field, cloned_field)
+
+
+def test_clone_meeting_category_clones(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    MeetingCategoryFactory(meeting=meeting)
+    MeetingCategoryFactory(meeting=meeting, category_type=Category.MEDIA)
+
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 2
+        clone = Meeting.query.get(2)
+        categs = meeting.categories.all()
+        cloned_categs = clone.categories.all()
+        assert len(categs) == len(cloned_categs)
+        for (categ, cloned_categ) in zip(categs, cloned_categs):
+            check_categories_are_equal(categ, cloned_categ)
+
+
+def test_clone_meeting_role_clones(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    RoleUserMeetingFactory.create_batch(5, meeting=meeting)
+
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 2
+        clone = Meeting.query.get(2)
+        role_users = meeting.role_users.all()
+        cloned_role_users = clone.role_users.all()
+        for (role, cloned_role) in zip(role_users, cloned_role_users):
+            assert role is not cloned_role
+            assert role.user is cloned_role.user
+            assert role.role is cloned_role.role
+
+
+def test_clone_meeting_subscriber_clones(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    UserNotificationFactory.create_batch(3, meeting=meeting)
+    UserNotificationFactory(meeting=meeting,
+                            notification_type='notify_media')
+
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 2
+        clone = Meeting.query.get(2)
+        subscribers = meeting.user_notifications.all()
+        cloned_subscribers = clone.user_notifications.all()
+        assert len(subscribers) == len(cloned_subscribers)
+        for (sub, cloned_sub) in zip(subscribers, cloned_subscribers):
+            assert sub is not cloned_sub
+            assert sub.user is cloned_sub.user
+            assert sub.notification_type == cloned_sub.notification_type
+
+
+def test_clone_meeting_participants_are_not_cloned(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    category = MeetingCategoryFactory(meeting__settings=MEDIA_ENABLED,
+                                      category_type=Category.MEDIA)
+    meeting = category.meeting
+    MediaParticipantFactory.create_batch(7, category=category)
+    ParticipantFactory.create_batch(5, category=category)
+
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.clone', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 2
+        clone = Meeting.query.get(2)
+        assert clone.participants.count() == 0
+
+
+def check_translations_are_equal(original, clone):
+    assert original is not clone
+    assert original.english is not clone.english
+    assert original.english == clone.english
+    assert (original.french == clone.french == None or
+            original.french is not clone.french)
+    assert (original.french or '') == (clone.french or '')
+    assert (original.spanish == clone.spanish == None or
+            original.spanish is not clone.spanish)
+    assert (original.spanish or '') == (clone.spanish or '')
+
+
+def check_fields_are_equal(original, clone):
+    assert original is not clone
+    assert original.slug is not clone.slug
+    assert original.slug == clone.slug
+    check_translations_are_equal(original.label, clone.label)
+    assert (original.description == clone.description == None or
+            original.description is not clone.description)
+    assert original.description == clone.description
+    assert original.field_type is not clone.field_type
+    assert original.field_type == clone.field_type
+    assert original.required == clone.required
+    assert original.is_primary == clone.is_primary
+    assert (original.visible_on_registration_form ==
+            clone.visible_on_registration_form)
+    assert original.sort == clone.sort
+    assert original.custom_field_type is not clone.custom_field_type
+    assert original.custom_field_type == clone.custom_field_type
+
+
+def check_categories_are_equal(original, clone):
+    assert original is not clone
+    check_translations_are_equal(original.title, clone.title)
+    assert original.color is not clone.color
+    assert original.color == clone.color
+    assert (original.background == clone.background == None or
+            original.background is not clone.background)
+    assert original.background == clone.background
+    assert original.representing is not clone.representing
+    assert original.representing == clone.representing
+    assert original.category_type is not clone.category_type
+    assert original.category_type == clone.category_type
+    assert original.group is not clone.group
+    assert original.group == clone.group
+    assert original.sort == clone.sort
+    assert (original.visible_on_registration_form ==
+            clone.visible_on_registration_form)

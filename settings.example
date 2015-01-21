@@ -9,3 +9,6 @@ DEFAULT_MAIL_SENDER = ''
 MAIL_SUPPRESS_SEND = True
 # Disable assets compilation
 ASSETS_DEBUG = True
+
+# Enable GOOGLE ANALYTICS
+GOOGLE_ANALYTICS_KEY = ''
