@@ -175,6 +175,7 @@ def test_meeting_custom_fields_list_with_media_participant_enabled(app, user):
     data['badge_header-english'] = data.pop('badge_header')
     data['settings'] = 'media_participant_enabled'
     data['photo_field_id'] = '0'
+    data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()

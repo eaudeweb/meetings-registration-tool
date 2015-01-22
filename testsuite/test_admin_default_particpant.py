@@ -150,6 +150,7 @@ def add_new_meeting(client, user):
     data['badge_header-english'] = data.pop('badge_header')
     data['online_registration'] = 'y'
     data['photo_field_id'] = '0'
+    data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     url = url_for('meetings.add')

@@ -25,6 +25,20 @@
 {% endblock %}
 
 
+{% block scripts %}
+
+  <script>
+    $(function () {
+      if (window.location.hash) {
+        var selector = '#nav_tabs a[href="' + window.location.hash + '"]';
+        $(selector).tab('show');
+      }
+    });
+  </script>
+
+{% endblock %}
+
+
 {% macro render_fields(fields) %}
 
   <p class="text-right"><small>{{ fields.count() }} fields</small></p>
@@ -88,7 +102,7 @@
 
   <div role="tabpanel">
 
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs" id="nav_tabs">
       <li class="active">
         <a href="#participant" data-toggle="tab">Participant fields</a>
       </li>

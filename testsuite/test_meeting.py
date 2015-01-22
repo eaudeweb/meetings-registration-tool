@@ -82,7 +82,7 @@ def test_meeting_add(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -103,7 +103,7 @@ def test_meeting_add_default_categories_clone(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -137,7 +137,7 @@ def test_meeting_add_without_badge_header(app, user):
     meeting_type = MeetingTypeFactory()
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -159,7 +159,7 @@ def test_meeting_add_participant_custom_field_generation(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -188,7 +188,7 @@ def test_meeting_add_with_media_participants_disabled(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -219,7 +219,7 @@ def test_meeting_add_custom_field_choice_generation(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -248,7 +248,7 @@ def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -280,7 +280,7 @@ def test_meeting_edit(app, user):
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -303,6 +303,7 @@ def test_meeting_edit_with_photo_field(app, user):
     data['badge_header-english'] = data.pop('badge_header')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = photo_field.id
+    data['media_photo_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -315,6 +316,122 @@ def test_meeting_edit_with_photo_field(app, user):
     assert meeting.photo_field == photo_field
 
 
+def test_meeting_edit_with_media_photo_field(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    photo_field = CustomFieldFactory(meeting=meeting,
+                                     custom_field_type=CustomField.MEDIA)
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = 'Sixtieth meeting of the Standing Committee'
+    data['badge_header-english'] = data.pop('badge_header')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['photo_field_id'] = '0'
+    data['media_photo_field_id'] = photo_field.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert meeting.media_photo_field == photo_field
+
+
+def test_meeting_edit_with_photo_field_and_media_field_choice(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    photo_field = CustomFieldFactory(meeting=meeting,
+                                     custom_field_type=CustomField.MEDIA)
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = 'Sixtieth meeting of the Standing Committee'
+    data['badge_header-english'] = data.pop('badge_header')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['photo_field_id'] = photo_field.id
+    data['media_photo_field_id'] = '0'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 200
+    error = PyQuery(resp.data)('div.text-danger small')
+    assert len(error) == 1
+    assert error.text() == 'Not a valid choice'
+
+
+def test_meeting_edit_with_media_photo_field_and_field_choice(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    photo_field = CustomFieldFactory(meeting=meeting)
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = 'Sixtieth meeting of the Standing Committee'
+    data['badge_header-english'] = data.pop('badge_header')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['photo_field_id'] = '0'
+    data['media_photo_field_id'] = photo_field.id
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.edit', meeting_id=meeting.id)
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 200
+    error = PyQuery(resp.data)('div.text-danger small')
+    assert len(error) == 1
+    assert error.text() == 'Not a valid choice'
+
+
+def test_meeting_edit_form_with_media_photo_field(app, user):
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    meeting = MeetingFactory(settings=MEDIA_ENABLED)
+    CustomFieldFactory(meeting=meeting)
+    CustomFieldFactory(meeting=meeting,
+                       custom_field_type=CustomField.MEDIA)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.edit', meeting_id=meeting.id))
+
+    assert resp.status_code == 200
+    html = PyQuery(resp.data)
+    photo_field = html('#photo_field_id')
+    assert len(photo_field) == 1
+    assert len(photo_field[0].value_options) == 2
+    media_photo_field = html('#media_photo_field_id')
+    assert len(media_photo_field) == 1
+    assert len(media_photo_field[0].value_options) == 2
+
+
+def test_meeting_edit_form_without_media_photo_field(app, user):
+    meeting = MeetingFactory()
+    CustomFieldFactory(meeting=meeting)
+    CustomFieldFactory(meeting=meeting,
+                       custom_field_type=CustomField.MEDIA)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.edit', meeting_id=meeting.id))
+
+    assert resp.status_code == 200
+    html = PyQuery(resp.data)
+    photo_field = html('#photo_field_id')
+    assert len(photo_field) == 1
+    assert len(photo_field[0].value_options) == 2
+    media_photo_field = html('#media_photo_field_id')
+    assert len(media_photo_field) == 0
+
+
 def test_meeting_edit_removes_badge_header(app, user):
     meeting = MeetingFactory()
     badge_header = meeting.badge_header.english
@@ -322,7 +439,7 @@ def test_meeting_edit_removes_badge_header(app, user):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -547,7 +664,7 @@ def test_meeting_add_phrase_edit(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
@@ -575,7 +692,7 @@ def test_meeting_add_default_phrase_edit(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
@@ -604,7 +721,7 @@ def test_meeting_add_default_phrase_copies(app, user):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -624,7 +741,7 @@ def test_meeting_add_with_meeting_settings(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -645,7 +762,7 @@ def test_meeting_edit_with_meeting_settings(app, user):
     data = normalize_data(MeetingFactory.attributes())
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
     data['settings'] = 'media_participant_enabled'
 
@@ -713,7 +830,7 @@ def test_clone_meeting_same_acronym(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
     data['acronym'] = meeting.acronym
 
@@ -734,7 +851,7 @@ def test_clone_meeting_attributes_are_equal(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -781,7 +898,7 @@ def test_clone_meeting_custom_fields_clones(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -813,7 +930,7 @@ def test_clone_meeting_category_clones(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -841,7 +958,7 @@ def test_clone_meeting_role_clones(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -872,7 +989,7 @@ def test_clone_meeting_subscriber_clones(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -905,7 +1022,7 @@ def test_clone_meeting_participants_are_not_cloned(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
-    data['photo_field_id'] = '0'
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()

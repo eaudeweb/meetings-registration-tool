@@ -673,6 +673,16 @@ class Meeting(db.Model):
                                   foreign_keys=photo_field_id,
                                   post_update=True)
 
+    media_photo_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id',
+                                  ondelete="SET NULL",
+                                  use_alter=True,
+                                  name='fk_media_photo_field'),)
+
+    media_photo_field = db.relationship('CustomField',
+                                        foreign_keys=media_photo_field_id,
+                                        post_update=True)
+
     def get_absolute_url(self):
         return url_for('meetings.participants', meeting_id=self.id)
 
