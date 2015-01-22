@@ -116,7 +116,7 @@
         {% endif %}
         {{ input(class_="form-control",
                  placeholder=input.label.text) }}
-        {% if input.flags.errors %}
+        {% if input.errors %}
           <div class="text-danger">
             <small>{{ input.errors[0] }}</small>
           </div>
