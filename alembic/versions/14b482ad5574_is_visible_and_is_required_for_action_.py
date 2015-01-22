@@ -1,14 +1,14 @@
 """is_visible and is_required for Action model
 
 Revision ID: 14b482ad5574
-Revises: 280a266be4a4
+Revises: 333833cebe88
 Create Date: 2015-01-22 12:24:56.428785
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '14b482ad5574'
-down_revision = '280a266be4a4'
+down_revision = '333833cebe88'
 
 from alembic import op
 import sqlalchemy as sa
