@@ -1,0 +1,28 @@
+<div id="default-condition-form" class="hide">
+
+  <div class="rule rule-border">
+    {{ form_group(form.conditions[0].field,
+                  class_='field') }}
+    {{ form_group(form.conditions[0].values, class_='values') }}
+    <a class="rule-remove"><small>
+      <span class="glyphicon glyphicon-remove"></span></small>
+    </a>
+    <div class="rule-and"><small>and</small></div>
+  </div>
+
+</div> {# default-condition-form #}
+
+
+<div id="default-actions-form" class="hide">
+
+  <div class="rule rule-border">
+    {{ form_group(form.actions[0].field) }}
+    {{ form_group(form.actions[0].is_required) }}
+    {{ form_group(form.actions[0].is_visible) }}
+    <a class="rule-remove"><small>
+      <span class="glyphicon glyphicon-remove"></span></small>
+    </a>
+    <div class="rule-and"><small>and</small></div>
+  </div>
+
+</div> {# default-condition-form #}

@@ -1,33 +1,43 @@
 {% from "_bits.html" import form_group %}
 
-
-<div id="default-actions-form" class="hide">
-
-  <div class="rule rule-border">
-    {{ form_group(form.actions[0].field) }}
-    {{ form_group(form.actions[0].is_required) }}
-    {{ form_group(form.actions[0].is_visible) }}
-    <a class="rule-remove"><small>
-      <span class="glyphicon glyphicon-remove"></span></small>
-    </a>
-
-    <div class="rule-and"><small>and</small></div>
-  </div>
-
-</div> {# default-condition-form #}
-
 <div class="panel panel-default">
 
   <div class="panel-heading"><b>Actions</b></div>
 
   <div class="panel-body">
 
+    {% if form.actions.errors %}
+      <div class="alert alert-danger">
+        {{ form.actions.errors[0] }}
+      </div>
+    {% endif %}
+
     <div id="actions-container" class="rule-container">
       {% for action in form.actions %}
-        <div class="rule">
-          {{ form_group(action.field) }}
-          {{ form_group(action.is_required) }}
-          {{ form_group(action.is_visible) }}
+        <div class="rule
+                    {% if not loop.first %}rule-border{% endif %}">
+          {{ form_group(action.field,
+                        label_size="3", input_size="8") }}
+          <div class="form-group actions-options">
+            <label class="col-sm-3 control-label"></label>
+            <div class="col-sm-8">
+              <label>
+                {{ action.is_required() }}
+                {{ action.is_required.label.text }}
+              </label>
+              <label>
+                {{ action.is_visible() }}
+                {{ action.is_visible.label.text }}
+              </label>
+            </div>
+          </div> {# form-group #}
+
+          {% if not loop.first %}
+            <a class="rule-remove"><small>
+              <span class="glyphicon glyphicon-remove"></span></small>
+            </a>
+            <div class="rule-and"><small>and</small></div>
+          {% endif %}
         </div>
       {% endfor %}
     </div> {# actions-container #}

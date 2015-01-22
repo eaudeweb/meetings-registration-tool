@@ -2,6 +2,7 @@ $(function () {
 
   var container = $('.rule-container');
   var conditions_container = $('#conditions-container');
+  var actions_container = $('#actions-container');
   container.find('.select').select2({ width: '100%' });
 
   var updatePrefix = function ($target) {
@@ -54,6 +55,12 @@ $(function () {
     });
   });
 
-  conditions_container.find('.field').change();
+  var conditions_height = conditions_container.parents('.panel').height();
+  var actions_height = actions_container.parents('.panel').height();
+  if(conditions_height > actions_height) {
+    actions_container.parents('.panel').css('min-height', conditions_height);
+  } else {
+    conditions_container.parents('.panel').css('min-height', actions_height);
+  }
 
 });

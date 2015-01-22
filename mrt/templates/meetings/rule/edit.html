@@ -1,8 +1,8 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, form_group %}
 
 
-{% set title = "Edit rule"  if rule else "Add rule" %}
+{% set title = "Edit rule" if rule else "Add rule" %}
 {% block title %} {{ title }} {% endblock %}
 
 
@@ -16,31 +16,63 @@
 {% endblock %}
 
 
+{% block scripts %}
+
+  {% if not rule %}
+    <script>
+      $(function () {
+        $('#conditions-container').find('.field').change();
+      });
+    </script>
+  {% endif %}
+
+{% endblock %}
+
+
 {% block content %}
 
   {{ super() }}
 
   <h3 class="page-title">{{ title }}</h3>
 
+  {% include "meetings/rule/_default_fields.html" %}
+
   <form class="form-horizontal" method="POST">
 
     {{ form.csrf_token }}
 
-    {% include "meetings/rule/_condition_fields.html" %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><b>Name this rule</b></div>
+      <div class="panel-body">
+        {{ form_group(form.name,
+                      options={'autofocus': 'autofocus'}) }}
+      </div>
+    </div>
 
-    {% include "meetings/rule/_action_fields.html" %}
-
-    {% if rule %}
-      {% set url = url_for('.rule_edit', rule_id=rule.id) %}
-    {% else %}
-      {% set url = url_for('.rules') %}
-    {% endif %}
+    <div class="row">
+      <div class="col-sm-6">
+        {% include "meetings/rule/_condition_fields.html" %}
+      </div>
+      <div class="col-sm-6">
+        {% include "meetings/rule/_action_fields.html" %}
+      </div>
+    </div>
 
     <div class="form-actions row">
       <div class="col-sm-6">
         <button type="submit" class="btn btn-primary">
           Save changes</button>
-        <small>or <a href="{{ url }}">Cancel</a></small>
+        <small>or <a href="{{ url_for('.rules') }}">
+          Cancel</a></small>
+      </div>
+      <div class="col-sm-6 text-right">
+        {% if rule %}
+        <a class="delete" data-toggle="delete"
+           data-href="{{ url_for('.rule_edit', rule_id=rule.id) }}"
+           data-message="Are you sure you want to delete this rule?">
+            <span class="glyphicon glyphicon-remove"></span>
+            Delete this rule</a>
+        {% endif %}
       </div>
     </div> {# form-actions #}
 

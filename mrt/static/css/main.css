@@ -408,9 +408,9 @@ li.separator {
 }
 .rule-remove {
     position: absolute;
-    right: 75px;
-    top: 50px;
     color: #666;
+    right: 2px;
+    top: 26px;
 }
 .rule-remove:hover {
     color: #e30909;
@@ -425,4 +425,11 @@ li.separator {
     top: -13px;
     left: 50%;
 }
-
+.rule-container .actions-options label {
+    padding-right: 25px;
+    font-weight: normal;
+}
+.rule-container .actions-options input {
+    position: relative;
+    top: 0px;
+}

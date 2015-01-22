@@ -43,7 +43,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('condition_id', sa.Integer(), nullable=True),
     sa.Column('value', sa.String(length=255), nullable=False),
-    sa.ForeignKeyConstraint(['condition_id'], ['condition.id'], ),
+    sa.ForeignKeyConstraint(['condition_id'], ['condition.id'],
+                            ondelete="CASCADE"),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_foreign_key('fk_photo_field', 'meeting', 'custom_field', ['photo_field_id'], ['id'])

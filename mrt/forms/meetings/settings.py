@@ -1,9 +1,10 @@
 from flask import g
 
 from sqlalchemy import desc
+from sqlalchemy.orm.exc import NoResultFound
 
 from wtforms import fields
-from wtforms.validators import DataRequired, ValidationError
+from wtforms.validators import DataRequired, ValidationError, Length
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import CategoryDefault, Category, CustomField
@@ -147,12 +148,12 @@ class UserNotificationForm(BaseForm):
     class Meta:
         model = UserNotification
 
-    user_id = fields.SelectField('Staff',
-                                 validators=[DataRequired()],
+    user_id = fields.SelectField('Staff', validators=[DataRequired()],
                                  coerce=int)
-    notification_type = fields.SelectField('Type',
-                                           validators=[DataRequired()],
-                                           choices=NOTIFICATION_TYPES)
+    notification_type = fields.SelectField(
+        'Type',
+        validators=[DataRequired()],
+        choices=NOTIFICATION_TYPES)
 
     def __init__(self, *args, **kwargs):
         super(UserNotificationForm, self).__init__(*args, **kwargs)
@@ -178,8 +179,7 @@ class UserNotificationForm(BaseForm):
 class ConditionForm(BaseForm):
 
     field = fields.SelectField('Field', coerce=int)
-    values = fields.SelectMultipleField('Values', [DataRequired()],
-                                        choices=[], coerce=int)
+    values = fields.SelectMultipleField('Values', [DataRequired()], choices=[])
 
     def __init__(self, *args, **kwargs):
         super(ConditionForm, self).__init__(*args, **kwargs)
@@ -192,41 +192,43 @@ class ConditionForm(BaseForm):
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
 
-        self.cf = cf = None
+        cf = None
         if self.field.data:
             cf = (
                 CustomField.query
-                .filter_by(id=self.field.data, meeting=g.meeting)
+                .filter_by(id=int(self.field.data), meeting=g.meeting)
                 .one()
             )
-            if cf.field_type == CustomField.CATEGORY:
-                query = Category.get_categories_for_meeting(
-                    Category.PARTICIPANT)
-                self.values.choices = [(c.id, unicode(c)) for c in query]
-            if cf.field_type == CustomField.COUNTRY:
-                self.value.choices = get_all_countries()
+            dispatch = {
+                CustomField.CATEGORY: self._get_query_for_category,
+                CustomField.COUNTRY: self._get_query_for_countries,
+            }
+            self.values.choices = dispatch[cf.field_type.code]()
 
-    # def save(self, rule):
-    #     # condition = rule.condition or Condition(rule=rule)
-    #     # condition.field = self.field
-    #     # clear all condition values before
-    #     if rule.id:
-    #         Condition.query.filter_by(rule=rule).delete()
+        self.cf = cf
 
-    #     for condition in self.condi
-    #     db.session.add(condition)
-    #     db.session.flush()
-    #     for value in self.values:
-    #         condition_value = ConditionValue(condition=condition, value=value)
-    #         db.session.add(condition_value)
-    #     return condition
+    def _get_query_for_category(self):
+        query = Category.get_categories_for_meeting(Category.PARTICIPANT)
+        return [(str(c.id), unicode(c)) for c in query]
+
+    def _get_query_for_countries(self):
+        return get_all_countries()
+
+    def save(self, rule):
+        condition = Condition(rule=rule, field=self.cf)
+        db.session.add(condition)
+        db.session.flush()
+        for value in self.values.data:
+            condition_value = ConditionValue(condition=condition,
+                                             value=value)
+            db.session.add(condition_value)
 
 
 class ActionForm(BaseForm):
 
     field = fields.SelectField('Field', coerce=int)
-    is_required = fields.BooleanField()
-    is_visible = fields.BooleanField()
+    is_required = fields.BooleanField('Required')
+    is_visible = fields.BooleanField('Visible')
 
     def __init__(self, *args, **kwargs):
         super(ActionForm, self).__init__(*args, **kwargs)
@@ -235,33 +237,63 @@ class ActionForm(BaseForm):
             .filter_by(custom_field_type=CustomField.PARTICIPANT)
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
+        self.cf = None
+        if self.field.data:
+            self.cf = (
+                CustomField.query
+                .filter_by(id=self.field.data, meeting=g.meeting)
+                .one())
 
-    def save(self):
-        action = rule.
+    def save(self, rule):
+        action = Action(rule=rule, field=self.cf)
+        action.is_required = self.is_required.data
+        action.is_visible = self.is_visible.data
+        db.session.add(action)
 
 
 class RuleForm(BaseForm):
 
+    name = fields.StringField('Rule name', [DataRequired(), Length(max=64)])
     conditions = fields.FieldList(fields.FormField(ConditionForm),
                                   min_entries=1)
     actions = fields.FieldList(fields.FormField(ActionForm),
                                min_entries=1)
 
+    def __init__(self, *args, **kwargs):
+        self.rule = rule = kwargs.pop('rule', None)
+        formdata = args[0] if args else None
+        super(RuleForm, self).__init__(*args, **kwargs)
+        if rule:
+            self.name.process(formdata, rule.name)
+
+    def validate_name(self, field):
+        if field.data == self.rule.name:
+            return
+        try:
+            Rule.query.filter_by(name=field.data, meeting=g.meeting).one()
+            raise ValidationError('Name must be unique')
+        except NoResultFound:
+            pass
+
+    def validate_actions(self, field):
+        condition_fields = set([i['field'] for i in self.conditions.data])
+        action_fields = set([i['field'] for i in self.actions.data])
+        if condition_fields & action_fields:
+            raise ValidationError('Action fields should be different '
+                                  'from condition fields')
+
     def save(self):
-        rule = self.obj or Rule(meeting=g.meeting)
-        # if edit, delete all conditions for this rule and their
+        rule = self.rule or Rule(meeting=g.meeting)
+        rule.name = self.name.data
+        # if edit, delete all conditions and actions for this rule and their
         # corresponding values
         if rule.id:
             Condition.query.filter_by(rule=rule).delete()
-        for condition in self.conditions:
-            condition = Condition(rule=rule, field=condition.cf)
-            db.session.add(condition)
-            db.session.flush()
-            for value in condition.values.data:
-                condition_value = ConditionValue(condition=condition,
-                                                 value=value)
-                db.session.add(condition_value)
-        self.conditions.save(rule)
-        self.actions.save(rule)
+            Action.query.filter_by(rule=rule).delete()
+        for condition_form in self.conditions:
+            condition_form.save(rule)
+        for action_form in self.actions:
+            action_form.save(rule)
         if not rule.id:
             db.session.add(rule)
+        db.session.commit()

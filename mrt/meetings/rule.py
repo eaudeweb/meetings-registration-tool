@@ -1,11 +1,16 @@
+from collections import namedtuple
+
+from werkzeug.datastructures import MultiDict
+
 from flask import g, render_template, jsonify, abort, request
-from flask import redirect, url_for
+from flask import redirect, url_for, flash
 from flask.ext.login import login_required
 from flask.views import MethodView
 
 from mrt.forms.meetings import RuleForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.models import Category, CustomField, Rule
+from mrt.models import db
 from mrt.utils import get_all_countries
 
 
@@ -24,16 +29,45 @@ class RuleEdit(PermissionRequiredMixin, MethodView):
     decorators = (login_required,)
     permission_required = ('manage_meeting',)
 
+    def get_object(self, rule_id):
+        return (Rule.query.filter_by(id=rule_id, meeting=g.meeting)
+                .first_or_404() if rule_id else None)
+
+    def process_formdata(self, rule):
+        Condition = namedtuple('Condition', ['field', 'values'])
+        Action = namedtuple('Action', ['field', 'is_required', 'is_visible'])
+        conditions, actions = [], []
+        for condition in rule.conditions.all():
+            values = [i.value for i in condition.values.all()]
+            conditions.append(Condition(condition.field.id, values))
+        for action in rule.actions.all():
+            actions.append(Action(action.field.id, action.is_required,
+                                  action.is_visible))
+        return MultiDict({'conditions': conditions, 'actions': actions})
+
     def get(self, rule_id=None):
-        form = RuleForm()
-        return render_template('meetings/rule/edit.html', form=form)
+        rule = self.get_object(rule_id)
+        data = self.process_formdata(rule) if rule else None
+        form = RuleForm(data=data, rule=rule)
+        return render_template('meetings/rule/edit.html',
+                               form=form, rule=rule)
 
     def post(self, rule_id=None):
-        form = RuleForm(request.form)
+        rule = self.get_object(rule_id)
+        data = self.process_formdata(rule) if rule else None
+        form = RuleForm(request.form, data=data, rule=rule)
         if form.validate():
             form.save()
             return redirect(url_for('.rules'))
-        return render_template('meetings/rule/edit.html', form=form)
+        return render_template('meetings/rule/edit.html',
+                               form=form, rule=rule)
+
+    def delete(self, rule_id):
+        rule = self.get_object(rule_id)
+        db.session.delete(rule)
+        db.session.commit()
+        flash('Rule successfully deleted', 'warning')
+        return jsonify(status='success', url=url_for('.rules'))
 
 
 class RulesData(PermissionRequiredMixin, MethodView):

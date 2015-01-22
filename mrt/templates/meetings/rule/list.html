@@ -1,7 +1,9 @@
 {% extends "meetings/_base.html" %}
 {% from "_bits.html" import breadcrumb %}
 
+
 {% set title = "Rules" %}
+{% block title %} {{ title }} {% endblock %}
 
 
 {% block breadcrumb %}
@@ -18,9 +20,47 @@
   <h3 class="page-title">{{ title }}</h3>
 
   <div class="table-responsive">
-    <table id="rules" class="table table-bordered table-condensed">
+    <table id="rules" class="table table-bordered table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>Rule name</th>
+          <th>Fields in conditions</th>
+          <th>Fields in actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rule in rules %}
+          <tr>
+            <td>
+              {% set url = url_for('.rule_edit', rule_id=rule.id) %}
+              <a href="{{ url }}">{{ rule.name }}</a>
+            </td>
+            <td>
+              <ul class="list-unstyled">
+              {% for condition in rule.conditions.all() %}
+                <li>- {{ condition.field }}</li>
 
+              {% endfor %}
+              </ul>
+            </td>
+            <td>
+              <ul class="list-unstyled">
+              {% for action in rule.actions.all() %}
+                <li>- {{ action.field }}</li>
+              {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
+  </div>
+
+  <div class="actions">
+    <a href="{{ url_for('.rule_edit') }}"
+       class="btn btn-primary btn-sm">
+      <span class="glyphicon glyphicon-plus"></span>
+      Add a new rule</a>
   </div>
 
 {% endblock %}

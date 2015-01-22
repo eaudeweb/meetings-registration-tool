@@ -1,21 +1,5 @@
 {% from "_bits.html" import form_group %}
 
-<div id="default-condition-form" class="hide">
-
-  <div class="rule rule-border">
-    {{ form_group(form.conditions[0].field, class_='field') }}
-    {{ form_group(form.conditions[0].values, class_='values') }}
-
-    <a class="rule-remove"><small>
-      <span class="glyphicon glyphicon-remove"></span></small>
-    </a>
-
-    <div class="rule-and"><small>and</small></div>
-  </div>
-
-</div> {# default-condition-form #}
-
-
 <div class="panel panel-default">
 
   <div class="panel-heading"><b>Conditions</b></div>
@@ -25,9 +9,19 @@
     <div id="conditions-container" class="rule-container"
          data-url="{{ url_for('.rules_data') }}">
       {% for condition in form.conditions %}
-        <div class="rule">
-          {{ form_group(condition.field, class_='field') }}
-          {{ form_group(condition.values, class_='select values') }}
+        <div class="rule
+                    {% if not loop.first %}rule-border{% endif %}">
+          {{ form_group(condition.field, class_='field',
+                        label_size="3", input_size="8") }}
+          {{ form_group(condition.values, class_='select values',
+                        label_size="3", input_size="8") }}
+          {% if not loop.first %}
+            <a class="rule-remove"><small>
+              <span class="glyphicon glyphicon-remove"></span>
+              </small>
+            </a>
+            <div class="rule-and"><small>and</small></div>
+          {% endif %}
         </div>
       {% endfor %}
     </div> {# conditions-container #}

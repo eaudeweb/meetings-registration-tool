@@ -257,6 +257,7 @@ meetings.add_url_rule(
     '/<int:meeting_id>/settings/rules/data',
     view_func=views.RulesData.as_view('rules_data'))
 
+
 @meetings.url_defaults
 def add_meeting_id(endpoint, values):
     meeting = getattr(g, 'meeting', None)

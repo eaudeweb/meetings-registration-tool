@@ -1003,31 +1003,39 @@ class Condition(db.Model):
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
     rule = db.relationship(
         'Rule',
-        backref=db.backref('conditions', lazy='dynamic', cascade='delete'))
+        cascade='all,delete',
+        backref=db.backref('conditions', lazy='dynamic'))
 
     field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
+    field = db.relationship(
+        'CustomField',
+        backref=db.backref('conditions', lazy='dynamic'))
 
 
 class ConditionValue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    condition_id = db.Column(db.Integer, db.ForeignKey('condition.id'))
+    condition_id = db.Column(db.Integer, db.ForeignKey('condition.id', onupdate="CASCADE", ondelete="CASCADE"))
     condition = db.relationship(
         'Condition',
-        backref=db.backref('value', uselist=False, cascade='delete'))
+        backref=db.backref('values', lazy='dynamic'))
     value = db.Column(db.String(255), nullable=False)
 
 
 class Action(db.Model):
 
-    VISIBLE = 'visible'
-    REQUIRED = 'required'
-
     id = db.Column(db.Integer, primary_key=True)
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
+    rule = db.relationship(
+        'Rule',
+        cascade='all,delete',
+        backref=db.backref('actions', lazy='dynamic'))
     is_visible = db.Column(db.Boolean, default=False)
     is_required = db.Column(db.Boolean, default=False)
     field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
+    field = db.relationship(
+        'CustomField',
+        backref=db.backref('actions', lazy='dynamic'))
 
 
 def get_or_create_role(name):
