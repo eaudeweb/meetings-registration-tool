@@ -251,3 +251,28 @@
   {% endif %}
 
 {% endmacro %}
+
+
+{% macro form_photo_field(field, action_url) %}
+  <div class="form-group {% if field.errors %}has-error{% endif %}">
+    <label class="col-sm-2 control-label" for="{{ field.id }}">
+      {{ field.label.text }}
+    </label>
+
+    <div class="col-sm-3">
+      {{ field(class_="form-control") }}
+      {% if field.errors %}
+        <div class="text-danger"><small>{{ field.errors[0] }}</small></div>
+      {% endif %}
+    </div>
+
+    <div class="actions">
+      <a href="{{ action_url }}">
+        <span class="glyphicon glyphicon-plus"></span>
+        Add a new custom field
+      </a>
+    </div>
+  </div>
+
+{% endmacro %}
+

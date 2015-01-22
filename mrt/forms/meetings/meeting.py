@@ -52,6 +52,7 @@ class MeetingEditForm(BaseForm):
     venue_city = ModelFormField(TranslationInputForm, label='City')
     meeting_type_slug = fields.SelectField('Meeting Type')
     photo_field_id = fields.SelectField('Photo Field', coerce=int)
+    media_photo_field_id = fields.SelectField('Media Photo Field', coerce=int)
     settings = MultiCheckboxField('Settings', choices=MEETING_SETTINGS)
 
     def __init__(self, *args, **kwargs):
@@ -61,12 +62,18 @@ class MeetingEditForm(BaseForm):
         self.meeting_type_slug.choices = [
             (mt.slug, mt.label) for mt in MeetingType.query.ignore_def()]
         self.photo_field_id.choices = [(0, '-----')]
+        self.media_photo_field_id.choices = [(0, '-----')]
         if self.obj:
             query = self.obj.custom_fields.filter_by(
-                field_type=CustomField.IMAGE,
+                field_type=CustomField.IMAGE)
+            participant_query = query.filter_by(
                 custom_field_type=CustomField.PARTICIPANT)
-            image_fields = [(x.id, x.label) for x in query]
+            image_fields = [(x.id, x.label) for x in participant_query]
             self.photo_field_id.choices += image_fields
+            media_query = query.filter_by(
+                custom_field_type=CustomField.MEDIA)
+            image_fields = [(x.id, x.label) for x in media_query]
+            self.media_photo_field_id.choices += image_fields
 
     def validate_settings(self, field):
         settings = dict(MEETING_SETTINGS)
@@ -107,6 +114,7 @@ class MeetingEditForm(BaseForm):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
         meeting.photo_field_id = meeting.photo_field_id or None
+        meeting.media_photo_field_id = meeting.media_photo_field_id or None
         self._clean_badge_header(meeting)
         if meeting.id is None:
             meeting.owner = current_user.staff
