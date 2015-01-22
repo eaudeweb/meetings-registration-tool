@@ -979,6 +979,8 @@ class Job(db.Model):
 class Rule(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False,
+                     info={'label': 'Rule name'})
     meeting_id = db.Column(db.Integer, db.ForeignKey('meeting.id'))
     meeting = db.relationship(
         'Meeting',
@@ -1003,20 +1005,18 @@ class ConditionValue(db.Model):
     condition = db.relationship(
         'Condition',
         backref=db.backref('value', uselist=False, cascade='delete'))
-
-    )
     value = db.Column(db.String(255), nullable=False)
 
 
 class Action(db.Model):
 
-    HIDE = 'hide'
+    VISIBLE = 'visible'
     REQUIRED = 'required'
-    ACTION_TYPE_CHOICES = ((HIDE, 'Hide/Show'), (REQUIRED, 'Required'))
 
     id = db.Column(db.Integer, primary_key=True)
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
-    action_type = db.Column(ChoiceType(ACTION_TYPE_CHOICES), nullable=False)
+    is_visible = db.Column(db.Boolean, default=False)
+    is_required = db.Column(db.Boolean, default=False)
     field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
 
 
