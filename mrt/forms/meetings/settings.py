@@ -267,7 +267,7 @@ class RuleForm(BaseForm):
             self.name.process(formdata, rule.name)
 
     def validate_name(self, field):
-        if field.data == self.rule.name:
+        if self.rule and (field.data == self.rule.name):
             return
         try:
             Rule.query.filter_by(name=field.data, meeting=g.meeting).one()
