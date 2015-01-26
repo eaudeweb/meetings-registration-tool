@@ -20,9 +20,23 @@
 <div id="default-actions-form" class="hide">
 
   <div class="rule rule-border">
-    {{ form_group(form.actions[0].field) }}
-    {{ form_group(form.actions[0].is_required) }}
-    {{ form_group(form.actions[0].is_visible) }}
+    {{ form_group(form.actions[0].field,
+                  label_size="3", input_size="8") }}
+
+    <div class="form-group actions-options">
+      <label class="col-sm-3 control-label"></label>
+      <div class="col-sm-8">
+        <label>
+          {{ form.actions[0].is_required() }}
+          {{ form.actions[0].is_required.label.text }}
+        </label>
+        <label>
+          {{ form.actions[0].is_visible() }}
+          {{ form.actions[0].is_visible.label.text }}
+        </label>
+      </div>
+    </div> {# form-group #}
+
     <a class="rule-remove"><small>
       <span class="glyphicon glyphicon-remove"></span></small>
     </a>
