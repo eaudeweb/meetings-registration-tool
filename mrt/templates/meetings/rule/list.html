@@ -6,18 +6,17 @@
 {% block title %} {{ title }} {% endblock %}
 
 
-{% block breadcrumb %}
-
-  {{ breadcrumb( [('', 'Rules'),] ) }}
-
-{% endblock %}
+{% block breadcrumb %} {{ breadcrumb([('', 'Rules'),]) }} {% endblock %}
 
 
 {% block content %}
 
   {{ super() }}
 
-  <h3 class="page-title">{{ title }}</h3>
+  <h3 class="page-title">
+    {{ title }} <br>
+    <small>These rules apply to the Participant Registration Form. When given conditions are met on some form fields, actions (such as "make mandatory" or "display") are applied to other fields.</small>
+  </h3>
 
   <div class="table-responsive">
     <table id="rules" class="table table-bordered table-hover table-condensed">
@@ -49,6 +48,12 @@
                 <li>- {{ action.field }}</li>
               {% endfor %}
               </ul>
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="3">
+              There are no rules currently defined.
             </td>
           </tr>
         {% endfor %}

@@ -18,13 +18,17 @@
 
 {% block scripts %}
 
-  {% if not rule %}
-    <script>
-      $(function () {
+  <script>
+    $(function () {
+      {% if not rule %}
         $('#conditions-container').find('.field').change();
+      {% endif %}
+      $('.values').parents('.form-group').find('label').tooltip({
+          'title': 'Any of these values',
+          'placement': 'bottom'
       });
-    </script>
-  {% endif %}
+    });
+  </script>
 
 {% endblock %}
 

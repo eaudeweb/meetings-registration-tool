@@ -3,7 +3,8 @@ $(function () {
   var container = $('.rule-container');
   var conditions_container = $('#conditions-container');
   var actions_container = $('#actions-container');
-  container.find('.select').select2({ width: '100%' });
+
+  container.find('.values').select2({ width: '100%' });
 
   var updatePrefix = function ($target) {
     $target.find('.rule').each(function (i) {
@@ -20,13 +21,24 @@ $(function () {
     });
   };
 
+  var updateRemove = function ($target) {
+    $target.find('.rule').eq(0).removeClass('rule-border');
+    $target.find('.rule-and').eq(0).removeClass('show').addClass('hide');
+    if($target.find('.rule-remove').length == 1) {
+      $target.find('.rule-remove').removeClass('show').addClass('hide');
+    } else {
+      $target.find('.rule-remove').addClass('show');
+    }
+  };
+
   $('.rule-add').on('click', function () {
     var $from = $($(this).data('from')),
         $to = $($(this).data('to')),
         form = $from.clone();
     form.removeClass('hide');
     $to.append(form);
-    updatePrefix($to, $from);
+    updatePrefix($to);
+    updateRemove($to);
     form.find('select').trigger('change');
   });
 
@@ -36,6 +48,7 @@ $(function () {
     $rule.fadeOut('fast', function () {
       $(this).remove();
       updatePrefix($target);
+      updateRemove($target);
     });
   });
 
@@ -51,16 +64,22 @@ $(function () {
       });
       var select = condition.find('.values');
       select.find('option').remove();
+
       select.select2({ data: dataset, width: '100%' });
     });
   });
+
+  updateRemove(conditions_container);
+  updateRemove(actions_container);
 
   var conditions_height = conditions_container.parents('.panel').height();
   var actions_height = actions_container.parents('.panel').height();
   if(conditions_height > actions_height) {
     actions_container.parents('.panel').css('min-height', conditions_height);
+    conditions_container.parents('.panel').css('min-height', conditions_height);
+
   } else {
+    actions_container.parents('.panel').css('min-height', actions_height);
     conditions_container.parents('.panel').css('min-height', actions_height);
   }
-
 });

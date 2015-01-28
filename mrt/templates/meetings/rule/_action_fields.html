@@ -1,4 +1,6 @@
 {% from "_bits.html" import form_group %}
+{% from "meetings/rule/_bits.html" import render_action %}
+
 
 <div class="panel panel-default">
 
@@ -14,36 +16,12 @@
 
     <div id="actions-container" class="rule-container">
       {% for action in form.actions %}
-        <div class="rule
-                    {% if not loop.first %}rule-border{% endif %}">
-          {{ form_group(action.field,
-                        label_size="3", input_size="8") }}
-          <div class="form-group actions-options">
-            <label class="col-sm-3 control-label"></label>
-            <div class="col-sm-8">
-              <label>
-                {{ action.is_required() }}
-                {{ action.is_required.label.text }}
-              </label>
-              <label>
-                {{ action.is_visible() }}
-                {{ action.is_visible.label.text }}
-              </label>
-            </div>
-          </div> {# form-group #}
-
-          {% if not loop.first %}
-            <a class="rule-remove"><small>
-              <span class="glyphicon glyphicon-remove"></span></small>
-            </a>
-            <div class="rule-and"><small>and</small></div>
-          {% endif %}
-        </div>
+        {{ render_action(action, loop) }}
       {% endfor %}
-    </div> {# actions-container #}
+    </div>
 
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-8">
+      <div class="col-sm-offset-3 col-sm-8">
         <a class="rule-add"
            data-from="#default-actions-form"
            data-to="#actions-container"><small>

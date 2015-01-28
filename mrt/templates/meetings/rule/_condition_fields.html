@@ -1,35 +1,23 @@
 {% from "_bits.html" import form_group %}
+{% from "meetings/rule/_bits.html" import render_condition %}
+
 
 <div class="panel panel-default">
 
-  <div class="panel-heading"><b>Conditions</b></div>
+  <div class="panel-heading"><b>Conditions (match all)</b></div>
 
   <div class="panel-body">
 
     <div id="conditions-container" class="rule-container"
          data-url="{{ url_for('.rules_data') }}">
       {% for condition in form.conditions %}
-        <div class="rule
-                    {% if not loop.first %}rule-border{% endif %}">
-          {{ form_group(condition.field, class_='field',
-                        label_size="3", input_size="8") }}
-          {{ form_group(condition.values, class_='select values',
-                        label_size="3", input_size="8") }}
-          {% if not loop.first %}
-            <a class="rule-remove"><small>
-              <span class="glyphicon glyphicon-remove"></span>
-              </small>
-            </a>
-            <div class="rule-and"><small>and</small></div>
-          {% endif %}
-        </div>
+        {{ render_condition(condition, loop) }}
       {% endfor %}
     </div> {# conditions-container #}
 
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-8">
-        <a class="rule-add"
-           data-from="#default-condition-form"
+      <div class="col-sm-offset-3 col-sm-8">
+        <a class="rule-add" data-from="#default-condition-form"
            data-to="#conditions-container">
            <small><span class="glyphicon glyphicon-plus"></span>
            Add a new condition</small>

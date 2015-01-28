@@ -1,0 +1,52 @@
+{% from "_bits.html" import form_group %}
+
+{% macro render_condition(condition, loop=None) %}
+
+ <div class="rule rule-border">
+
+  {{ form_group(condition.field, class_='field',
+                label_size="3", input_size="8") }}
+
+  {{ form_group(condition.values, class_='values',
+                label_size="3", input_size="8") }}
+
+  {% set hide = loop and loop.first  %}
+  <a class="rule-remove {% if hide %}hide{% endif %}"><small>
+    <span class="glyphicon glyphicon-remove"></span></small>
+  </a>
+  <div class="rule-and {% if hide %}hide{% endif %}">
+    <small>and</small></div>
+
+</div>
+
+{% endmacro %}
+
+
+{% macro render_action(action, loop=None) %}
+
+  <div class="rule rule-border">
+    {{ form_group(action.field, label_size="3", input_size="8") }}
+
+    <div class="form-group actions-options">
+      <label class="col-sm-3 control-label"></label>
+      <div class="col-sm-8">
+        <label>
+          {{ action.is_required() }}
+          {{ action.is_required.label.text }}
+        </label>
+        <label>
+          {{ action.is_visible() }}
+          {{ action.is_visible.label.text }}
+        </label>
+      </div>
+    </div> {# form-group #}
+
+    {% set hide = loop and loop.first  %}
+    <a class="rule-remove {% if hide %}hide{% endif %}"><small>
+      <span class="glyphicon glyphicon-remove"></span></small>
+    </a>
+    <div class="rule-and {% if hide %}hide{% endif %}">
+      <small>and</small></div>
+  </div>
+
+{% endmacro %}

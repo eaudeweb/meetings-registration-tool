@@ -1,46 +1,12 @@
+{% from "meetings/rule/_bits.html" import render_condition %}
+{% from "meetings/rule/_bits.html" import render_action %}
+
+
 <div id="default-condition-form" class="hide">
-
-  <div class="rule rule-border">
-    {{ form_group(form.conditions[0].field,
-                  class_='field',
-                  label_size="3", input_size="8") }}
-    {{ form_group(form.conditions[0].values,
-                  class_='values',
-                  label_size="3", input_size="8") }}
-
-    <a class="rule-remove"><small>
-      <span class="glyphicon glyphicon-remove"></span></small>
-    </a>
-    <div class="rule-and"><small>and</small></div>
-  </div>
-
-</div> {# default-condition-form #}
+  {{ render_condition(form.conditions[0]) }}
+</div>
 
 
 <div id="default-actions-form" class="hide">
-
-  <div class="rule rule-border">
-    {{ form_group(form.actions[0].field,
-                  label_size="3", input_size="8") }}
-
-    <div class="form-group actions-options">
-      <label class="col-sm-3 control-label"></label>
-      <div class="col-sm-8">
-        <label>
-          {{ form.actions[0].is_required() }}
-          {{ form.actions[0].is_required.label.text }}
-        </label>
-        <label>
-          {{ form.actions[0].is_visible() }}
-          {{ form.actions[0].is_visible.label.text }}
-        </label>
-      </div>
-    </div> {# form-group #}
-
-    <a class="rule-remove"><small>
-      <span class="glyphicon glyphicon-remove"></span></small>
-    </a>
-    <div class="rule-and"><small>and</small></div>
-  </div>
-
-</div> {# default-condition-form #}
+  {{ render_action(form.actions[0]) }}
+</div>
