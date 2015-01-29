@@ -4,8 +4,10 @@ from uuid import uuid4
 from flask import g
 from flask.ext.uploads import UploadSet, IMAGES
 from werkzeug import FileStorage
-from wtforms import fields, compat
+
 from sqlalchemy_utils import Country
+from wtforms import fields, compat
+from wtforms.validators import DataRequired
 
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
@@ -16,7 +18,41 @@ from mrt.utils import unlink_participant_photo
 custom_upload = UploadSet('custom', IMAGES)
 
 
-class BaseParticipantForm(BaseForm):
+class RulesMixin(object):
+
+    def _normalize_data(self, data):
+        if isinstance(data, Country):
+            return data.code
+        return unicode(data)
+
+    def _validate_conditions(self, rule):
+        for condition in rule.conditions.all():
+            values = [unicode(i.value) for i in condition.values.all()]
+            field = self._fields[condition.field.slug]
+            if self._normalize_data(field.data) not in values:
+                return False
+        return True
+
+    def _validate_actions(self, rule):
+        for action in rule.actions.all():
+            field = self._fields[action.field.slug]
+            if action.is_required:
+                if not field.validate(self, [DataRequired()]):
+                    return False
+        return True
+
+    def validate(self, **kwargs):
+        success = super(RulesMixin, self).validate(**kwargs)
+        if not success:
+            return success
+        for rule in self.rules:
+            conditions_validated = self._validate_conditions(rule)
+            if conditions_validated:
+                success = self._validate_actions(rule)
+        return success
+
+
+class BaseParticipantForm(RulesMixin, BaseForm):
 
     def filter(self, field_types=[]):
         fields = OrderedDict([

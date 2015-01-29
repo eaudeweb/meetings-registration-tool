@@ -996,6 +996,14 @@ class Rule(db.Model):
         'Meeting',
         backref=db.backref('rules', cascade='delete'))
 
+    @classmethod
+    def get_rules_for_fields(cls, fields=[]):
+        ids = [f.id for f in fields]
+        return (
+            cls.query.filter_by(meeting=g.meeting)
+            .filter(Action.field.has(CustomField.id.in_(ids)))
+        )
+
 
 class Condition(db.Model):
 

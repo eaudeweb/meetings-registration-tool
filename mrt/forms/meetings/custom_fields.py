@@ -11,7 +11,7 @@ from wtforms.validators import DataRequired
 
 from mrt.forms.base import EmailField, EmailRequired
 from mrt.forms.base import BooleanField, CategoryField, CountryField
-from mrt.models import CustomField, CustomFieldChoice
+from mrt.models import CustomField, CustomFieldChoice, Rule
 from mrt.models import Category
 
 
@@ -86,10 +86,12 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
             attrs['coerce'] = int
 
         # set field to form
+        # _set_rules_for_custom_fields(f, attrs)
         field = data['field'](**attrs)
         setattr(field, 'field_type', f.field_type.code)
         form_attrs[f.slug] = field
 
+    form_attrs['rules'] = Rule.get_rules_for_fields(fields)
     return type(form)(form.__name__, (form,), form_attrs)
 
 
