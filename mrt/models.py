@@ -688,8 +688,8 @@ class Meeting(db.Model):
 
     @property
     def media_participant_enabled(self):
-        return (self.settings and
-                self.settings.get('media_participant_enabled', False))
+        return bool(self.settings and
+                    self.settings.get('media_participant_enabled', False))
 
     def get_logo(self, filename):
         meeting_logo = get_meeting_logo(filename)

@@ -13,7 +13,7 @@ from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import Translation, UserNotification
 from mrt.models import Rule, Condition, ConditionValue, Action
 
-from mrt.definitions import NOTIFICATION_TYPES
+from mrt.definitions import NOTIFICATION_TYPES, NOTIFY_PARTICIPANT
 from mrt.utils import copy_attributes, duplicate_uploaded_file
 from mrt.utils import get_all_countries
 
@@ -159,6 +159,8 @@ class UserNotificationForm(BaseForm):
         super(UserNotificationForm, self).__init__(*args, **kwargs)
         staff = RoleUser.query.filter_by(meeting=g.meeting).all()
         self.user_id.choices = [(x.user.id, x.user.email) for x in staff]
+        if not g.meeting.media_participant_enabled:
+            self.notification_type.choices = (NOTIFY_PARTICIPANT,)
 
     def validate_notification_type(self, field):
         obj = UserNotification.query.filter_by(notification_type=field.data,
