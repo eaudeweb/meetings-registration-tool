@@ -216,7 +216,6 @@ def validate_email(email):
         return True
     return False
 
-
 def clean_email(emails):
     """Returns the first email from a string containing multiple emails"""
     for email in emails.split(','):

@@ -6,25 +6,27 @@ from flask.ext.babel import lazy_gettext as __
 from sqlalchemy_utils import Choice
 
 from werkzeug import OrderedMultiDict
-from wtforms import fields
 from wtforms.validators import DataRequired
 
-from mrt.forms.base import EmailField, EmailRequired
-from mrt.forms.base import BooleanField, CategoryField, CountryField
+from mrt.forms.fields import CustomBooleanField, CustomCountryField
+from mrt.forms.fields import CustomSelectField
+from mrt.forms.fields import CustomStringField, CategoryField
+from mrt.forms.fields import EmailField, EmailRequired
+
 from mrt.models import CustomField, CustomFieldChoice, Rule
 from mrt.models import Category
 
 
 _CUSTOM_FIELDS_MAP = {
-    CustomField.TEXT: {'field': fields.StringField},
-    CustomField.CHECKBOX: {'field': BooleanField},
+    CustomField.TEXT: {'field': CustomStringField},
+    CustomField.CHECKBOX: {'field': CustomBooleanField},
     CustomField.IMAGE: {'field': FileField,
                         'validators': [FileAllowed(IMAGES)]},
-    CustomField.SELECT: {'field': fields.SelectField},
-    CustomField.COUNTRY: {'field': CountryField},
+    CustomField.SELECT: {'field': CustomSelectField},
+    CustomField.COUNTRY: {'field': CustomCountryField},
     CustomField.CATEGORY: {'field': CategoryField},
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
-    CustomField.EVENT: {'field': BooleanField},
+    CustomField.EVENT: {'field': CustomBooleanField},
 }
 
 

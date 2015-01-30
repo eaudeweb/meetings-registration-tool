@@ -11,8 +11,9 @@ from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import MeetingType, Category
 
-from mrt.forms.base import BaseForm, TranslationInputForm, MultiCheckboxField
-from mrt.forms.base import CategoryField, EmailRequired, EmailField
+from mrt.forms.base import BaseForm, TranslationInputForm
+from mrt.forms.fields import MultiCheckboxField
+from mrt.forms.fields import CategoryField, EmailRequired, EmailField
 
 from mrt.utils import copy_attributes, get_meeting_logo
 from mrt.utils import unlink_meeting_logo, create_meeting_logo_name
