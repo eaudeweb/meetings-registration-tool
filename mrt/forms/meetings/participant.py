@@ -7,18 +7,19 @@ from werkzeug import FileStorage
 
 from sqlalchemy_utils import Country
 from wtforms import fields, compat
+from wtforms.meta import DefaultMeta
 from wtforms.validators import DataRequired
 
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
-from mrt.models import db, Participant, Category
+from mrt.models import db, Participant, Category, Action, Condition
 from mrt.utils import unlink_participant_photo
 
 
 custom_upload = UploadSet('custom', IMAGES)
 
 
-class RulesMixin(object):
+class _RulesMixin(object):
 
     def _normalize_data(self, data):
         if isinstance(data, Country):
@@ -42,7 +43,7 @@ class RulesMixin(object):
         return True
 
     def validate(self, **kwargs):
-        success = super(RulesMixin, self).validate(**kwargs)
+        success = super(_RulesMixin, self).validate(**kwargs)
         if not success:
             return success
         for rule in self.rules:
@@ -52,7 +53,28 @@ class RulesMixin(object):
         return success
 
 
-class BaseParticipantForm(RulesMixin, BaseForm):
+class _RulesMeta(DefaultMeta):
+
+    def wrap_formdata(self, form, formdata):
+        self.form = form
+        return super(_RulesMeta, self).wrap_formdata(form, formdata)
+
+    def render_field(self, field, render_kw):
+        action = (
+            Action.query.filter(Action.field.has(slug=field.name)).scalar())
+        if action and action.is_visible:
+            conditions = Condition.query.filter_by(rule=action.rule).all()
+            data = {}
+            for condition in conditions:
+                data[condition.field.slug] = [i.value for i in
+                                              condition.values.all()]
+            render_kw.update({'data-rules': data})
+        return field.widget(field, **render_kw)
+
+
+class BaseParticipantForm(_RulesMixin, BaseForm):
+
+    Meta = _RulesMeta
 
     def filter(self, field_types=[]):
         fields = OrderedDict([

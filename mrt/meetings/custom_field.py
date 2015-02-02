@@ -18,7 +18,7 @@ from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
 
 class CustomFields(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('manage_meeting', )
+    permission_required = ('manage_meeting',)
 
     def get(self):
         query = (CustomField.query.filter_by(meeting_id=g.meeting.id)
@@ -40,7 +40,7 @@ class CustomFields(PermissionRequiredMixin, MethodView):
 
 class CustomFieldEdit(PermissionRequiredMixin, MethodView):
 
-    permission_required = ('manage_meeting', )
+    permission_required = ('manage_meeting',)
 
     def _get_object(self, custom_field_id=None):
         return (CustomField.query

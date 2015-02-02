@@ -173,11 +173,14 @@ class EmailField(fields.StringField):
 class CustomStringField(fields.StringField):
     pass
 
+
 class CustomBooleanField(BooleanField):
     pass
 
+
 class CustomSelectField(fields.SelectField):
     pass
+
 
 class CustomCountryField(CountryField):
     pass

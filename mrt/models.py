@@ -1007,6 +1007,8 @@ class Rule(db.Model):
 
 class Condition(db.Model):
 
+    __table_args__ = (db.UniqueConstraint('field_id', 'rule_id'),)
+
     id = db.Column(db.Integer, primary_key=True)
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
     rule = db.relationship(
@@ -1031,6 +1033,8 @@ class ConditionValue(db.Model):
 
 
 class Action(db.Model):
+
+    __table_args__ = (db.UniqueConstraint('field_id', 'rule_id'),)
 
     id = db.Column(db.Integer, primary_key=True)
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
