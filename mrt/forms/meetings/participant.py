@@ -1,3 +1,4 @@
+import json
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -68,7 +69,7 @@ class _RulesMeta(DefaultMeta):
             for condition in conditions:
                 data[condition.field.slug] = [i.value for i in
                                               condition.values.all()]
-            render_kw.update({'data-rules': data})
+            render_kw.update({'data-rules': json.dumps(data)})
         return field.widget(field, **render_kw)
 
 
