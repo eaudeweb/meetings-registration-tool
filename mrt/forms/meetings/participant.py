@@ -35,8 +35,8 @@ class BaseParticipantForm(BaseForm):
         return iter(compat.itervalues(fields))
 
     def has(self, field_type):
-        return len([f for f in self._fields
-                    if self._custom_fields[f].field_type == field_type]) > 0
+        return bool([f for f in self._fields if f in self._custom_fields and
+                    self._custom_fields[f].field_type == field_type])
 
     def save(self, participant=None, commit=True):
         participant = participant or Participant()
