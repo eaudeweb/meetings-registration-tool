@@ -10,10 +10,51 @@ import xlwt
 from flask import _request_ctx_stack, current_app as app
 from flask import g
 from flask.ext.babel import refresh
-from flask.ext.uploads import IMAGES
+from flask.ext.uploads import IMAGES, UploadSet
 
 from babel import support, Locale
 from path import path
+
+
+logos_upload = UploadSet('logos', IMAGES)
+
+
+class Logo(object):
+    def __init__(self, slug):
+        self.default_filename = app.config[slug.upper()]
+
+    @property
+    def meeting_name(self):
+        return 'meeting_{}_{}'.format(g.meeting.id, self.default_filename)
+
+    @property
+    def filename(self):
+        if hasattr(g, 'meeting'):
+            meeting_logo_name = self.meeting_name
+            if logos_upload.path(meeting_logo_name).exists():
+                return meeting_logo_name
+        return self.default_filename
+
+    @property
+    def path(self):
+        return logos_upload.path(self.filename)
+
+    @property
+    def url(self):
+        if g.get('is_pdf_process'):
+            return self.path
+        return logos_upload.url(self.filename)
+
+    @property
+    def default(self):
+        return self.default_filename == self.filename
+
+    def save(self, data):
+        self.unlink()
+        logos_upload.save(data, name=self.meeting_name)
+
+    def unlink(self):
+        unlink_meeting_logo(self.meeting_name)
 
 
 def unlink_participant_photo(filename):
@@ -65,22 +106,6 @@ def duplicate_uploaded_file(filename, config_key):
             full_path.copyfile(new_path)
             return new_path
     return False
-
-
-def get_meeting_logo(filename):
-    meeting_filename = create_meeting_logo_name(filename)
-    path_from_config = app.config['UPLOADED_LOGOS_DEST']
-    full_path = path_from_config / meeting_filename
-    for extension in IMAGES:
-        if (full_path + extension).isfile():
-            return meeting_filename + extension
-    return None
-
-
-def create_meeting_logo_name(filename):
-    basename, extension = path(filename).splitext()
-    filename = 'meeting_%d_%s.' % (g.meeting.id, str(basename))
-    return filename
 
 
 def copy_attributes(destination, source, exclude_pk=True, exclude_fk=True,

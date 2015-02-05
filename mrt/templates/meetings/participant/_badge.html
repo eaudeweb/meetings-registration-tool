@@ -1,7 +1,5 @@
-{% set product_logo = url_for_brand_static_path(config['PRODUCT_LOGO']) %}
-{% set product_side_logo = url_for_brand_static_path(
-    config['PRODUCT_SIDE_LOGO']) %}
-
+{% set product_logo = get_logo('product_logo') %}
+{% set product_side_logo = get_logo('product_side_logo') %}
 
 {% if participant.photo %}
   {% set participant_photo = config['FILES_PATH'] /
@@ -29,8 +27,8 @@
         {{ g.meeting.title[participant.lang] }}
       {% endif %}
     </h1>
-    <img src="{{ product_logo }}" class="logo" alt="">
-    <img src="{{ product_side_logo }}" class="side-logo" alt="">
+    <img src="{{ product_logo.url }}" class="logo" alt="">
+    <img src="{{ product_side_logo.url }}" class="side-logo" alt="">
   </div> {# stripe #}
 
   <div class="content">

@@ -14,7 +14,7 @@ from mrt.admin.urls import admin
 from mrt.assets import assets_env
 from mrt.auth.urls import auth
 from mrt.forms.admin import backgrounds
-from mrt.forms.meetings import custom_upload, meeting_logos
+from mrt.forms.meetings import custom_upload, logos_upload
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
 from mrt.models import db, redis_store, User, CustomField, Participant
@@ -22,9 +22,9 @@ from mrt.models import db, redis_store, User, CustomField, Participant
 from mrt.template import country_in, region_in
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
-from mrt.template import pluralize, url_for_brand_static_path
+from mrt.template import pluralize
 from mrt.template import sort_by_tuple_element
-from mrt.template import convert_to_dict, has_perm
+from mrt.template import convert_to_dict, has_perm, get_logo
 from mrt.utils import slugify
 
 
@@ -72,10 +72,10 @@ def create_app(config={}):
     app.add_template_filter(slugify)
     app.add_template_filter(sort_by_tuple_element)
     app.add_template_global(active)
-    app.add_template_global(url_for_brand_static_path)
     app.add_template_global(date_processor)
     app.add_template_global(inject_static_file)
     app.add_template_global(has_perm)
+    app.add_template_global(get_logo)
 
     @app.context_processor
     def inject_context():
@@ -111,7 +111,6 @@ def create_app(config={}):
         Sentry(app)
 
     _configure_uploads(app)
-    _configure_brand(app)
     _configure_logging(app)
 
     app.config['REPRESENTING_TEMPLATES'] = (
@@ -145,47 +144,38 @@ def _configure_uploads(app):
     app.config['PATH_THUMB_KEY'] = path_thumb_key = 'thumbnails'
     app.config['PATH_PRINTOUTS_KEY'] = path_printouts_key = 'printouts'
 
-    if not 'UPLOADED_BACKGROUNDS_DEST' in app.config:
+    if 'UPLOADED_BACKGROUNDS_DEST' not in app.config:
         app.config['UPLOADED_BACKGROUNDS_DEST'] = (files_path /
                                                    path_backgrounds_key)
-    if not 'UPLOADED_CROP_DEST' in app.config:
+    if 'UPLOADED_CROP_DEST' not in app.config:
         app.config['UPLOADED_CROP_DEST'] = files_path / path_crop_key
-    if not 'UPLOADED_CUSTOM_DEST' in app.config:
+    if 'UPLOADED_CUSTOM_DEST' not in app.config:
         app.config['UPLOADED_CUSTOM_DEST'] = files_path / path_custom_key
-    if not 'UPLOADED_LOGOS_DEST' in app.config:
+    if 'UPLOADED_LOGOS_DEST' not in app.config:
         app.config['UPLOADED_LOGOS_DEST'] = files_path / path_logos_key
-    if not 'UPLOADED_PRINTOUTS_DEST' in app.config:
+    if 'UPLOADED_PRINTOUTS_DEST' not in app.config:
         app.config['UPLOADED_PRINTOUTS_DEST'] = files_path / path_printouts_key
 
     # ensure logos and printouts folders exist
     app.config['UPLOADED_LOGOS_DEST'].makedirs_p()
     app.config['UPLOADED_PRINTOUTS_DEST'].makedirs_p()
 
-    if not 'MEDIA_FOLDER' in app.config:
+    if 'MEDIA_FOLDER' not in app.config:
         app.config['MEDIA_FOLDER'] = files_path
-    if not 'MEDIA_THUMBNAIL_FOLDER' in app.config:
+    if 'MEDIA_THUMBNAIL_FOLDER' not in app.config:
         app.config['MEDIA_THUMBNAIL_FOLDER'] = \
             app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
     app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
-    app.add_url_rule('/static/brand/<filename>', 'brand', build_only=True)
     app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
         '/static/files': files_path,
-        '/static/brand': path(app.instance_path) / 'brand' / 'static'
     })
 
     # limit upload size to 1MB
     patch_request_class(app, app.config.get('UPLOAD_SIZE', 1 * 1024 * 1024))
-    configure_uploads(app, (backgrounds, custom_upload, meeting_logos))
+    configure_uploads(app, (backgrounds, custom_upload, logos_upload))
     Thumbnail(app)
-
-
-def _configure_brand(app):
-    app.config['BRAND_PATH'] = brand_path = path(app.instance_path) / 'brand'
-
-    if brand_path.exists() and brand_path.isdir():
-        app.config.from_pyfile(brand_path / 'settings.py')
 
 
 def _configure_logging(app):

@@ -24,7 +24,7 @@ Install these before setting up an environment::
 
     apt-get install python-setuptools python-dev python-virtualenv git \
     postgresql-9.1 postgresql-contrib-9.1 postgresql-server-dev-9.1 \
-    libxml2-dev libxslt1-dev redis-server
+    libxml2-dev libxslt1-dev redis-server libjpeg-dev
 
 
 Install dependencies

@@ -2,7 +2,7 @@ import re
 import time
 
 from flask import current_app as app
-from flask import request, g, url_for
+from flask import request, g
 from flask.ext.login import current_user
 
 from babel import Locale
@@ -11,7 +11,7 @@ from jinja2 import evalcontextfilter, Markup, escape
 from path import path
 
 from mrt.definitions import ACTIVITY_ACTIONS, PERMISSIONS_HIERARCHY
-from mrt.utils import translate
+from mrt.utils import translate, Logo
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
@@ -134,16 +134,8 @@ def pluralize(value, arg='s'):
     return singular_suffix
 
 
-# def url_for_brand_static_path(filename):
-#     if g.get('is_pdf_process'):
-#         return app.config['BRAND_PATH'] / 'static' / filename
-#     return url_for('brand', filename=filename)
-
-
-def url_for_brand_static_path(filename):
-    if g.get('meeting'):
-        return g.meeting.get_logo(filename)
-    return url_for('brand', filename=filename)
+def get_logo(slug):
+    return Logo(slug)
 
 
 def sort_by_tuple_element(value, position=0):

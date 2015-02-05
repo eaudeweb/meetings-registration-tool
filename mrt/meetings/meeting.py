@@ -11,7 +11,7 @@ from mrt.models import Meeting, db, RoleUser, MeetingType
 from mrt.forms.meetings import MeetingEditForm, MeetingCloneForm
 from mrt.forms.meetings import MeetingFilterForm, MeetingLogoEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
-from mrt.utils import unlink_meeting_logo, get_meeting_logo
+from mrt.utils import Logo
 
 
 def _check_meeting_type():
@@ -97,15 +97,15 @@ class MeetingLogoUpload(PermissionRequiredMixin, MethodView):
     def post(self, logo_slug):
         form = MeetingLogoEditForm(request.files)
         if form.validate():
-            data = form.save(logo_slug)
+            logo = form.save(logo_slug)
         else:
             return make_response(jsonify(form.errors), 400)
 
         html = render_template('meetings/overview/_image_container.html',
-                               data=data)
+                               logo=logo)
         return jsonify(html=html)
 
     def delete(self, logo_slug):
-        old_logo = get_meeting_logo(logo_slug)
-        unlink_meeting_logo(old_logo)
+        logo = Logo(logo_slug)
+        logo.unlink()
         return jsonify(status="success", url=url_for('.statistics'))
