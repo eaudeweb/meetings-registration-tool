@@ -77,6 +77,30 @@ def test_meeting_rule_add_fail_same_action_field_twice(app, user):
         assert len(error) == 1
 
 
+def test_meeting_rule_edit(app, user):
+    category = MeetingCategoryFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_custom_fields_for_meeting(category.meeting)
+        data = _create_simple_rule_data(category.meeting)
+        resp = client.post(url_for('meetings.rule_edit',
+                                   meeting_id=category.meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Rule.query.count() == 1
+        rule = Rule.query.first()
+
+        data['name'] = new_rule_name = 'Another rule'
+        resp = client.post(url_for('meetings.rule_edit',
+                                   meeting_id=category.meeting.id,
+                                   rule_id=rule.id), data=data)
+        assert resp.status_code == 302
+        assert Rule.query.count() == 1
+        assert rule.name == new_rule_name
+
+
 def test_meeting_rule_delete(app, user):
     meeting = MeetingFactory()
     rule = _create_new_rule(meeting, 0)
@@ -177,7 +201,7 @@ def test_meeting_complex_rule_on_registration(app, user, default_meeting):
         assert meeting.participants.count() == 1
 
 
-def _create_new_rule(meeting, field_id):
+def _create_new_rule(meeting, field_id=0):
     field = CustomFieldFactory(label__english='field' + str(field_id))
     condition_value = ConditionValueFactory(condition__rule__meeting=meeting,
                                             condition__field=field)
