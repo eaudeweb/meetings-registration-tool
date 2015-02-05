@@ -36,12 +36,13 @@ class _RulesMixin(object):
         return True
 
     def _validate_actions(self, rule):
+        success = True
         for action in rule.actions.all():
             field = self._fields[action.field.slug]
             if action.is_required:
                 if not field.validate(self, [DataRequired()]):
-                    return False
-        return True
+                    success = False
+        return success
 
     def validate(self, **kwargs):
         success = super(_RulesMixin, self).validate(**kwargs)

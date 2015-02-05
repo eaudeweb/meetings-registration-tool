@@ -4,8 +4,12 @@ $(function () {
     var handleChangeConditionField = function (data) {
         var condition = true;
         $.each(data, function (k, v) {
-            var $item = $('#' + k);
-            if($.inArray($item.val(), v) < 0) {
+            var $item = $('[name=' + k + ']');
+            var val = $item.val();
+            if($item.is(':radio')) {
+                val = $item.filter(':checked').val();
+            }
+            if($.inArray(val, v) < 0) {
                 condition = false;
             }
         });

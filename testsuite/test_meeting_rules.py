@@ -1,5 +1,6 @@
 from flask import url_for
 from pyquery import PyQuery
+from StringIO import StringIO
 
 from mrt.forms.meetings import add_custom_fields_for_meeting
 from mrt.models import Rule, Condition, ConditionValue, Action
@@ -94,7 +95,7 @@ def test_meeting_rule_delete(app, user):
         assert Action.query.count() == 0
 
 
-def test_meeting_rule_works_on_registration(app, user, default_meeting):
+def test_meeting_rule_on_registration(app, user, default_meeting):
     category = MeetingCategoryFactory(meeting__online_registration=True)
     meeting = category.meeting
 
@@ -119,6 +120,61 @@ def test_meeting_rule_works_on_registration(app, user, default_meeting):
         errors = PyQuery(resp.data)('div.text-danger')
         assert len(errors) == 1
         assert meeting.participants.count() == 0
+
+
+def test_meeting_complex_rule_on_registration(app, user, default_meeting):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    birth_field = CustomFieldFactory(label__english='Place of birth',
+                                     meeting=meeting,
+                                     field_type='country')
+    passport_field = CustomFieldFactory(label__english='Passport Photo',
+                                        meeting=meeting,
+                                        required=False)
+    info_field = CustomFieldFactory(label__english='Extra info',
+                                    meeting=meeting,
+                                    field_type='text',
+                                    required=False)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_custom_fields_for_meeting(meeting)
+        fields = meeting.custom_fields
+        country_field = fields.filter_by(slug='country').one()
+        category_field = fields.filter_by(slug='category_id').one()
+        country_cond = ConditionValueFactory(condition__rule__meeting=meeting,
+                                             condition__field=country_field,
+                                             value='RO')
+        ConditionValueFactory(condition__rule=country_cond.condition.rule,
+                              condition__field=category_field,
+                              value=category.id)
+        ConditionValueFactory(condition__rule=country_cond.condition.rule,
+                              condition__field=birth_field,
+                              value='AZ')
+        ActionFactory(rule=country_cond.condition.rule,
+                      field=passport_field,
+                      is_required=True)
+        ActionFactory(rule=country_cond.condition.rule,
+                      field=info_field,
+                      is_required=True)
+
+        data = ParticipantFactory.attributes()
+        data['category_id'] = category.id
+        data['country'] = 'RO'
+        data[birth_field.slug] = 'AZ'
+        resp = register_participant_online(client, data, meeting)
+        errors = PyQuery(resp.data)('div.text-danger')
+        assert len(errors) == 2
+        assert meeting.participants.count() == 0
+
+        data[passport_field.slug] = (StringIO('Test'), 'test.png')
+        data[info_field.slug] = 'Extra info about participant'
+        resp = register_participant_online(client, data, meeting)
+        errors = PyQuery(resp.data)('div.text-danger')
+        assert len(errors) == 0
+        assert meeting.participants.count() == 1
 
 
 def _create_new_rule(meeting, field_id):
