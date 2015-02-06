@@ -7,6 +7,9 @@ UPLOAD_SIZE = 1 * 1024 * 1024
 PRODUCT_NAME = ''
 PRODUCT_TITLE = ''
 
+# Administator's email
+ADMINISTATOR_EMAIL = ''
+
 # Mail used for sending reset tokens
 DEFAULT_MAIL_SENDER = ''
 # Supress sendding mails on localhost
