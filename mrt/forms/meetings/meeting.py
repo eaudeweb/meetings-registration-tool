@@ -9,7 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from mrt.models import db, Meeting, Staff, Participant
 from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.models import CustomField, CustomFieldChoice
-from mrt.models import MeetingType, Category
+from mrt.models import MeetingType, Category, Condition, ConditionValue
 
 from mrt.forms.base import BaseForm, TranslationInputForm
 from mrt.forms.fields import MultiCheckboxField
@@ -156,6 +156,43 @@ class MeetingCloneForm(MeetingEditForm):
             db.session.add(clone)
             db.session.flush()
 
+    def _clone_rules(self, meeting, rules):
+        for rule in rules:
+            rule_clone = copy_attributes(rule.__class__(), rule,
+                                         exclude_fk=True)
+            rule_clone.meeting = meeting
+            db.session.add(rule_clone)
+
+            for condition in rule.conditions.all():
+                condition_clone = Condition()
+                field = meeting.custom_fields.filter(CustomField.label.has(
+                    english=condition.field.label.english)).one()
+                condition_clone.field = field
+                condition_clone.rule = rule_clone
+                db.session.add(condition_clone)
+
+                for condition_value in condition.values.all():
+                    condition_value_clone = ConditionValue()
+                    condition_value_clone.condition = condition_clone
+                    value = condition_value.value
+                    if condition.field.field_type == CustomField.CATEGORY:
+                        title = Category.query.get(int(value)).title.english
+                        value = meeting.categories.filter(
+                            Category.title.has(english=title)).scalar().id
+                    condition_value_clone.value = value
+                    db.session.add(condition_value_clone)
+
+            for action in rule.actions.all():
+                action_clone = copy_attributes(action.__class__(), action,
+                                               exclude_fk=True)
+                action_clone.rule = rule_clone
+                field = meeting.custom_fields.filter_by(
+                    slug=action.field.slug).one()
+                action_clone.field = field
+                db.session.add(action_clone)
+
+            db.session.flush()
+
     def save(self):
         meeting = Meeting()
         self.populate_obj(meeting)
@@ -166,6 +203,7 @@ class MeetingCloneForm(MeetingEditForm):
         self._clone_relation(meeting, self.obj.role_users, exclude_fk=False)
         self._clone_relation(meeting, self.obj.user_notifications,
                              exclude_fk=False)
+        self._clone_rules(meeting, self.obj.rules)
         meeting.owner = self.obj.owner
         if self.obj.photo_field_id:
             meeting.photo_field = (meeting.custom_fields

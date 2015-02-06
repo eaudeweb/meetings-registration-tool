@@ -6,6 +6,7 @@ from flask import g
 from flask.ext.uploads import UploadSet, IMAGES
 from werkzeug import FileStorage
 
+from sqlalchemy import and_
 from sqlalchemy_utils import Country
 from wtforms import fields, compat
 from wtforms.meta import DefaultMeta
@@ -63,7 +64,9 @@ class _RulesMeta(DefaultMeta):
 
     def render_field(self, field, render_kw):
         action = (
-            Action.query.filter(Action.field.has(slug=field.name)).scalar())
+            Action.query.filter(and_(
+                Action.field.has(slug=field.name),
+                Action.rule.has(meeting=g.meeting))).scalar())
         if action and action.is_visible:
             conditions = Condition.query.filter_by(rule=action.rule).all()
             data = {}

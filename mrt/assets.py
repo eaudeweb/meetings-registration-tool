@@ -44,6 +44,11 @@ _BUNDLE_DATEPICKER = (
     'js/lib/bootstrap-datetimepicker.min.js',
 )
 
+_BUNDLE_SHOWIF = (
+    'js/lib/jquery.min.js',
+    'js/lib/jquery.showif.js',
+)
+
 
 _BUNDLE_UPLOAD_JS = (
     'js/lib/jquery_file_upload/jquery.ui.widget.js',
@@ -77,6 +82,7 @@ css = Bundle(*_BUNDLE_CSS, filters='cssmin', output='gen/static.css')
 js = Bundle(*_BUNDLE_JS, filters='jsmin', output='gen/static.js')
 datepicker = Bundle(*_BUNDLE_DATEPICKER,
                     output='gen/bootstrap-datetimepicker.min.js')
+showif = Bundle(*_BUNDLE_SHOWIF, output='gen/showif.js')
 upload_js = Bundle(*_BUNDLE_UPLOAD_JS, output='gen/jquery.file.upload.min.js')
 upload_css = Bundle(*_BUNDLE_UPLOAD_CSS,
                     output='gen/jquery.file.upload.min.css')
@@ -95,6 +101,7 @@ assets_env = Environment()
 assets_env.register('css', css)
 assets_env.register('js', js)
 assets_env.register('datepicker', datepicker)
+assets_env.register('showif', showif)
 assets_env.register('upload_js', upload_js)
 assets_env.register('upload_css', upload_css)
 
