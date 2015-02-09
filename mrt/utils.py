@@ -54,7 +54,8 @@ class Logo(object):
         logos_upload.save(data, name=self.meeting_name)
 
     def unlink(self):
-        unlink_meeting_logo(self.meeting_name)
+        unlink_uploaded_file(self.meeting_name, 'logos')
+        unlink_thumbnail_file(self.meeting_name, dir_name='logos')
 
 
 def unlink_participant_photo(filename):
@@ -63,11 +64,6 @@ def unlink_participant_photo(filename):
                          dir_name=app.config['PATH_CUSTOM_KEY'])
     unlink_thumbnail_file(filename, dir_name='custom_uploads')
     unlink_thumbnail_file(filename, dir_name='crops')
-
-
-def unlink_meeting_logo(filename):
-    unlink_uploaded_file(filename, 'logos')
-    unlink_thumbnail_file(filename, dir_name='logos')
 
 
 def unlink_uploaded_file(filename, config_key, dir_name=None):
