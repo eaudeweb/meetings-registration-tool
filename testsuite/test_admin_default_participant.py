@@ -7,23 +7,24 @@ from pyquery import PyQuery
 from sqlalchemy import not_
 from sqlalchemy_utils import types
 
-from mrt.models import Meeting, CustomField, CustomFieldValue
+from mrt.models import CustomField, CustomFieldValue
 
 from .factories import MeetingCategoryFactory, ParticipantFactory
-from .factories import MeetingFactory, MeetingTypeFactory, CustomFieldFactory
-from .factories import normalize_data
+from .factories import CustomFieldFactory
 from .test_meeting_registration import create_user_after_registration
-from .utils import populate_participant_form
+from .utils import populate_participant_form, add_new_meeting
 
 
 def test_default_participant_detail(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+    CustomFieldFactory(custom_field_type=CustomField.MEDIA,
+                       meeting=meeting)
+
     client = app.test_client()
     with app.test_request_context():
-        meeting = add_new_meeting(client, user)
-        category = MeetingCategoryFactory(meeting=meeting)
-        CustomFieldFactory(custom_field_type=CustomField.MEDIA,
-                           meeting=meeting)
-
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
         data = ParticipantFactory.attributes()
         data['category_id'] = category.id
         populate_participant_form(meeting, data)
@@ -38,7 +39,7 @@ def test_default_participant_detail(app, user, default_meeting):
         resp = client.get(url_for('meetings.default_participant_detail',
                           participant_id=2, meeting_id=default_meeting.id))
         assert resp.status_code == 200
-        #CHECKS default participant displayed details
+        # CHECKS default participant displayed details
         details = PyQuery(resp.data)('tr')
         custom_fields = (
             default_meeting.custom_fields
@@ -62,7 +63,7 @@ def test_default_participant_detail(app, user, default_meeting):
             else:
                 assert str(participant_data) == detail_data
 
-        #CHECKS BREADCRUMB AND MEETING NAVBAR DOES NOT EXIST
+        # CHECKS BREADCRUMB AND MEETING NAVBAR DOES NOT EXIST
         html = PyQuery(resp.data)
         assert len(html('.breadcrumb')) == 0
         assert len(html('.meeting-navs')) == 0
@@ -70,14 +71,14 @@ def test_default_participant_detail(app, user, default_meeting):
 
 
 def test_default_participant_edit(app, user, default_meeting):
-
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+    CustomFieldFactory(meeting=meeting, field_type='text',
+                       label__english='diet')
     client = app.test_client()
     with app.test_request_context():
-        meeting = add_new_meeting(client, user)
-        category = MeetingCategoryFactory(meeting=meeting)
-        CustomFieldFactory(meeting=meeting, field_type='text',
-                           label__english='diet')
-
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
         data = ParticipantFactory.attributes()
         data['category_id'] = category.id
         data['diet'] = 'Vegetarian'
@@ -111,12 +112,14 @@ def test_default_participant_edit(app, user, default_meeting):
 
 def test_default_participant_edit_photo_field(app, user, default_meeting):
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+    CustomFieldFactory(meeting=meeting)
+
     client = app.test_client()
     with app.test_request_context():
-        meeting = add_new_meeting(client, user)
-        category = MeetingCategoryFactory(meeting=meeting)
-        CustomFieldFactory(meeting=meeting)
-
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
         data = ParticipantFactory.attributes()
         data['category_id'] = category.id
         data['picture'] = (StringIO('Test'), 'test.png')
@@ -138,23 +141,24 @@ def test_default_participant_edit_photo_field(app, user, default_meeting):
         assert photo_field_value != default_photo_field_value
 
 
-def add_new_meeting(client, user):
-    with client.session_transaction() as sess:
-        sess['user_id'] = user.id
+# def add_new_meeting(client, user):
+#     with client.session_transaction() as sess:
+#         sess['user_id'] = user.id
 
-    meeting_type = MeetingTypeFactory()
-    data = normalize_data(MeetingFactory.attributes())
-    data['title-english'] = data.pop('title')
-    data['acronym'] = acronym = 'TEST'
-    data['venue_city-english'] = data.pop('venue_city')
-    data['badge_header-english'] = data.pop('badge_header')
-    data['online_registration'] = 'y'
-    data['photo_field_id'] = '0'
-    data['media_photo_field_id'] = '0'
-    data['meeting_type_slug'] = meeting_type.slug
+#     meeting_type = MeetingTypeFactory()
+#     meeting_type.load_default_phrases()
+#     data = normalize_data(MeetingFactory.attributes())
+#     data['title-english'] = data.pop('title')
+#     data['acronym'] = acronym = 'TEST'
+#     data['venue_city-english'] = data.pop('venue_city')
+#     data['badge_header-english'] = data.pop('badge_header')
+#     data['online_registration'] = 'y'
+#     data['photo_field_id'] = '0'
+#     data['media_photo_field_id'] = '0'
+#     data['meeting_type_slug'] = meeting_type.slug
 
-    url = url_for('meetings.add')
-    resp = client.post(url, data=data)
+#     url = url_for('meetings.add')
+#     resp = client.post(url, data=data)
 
-    assert resp.status_code == 302
-    return Meeting.query.filter_by(acronym=acronym).first()
+#     assert resp.status_code == 302
+#     return Meeting.query.filter_by(acronym=acronym).first()

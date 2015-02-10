@@ -1,9 +1,14 @@
 import time
 from base64 import b64encode
 
+from flask import url_for
+
 from mrt.forms.meetings.meeting import ParticipantDummyForm
 from mrt.forms.meetings.meeting import _CUSTOM_FIELD_MAPPER
 from mrt.models import CustomField, CustomFieldChoice, Translation, db
+from mrt.models import Meeting
+
+from .factories import MeetingTypeFactory, MeetingFactory, normalize_data
 
 
 def add_participant_custom_fields(meeting):
@@ -46,3 +51,30 @@ def populate_participant_form(meeting, data={}):
     data['represented_country'] = 'RO'
     now = int(time.time())
     data['ts'] = b64encode(str(now))
+
+
+def add_new_meeting(app, user):
+    """Adds a new meeting."""
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        meeting_type = MeetingTypeFactory()
+        meeting_type.load_default_phrases()
+        data = normalize_data(MeetingFactory.attributes())
+        data['title-english'] = data.pop('title')
+        data['acronym'] = acronym = data.pop('acronym')
+        data['venue_city-english'] = data.pop('venue_city')
+        data['badge_header-english'] = data.pop('badge_header')
+        data['online_registration'] = 'y'
+        data['photo_field_id'] = '0'
+        data['media_photo_field_id'] = '0'
+        data['settings'] = 'media_participant_enabled'
+        data['meeting_type_slug'] = meeting_type.slug
+
+        url = url_for('meetings.add')
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        return Meeting.query.filter_by(acronym=acronym).first()

@@ -8,7 +8,7 @@ from mrt.forms.auth import LoginForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
 from mrt.forms.meetings import MediaRegistrationForm
-from mrt.models import Participant, db
+from mrt.models import Participant, db, Phrase
 
 from mrt.signals import activity_signal, notification_signal
 from mrt.signals import registration_signal
@@ -36,6 +36,9 @@ def _render_if_media_disabled(func):
 class BaseRegistration(MethodView):
 
     def get_default_participant(self, user):
+        raise NotImplementedError
+
+    def get_success_phrase(self):
         raise NotImplementedError
 
     def get(self):
@@ -74,10 +77,12 @@ class BaseRegistration(MethodView):
             email = clean_email(participant.email)
             user_form = RegistrationUserForm(email=email)
             session['registration_token'] = participant.registration_token
+            success_phrase = self.get_success_phrase()
 
             return render_template('meetings/registration/success.html',
                                    participant=participant,
-                                   form=user_form)
+                                   form=user_form,
+                                   success_phrase=success_phrase)
         return render_template('meetings/registration/form.html',
                                form=form)
 
@@ -90,6 +95,10 @@ class Registration(BaseRegistration):
     def get_default_participant(self, user):
         return user.get_default(Participant.DEFAULT)
 
+    def get_success_phrase(self):
+        return g.meeting.phrases.filter_by(group=Phrase.ONLINE_CONFIRMATION,
+                                           name=Phrase.PARTICIPANT).scalar()
+
 
 class MediaRegistration(BaseRegistration):
 
@@ -98,6 +107,10 @@ class MediaRegistration(BaseRegistration):
 
     def get_default_participant(self, user):
         return user.get_default(Participant.DEFAULT_MEDIA)
+
+    def get_success_phrase(self):
+        return g.meeting.phrases.filter_by(group=Phrase.ONLINE_CONFIRMATION,
+                                           name=Phrase.MEDIA).scalar()
 
 
 class UserRegistration(MethodView):
@@ -121,9 +134,15 @@ class UserRegistration(MethodView):
             participant.clone()
             db.session.commit()
             return render_template('meetings/registration/user_success.html')
+        success_phrase = self.get_success_phrase()
         return render_template('meetings/registration/success.html',
                                participant=participant,
+                               success_phrase=success_phrase,
                                form=form)
+
+    def get_success_phrase(self):
+        return g.meeting.phrases.filter_by(group=Phrase.ONLINE_CONFIRMATION,
+                                           name=Phrase.MEDIA).scalar()
 
 
 class UserRegistrationLogin(MethodView):

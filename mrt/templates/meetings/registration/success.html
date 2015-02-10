@@ -6,7 +6,7 @@
 
   <div class="text-center">
     <h2>Successfully registered  for {{ g.meeting.acronym }}.</h2>
-    <h4>An email with your personal details has been sent to {{ participant.email }}</h4>
+    <h4>{{ success_phrase.description.english }}</h4>
   </div>
 
   {% if not current_user.is_authenticated() %}

@@ -125,8 +125,8 @@ def send_registration_message(sender, participant):
     sender = app.config['DEFAULT_MAIL_SENDER']
     subject = "%s registration confirmation" % (participant.meeting.acronym,)
     phrase = Phrase.query.filter_by(meeting=participant.meeting,
-                                    group='Online registration confirmation',
-                                    name='for participants').first()
+                                    group=Phrase.EMAIL_CONFIRMATION,
+                                    name=Phrase.PARTICIPANT).first()
     template = app.jinja_env.get_template(
         'meetings/registration/mail_template.html')
     body_html = template.render({'participant': participant,

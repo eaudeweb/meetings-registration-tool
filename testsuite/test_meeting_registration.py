@@ -5,7 +5,7 @@ from py.path import local
 
 from mrt.mail import mail
 from mrt.models import Participant, ActivityLog, User, CustomFieldValue
-from mrt.models import Category, CustomField
+from mrt.models import Category, CustomField, Phrase
 from mrt.forms.meetings import add_custom_fields_for_meeting
 from mrt.forms.meetings import MediaParticipantDummyForm
 from .factories import MeetingCategoryFactory, ParticipantFactory
@@ -13,7 +13,7 @@ from .factories import RoleUserMeetingFactory, UserFactory
 from .factories import UserNotificationFactory, CustomFieldFactory
 from .factories import MediaParticipantFactory
 
-from testsuite.utils import populate_participant_form
+from testsuite.utils import populate_participant_form, add_new_meeting
 
 
 def test_meeting_resistration_open(app, default_meeting):
@@ -40,9 +40,9 @@ def test_meeting_registration_closed(app, default_meeting):
         assert html('.alert').length == 1
 
 
-def test_meeting_registration_add(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_add(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     role_user = RoleUserMeetingFactory(meeting=meeting)
     RoleUserMeetingFactory(meeting=meeting, user__email='test@email.com')
     UserNotificationFactory(user=role_user.user, meeting=meeting)
@@ -57,16 +57,41 @@ def test_meeting_registration_add(app, default_meeting):
         assert Participant.query.filter_by(meeting=meeting).count() == 1
         participant = Participant.query.get(1)
         assert participant.participant_type.code == Participant.PARTICIPANT
-        assert len(outbox) == 2
+        assert len(outbox) == 3
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
 
-def test_meeting_registration_media_add(app, default_meeting):
-    MEDIA_ENABLED = {'media_participant_enabled': True}
-    category = MeetingCategoryFactory(meeting__online_registration=True,
-                                      meeting__settings=MEDIA_ENABLED,
+def test_meeting_registration_success_phrases(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+    online_phrase = meeting.phrases.filter_by(group=Phrase.ONLINE_CONFIRMATION,
+                                              name=Phrase.PARTICIPANT).scalar()
+    online_phrase.description.english = 'Online success message'
+    email_phrase = meeting.phrases.filter_by(group=Phrase.EMAIL_CONFIRMATION,
+                                             name=Phrase.PARTICIPANT).scalar()
+    email_phrase.description.english = 'Email success message'
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        success_message = PyQuery(resp.data)('h4').text()
+        assert success_message == online_phrase.description.english
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+        participant = Participant.query.get(1)
+        assert participant.participant_type.code == Participant.PARTICIPANT
+        assert len(outbox) == 2
+        success_message = PyQuery(outbox[1].html)('h4').text()
+        assert success_message == email_phrase.description.english
+
+
+def test_meeting_registration_media_add(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting,
                                       category_type=Category.MEDIA)
-    meeting = category.meeting
     role_user = RoleUserMeetingFactory(meeting=meeting)
     RoleUserMeetingFactory(meeting=meeting,
                            user__email='test@email.com')
@@ -82,17 +107,16 @@ def test_meeting_registration_media_add(app, default_meeting):
         assert Participant.query.filter_by(meeting=meeting).count() == 1
         participant = Participant.query.get(1)
         assert participant.participant_type.code == Participant.MEDIA
-        assert len(outbox) == 2
+        assert len(outbox) == 3
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
 
 def test_meeting_media_registration_default_participant_custom_fields(app,
-                                                                      default_meeting):
-    MEDIA_ENABLED = {'media_participant_enabled': True}
-    category = MeetingCategoryFactory(meeting__online_registration=True,
-                                      meeting__settings=MEDIA_ENABLED,
+                                                                      default_meeting,
+                                                                      user):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting,
                                       category_type=Category.MEDIA)
-    meeting = category.meeting
     CustomFieldFactory(field_type='text', meeting=meeting,
                        label__english='size',
                        custom_field_type=CustomField.MEDIA)
@@ -127,9 +151,9 @@ def test_meeting_media_registration_default_participant_custom_fields(app,
             assert cfv.value == participant_cfv.value
 
 
-def test_meeting_registration_with_meeting_photo(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_with_meeting_photo(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     photo_field = CustomFieldFactory(meeting=meeting)
     meeting.photo_field = photo_field
 
@@ -148,9 +172,9 @@ def test_meeting_registration_with_meeting_photo(app, default_meeting):
         assert participant.participant_type.code == Participant.PARTICIPANT
 
 
-def test_meeting_registration_and_user_creation(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_and_user_creation(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
@@ -163,13 +187,13 @@ def test_meeting_registration_and_user_creation(app, default_meeting):
         participant = Participant.query.filter_by(meeting=meeting).first()
         resp = create_user_after_registration(client, participant, meeting)
         assert resp.status_code == 200
-        assert User.query.count() == 1
-        assert participant.user is User.query.get(1)
+        assert User.query.count() == 2
+        assert participant.user is User.query.get(2)
 
 
-def test_meeting_registration_with_multiple_emails(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_with_multiple_emails(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
@@ -183,14 +207,15 @@ def test_meeting_registration_with_multiple_emails(app, default_meeting):
         participant = Participant.query.filter_by(meeting=meeting).first()
         resp = create_user_after_registration(client, participant, meeting)
         assert resp.status_code == 200
-        assert User.query.count() == 0
+        assert User.query.count() == 1
         html = PyQuery(resp.data)
         assert html('.text-danger small').length == 1
 
 
-def test_meeting_registration_default_participant_creation(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_default_participant_creation(app, user,
+                                                           default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
@@ -211,9 +236,10 @@ def test_meeting_registration_default_participant_creation(app, default_meeting)
         assert default_participant.registration_token is None
 
 
-def test_meeting_registration_default_participant_update(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_default_participant_update(app, user,
+                                                         default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
@@ -226,23 +252,22 @@ def test_meeting_registration_default_participant_update(app, default_meeting):
         default_participant = participant.user.get_default(
             Participant.DEFAULT)
 
-    new_category = MeetingCategoryFactory(meeting__online_registration=True)
-    new_meeting = new_category.meeting
+    new_meeting = add_new_meeting(app, user)
+    new_category = MeetingCategoryFactory(meeting=new_meeting)
     data['first_name'] = 'Johny'
     data['category_id'] = new_category.id
 
     with app.test_request_context():
-        resp = register_participant_online(client, data, new_meeting,
-                                           participant.user)
-
-        assert resp.status_code == 200
+        register_participant_online(client, data, new_meeting,
+                                    participant.user)
         assert Participant.query.filter_by(meeting=new_meeting).count() == 1
         assert default_participant.first_name == 'Johny'
 
 
-def test_meeting_registration_default_participant_custom_fields(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_default_participant_custom_fields(app, user,
+                                                                default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     CustomFieldFactory(field_type='text', meeting=meeting,
                        label__english='size')
     CustomFieldFactory(field_type='checkbox', meeting=meeting,
@@ -272,9 +297,10 @@ def test_meeting_registration_default_participant_custom_fields(app, default_mee
             assert cfv.value == participant_cfv.value
 
 
-def test_meeting_registration_default_participant_photo(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_default_participant_photo(app, user,
+                                                        default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     photo_field = CustomFieldFactory(meeting=meeting)
     meeting.photo_field = photo_field
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
@@ -299,9 +325,11 @@ def test_meeting_registration_default_participant_photo(app, default_meeting):
         assert upload_dir.join(default_photo_field).check()
 
 
-def test_meeting_registration_default_participant_custom_fields_update(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_default_participant_custom_fields_update(app,
+                                                                       user,
+                                                                       default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     photo_field = CustomFieldFactory(meeting=meeting)
     meeting.photo_field = photo_field
     CustomFieldFactory(field_type='text', meeting=meeting,
@@ -321,8 +349,8 @@ def test_meeting_registration_default_participant_custom_fields_update(app, defa
         participant = Participant.query.filter_by(meeting=meeting).first()
         create_user_after_registration(client, participant, meeting)
 
-    new_category = MeetingCategoryFactory(meeting__online_registration=True)
-    new_meeting = new_category.meeting
+    new_meeting = add_new_meeting(app, user)
+    new_category = MeetingCategoryFactory(meeting=new_meeting)
     CustomFieldFactory(field_type='text', meeting=new_meeting,
                        label__english='size')
     CustomFieldFactory(field_type='checkbox', meeting=new_meeting,
@@ -352,9 +380,10 @@ def test_meeting_registration_default_participant_custom_fields_update(app, defa
             assert cfv.value == default_participant_cfv.value
 
 
-def test_meeting_registration_default_participant_photo_update(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_default_participant_photo_update(app, user,
+                                                               default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     photo_field = CustomFieldFactory(meeting=meeting)
     meeting.photo_field = photo_field
     upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
@@ -373,8 +402,8 @@ def test_meeting_registration_default_participant_photo_update(app, default_meet
         original_image = (default_participant.custom_field_values
                           .scalar().value)
 
-    new_category = MeetingCategoryFactory(meeting__online_registration=True)
-    new_meeting = new_category.meeting
+    new_meeting = add_new_meeting(app, user)
+    new_category = MeetingCategoryFactory(meeting=new_meeting)
     new_photo_field = CustomFieldFactory(meeting=new_meeting)
     data.pop(photo_field.slug)
     data[new_photo_field.slug] = (StringIO('Test'), 'test.png')
@@ -399,9 +428,9 @@ def test_meeting_registration_default_participant_photo_update(app, default_meet
         assert len(upload_dir.listdir()) == 3
 
 
-def test_meeting_registration_is_prepopulated(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_is_prepopulated(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    MeetingCategoryFactory(meeting=meeting)
     user = UserFactory()
     part = ParticipantFactory(user=user, meeting=default_meeting,
                               category=None,
@@ -425,9 +454,10 @@ def test_meeting_registration_is_prepopulated(app, default_meeting):
         assert part.country.code == html('#country option[selected]').val()
 
 
-def test_meeting_registration_multiple_email_user_form_prepopuluted(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_multiple_email_user_form_prepopuluted(app, user,
+                                                                    default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
@@ -452,15 +482,14 @@ def test_meeting_user_registration_is_not_accesible_logged_in(app, user):
         assert resp.status_code == 404
 
 
-def test_meeting_registration_participant_and_media_on_same_user(app, default_meeting):
-    MEDIA_ENABLED = {'media_participant_enabled': True}
-    category = MeetingCategoryFactory(meeting__online_registration=True,
-                                      meeting__settings=MEDIA_ENABLED)
-    meeting = category.meeting
+def test_meeting_registration_participant_and_media_on_same_user(app, user,
+                                                                 default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     media_category = MeetingCategoryFactory(meeting=meeting,
                                             category_type=Category.MEDIA)
 
-    #FIRST REGISTER AS PARTICIPANT
+    # FIRST REGISTER AS PARTICIPANT
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
 
@@ -474,10 +503,10 @@ def test_meeting_registration_participant_and_media_on_same_user(app, default_me
         participant = meeting.participants.first()
         resp = create_user_after_registration(client, participant, meeting)
         assert resp.status_code == 200
-        assert User.query.count() == 1
-        user = User.query.first()
+        assert User.query.count() == 2
+        user = User.query.get(2)
 
-    #REGISTER AS MEDIA PARTICIPANT ON SAME USER
+    # REGISTER AS MEDIA PARTICIPANT ON SAME USER
         data = MediaParticipantFactory.attributes()
         data['category_id'] = media_category.id
         with client.session_transaction() as sess:
@@ -491,11 +520,11 @@ def test_meeting_registration_participant_and_media_on_same_user(app, default_me
                              .filter_by(participant_type=Participant.MEDIA)
                              .first())
 
-    #CHECK DEFAULT PARTICIPANT AND MEDIA CREATED
+    # CHECK DEFAULT PARTICIPANT AND MEDIA CREATED
         assert user.get_default(Participant.DEFAULT) is not None
         assert user.get_default(Participant.DEFAULT_MEDIA) is not None
 
-    #CHECK PARTICIPANT REGISTRATION FORM IS POPULATED
+    # CHECK PARTICIPANT REGISTRATION FORM IS POPULATED
         resp = client.get(url_for('meetings.registration',
                                   meeting_id=meeting.id))
         assert resp.status_code == 200
@@ -509,7 +538,7 @@ def test_meeting_registration_participant_and_media_on_same_user(app, default_me
         assert (participant.country.code ==
                 html('#country option[selected]').val())
 
-    #CHECK MEDIA PARTICIPANT REGISTRATION FORM IS POPULATED
+    # CHECK MEDIA PARTICIPANT REGISTRATION FORM IS POPULATED
         resp = client.get(url_for('meetings.media_registration',
                                   meeting_id=meeting.id))
         assert resp.status_code == 200
@@ -521,9 +550,9 @@ def test_meeting_registration_participant_and_media_on_same_user(app, default_me
         assert media_participant.email == html('#email').val()
 
 
-def test_meeting_registration_timestamp_captcha(app, default_meeting):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
-    meeting = category.meeting
+def test_meeting_registration_timestamp_captcha(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
     role_user = RoleUserMeetingFactory(meeting=meeting)
     RoleUserMeetingFactory(meeting=meeting, user__email='test@email.com')
     UserNotificationFactory(user=role_user.user, meeting=meeting)
