@@ -58,10 +58,6 @@ class _RulesMixin(object):
 
 class _RulesMeta(DefaultMeta):
 
-    def wrap_formdata(self, form, formdata):
-        self.form = form
-        return super(_RulesMeta, self).wrap_formdata(form, formdata)
-
     def render_field(self, field, render_kw):
         action = (
             Action.query.filter(and_(
