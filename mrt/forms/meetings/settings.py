@@ -284,6 +284,8 @@ class RuleForm(BaseForm):
         if condition_fields & action_fields:
             raise ValidationError('Action fields should be different '
                                   'from condition fields')
+        if len(action_fields) != len(self.actions.data):
+            raise ValidationError('Actions fields should be different')
 
     def save(self):
         rule = self.rule or Rule(meeting=g.meeting)

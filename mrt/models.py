@@ -1000,15 +1000,24 @@ class Rule(db.Model):
         'Meeting',
         backref=db.backref('rules', cascade='delete'))
 
+    @classmethod
+    def get_rules_for_fields(cls, fields=[]):
+        ids = [f.id for f in fields]
+        return (
+            cls.query.filter_by(meeting=g.meeting)
+            .filter(Action.field.has(CustomField.id.in_(ids)))
+        )
+
 
 class Condition(db.Model):
+
+    __table_args__ = (db.UniqueConstraint('field_id', 'rule_id'),)
 
     id = db.Column(db.Integer, primary_key=True)
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
     rule = db.relationship(
         'Rule',
-        cascade='all,delete',
-        backref=db.backref('conditions', lazy='dynamic'))
+        backref=db.backref('conditions', lazy='dynamic', cascade='delete'))
 
     field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
     field = db.relationship(
@@ -1019,21 +1028,25 @@ class Condition(db.Model):
 class ConditionValue(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    condition_id = db.Column(db.Integer, db.ForeignKey('condition.id', onupdate="CASCADE", ondelete="CASCADE"))
+    condition_id = db.Column(
+        db.Integer,
+        db.ForeignKey('condition.id', onupdate="CASCADE", ondelete="CASCADE")
+    )
     condition = db.relationship(
         'Condition',
-        backref=db.backref('values', lazy='dynamic'))
+        backref=db.backref('values', lazy='dynamic', cascade='delete'))
     value = db.Column(db.String(255), nullable=False)
 
 
 class Action(db.Model):
 
+    __table_args__ = (db.UniqueConstraint('field_id', 'rule_id'),)
+
     id = db.Column(db.Integer, primary_key=True)
     rule_id = db.Column(db.Integer, db.ForeignKey('rule.id'))
     rule = db.relationship(
         'Rule',
-        cascade='all,delete',
-        backref=db.backref('actions', lazy='dynamic'))
+        backref=db.backref('actions', lazy='dynamic', cascade='delete'))
     is_visible = db.Column(db.Boolean, default=False)
     is_required = db.Column(db.Boolean, default=False)
     field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))

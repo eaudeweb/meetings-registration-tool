@@ -3,10 +3,10 @@ from pyquery import PyQuery
 from py.path import local
 import json
 
-from mrt.models import Meeting, Category, Phrase, CustomField
-from mrt.models import CustomFieldChoice, Translation, Participant
+from mrt.models import Meeting, Category, Phrase, CustomField, Condition
+from mrt.models import CustomFieldChoice, Translation, Participant, Action
 from mrt.forms.meetings import ParticipantDummyForm, MediaParticipantDummyForm
-from mrt.forms.meetings import MeetingCloneForm, add_custom_fields_for_meeting
+from mrt.forms.meetings import add_custom_fields_for_meeting
 
 from .factories import CategoryDefaultFactory, StaffFactory
 from .factories import PhraseDefaultFactory, RoleUserMeetingFactory
@@ -14,6 +14,7 @@ from .factories import PhraseMeetingFactory, ParticipantFactory
 from .factories import CustomFieldFactory, MeetingCategoryFactory
 from .factories import MeetingFactory, MeetingTypeFactory, normalize_data
 from .factories import UserNotificationFactory, MediaParticipantFactory
+from .factories import ActionFactory, ConditionValueFactory
 
 
 def test_meeting_list(app, user, default_meeting):
@@ -1008,6 +1009,67 @@ def test_clone_meeting_subscriber_clones(app, user):
             assert sub is not cloned_sub
             assert sub.user is cloned_sub.user
             assert sub.notification_type == cloned_sub.notification_type
+
+
+def test_clone_meeting_rules_clones(app, user):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+    birth_field = CustomFieldFactory(label__english='Place of birth',
+                                     meeting=meeting,
+                                     field_type='country')
+    passport_field = CustomFieldFactory(label__english='Passport Photo',
+                                        meeting=meeting,
+                                        required=False)
+    info_field = CustomFieldFactory(label__english='Extra info',
+                                    meeting=meeting,
+                                    field_type='text',
+                                    required=False)
+
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting.meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_custom_fields_for_meeting(meeting)
+        fields = meeting.custom_fields
+        country_field = fields.filter_by(slug='country').one()
+        category_field = fields.filter_by(slug='category_id').one()
+        country_cond = ConditionValueFactory(condition__rule__meeting=meeting,
+                                             condition__field=country_field,
+                                             value='RO')
+        ConditionValueFactory(condition__rule=country_cond.condition.rule,
+                              condition__field=category_field,
+                              value=category.id)
+        ConditionValueFactory(condition__rule=country_cond.condition.rule,
+                              condition__field=birth_field,
+                              value='AZ')
+        ActionFactory(rule=country_cond.condition.rule,
+                      field=passport_field,
+                      is_required=True)
+        ActionFactory(rule=country_cond.condition.rule,
+                      field=info_field,
+                      is_required=True)
+
+        resp = client.post(url_for('meetings.clone', meeting_id=meeting.id),
+                           data=data)
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 2
+        clone = Meeting.query.get(2)
+        assert len(clone.rules) == 1
+        condition_clones = Condition.query.filter(Condition.rule.has(
+            meeting=clone)).all()
+        assert len(condition_clones) == 3
+        for condition in condition_clones:
+            assert condition.values.count() == 1
+        action_clones = Action.query.filter(Action.rule.has(
+            meeting=clone)).all()
+        assert len(action_clones) == 2
 
 
 def test_clone_meeting_participants_are_not_cloned(app, user):

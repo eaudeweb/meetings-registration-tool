@@ -11,7 +11,7 @@ import json
 from .factories import ParticipantFactory, MeetingCategoryFactory
 from .factories import CustomFieldFactory, MediaParticipantFactory
 
-from mrt.forms.base import EmailRequired
+from mrt.forms.fields import EmailRequired
 from mrt.forms.meetings import (add_custom_fields_for_meeting,
                                 MediaParticipantDummyForm)
 from mrt.mail import mail

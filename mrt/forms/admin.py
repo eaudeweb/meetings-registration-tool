@@ -19,8 +19,9 @@ from mrt.models import MeetingType
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import PERMISSIONS
 
-from .base import BaseForm, DescriptionInputForm, SlugUnique
+from .base import BaseForm, DescriptionInputForm
 from .base import DefaultCategoryTitleInputForm, CategoryTitleInputForm
+from .fields import SlugUnique
 
 
 backgrounds = UploadSet('backgrounds', IMAGES)

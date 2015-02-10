@@ -289,6 +289,48 @@ class UserNotificationFactory(SQLAlchemyModelFactory):
     notification_type = 'notify_participant'
 
 
+class RuleFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Rule
+        sqlalchemy_session = models.db.session
+
+    name = Sequence(lambda n: 'Rule %d' % n)
+    meeting = SubFactory(MeetingFactory, online_registration=True)
+
+
+class ConditionFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Condition
+        sqlalchemy_session = models.db.session
+
+    rule = SubFactory(RuleFactory)
+    field = SubFactory(CustomFieldFactory,
+                       meeting=SelfAttribute('..rule.meeting'),
+                       field_type='country')
+
+
+class ConditionValueFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.ConditionValue
+        sqlalchemy_session = models.db.session
+
+    condition = SubFactory(ConditionFactory)
+    value = 'RO'
+
+
+class ActionFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Action
+        sqlalchemy_session = models.db.session
+
+    rule = SubFactory(RuleFactory)
+    field = SubFactory(CustomFieldFactory,
+                       meeting=SelfAttribute('..rule.meeting'),
+                       field_type='country')
+    is_visible = False
+    is_required = False
+
+
 def normalize_data(data):
 
     def convert_data(value):

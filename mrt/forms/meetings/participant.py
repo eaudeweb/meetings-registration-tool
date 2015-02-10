@@ -1,22 +1,81 @@
+import json
 from collections import OrderedDict
 from uuid import uuid4
 
 from flask import g
 from flask.ext.uploads import UploadSet, IMAGES
 from werkzeug import FileStorage
-from wtforms import fields, compat
+
+from sqlalchemy import and_
 from sqlalchemy_utils import Country
+from wtforms import fields, compat
+from wtforms.meta import DefaultMeta
+from wtforms.validators import DataRequired
 
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
-from mrt.models import db, Participant, Category
+from mrt.models import db, Participant, Category, Action, Condition
 from mrt.utils import unlink_participant_photo
 
 
 custom_upload = UploadSet('custom', IMAGES)
 
 
-class BaseParticipantForm(BaseForm):
+class _RulesMixin(object):
+
+    def _normalize_data(self, data):
+        if isinstance(data, Country):
+            return data.code
+        return unicode(data)
+
+    def _validate_conditions(self, rule):
+        for condition in rule.conditions.all():
+            values = [unicode(i.value) for i in condition.values.all()]
+            field = self._fields[condition.field.slug]
+            if self._normalize_data(field.data) not in values:
+                return False
+        return True
+
+    def _validate_actions(self, rule):
+        success = True
+        for action in rule.actions.all():
+            field = self._fields[action.field.slug]
+            if action.is_required:
+                if not field.validate(self, [DataRequired()]):
+                    success = False
+        return success
+
+    def validate(self, **kwargs):
+        success = super(_RulesMixin, self).validate(**kwargs)
+        if not success:
+            return success
+        for rule in self.rules:
+            conditions_validated = self._validate_conditions(rule)
+            if conditions_validated:
+                success = self._validate_actions(rule)
+        return success
+
+
+class _RulesMeta(DefaultMeta):
+
+    def render_field(self, field, render_kw):
+        action = (
+            Action.query.filter(and_(
+                Action.field.has(slug=field.name),
+                Action.rule.has(meeting=g.meeting))).scalar())
+        if action and action.is_visible:
+            conditions = Condition.query.filter_by(rule=action.rule).all()
+            data = {}
+            for condition in conditions:
+                data[condition.field.slug] = [i.value for i in
+                                              condition.values.all()]
+            render_kw.update({'data-rules': json.dumps(data)})
+        return field.widget(field, **render_kw)
+
+
+class BaseParticipantForm(_RulesMixin, BaseForm):
+
+    Meta = _RulesMeta
 
     def filter(self, field_types=[]):
         fields = OrderedDict([
