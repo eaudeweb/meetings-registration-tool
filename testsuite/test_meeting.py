@@ -1012,7 +1012,9 @@ def test_clone_meeting_subscriber_clones(app, user):
 
 
 def test_clone_meeting_rules_clones(app, user):
-    category = MeetingCategoryFactory(meeting__online_registration=True)
+    MEDIA_ENABLED = {'media_participant_enabled': True}
+    category = MeetingCategoryFactory(meeting__online_registration=True,
+                                      meeting__settings=MEDIA_ENABLED)
     meeting = category.meeting
     birth_field = CustomFieldFactory(label__english='Place of birth',
                                      meeting=meeting,
@@ -1037,9 +1039,13 @@ def test_clone_meeting_rules_clones(app, user):
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
         add_custom_fields_for_meeting(meeting)
+        add_custom_fields_for_meeting(meeting,
+                                      form_class=MediaParticipantDummyForm)
         fields = meeting.custom_fields
         country_field = fields.filter_by(slug='country').one()
-        category_field = fields.filter_by(slug='category_id').one()
+        category_field = fields.filter_by(
+            slug='category_id',
+            custom_field_type=CustomField.PARTICIPANT).one()
         country_cond = ConditionValueFactory(condition__rule__meeting=meeting,
                                              condition__field=country_field,
                                              value='RO')

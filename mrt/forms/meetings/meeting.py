@@ -161,8 +161,11 @@ class MeetingCloneForm(MeetingEditForm):
 
             for condition in rule.conditions.all():
                 condition_clone = Condition()
-                field = meeting.custom_fields.filter(CustomField.label.has(
-                    english=condition.field.label.english)).one()
+                condition_type = condition.field.custom_field_type
+                condition_label = condition.field.label.english
+                field = meeting.custom_fields.filter(
+                    CustomField.label.has(english=condition_label),
+                    CustomField.custom_field_type == condition_type).one()
                 condition_clone.field = field
                 condition_clone.rule = rule_clone
                 db.session.add(condition_clone)
