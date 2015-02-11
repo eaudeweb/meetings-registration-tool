@@ -12,9 +12,8 @@
 {% endblock %}
 
 
-{% set product_logo = url_for_brand_static_path(config['PRODUCT_LOGO']) %}
-{% set product_side_logo = url_for_brand_static_path(
-    config['PRODUCT_SIDE_LOGO']) %}
+{% set product_logo = get_logo('PRODUCT_LOGO') %}
+{% set product_side_logo = get_logo('PRODUCT_SIDE_LOGO') %}
 
 
 {% block content %}
@@ -50,7 +49,7 @@
               <td>{{ config.PRODUCT_LOGO }}</td>
               <td>
                 {% if config.PRODUCT_LOGO %}
-                <img src="{{ product_logo|no_image_cache }}" class="logo" alt="" width="75" height="75">
+                <img src="{{ product_logo.url|no_image_cache }}" class="logo" alt="" width="75" height="75">
                 {% endif %}
               </td>
             </tr>
@@ -59,7 +58,7 @@
               <td>{{ config.PRODUCT_SIDE_LOGO }}</td>
               <td>
                 {% if config.PRODUCT_SIDE_LOGO %}
-                <img src="{{ product_side_logo|no_image_cache }}" class="logo" alt="" width="75" height="75">
+                <img src="{{ product_side_logo.url|no_image_cache }}" class="logo" alt="" width="75" height="75">
                 {% endif %}
               </td>
             </tr>

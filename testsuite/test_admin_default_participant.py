@@ -139,26 +139,3 @@ def test_default_participant_edit_photo_field(app, user, default_meeting):
                                      .first().value)
         assert upload_dir.join(default_photo_field_value).check() is True
         assert photo_field_value != default_photo_field_value
-
-
-# def add_new_meeting(client, user):
-#     with client.session_transaction() as sess:
-#         sess['user_id'] = user.id
-
-#     meeting_type = MeetingTypeFactory()
-#     meeting_type.load_default_phrases()
-#     data = normalize_data(MeetingFactory.attributes())
-#     data['title-english'] = data.pop('title')
-#     data['acronym'] = acronym = 'TEST'
-#     data['venue_city-english'] = data.pop('venue_city')
-#     data['badge_header-english'] = data.pop('badge_header')
-#     data['online_registration'] = 'y'
-#     data['photo_field_id'] = '0'
-#     data['media_photo_field_id'] = '0'
-#     data['meeting_type_slug'] = meeting_type.slug
-
-#     url = url_for('meetings.add')
-#     resp = client.post(url, data=data)
-
-#     assert resp.status_code == 302
-#     return Meeting.query.filter_by(acronym=acronym).first()

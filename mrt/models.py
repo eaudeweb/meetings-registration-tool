@@ -23,7 +23,6 @@ from mrt.definitions import (
     CATEGORY_REPRESENTING)
 from mrt.utils import slugify, copy_attributes, duplicate_uploaded_file
 from mrt.utils import unlink_participant_photo
-from mrt.utils import get_meeting_logo
 
 
 db = SQLAlchemy()
@@ -690,19 +689,6 @@ class Meeting(db.Model):
     def media_participant_enabled(self):
         return bool(self.settings and
                     self.settings.get('media_participant_enabled', False))
-
-    def get_logo(self, filename):
-        meeting_logo = get_meeting_logo(filename)
-        if meeting_logo:
-            if g.get('is_pdf_process'):
-                return app.config['UPLOADED_LOGOS_DEST'] / meeting_logo
-            else:
-                return url_for('files',
-                               filename=app.config['PATH_LOGOS_KEY'] + '/' + meeting_logo)
-        else:
-            if g.get('is_pdf_process'):
-                return app.config['BRAND_PATH'] / 'static' / filename
-            return url_for('brand', filename=filename)
 
     @classmethod
     def get_default(cls):
