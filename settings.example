@@ -8,7 +8,7 @@ PRODUCT_NAME = ''
 PRODUCT_TITLE = ''
 
 # Administator's email
-ADMINISTATOR_EMAIL = ''
+ADMINISTRATOR_EMAIL = ''
 
 # Mail used for sending reset tokens
 DEFAULT_MAIL_SENDER = ''

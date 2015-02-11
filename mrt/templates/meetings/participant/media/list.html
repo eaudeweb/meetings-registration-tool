@@ -24,7 +24,6 @@
         "serverSide": true,
         "ajax": participants.data("ajax"),
         "columns": [
-            { "data": "id", "className": "text-center" },
             { "data": "last_name" },
             { "data": "category_id" }
         ]
@@ -46,7 +45,6 @@
            data-ajax="{{ url_for('.media_participants_filter') }}">
       <thead>
         <tr>
-          <th style="width: 60px;" class="text-center">ID</th>
           <th>Name</th>
           <th>Category</th>
         </tr>

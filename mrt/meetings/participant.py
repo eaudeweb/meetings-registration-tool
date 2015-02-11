@@ -601,5 +601,5 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
         return Response(
             generate_excel(header, rows),
             mimetype='application/vnd.ms-excel',
-            headers={'Content-Disposition': 'attachment; filename=%s.sls'
+            headers={'Content-Disposition': 'attachment; filename=%s.xls'
                      % 'registration'})

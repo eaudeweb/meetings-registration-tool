@@ -24,7 +24,6 @@
         "serverSide": true,
         "ajax": participants.data("ajax"),
         "columns": [
-            { "data": "id", "className": "text-center" },
             { "data": "last_name" },
             { "data": "category_id" },
             { "data": "representing", "orderable": false },
@@ -51,7 +50,6 @@
            data-ajax="{{ url_for('.participants_filter') }}">
       <thead>
         <tr>
-          <th style="width: 60px;" class="text-center">ID</th>
           <th>Name</th>
           <th>Category</th>
           <th>Representing</th>
