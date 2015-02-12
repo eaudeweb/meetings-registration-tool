@@ -284,7 +284,7 @@ def test_meeting_participant_add_form_field_order(app, user):
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
 
-        #CHECK ORDER
+        # CHECK ORDER
         resp = client.get(url_for('meetings.participant_edit',
                                   meeting_id=category.meeting.id), data=data)
         form_fields = PyQuery(resp.data)('.control-label')
@@ -296,14 +296,14 @@ def test_meeting_participant_add_form_field_order(app, user):
         for i, custom_field in enumerate(custom_fields):
             assert custom_field.label.english == form_fields[i].text.strip()
 
-        #CHANGE ORDER
+        # CHANGE ORDER
         custom_fields[2], custom_fields[3] = custom_fields[3], custom_fields[2]
         new_order = MultiDict([('items[]', x.id) for x in custom_fields])
         resp = client.post(url_for('meetings.custom_field_update_position'),
                            data=new_order)
         assert resp.status_code == 200
 
-        #CHECK ORDER AGAIN
+        # CHECK ORDER AGAIN
         resp = client.get(url_for('meetings.participant_edit',
                                   meeting_id=category.meeting.id), data=data)
         form_fields = PyQuery(resp.data)('.control-label')
@@ -651,7 +651,7 @@ def test_meeting_participant_detail_custom_fields_grouping(app, user):
 
         assert resp.status_code == 200
         html = PyQuery(resp.data)
-        assert len(html('#Events tr')) == 2
+        assert len(html('#Events')) == 1
         assert len(html('#Flags tr')) == 4
 
 

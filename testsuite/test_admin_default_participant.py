@@ -60,6 +60,8 @@ def test_default_participant_detail(app, user, default_meeting):
                     assert details[i].find('td').find('span') is not None
             elif custom_field.slug == 'category_id':
                 assert participant.category.title.english == detail_data
+            elif participant_data is None:
+                assert detail_data == ''
             else:
                 assert str(participant_data) == detail_data
 

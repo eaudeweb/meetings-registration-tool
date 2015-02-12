@@ -1,4 +1,4 @@
-{% from "_bits.html" import custom_fields_box_view %}
+{% from "_bits.html" import custom_fields_box_view, event_fields_box_view %}
 
 {% if form.has(CustomField.IMAGE)%}
   <h5>Photo Files</h5>
@@ -9,4 +9,4 @@
 
 {{ custom_fields_box_view(form, CustomField.CHECKBOX, 'Flags')}}
 
-{{ custom_fields_box_view(form, CustomField.EVENT, 'Events')}}
+{{ event_fields_box_view(form, CustomField.EVENT, 'Events')}}

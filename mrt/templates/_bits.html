@@ -16,7 +16,7 @@
           <span class="text-danger">*</span>
         {% endif %}
       </label>
-      {% if field.type not in ('FileField', 'BooleanField',
+      {% if field.type not in ('FileField', 'BooleanField', 'CustomBooleanField',
                                'MultiCheckboxField', 'RadioField',
                                'CategoryField') and not css_clean %}
         {% set cls = "form-control " + class_ %}
@@ -244,6 +244,29 @@
                 {% endif %}
               </td>
             </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div> {# table-responsive #}
+  {% endif %}
+
+{% endmacro %}
+
+
+{% macro event_fields_box_view(form, field_type, title) %}
+
+  {% if form.has(field_type) %}
+    <h5>{{ title }}</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-condensed table-striped"
+             id="{{ title }}">
+        <tbody>
+          {% for field in form.filter([field_type]) %}
+            {% if field.data %}
+            <tr>
+              <th class="col-sm-5">{{ field.label.text }}</th>
+            </tr>
+            {% endif %}
           {% endfor %}
         </tbody>
       </table>

@@ -112,7 +112,7 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
             if cf.is_primary:
                 value = field.data
                 setattr(participant, field_name, value)
-            elif field.data:
+            elif field.data is not None:
                 cfv = cf.get_or_create_value(participant)
                 if isinstance(field.data, FileStorage):
                     current_filename = cfv.value

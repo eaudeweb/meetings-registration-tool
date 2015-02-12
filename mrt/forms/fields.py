@@ -179,7 +179,11 @@ class CustomBooleanField(BooleanField):
 
 
 class CustomSelectField(fields.SelectField):
-    pass
+
+    def process_data(self, value):
+        super(CustomSelectField, self).process_data(value)
+        if self.data == 'None':
+            self.data = ''
 
 
 class CustomCountryField(CountryField):

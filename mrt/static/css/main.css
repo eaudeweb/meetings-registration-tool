@@ -122,6 +122,10 @@ li.separator {
     position: relative;
 }
 
+.table-bordered.table-striped td {
+    background-clip: padding-box;
+}
+
 .row-link {
     position: absolute;
     margin-right: -15px;
