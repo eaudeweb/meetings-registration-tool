@@ -990,8 +990,9 @@ class Rule(db.Model):
     def get_rules_for_fields(cls, fields=[]):
         ids = [f.id for f in fields]
         return (
-            cls.query.filter_by(meeting=g.meeting)
-            .filter(Action.field.has(CustomField.id.in_(ids)))
+            cls.query.filter_by(meeting=g.meeting).filter(
+                Action.field.has(CustomField.id.in_(ids)),
+                Condition.field.has(CustomField.id.in_(ids)))
         )
 
 

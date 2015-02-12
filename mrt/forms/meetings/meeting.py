@@ -152,6 +152,24 @@ class MeetingCloneForm(MeetingEditForm):
             db.session.add(clone)
             db.session.flush()
 
+    def _clone_custom_fields(self, meeting, custom_fields,
+                             translation_attrs=[]):
+        for custom_field in custom_fields:
+            clone = copy_attributes(custom_field.__class__(), custom_field)
+            for attr in translation_attrs:
+                setattr(clone, attr, copy_attributes(Translation(),
+                        getattr(custom_field, attr)))
+            clone.meeting = meeting
+            db.session.add(clone)
+
+            for choice in custom_field.custom_field_choices:
+                choice_clone = CustomFieldChoice(custom_field=clone)
+                setattr(choice_clone, 'value', copy_attributes(Translation(),
+                        getattr(choice, 'value')))
+                db.session.add(choice_clone)
+
+            db.session.flush()
+
     def _clone_rules(self, meeting, rules):
         for rule in rules:
             rule_clone = copy_attributes(rule.__class__(), rule,
@@ -196,7 +214,7 @@ class MeetingCloneForm(MeetingEditForm):
         meeting = Meeting()
         self.populate_obj(meeting)
         meeting.photo_field_id = meeting.photo_field_id or None
-        self._clone_relation(meeting, self.obj.custom_fields, ('label', ))
+        self._clone_custom_fields(meeting, self.obj.custom_fields, ('label', ))
         self._clone_relation(meeting, self.obj.categories, ('title', ))
         self._clone_relation(meeting, self.obj.phrases, ('description', ))
         self._clone_relation(meeting, self.obj.role_users, exclude_fk=False)

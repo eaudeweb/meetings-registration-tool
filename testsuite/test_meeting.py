@@ -1134,6 +1134,10 @@ def check_fields_are_equal(original, clone):
     assert original.sort == clone.sort
     assert original.custom_field_type is not clone.custom_field_type
     assert original.custom_field_type == clone.custom_field_type
+    for choice in original.custom_field_choices.all():
+        assert CustomFieldChoice.query.filter(
+            CustomFieldChoice.value.has(english=choice.value.english),
+            CustomFieldChoice.custom_field == clone).one()
 
 
 def check_categories_are_equal(original, clone):
