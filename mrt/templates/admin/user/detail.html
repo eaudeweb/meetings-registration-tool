@@ -51,6 +51,7 @@
       <tr>
         <th>Participant name</th>
         <th>Meeting</th>
+        <th>Venue</th>
       </tr>
     </thead>
 
@@ -66,10 +67,20 @@
               {% endif %}
             </td>
             <td>
-              <a href="{{ part.meeting.get_absolute_url() }}">
-                {{ part.meeting.title }}
-              </a>
+              <div>
+                <a href="{{ part.meeting.get_absolute_url() }}">
+                  {{ part.meeting.title }}
+                </a>
+              </div>
+              <div>
+                <small>
+                  {{ part.meeting.date_start.strftime('%d.%m.%Y') }} -
+                  {{ part.meeting.date_end.strftime('%d.%m.%Y') }}
+                </small>
+              </div>
             </td>
+            <td>{{ part.meeting.venue_city.english }},
+                {{ part.meeting.venue_country }}</td>
           </tr>
         {% endfor %}
       </tbody>
