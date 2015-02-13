@@ -50,7 +50,8 @@ class MailLogs(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', 'manage_participant')
 
     def get(self):
-        mails = MailLog.query.filter_by(meeting_id=g.meeting.id)
+        mails = (MailLog.query.filter_by(meeting_id=g.meeting.id)
+                 .order_by(MailLog.date_sent.desc()))
         return render_template('meetings/log/email/list.html',
                                mails=mails)
 
@@ -63,13 +64,6 @@ class MailLogDetail(PermissionRequiredMixin, MethodView):
         mail = MailLog.query.get_or_404(mail_id)
         return render_template('meetings/log/email/detail.html',
                                mail=mail)
-
-    def delete(self, mail_id):
-        mail = MailLog.query.get_or_404(mail_id)
-        db.session.delete(mail)
-        db.session.commit()
-        flash('Email log successfully deleted', 'warning')
-        return jsonify(status="success", url=url_for('.mail_logs'))
 
 
 class ActivityLogs(PermissionRequiredMixin, MethodView):
