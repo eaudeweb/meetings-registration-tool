@@ -48,9 +48,10 @@ ACTIVITY_ACTIONS = {
 }
 
 
-NOTIFY_PARTICIPANT = ('notify_participant', 'Notify participant register')
+NOTIFY_PARTICIPANT = (
+    'notify_participant', 'Notify when participant registers')
 NOTIFY_MEDIA_PARTICIPANT = (
-    'notify_media_participant', 'Notify media participant register')
+    'notify_media_participant', 'Notify when media participant registers')
 
 NOTIFICATION_TYPES = (NOTIFY_PARTICIPANT, NOTIFY_MEDIA_PARTICIPANT)
 
