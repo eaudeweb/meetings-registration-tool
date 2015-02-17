@@ -29,8 +29,8 @@ def test_meeting_default_logos(app, user, brand_dir):
         side_logo_src = html('#PRODUCT_SIDE_LOGO img').attr('src')
         assert side_logo_src == product_side_logo.url
 
-        remove_buttons = html('.remove-photo.disabled ')
-        assert len(remove_buttons) == 2
+        remove_buttons = html('.remove-photo')
+        assert len(remove_buttons) == 0
 
 
 def test_meeting_custom_logos(app, user, brand_dir):

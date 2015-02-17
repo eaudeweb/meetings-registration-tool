@@ -12,11 +12,13 @@
           <span class="glyphicon glyphicon-picture"></span> &nbsp;
           Change photo</button>
 
-        <button class="btn btn-danger btn-sm remove-photo {% if logo.default %}disabled{% endif %}"
+        {% if not logo.default %}
+        <button class="btn btn-danger btn-sm remove-photo"
                 data-url="{{ url_for('.logo_upload', logo_slug=title) }}"
                 data-message="Are you sure you want to delete this photo?">
           <span class="glyphicon glyphicon-remove"></span> &nbsp;
           Remove</button>
+        {% endif %}
       </div>
 
       <div class="fileinput text-center hide">
