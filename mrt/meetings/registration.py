@@ -7,7 +7,8 @@ from flask.ext.login import login_user, logout_user, current_user
 from mrt.forms.auth import LoginForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
-from mrt.forms.meetings import MediaRegistrationForm
+from mrt.forms.meetings import MediaRegistrationForm, ParticipantEditForm
+from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.models import Participant, db, Phrase
 
 from mrt.signals import activity_signal, notification_signal
@@ -128,12 +129,11 @@ class UserRegistration(MethodView):
 
         form = RegistrationUserForm(request.form)
         if form.validate():
-            session.pop('registration_token', None)
             participant.user = form.save()
             db.session.flush()
             participant.clone()
             db.session.commit()
-            return render_template('meetings/registration/user_success.html')
+            return redirect(url_for('meetings.registration_user_success'))
         success_phrase = self.get_success_phrase()
         return render_template('meetings/registration/success.html',
                                participant=participant,
@@ -143,6 +143,27 @@ class UserRegistration(MethodView):
     def get_success_phrase(self):
         return g.meeting.phrases.filter_by(group=Phrase.ONLINE_CONFIRMATION,
                                            name=Phrase.MEDIA).scalar()
+
+
+class UserRegistrationSuccess(MethodView):
+
+    def get(self):
+        registration_token = session.get('registration_token', None)
+        if not registration_token:
+            abort(400)
+        session.pop('registration_token', None)
+        participant = (Participant.query
+                       .filter_by(registration_token=registration_token)
+                       .first_or_404())
+        if participant.participant_type == Participant.PARTICIPANT:
+            class_form = ParticipantEditForm
+        else:
+            class_form = MediaParticipantEditForm
+        Form = custom_form_factory(class_form)
+        Object = custom_object_factory(participant)
+        form = Form(obj=Object())
+        return render_template('meetings/registration/user_success.html',
+                               form=form)
 
 
 class UserRegistrationLogin(MethodView):

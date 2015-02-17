@@ -186,9 +186,65 @@ def test_meeting_registration_and_user_creation(app, user, default_meeting):
 
         participant = Participant.query.filter_by(meeting=meeting).first()
         resp = create_user_after_registration(client, participant, meeting)
-        assert resp.status_code == 200
+        assert resp.status_code == 302
         assert User.query.count() == 2
         assert participant.user is User.query.get(2)
+
+
+def test_meeting_registration_user_success_details(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    client = app.test_client()
+    with app.test_request_context():
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+
+        participant = Participant.query.filter_by(meeting=meeting).first()
+        resp = create_user_after_registration(client, participant, meeting,
+                                              follow=True)
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        assert (html('td[for="category_id"]').text() ==
+                participant.category.title.english)
+        assert html('td[for="email"]').text() == participant.email
+        assert html('td[for="title"]').text() == participant.title.value
+        assert html('td[for="first_name"]').text() == participant.first_name
+        assert html('td[for="last_name"]').text() == participant.last_name
+        assert html('td[for="language"]').text() == participant.language.value
+        assert html('td[for="country"]').text() == participant.country.name
+        assert (html('td[for="represented_country"]').text() ==
+                participant.represented_country.name)
+
+
+def test_meeting_registration_media_user_success_details(app, user,
+                                                         default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting,
+                                      category_type=Category.MEDIA)
+
+    data = MediaParticipantFactory.attributes()
+    data['category_id'] = category.id
+    client = app.test_client()
+    with app.test_request_context():
+        resp = register_media_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+
+        participant = Participant.query.filter_by(meeting=meeting).first()
+        resp = create_user_after_registration(client, participant, meeting,
+                                              follow=True)
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        assert (html('td[for="category_id"]').text() ==
+                participant.category.title.english)
+        assert html('td[for="email"]').text() == participant.email
+        assert html('td[for="title"]').text() == participant.title.value
+        assert html('td[for="first_name"]').text() == participant.first_name
+        assert html('td[for="last_name"]').text() == participant.last_name
 
 
 def test_meeting_registration_with_multiple_emails(app, user, default_meeting):
@@ -502,7 +558,7 @@ def test_meeting_registration_participant_and_media_on_same_user(app, user,
                 .count() == 1)
         participant = meeting.participants.first()
         resp = create_user_after_registration(client, participant, meeting)
-        assert resp.status_code == 200
+        assert resp.status_code == 302
         assert User.query.count() == 2
         user = User.query.get(2)
 
@@ -593,7 +649,7 @@ def register_media_participant_online(client, participant_data, meeting,
     return resp
 
 
-def create_user_after_registration(client, participant, meeting):
+def create_user_after_registration(client, participant, meeting, follow=False):
     """Helper function that creates a user after the participant registered."""
     data = {
         'email': participant.email,
@@ -601,7 +657,8 @@ def create_user_after_registration(client, participant, meeting):
         'confirm': 'testpassword'
     }
     return client.post(url_for('meetings.registration_user',
-                               meeting_id=meeting.id), data=data)
+                               meeting_id=meeting.id), data=data,
+                       follow_redirects=follow)
 
 
 def assert_participants_fields_equal(first, second):

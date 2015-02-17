@@ -26,6 +26,10 @@ meetings.add_url_rule(
     '/<int:meeting_id>/registration/user',
     view_func=views.UserRegistration.as_view('registration_user'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/registration/user/success',
+    view_func=views.UserRegistrationSuccess.as_view(
+        'registration_user_success'))
+meetings.add_url_rule(
     '/<int:meeting_id>/registration/login',
     view_func=views.UserRegistrationLogin.as_view('registration_user_login'))
 meetings.add_url_rule(

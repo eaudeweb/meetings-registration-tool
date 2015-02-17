@@ -7,4 +7,29 @@
     <h2>A new user was created. You can now login for future meetings.</h2>
   </div>
 
+  <div class="col-sm-6 col-sm-offset-3">
+    <h2 class="text-center"><small>Your participant details</small></h2>
+    <table class="table table-bordered table-condensed table-striped">
+      <tbody>
+        {% for field in form.exclude([CustomField.CHECKBOX,
+                                      CustomField.IMAGE,
+                                      CustomField.EVENT]) %}
+          <tr>
+            <th class="col-sm-3">{{ field.label.text }}</th>
+            <td for="{{ field.id }}">
+              {% if field.type == 'CategoryField' %}
+                {% set choices = field.choices|dict %}
+                {{ choices[field.data] }}
+              {% elif field.name == 'email' %}
+                <a href="mailto:{{ field.data }}">{{ field.data }}</a>
+              {% else %}
+                {{ field.data or '' }}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 {% endblock %}
