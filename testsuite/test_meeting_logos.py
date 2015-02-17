@@ -5,7 +5,7 @@ from StringIO import StringIO
 
 from mrt.models import Category, Participant
 from mrt.pdf import PdfRenderer
-from mrt.template import get_logo
+from mrt.utils import Logo
 from .factories import MeetingFactory, ParticipantFactory
 from .factories import MeetingCategoryFactory
 
@@ -17,8 +17,8 @@ def test_meeting_default_logos(app, user, brand_dir):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        product_logo = get_logo('product_logo')
-        product_side_logo = get_logo('product_side_logo')
+        product_logo = Logo('product_logo')
+        product_side_logo = Logo('product_side_logo')
 
         resp = client.get(url_for('meetings.statistics',
                                   meeting_id=meeting.id))
@@ -41,14 +41,14 @@ def test_meeting_custom_logos(app, user, brand_dir):
 
     with app.test_request_context():
         resp = upload_new_logo(app, user, meeting.id, 'PRODUCT_LOGO', left_logo)
-        product_logo = get_logo('product_logo')
+        product_logo = Logo('product_logo')
 
         assert product_logo.url in resp.data
         assert upload_dir.join(product_logo.filename).check()
 
         resp = upload_new_logo(app, user, meeting.id, 'PRODUCT_SIDE_LOGO',
                                right_logo)
-        product_side_logo = get_logo('product_side_logo')
+        product_side_logo = Logo('product_side_logo')
 
         assert product_side_logo.url in resp.data
         assert upload_dir.join(product_side_logo.filename).check()
@@ -79,8 +79,8 @@ def test_meeting_custom_logos_remove(app, user, brand_dir):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        product_logo = get_logo('product_logo')
-        product_side_logo = get_logo('product_side_logo')
+        product_logo = Logo('product_logo')
+        product_side_logo = Logo('product_side_logo')
 
         resp = upload_new_logo(app, user, meeting.id, 'PRODUCT_LOGO', left_logo)
         assert upload_dir.join(product_logo.filename).check()
@@ -114,7 +114,7 @@ def test_meeting_left_custom_logo_change_removes_old_logo(app, user, brand_dir):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        product_logo = get_logo('product_logo')
+        product_logo = Logo('product_logo')
 
         upload_new_logo(app, user, meeting.id, 'PRODUCT_LOGO', old_logo)
         old_file = upload_dir.join(product_logo.filename)
@@ -140,7 +140,7 @@ def test_meeting_right_custom_logo_change_removes_old_logo(app, user,
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        product_side_logo = get_logo('product_side_logo')
+        product_side_logo = Logo('product_side_logo')
 
         upload_new_logo(app, user, meeting.id, 'PRODUCT_SIDE_LOGO', old_logo)
         old_file = upload_dir.join(product_side_logo.filename)
@@ -169,11 +169,11 @@ def test_pdf_badge_with_default_logos(app, brand_dir):
         content = content_file.read()
         product_logos = PyQuery(content)('.logo')
         for logo in product_logos:
-            assert logo.attrib['src'] == get_logo('PRODUCT_LOGO').url
+            assert logo.attrib['src'] == Logo('PRODUCT_LOGO').url
 
         side_logos = PyQuery(content)('.side-logo')
         for logo in side_logos:
-            assert logo.attrib['src'] == get_logo('PRODUCT_SIDE_LOGO').url
+            assert logo.attrib['src'] == Logo('PRODUCT_SIDE_LOGO').url
 
 
 def test_pdf_badge_with_custom_logos(app, user, brand_dir):
@@ -198,11 +198,11 @@ def test_pdf_badge_with_custom_logos(app, user, brand_dir):
         content = content_file.read()
         product_logos = PyQuery(content)('.logo')
         for logo in product_logos:
-            assert logo.attrib['src'] == get_logo('PRODUCT_LOGO').url
+            assert logo.attrib['src'] == Logo('PRODUCT_LOGO').url
 
         side_logos = PyQuery(content)('.side-logo')
         for logo in side_logos:
-            assert logo.attrib['src'] == get_logo('PRODUCT_SIDE_LOGO').url
+            assert logo.attrib['src'] == Logo('PRODUCT_SIDE_LOGO').url
 
 
 def upload_new_logo(app, user, meeting_id, logo_slug, new_logo):

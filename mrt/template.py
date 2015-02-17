@@ -11,7 +11,7 @@ from jinja2 import evalcontextfilter, Markup, escape
 from path import path
 
 from mrt.definitions import ACTIVITY_ACTIONS, PERMISSIONS_HIERARCHY
-from mrt.utils import translate, Logo
+from mrt.utils import translate
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
@@ -132,10 +132,6 @@ def pluralize(value, arg='s'):
         except TypeError:
             pass
     return singular_suffix
-
-
-def get_logo(slug):
-    return Logo(slug)
 
 
 def sort_by_tuple_element(value, position=0):
