@@ -133,16 +133,6 @@
     {% endif %}
 
     {% if has_perm('view_participant') %}
-      <li class="pull-right hidden-xs hidden-sm">
-        <form class="form-inline form-search" id="search-participant"
-              action="{{ url_for('.participant_search') }}">
-          <div class="form-group">
-            <span class="glyphicon glyphicon-search"></span>
-            <input type="text" name="search" class="form-control input-sm" placeholder="Search for participants" tabindex="1">
-          </div>
-        </form>
-      </li>
-
       {% set status_url = url_for('.printouts_queue_status', queue='printouts') %}
       <li class="pull-right hide hiden-xs hidden-sm printout-count"
           data-url="{{ status_url }}">

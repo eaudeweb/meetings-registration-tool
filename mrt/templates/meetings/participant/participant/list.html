@@ -13,7 +13,6 @@
 
 {% endblock %}
 
-
 {% block scripts %}
 
   <script>
@@ -23,6 +22,8 @@
         "processing": true,
         "serverSide": true,
         "ajax": participants.data("ajax"),
+        "bFilter": false,
+        "sDom": '<"row"<"col-xs-6"l><"#custom-search.col-xs-6">>t<"row"<"col-xs-6"i><"col-xs-6"p>>',
         "columns": [
             { "data": "last_name" },
             { "data": "category_id" },
@@ -32,6 +33,8 @@
             { "data": "credentials", "className": "text-center" }
         ]
       });
+      var search = $("#search-participant").detach();
+      $("#custom-search").append(search);
     });
   </script>
 
@@ -75,6 +78,18 @@
     <a href="{{ url_for('.participants_export') }}" class="btn btn-default btn-sm">
       Export to excel
     </a>
+  </div>
+
+  <div class="hidden">
+    {% if has_perm('view_participant') %}
+      <form class="form-inline form-search pull-right" id="search-participant"
+              action="{{ url_for('.participant_search') }}">
+        <div class="form-group">
+          <span class="glyphicon glyphicon-search"></span>
+          <input type="text" name="search" class="form-control input-sm" placeholder="Search for participants" tabindex="1">
+        </div>
+      </form>
+    {% endif %}
   </div>
 
 {% endblock %}

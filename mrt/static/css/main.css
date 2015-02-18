@@ -438,3 +438,8 @@ li.separator {
     position: relative;
     top: 0px;
 }
+
+#search-participant {
+    display: inline-block;
+    top: 0px;
+}
