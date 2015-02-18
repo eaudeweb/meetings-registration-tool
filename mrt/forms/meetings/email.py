@@ -29,6 +29,11 @@ class BulkEmailForm(BaseEmailForm):
     categories = fields.SelectMultipleField(validators=[Optional()],
                                             coerce=int, choices=[])
 
+    participant_type = fields.SelectField(
+        'Participant type', validators=[DataRequired()],
+        choices=Category.CATEGORY_TYPES,
+    )
+
     def __init__(self, *args, **kwargs):
         super(BulkEmailForm, self).__init__(*args, **kwargs)
 

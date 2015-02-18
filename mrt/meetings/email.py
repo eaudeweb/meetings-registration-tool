@@ -7,13 +7,15 @@ from mrt.models import Participant, MailLog
 from mrt.meetings.mixins import PermissionRequiredMixin
 
 
-def get_recipients(language, categories=None):
+def get_recipients(language, categories=None, participant_type=None):
     """ Return a queryset of participants filtered by language and categories
     """
-    queryset = (Participant.query.current_meeting().participants()
+    queryset = (Participant.query.current_meeting()
                 .filter_by(language=language))
     if categories:
         queryset = queryset.filter(Participant.category_id.in_(categories))
+    if participant_type:
+        queryset = queryset.filter_by(participant_type=participant_type)
     return queryset
 
 
@@ -50,8 +52,9 @@ class RecipientsCount(MethodView):
 
     def get(self):
         language = request.args.get('language')
-        categories = request.args.get('categories[]')
-        qs = get_recipients(language, categories)
+        categories = request.args.getlist('categories[]')
+        participant_type = request.args.get('participant_type')
+        qs = get_recipients(language, categories, participant_type)
         return '{0}'.format(qs.count())
 
 

@@ -35,15 +35,18 @@
       function update_count() {
         var language =  $("#language").val();
         var categories =  $("#categories").val();
+        var participant_type = $("#participant_type").val()
 
         $.get('{{ url_for('.recipients_count') }}',
-            {'language': language, 'categories': categories},
+            {'language': language, 'categories': categories,
+             'participant_type': participant_type},
             function (data) {
               $('#recipients-count').html(data);
             });
       }
       $("#language").change(update_count);
       $("#categories").change(update_count);
+      $("#participant_type").change(update_count);
       update_count();
     }
   )
@@ -71,6 +74,7 @@
             {{ form_group(form.language, label_size="2", input_size="3") }}
             {{ form_group(form.categories, label_size="2", input_size="6",
                           options={"class": "form-control select"}) }}
+            {{ form_group(form.participant_type, label_size="2", input_size="3") }}
           </div>
 
           <div class="panel-heading"><b>Message</b></div>

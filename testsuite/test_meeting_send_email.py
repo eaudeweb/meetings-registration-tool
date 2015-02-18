@@ -14,7 +14,8 @@ def test_send_email_in_english(app, user):
     data = {
         'message': 'Test',
         'subject': 'Test subject',
-        'language': 'English'
+        'language': 'English',
+        'participant_type': 'participant',
     }
 
     client = app.test_client()
@@ -38,7 +39,8 @@ def test_send_email_to_categories(app, user):
         'message': 'Test',
         'subject': 'Test subject',
         'language': 'English',
-        'categories': '1'
+        'categories': '1',
+        'participant_type': 'participant',
     }
 
     client = app.test_client()
@@ -60,7 +62,8 @@ def test_send_bulk_email_logs(app, user):
     data = {
         'message': 'Test',
         'subject': 'Test subject',
-        'language': 'English'
+        'language': 'English',
+        'participant_type': 'participant',
     }
 
     client = app.test_client()
