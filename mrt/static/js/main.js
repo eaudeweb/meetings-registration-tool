@@ -61,7 +61,7 @@ $(function () {
                 parent.find('.image-container').html(resp.result.html);
                 parent.find('.image-container').fadeIn('fast');
                 parent.find('.text-danger').text('');
-                parent.find('button').removeClass('disabled')
+                parent.find('button').show();
             },
 
             fail: function (e, resp) {
@@ -100,7 +100,7 @@ $(function () {
                         window.location.replace(resp.url);
                     }
                     parent.find('.image-container').fadeOut('fast');
-                    parent.find('button').not('.change-photo').addClass('disabled');
+                    parent.find('button').not('.change-photo').hide();
                 });
             }
         });

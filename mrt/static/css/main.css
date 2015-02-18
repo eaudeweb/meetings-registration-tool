@@ -443,3 +443,7 @@ li.separator {
     display: inline-block;
     top: 0px;
 }
+
+.image-container img {
+    height: 200px!important;
+}
