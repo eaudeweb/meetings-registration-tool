@@ -511,7 +511,7 @@ class CustomField(db.Model):
 
     label = db.relationship('Translation', cascade='all, delete')
 
-    description = db.Column(db.String(512), info={'label': 'Description'})
+    description = db.Column(db.String(512), info={'label': 'Hint'})
 
     field_type = db.Column(ChoiceType(CUSTOM_FIELDS), nullable=False,
                            info={'label': 'Field type'})

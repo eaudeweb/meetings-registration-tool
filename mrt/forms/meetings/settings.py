@@ -93,7 +93,7 @@ class CustomFieldEditForm(BaseForm):
         custom_field = self.obj or CustomField()
         self.populate_obj(custom_field)
         custom_field.meeting = g.meeting
-        if not custom_field.slug:
+        if not custom_field.id:
             last_sort = (
                 CustomField.query.with_entities(CustomField.sort)
                 .order_by(desc(CustomField.sort))

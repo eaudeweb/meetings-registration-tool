@@ -97,6 +97,36 @@ def test_meeting_add(app, user):
     assert Meeting.query.count() == 1
 
 
+def test_meeting_add_custom_fields_default_order(app, user):
+    data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
+    data['settings'] = 'media_participant_enabled'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.add')
+        resp = client.post(url, data=data)
+
+    assert resp.status_code == 302
+    assert Meeting.query.count() == 1
+    fields = Meeting.query.get(1).custom_fields
+    participant_fields = (fields.filter_by(custom_field_type='participant')
+                          .order_by(CustomField.sort))
+    assert (tuple(field.slug for field in participant_fields) ==
+            ParticipantDummyForm.Meta.field_order)
+    media_fields = (fields.filter_by(custom_field_type='media')
+                    .order_by(CustomField.sort))
+    assert (tuple(field.slug for field in media_fields) ==
+            MediaParticipantDummyForm.Meta.field_order)
+
+
 def test_meeting_add_default_categories_clone(app, user):
     data = normalize_data(MeetingFactory.attributes())
     categories = CategoryDefaultFactory.create_batch(3)
