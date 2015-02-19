@@ -101,11 +101,27 @@ class MeetingLogoUpload(PermissionRequiredMixin, MethodView):
         else:
             return make_response(jsonify(form.errors), 400)
 
-        html = render_template('meetings/overview/_image_container.html',
+        html = render_template('meetings/logos/_image_container.html',
                                logo=logo)
         return jsonify(html=html)
 
     def delete(self, logo_slug):
         logo = Logo(logo_slug)
         logo.unlink()
-        return jsonify(status="success", url=url_for('.statistics'))
+        return jsonify(status="success", url=url_for('.logos'))
+
+
+class Logos(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting',)
+
+    def get(self):
+        left_logo = Logo('PRODUCT_LOGO')
+        left_logo_form = MeetingLogoEditForm(logo=left_logo.filename)
+        right_logo = Logo('PRODUCT_SIDE_LOGO')
+        right_logo_form = MeetingLogoEditForm(logo=right_logo.filename)
+        return render_template('meetings/logos/logos.html',
+                               left_logo_form=left_logo_form,
+                               left_logo=left_logo,
+                               right_logo_form=right_logo_form,
+                               right_logo=right_logo)

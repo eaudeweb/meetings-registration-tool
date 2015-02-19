@@ -249,6 +249,9 @@ meetings.add_url_rule(
 # logos
 meetings.add_url_rule('/<int:meeting_id>/logo/<string:logo_slug>/upload',
                       view_func=views.MeetingLogoUpload.as_view('logo_upload'))
+meetings.add_url_rule('/<int:meeting_id>/settings/logos/',
+                      view_func=views.Logos.as_view('logos'))
+
 # rules
 meetings.add_url_rule('/<int:meeting_id>/settings/rules/',
                       view_func=views.Rules.as_view('rules'))

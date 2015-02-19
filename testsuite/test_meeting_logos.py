@@ -20,8 +20,7 @@ def test_meeting_default_logos(app, user, brand_dir):
         product_logo = Logo('product_logo')
         product_side_logo = Logo('product_side_logo')
 
-        resp = client.get(url_for('meetings.statistics',
-                                  meeting_id=meeting.id))
+        resp = client.get(url_for('meetings.logos', meeting_id=meeting.id))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
         logo_src = html('#PRODUCT_LOGO img').attr('src')
@@ -59,7 +58,7 @@ def test_meeting_custom_logos(app, user, brand_dir):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.get(url_for('meetings.statistics', meeting_id=meeting.id))
+        resp = client.get(url_for('meetings.logos', meeting_id=meeting.id))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
         logo_src = html('#PRODUCT_LOGO a').attr('href')

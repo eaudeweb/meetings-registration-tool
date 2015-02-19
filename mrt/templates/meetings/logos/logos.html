@@ -1,0 +1,42 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+
+{% set title = "Logos" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block scripts %}
+
+  {% assets "upload_js" %}
+     <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+{% endblock %}
+
+{% block breadcrumb %} {{ breadcrumb([('', title)]) }} {% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+
+  <div class="row">
+    <div class="col-sm-6">
+      {% with title='PRODUCT_LOGO', form=left_logo_form, logo=left_logo %}
+        {% include "meetings/logos/_image_widget.html" %}
+      {% endwith %}
+    </div>
+
+    <div class="col-sm-6">
+      {% with title='PRODUCT_SIDE_LOGO', form=right_logo_form, logo=right_logo %}
+        {% include "meetings/logos/_image_widget.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
+{% endblock %}

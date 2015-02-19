@@ -7,14 +7,6 @@
 
 {% block title %} {{ title }} {% endblock %}
 
-{% block scripts %}
-
-  {% assets "upload_js" %}
-     <script src="{{ ASSET_URL }}"></script>
-  {% endassets %}
-
-{% endblock %}
-
 {% block breadcrumb %} {{ breadcrumb([('', title)]) }} {% endblock %}
 
 
@@ -99,20 +91,6 @@
         {% endfor %}
 
       </table>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm-6">
-      {% with title='PRODUCT_LOGO', form=left_logo_form, logo=left_logo %}
-        {% include "meetings/overview/_image_widget.html" %}
-      {% endwith %}
-    </div>
-
-    <div class="col-sm-6">
-      {% with title='PRODUCT_SIDE_LOGO', form=right_logo_form, logo=right_logo %}
-        {% include "meetings/overview/_image_widget.html" %}
-      {% endwith %}
     </div>
   </div>
 
