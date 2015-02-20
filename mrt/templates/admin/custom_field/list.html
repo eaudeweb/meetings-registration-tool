@@ -43,11 +43,9 @@
       <li class="active">
         <a href="#participant" data-toggle="tab">Participant fields</a>
       </li>
-      {% if custom_fields_for_media %}
       <li>
         <a href="#media" data-toggle="tab">Media participant fields</a>
       </li>
-      {% endif %}
     </ul>
 
     <div class="tab-content">
@@ -55,6 +53,11 @@
       <div role="tabpanel" class="tab-pane active" id="participant">
         {{ render_fields(custom_fields, default=True) }}
         {{ actions(Participant.PARTICIPANT)}}
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="media">
+        {{ render_fields(custom_fields_for_media, default=True) }}
+        {{ actions(Participant.MEDIA)}}
       </div>
 
     </div> {# tab-content #}

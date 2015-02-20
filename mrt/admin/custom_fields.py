@@ -14,12 +14,17 @@ class CustomFields(PermissionRequiredMixin, MethodView):
     decorators = (login_required,)
 
     def get(self):
-        custom_fields = (
+        query = (
             CustomField.query.filter_by(meeting_id=None)
             .order_by(CustomField.sort)
         )
+        custom_fields = (
+            query.filter_by(custom_field_type=CustomField.PARTICIPANT))
+        custom_fields_for_media = (
+            query.filter_by(custom_field_type=CustomField.MEDIA))
         return render_template('admin/custom_field/list.html',
-                               custom_fields=custom_fields)
+                               custom_fields=custom_fields,
+                               custom_fields_for_media=custom_fields_for_media)
 
 
 class CustomFieldEdit(PermissionRequiredMixin, MethodView):
