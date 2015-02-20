@@ -4,6 +4,7 @@ from .phrase import *
 from .role import *
 from .user import *
 from .meeting_type import *
+from .custom_fields import *
 from mrt import __version__ as VERSION
 
 

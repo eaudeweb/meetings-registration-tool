@@ -1,0 +1,64 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb, render_fields, actions %}
+
+
+{% block title %}Default Custom Fields{% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#pass').dataTable({
+        'order': [],
+        'columnDefs': [
+          { 'orderable': false, 'targets': 0 },
+          { 'orderable': false, 'targets': 2 },
+          { 'orderable': false, 'targets': 3 },
+          { 'orderable': false, 'targets': 6 }
+        ]
+      });
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [('', 'Default Custom Fields')] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>Default Custom Fields</h2>
+  </div>
+
+  <div role="tabpanel">
+
+    <ul class="nav nav-tabs" id="nav_tabs">
+      <li class="active">
+        <a href="#participant" data-toggle="tab">Participant fields</a>
+      </li>
+      {% if custom_fields_for_media %}
+      <li>
+        <a href="#media" data-toggle="tab">Media participant fields</a>
+      </li>
+      {% endif %}
+    </ul>
+
+    <div class="tab-content">
+
+      <div role="tabpanel" class="tab-pane active" id="participant">
+        {{ render_fields(custom_fields, default=True) }}
+        {{ actions(Participant.PARTICIPANT)}}
+      </div>
+
+    </div> {# tab-content #}
+
+  </div> {# tabpanel #}
+
+{% endblock %}

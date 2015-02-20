@@ -188,3 +188,7 @@ class CustomSelectField(fields.SelectField):
 
 class CustomCountryField(CountryField):
     pass
+
+
+class CustomTextAreaField(fields.TextAreaField):
+    pass

@@ -5,6 +5,7 @@ from flask.ext.login import current_user
 from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField, FileAllowed
 
+from sqlalchemy import desc
 from sqlalchemy.orm.exc import NoResultFound
 from wtforms import ValidationError, BooleanField, fields
 from wtforms.validators import DataRequired
@@ -15,11 +16,13 @@ from mrt.models import db
 from mrt.models import Staff, User, Role
 from mrt.models import CategoryDefault, Category
 from mrt.models import PhraseDefault, Phrase
-from mrt.models import MeetingType
+from mrt.models import MeetingType, CustomField
 from mrt.utils import unlink_uploaded_file
 from mrt.definitions import PERMISSIONS
+from mrt.forms.meetings import CustomFieldEditForm
 
 from .base import BaseForm, DescriptionInputForm
+from .base import AdminCustomFieldLabelInputForm
 from .base import DefaultCategoryTitleInputForm, CategoryTitleInputForm
 from .fields import SlugUnique
 
@@ -221,4 +224,35 @@ class MeetingTypeEditForm(BaseForm):
         db.session.add(meeting_type)
         if not meeting_type.default_phrases:
             meeting_type.load_default_phrases()
+        db.session.commit()
+
+
+class AdminCustomFieldEditForm(CustomFieldEditForm):
+
+    label = ModelFormField(AdminCustomFieldLabelInputForm, label='Field label')
+    meeting_type_slugs = fields.SelectMultipleField('Meeting types')
+
+    def __init__(self, *args, **kwargs):
+        super(AdminCustomFieldEditForm, self).__init__(*args, **kwargs)
+        self.meeting_type_slugs.choices = [
+            (m.slug, m.label) for m in MeetingType.query.ignore_def()]
+        if self.obj and self.meeting_type_slugs.data is None:
+            self.meeting_type_slugs.data = [
+                m.slug for m in self.obj.meeting_types]
+
+    def save(self):
+        custom_field = self.obj or CustomField()
+        self.populate_obj(custom_field)
+        custom_field.meeting_types = MeetingType.query.filter(
+            MeetingType.slug.in_(self.meeting_type_slugs.data)).all()
+
+        db.session.commit()
+        if not custom_field.id:
+            last_sort = (
+                CustomField.query.with_entities(CustomField.sort)
+                .order_by(desc(CustomField.sort))
+                .first())
+            if last_sort:
+                custom_field.sort = last_sort[0] + 1
+            db.session.add(custom_field)
         db.session.commit()

@@ -5,6 +5,7 @@ from mrt.admin import PhrasesTypes, PhraseEdit, Roles, RoleEdit
 from mrt.admin import SettingsOverview, MeetingTypes, MeetingTypeEdit
 from mrt.admin import StaffList, StaffEdit
 from mrt.admin import Users, UserToggle, UserPasswordChange, UserDetail
+from mrt.admin import CustomFields, CustomFieldEdit, CustomFieldUpdatePosition
 
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -26,6 +27,18 @@ admin.add_url_rule('/categories/<int:category_id>/edit',
 admin.add_url_rule(
     '/categories/update/position',
     view_func=CategoryUpdatePosition.as_view('category_update_position'))
+
+# Custom Fields
+admin.add_url_rule('/fields', view_func=CustomFields.as_view('custom_fields'))
+custom_field_edit_func = CustomFieldEdit.as_view('custom_field_edit')
+admin.add_url_rule('/fields/<string:custom_field_type>/add',
+                   view_func=custom_field_edit_func)
+admin.add_url_rule('/fields/<int:custom_field_id>/edit',
+                   view_func=custom_field_edit_func)
+admin.add_url_rule(
+    '/fields/update/position',
+    view_func=CustomFieldUpdatePosition.as_view(
+        'custom_field_update_position'))
 
 # Phrases
 admin.add_url_rule('/phrases', view_func=PhrasesTypes.as_view('phrases'))

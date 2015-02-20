@@ -79,6 +79,18 @@ class CustomFieldLabelInputForm(TranslationInputForm):
             raise ValidationError(self.duplicate_message)
 
 
+class AdminCustomFieldLabelInputForm(TranslationInputForm):
+
+    def validate_english(self, field):
+        custom_field = CustomField.query.filter(
+            CustomField.slug == slugify(field.data),
+            CustomField.meeting == None,
+            CustomField.custom_field_type == self.custom_field_type).first()
+
+        if custom_field and self.obj != custom_field.label:
+            raise ValidationError(self.duplicate_message)
+
+
 class DescriptionInputForm(BaseForm):
 
     class Meta:

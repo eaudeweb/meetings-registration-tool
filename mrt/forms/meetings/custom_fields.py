@@ -9,7 +9,7 @@ from werkzeug import OrderedMultiDict
 from wtforms.validators import DataRequired
 
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
-from mrt.forms.fields import CustomSelectField
+from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
 from mrt.forms.fields import EmailField, EmailRequired
 
@@ -19,6 +19,7 @@ from mrt.models import Category
 
 _CUSTOM_FIELDS_MAP = {
     CustomField.TEXT: {'field': CustomStringField},
+    CustomField.TEXT_AREA: {'field': CustomTextAreaField},
     CustomField.CHECKBOX: {'field': CustomBooleanField},
     CustomField.IMAGE: {'field': FileField,
                         'validators': [FileAllowed(IMAGES)]},

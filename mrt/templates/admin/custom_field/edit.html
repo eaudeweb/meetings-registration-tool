@@ -1,0 +1,105 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb,
+                            form_group, form_group_with_list_inputs %}
+
+
+{% if custom_field %}
+  {% set title = "Edit Field" %}
+{% else %}
+  {% set title = "Add Field" %}
+{% endif %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block scripts %}
+
+<script>
+  $(function() {
+    var required = $('#required').parent().parent();
+    $('#field_type').on('change', function() {
+      if ($(this).val() == 'event')
+        required.hide();
+      else
+        required.show();
+    }).change();
+  });
+</script>
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.custom_fields'), 'Fields'),
+      ('', title)
+  ] ) }}
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>{{ title }}</h2>
+  </div>
+
+  <form method="post" class="form-horizontal">
+
+    <div class="panel panel-default">
+      <div class="panel-heading"><b>General</b></div>
+
+      <div class="panel-body">
+
+        {{ form_group_with_list_inputs(form.label) }}
+
+        {{ form_group(form.description) }}
+
+        {{ form_group(form.field_type, input_size="3") }}
+
+        {{ form_group(form.required, input_size="3") }}
+
+        {{ form_group(form.visible_on_registration_form, input_size="3") }}
+
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <b>Meeting types</b>
+      </div>
+
+      <div class="panel-body">
+        {{ form.meeting_type_slugs(class_="form-control form-reset-control select",
+          **{"data-placeholder": "Select meeting types for this default field"}) }}
+        {% if form.meeting_type_slugs.errors %}
+          <div class="text-danger"><small>{{ form.meeting_type_slugs.errors[0] }}</small></div>
+        {% endif %}
+      </div>
+
+    </div> {# panel #}
+
+    <div class="form-actions row">
+      <div class="col-sm-6">
+        <button type="submit" class="btn btn-primary">
+          Save changes</button>
+        <small>or
+        <a href="{{ url_for('.custom_fields') }}">Cancel</a></small>
+      </div>
+      {% if custom_field %}
+        <div class="col-sm-6 text-right">
+          <a class="delete" data-toggle="delete"
+             data-href="{{ url_for('.custom_field_edit', custom_field_id=custom_field.id) }}"
+             data-message="Are you sure you want to delete this custom field?">
+            <span class="glyphicon glyphicon-remove"></span>
+            Delete this custom field</a>
+        </div>
+      {% endif %}
+    </div>
+
+  </form>
+
+{% endblock %}

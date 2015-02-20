@@ -1,5 +1,5 @@
 {% extends "meetings/_base.html" %}
-{% from "_bits.html" import breadcrumb %}
+{% from "_bits.html" import breadcrumb, render_fields, actions %}
 
 
 {% set title = "Fields" %}
@@ -38,59 +38,6 @@
 
 {% endblock %}
 
-
-{% macro render_fields(fields) %}
-
-  <p class="text-right"><small>{{ fields.count() }} fields</small></p>
-  <table class="table table-bordered table-condensed sortable"
-         data-url="{{ url_for('.custom_field_update_position') }}">
-
-    <thead>
-      <th class="handler"></th>
-      <th>Label</th>
-      <th>Type</th>
-      <th>Required</th>
-      <th class="text-right col-sm-3">Visible on registration form</th>
-    </thead>
-
-    <tbody>
-      {% for field in fields %}
-        {% set url = url_for('.custom_field_edit',
-                             custom_field_id=field.id)%}
-        <tr id="items-{{ field.id }}"
-            class="{% if field.is_primary %}highlight{% endif %}">
-          <td class="handler">
-            <span class="glyphicon glyphicon-align-justify"></span>
-          </td>
-          <td class="field-label">
-            {% if field.is_primary %}
-              <b>{{ field.label }}</b>
-            {% else %}
-              <a href="{{ url }}">{{ field.label }}</a>
-            {% endif %}
-          </td>
-          <td>{{ field.field_type.value }}</td>
-          <td><span class="glyphicon {% if field.required %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
-          <td class="text-right"><span class="glyphicon {% if field.visible_on_registration_form %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-
-  </table>
-
-{% endmacro %}
-
-
-{% macro actions(type) %}
-
-    <div class="actions">
-        {% set url = url_for('.custom_field_edit', custom_field_type=type) %}
-        <a href="{{ url }}" class="btn btn-primary btn-sm">
-        <span class="glyphicon glyphicon-pencil"></span> &nbsp;
-        Add a new field</a>
-    </div> {# actions #}
-
-{% endmacro %}
 
 
 {% block content %}

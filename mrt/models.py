@@ -463,6 +463,7 @@ class Participant(db.Model):
 class CustomField(db.Model):
 
     TEXT = 'text'
+    TEXT_AREA = 'text_area'
     IMAGE = 'image'
     EMAIL = 'email'
     CHECKBOX = 'checkbox'
@@ -473,6 +474,7 @@ class CustomField(db.Model):
 
     CUSTOM_FIELDS = (
         (TEXT, 'Text Field'),
+        (TEXT_AREA, 'TextArea Field'),
         (IMAGE, 'Image Field'),
         (EMAIL, 'Email Field'),
         (CHECKBOX, 'Checkbox Field'),
@@ -858,6 +860,17 @@ association_table = db.Table(
 )
 
 
+fields_association_table = db.Table(
+    'meeting_type_custom_field',
+    db.Column('meeting_type_slug',
+              db.String(16),
+              db.ForeignKey('meeting_type.slug')),
+    db.Column('custom_field_id',
+              db.Integer,
+              db.ForeignKey('custom_field.id'))
+)
+
+
 class MeetingType(db.Model):
 
     __tablename__ = 'meeting_type'
@@ -870,6 +883,10 @@ class MeetingType(db.Model):
 
     default_categories = db.relationship(
         'CategoryDefault', secondary=association_table, backref=db.backref(
+            'meeting_types'))
+
+    default_fields = db.relationship(
+        'CustomField', secondary=fields_association_table, backref=db.backref(
             'meeting_types'))
 
     def load_default_phrases(self):
