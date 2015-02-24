@@ -3,6 +3,7 @@ from pyquery import PyQuery
 from factory import Sequence
 
 from mrt.models import CustomField, Meeting
+from mrt.meetings.custom_field import CustomFields
 from .factories import CustomFieldFactory, MeetingFactory, normalize_data
 from .factories import MeetingTypeFactory
 from .utils import add_participant_custom_fields
@@ -194,7 +195,7 @@ def test_meeting_custom_fields_list_with_media_participant_enabled(app, user):
         participant_fields = (CustomField.query
                               .filter_by(meeting_id=1,
                                          custom_field_type=CustomField.PARTICIPANT))
-        assert len(participant_list) == participant_fields.count()
+        assert len(participant_list) == participant_fields.count() - len(CustomFields.excluded_fields)
 
         media_list = html('div#media table tbody tr')
         media_fields = (CustomField.query
