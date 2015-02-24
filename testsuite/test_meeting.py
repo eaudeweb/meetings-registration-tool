@@ -1,3 +1,4 @@
+from factory import Sequence
 from flask import url_for
 from pyquery import PyQuery
 from py.path import local
@@ -95,6 +96,52 @@ def test_meeting_add(app, user):
 
     assert resp.status_code == 302
     assert Meeting.query.count() == 1
+
+
+def test_meeting_add_with_global_custom_fields(app, user):
+    meeting_type = MeetingTypeFactory()
+    CustomFieldFactory.create_batch(
+        3, meeting=None, meeting_types=[meeting_type],
+        label__english=Sequence(lambda n: 'Field %d' % n))
+    CustomFieldFactory.create_batch(
+        3, meeting=None, label__english=Sequence(lambda n: 'Field %d' % n),
+        meeting_types=[meeting_type], custom_field_type=CustomField.MEDIA)
+    data = normalize_data(MeetingFactory.attributes())
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
+    data['settings'] = 'media_participant_enabled'
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.add')
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        fields = Meeting.query.get(1).custom_fields
+        participant_fields = (fields.filter_by(custom_field_type='participant')
+                              .order_by(CustomField.sort))
+        assert (participant_fields.count() ==
+                len(ParticipantDummyForm()._fields) + 3)
+        primary_fields = participant_fields.filter_by(is_primary=True)
+        default_fields = participant_fields.filter_by(is_primary=False)
+        default_fields_max_sort = max(primary_fields.with_entities('sort'))
+        for field in default_fields:
+            assert field.sort > default_fields_max_sort[0]
+        media_fields = (fields.filter_by(custom_field_type='media')
+                              .order_by(CustomField.sort))
+        assert (media_fields.count() ==
+                len(MediaParticipantDummyForm()._fields) + 3)
+        primary_fields = media_fields.filter_by(is_primary=True)
+        default_fields = media_fields.filter_by(is_primary=False)
+        default_fields_max_sort = max(primary_fields.with_entities('sort'))
+        for field in default_fields:
+            assert field.sort > default_fields_max_sort[0]
 
 
 def test_meeting_add_custom_fields_default_order(app, user):

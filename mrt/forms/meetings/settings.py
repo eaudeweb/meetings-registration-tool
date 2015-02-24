@@ -95,7 +95,8 @@ class CustomFieldEditForm(BaseForm):
         custom_field.meeting = g.meeting
         if not custom_field.id:
             last_sort = (
-                CustomField.query.with_entities(CustomField.sort)
+                CustomField.query.filter_by(meeting=g.meeting)
+                .with_entities(CustomField.sort)
                 .order_by(desc(CustomField.sort))
                 .first())
             if last_sort:

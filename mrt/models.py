@@ -894,6 +894,9 @@ class MeetingType(db.Model):
             default_phrases = json.load(f)
         self.default_phrases += [PhraseDefault(**d) for d in default_phrases]
 
+    def __repr__(self):
+        return self.label
+
 
 class MailLog(db.Model):
 

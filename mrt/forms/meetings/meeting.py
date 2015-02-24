@@ -3,6 +3,7 @@ from flask_wtf.file import FileField, FileAllowed
 from wtforms import fields, widgets, Form
 from wtforms.validators import ValidationError, InputRequired
 from wtforms_alchemy import ModelFormField
+from sqlalchemy import desc
 from sqlalchemy.orm.exc import NoResultFound
 
 from mrt.models import db, Meeting, Staff, Participant
@@ -110,6 +111,26 @@ class MeetingEditForm(BaseForm):
             db.session.add(category)
             db.session.flush()
 
+    def _save_custom_field(self, meeting):
+        add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm)
+        query = (
+            CustomField.query.filter_by(meeting=meeting)
+            .with_entities(CustomField.sort)
+            .order_by(desc(CustomField.sort))
+            .first())
+        last_sort = query[0] + 1
+
+        # Copy default custom fields for meeting type
+        for field_default in meeting.meeting_type.default_fields:
+            field = copy_attributes(field_default.__class__(), field_default)
+            setattr(field, 'label', copy_attributes(Translation(),
+                                                    field_default.label))
+            field.sort = last_sort
+            last_sort += 1
+            field.meeting = meeting
+            db.session.add(field)
+        db.session.flush()
+
     def save(self):
         meeting = self.obj or Meeting()
         self.populate_obj(meeting)
@@ -121,8 +142,7 @@ class MeetingEditForm(BaseForm):
             db.session.add(meeting)
             self._save_phrases(meeting)
             self._save_categories(meeting)
-            add_custom_fields_for_meeting(
-                meeting, form_class=ParticipantDummyForm)
+            self._save_custom_field(meeting)
         if meeting.media_participant_enabled:
             add_custom_fields_for_meeting(
                 meeting, form_class=MediaParticipantDummyForm)
