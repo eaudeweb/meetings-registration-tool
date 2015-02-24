@@ -3,10 +3,9 @@ from flask.views import MethodView
 
 from blinker import ANY
 from datetime import datetime, timedelta
-from sqlalchemy import or_
 
 from mrt.models import db, Participant
-from mrt.models import ActivityLog, MailLog, RoleUser
+from mrt.models import ActivityLog, MailLog
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.signals import activity_signal
 
@@ -60,11 +59,6 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', )
 
     def get(self):
-        staffs = (
-            RoleUser.query
-            .filter(or_(RoleUser.meeting == g.meeting,
-                        RoleUser.meeting == None))
-            .distinct(RoleUser.user_id).all())
         activities = g.meeting.activities.order_by(ActivityLog.date.desc())
 
         staff_id = request.args.get('staff_id', None)
@@ -75,6 +69,7 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
         if staff_id:
             staff_id = None if int(staff_id) == 0 else int(staff_id)
             activities = activities.filter_by(staff_id=staff_id)
+            staff_id = int(staff_id or 0)
 
         if seconds:
             relative_date = datetime.now() - timedelta(seconds=int(seconds))
@@ -88,7 +83,6 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
 
         return render_template('meetings/log/activity.html',
                                activities=activities,
-                               staffs=staffs,
                                staff_id=staff_id,
                                seconds=seconds,
                                part_id=part_id,
