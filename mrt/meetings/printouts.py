@@ -15,9 +15,9 @@ from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
-from mrt.forms.meetings import BadgeCategories
+from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.models import Participant, Category, Meeting, Job
-from mrt.models import redis_store, db
+from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
 from mrt.meetings.mixins import PermissionRequiredMixin
@@ -221,6 +221,56 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
         return redirect(url_for('.printouts_short_list'))
 
 
+class EventList(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'event list'
+    DOC_TITLE = 'List of announced participants in events'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(event_ids):
+        query = (
+            CustomFieldValue.query.filter(
+                CustomFieldValue.participant.has(meeting_id=g.meeting.id),
+                CustomFieldValue.custom_field.has(field_type='event'),
+                CustomFieldValue.value == 'true')
+            .order_by(CustomFieldValue.custom_field_id))
+
+        if event_ids:
+            query = (
+                query.filter(CustomFieldValue.custom_field.has(
+                    CustomField.id.in_(event_ids))))
+
+        return query
+
+    def get(self):
+        event_ids = request.args.getlist('events')
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query(event_ids)
+        count = query.count()
+
+        pagination = query.paginate(page, per_page=50)
+        participants = groupby(pagination.items,
+                               key=attrgetter('custom_field'))
+        event_form = EventsForm(request.args)
+        return render_template(
+            'meetings/printouts/event_list.html',
+            participants=participants,
+            count=count,
+            title=self.DOC_TITLE,
+            event_ids=event_ids,
+            event_form=event_form,
+            pagination=pagination)
+
+    def post(self):
+        event_ids = request.args.getlist('events')
+        _add_to_printout_queue(_process_event_list, self.JOB_NAME,
+                               self.DOC_TITLE, event_ids)
+        return redirect(url_for('.printouts_participant_events'))
+
+
 class PrintoutFooter(MethodView):
 
     def get(self):
@@ -251,6 +301,23 @@ def _process_delegation_list(meeting_id, title):
     context = {'participants': participants,
                'title': title,
                'template': 'meetings/printouts/_delegation_list_table.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
+
+
+def _process_event_list(meeting_id, title, event_ids):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = EventList._get_query(event_ids)
+    count = query.count()
+    participants = groupby(query, key=attrgetter('custom_field'))
+    context = {'participants': participants,
+               'count': count,
+               'title': title,
+               'template': 'meetings/printouts/_event_list_table.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

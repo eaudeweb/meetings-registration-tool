@@ -201,6 +201,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/printouts/footer',
     view_func=views.PrintoutFooter.as_view('printouts_footer'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/participant/events',
+    view_func=views.EventList.as_view('printouts_participant_events'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',

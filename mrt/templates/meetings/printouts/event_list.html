@@ -1,0 +1,76 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import render_pagination, breadcrumb %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Events'),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block head %}
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/printouts.css') }}">
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <form method="GET">
+    <div class="panel panel-default">
+      <div class="panel-heading"><b>{{ title }}</b></div>
+      <div class="panel-body">
+        {{ event_form.events(
+            class_="form-control form-reset-control select",
+            **{'data-placeholder': 'Select one or more events' }) }}
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Preview</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div id="infinite-scroll-container" class="printout-container">
+
+    <div>
+      {% set url = url_for('.printouts_participant_events', events=event_ids) %}
+      <form method="POST" class="text-right">
+        <button class="btn btn-danger btn-sm btn-download" type="submit">
+          <span class="glyphicon glyphicon-download"></span>
+          Download as pdf</button>
+      </form>
+    </div>
+
+    {% with title=title %}
+      {% include "meetings/printouts/_event_list_table.html" %}
+    {% endwith %}
+
+    <div class="printout-loading"></div>
+
+    <ul class="pagination">
+      {% if pagination.has_prev %}
+        {% set prev_url = url_for('.printouts_participant_events',
+                                  page=pagination.prev().page) %}
+        <li><a href="{{ prev_url }}">Previous</a></li>
+      {% endif %}
+      {% if pagination.has_next %}
+        {% set next_url = url_for('.printouts_participant_events',
+                                  page=pagination.next().page) %}
+        <li><a href="{{ next_url }}" class="next">Next</a></li>
+      {% endif %}
+    </ul>
+
+  </div>
+
+{% endblock %}

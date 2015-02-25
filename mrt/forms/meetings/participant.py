@@ -15,6 +15,7 @@ from wtforms.validators import DataRequired
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
 from mrt.models import db, Participant, Category, Action, Condition
+from mrt.models import CustomField
 from mrt.utils import unlink_participant_photo
 
 
@@ -154,3 +155,14 @@ class BadgeCategories(BaseForm):
 class PrintoutForm(BadgeCategories):
 
     printout_type = fields.SelectField('Type', choices=PRINTOUT_TYPES)
+
+
+class EventsForm(BaseForm):
+
+    events = fields.SelectMultipleField()
+
+    def __init__(self, *args, **kwargs):
+        super(EventsForm, self).__init__(*args, **kwargs)
+        events = g.meeting.custom_fields.filter_by(
+            field_type=CustomField.EVENT)
+        self.events.choices = [(e.id, e.label) for e in events]
