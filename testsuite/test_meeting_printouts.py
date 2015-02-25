@@ -2,6 +2,7 @@ from flask import url_for
 from pyquery import PyQuery
 
 from .factories import ParticipantFactory, MeetingCategoryFactory
+from .factories import EventFactory, EventValueFactory
 
 
 def test_shortlist_printout(app, user):
@@ -23,7 +24,7 @@ def test_shortlist_printout(app, user):
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
 
-        #TEST FIRST PAGE
+        # TEST FIRST PAGE
         resp = client.get(url_for('meetings.printouts_short_list',
                                   meeting_id=cat.meeting.id))
         assert resp.status_code == 200
@@ -37,7 +38,7 @@ def test_shortlist_printout(app, user):
         participant_ids = set([x.attrib['data-id'] for x in participant_names])
         assert len(participant_ids) == 50
 
-        #TEST SECOND PAGE
+        # TEST SECOND PAGE
         resp = client.get(url_for('meetings.printouts_short_list',
                                   meeting_id=cat.meeting.id,
                                   page=2))
@@ -51,8 +52,45 @@ def test_shortlist_printout(app, user):
             participant_ids.add(participant.attrib['data-id'])
         assert len(participant_ids) == 75
 
-        #TEST 404 PAGE
+        # TEST 404 PAGE
         resp = client.get(url_for('meetings.printouts_short_list',
                                   meeting_id=cat.meeting.id,
                                   page=3))
         assert resp.status_code == 404
+
+
+def test_event_list_printout(app, user):
+    category = MeetingCategoryFactory()
+    first_event = EventFactory(meeting=category.meeting,
+                               label__english='First event')
+    second_event = EventFactory(meeting=category.meeting,
+                                label__english='Second event')
+    EventValueFactory.create_batch(5, custom_field=first_event,
+                                   participant__category=category)
+    EventValueFactory.create_batch(7, custom_field=second_event,
+                                   participant__category=category)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        resp = client.get(url_for('meetings.printouts_participant_events',
+                                  meeting_id=category.meeting.id))
+        assert resp.status_code == 200
+        rows = PyQuery(resp.data)('table tbody tr')
+        assert len(rows) == 14
+
+        resp = client.get(url_for('meetings.printouts_participant_events',
+                                  meeting_id=category.meeting.id,
+                                  events=first_event.id))
+        assert resp.status_code == 200
+        rows = PyQuery(resp.data)('table tbody tr')
+        assert len(rows) == 6
+
+        resp = client.get(url_for('meetings.printouts_participant_events',
+                                  meeting_id=category.meeting.id,
+                                  events=second_event.id))
+        assert resp.status_code == 200
+        rows = PyQuery(resp.data)('table tbody tr')
+        assert len(rows) == 8

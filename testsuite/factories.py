@@ -331,6 +331,29 @@ class ActionFactory(SQLAlchemyModelFactory):
     is_required = False
 
 
+class EventFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.CustomField
+        sqlalchemy_session = models.db.session
+
+    label = SubFactory(CustomFieldLabelFactory)
+    meeting = SubFactory(MeetingFactory)
+    field_type = models.CustomField.EVENT
+    required = False
+    visible_on_registration_form = False
+    custom_field_type = models.CustomField.PARTICIPANT
+
+
+class EventValueFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.CustomFieldValue
+        sqlalchemy_session = models.db.session
+
+    custom_field = SubFactory(EventFactory)
+    participant = SubFactory(ParticipantFactory)
+    value = 'true'
+
+
 def normalize_data(data):
 
     def convert_data(value):
