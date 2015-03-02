@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from flask import request, g
 from werkzeug import MultiDict
 
@@ -106,3 +108,13 @@ class DescriptionInputForm(BaseForm):
                 'widget': TextArea()
             }
         }
+
+
+class OrderedFieldsForm(BaseForm):
+
+    def __iter__(self):
+        field_order = getattr(self.Meta, 'field_order', None)
+        if field_order and set(field_order) == set(self._fields.keys()):
+            temp_fields = [(k, self._fields[k]) for k in field_order]
+            self._fields = OrderedDict(temp_fields)
+        return super(OrderedFieldsForm, self).__iter__()

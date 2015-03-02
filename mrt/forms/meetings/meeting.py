@@ -11,14 +11,12 @@ from mrt.models import Phrase, PhraseDefault, Translation
 from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import MeetingType, Category, Condition, ConditionValue
 
-from mrt.forms.base import BaseForm, TranslationInputForm
+from mrt.forms.base import BaseForm, TranslationInputForm, OrderedFieldsForm
 from mrt.forms.fields import MultiCheckboxField
 from mrt.forms.fields import CategoryField, EmailRequired, EmailField
 
 from mrt.utils import copy_attributes, Logo, logos_upload
 from mrt.definitions import MEETING_SETTINGS
-
-from collections import OrderedDict
 
 
 _CUSTOM_FIELD_MAPPER = {
@@ -254,7 +252,7 @@ class MeetingCloneForm(MeetingEditForm):
         return meeting
 
 
-class ParticipantDummyForm(BaseForm):
+class ParticipantDummyForm(OrderedFieldsForm):
 
     CUSTOM_FIELD_TYPE = 'participant'
 
@@ -279,13 +277,6 @@ class ParticipantDummyForm(BaseForm):
             'country': {'validators': [InputRequired()]}
         }
 
-    def __iter__(self):
-        field_order = getattr(self.Meta, 'field_order', None)
-        if field_order and set(field_order) == set(self._fields.keys()):
-            temp_fields = [(k, self._fields[k]) for k in field_order]
-            self._fields = OrderedDict(temp_fields)
-        return super(ParticipantDummyForm, self).__iter__()
-
 
 class DefaultParticipantDummyForm(BaseForm):
 
@@ -304,7 +295,7 @@ class DefaultParticipantDummyForm(BaseForm):
         }
 
 
-class MediaParticipantDummyForm(BaseForm):
+class MediaParticipantDummyForm(OrderedFieldsForm):
 
     CUSTOM_FIELD_TYPE = 'media'
 
@@ -319,13 +310,6 @@ class MediaParticipantDummyForm(BaseForm):
             'title', 'first_name', 'last_name', 'email', 'category_id')
         field_order = ('title', 'first_name', 'last_name', 'email',
                        'category_id')
-
-    def __iter__(self):
-        field_order = getattr(self.Meta, 'field_order', None)
-        if field_order and set(field_order) == set(self._fields.keys()):
-            temp_fields = [(k, self._fields[k]) for k in field_order]
-            self._fields = OrderedDict(temp_fields)
-        return super(MediaParticipantDummyForm, self).__iter__()
 
 
 class DefaultMediaParticipantDummyForm(BaseForm):
