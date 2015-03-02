@@ -4,7 +4,7 @@
 {% block head %}
 
   <style type="text/css">
-    {{ inject_static_file('css/badge.css') }}
+    {{ inject_static_file('css/badges/default.css') }}
   </style>
 
 {% endblock %}
@@ -12,6 +12,6 @@
 
 {% block content %}
 
-  {% include "meetings/participant/_badge.html" with context %}
+  {% include "meetings/participant/badges/default.html" with context %}
 
 {% endblock %}
