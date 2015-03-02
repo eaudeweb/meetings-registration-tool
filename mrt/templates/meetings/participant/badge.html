@@ -12,6 +12,7 @@
 
 {% block content %}
 
+  {% set badge_context = inject_badge_context(participant) %}
   {% include "meetings/participant/badges/default.html" with context %}
 
 {% endblock %}

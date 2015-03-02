@@ -11,7 +11,7 @@ from jinja2 import evalcontextfilter, Markup, escape
 from path import path
 
 from mrt.definitions import ACTIVITY_ACTIONS, PERMISSIONS_HIERARCHY
-from mrt.utils import translate
+from mrt.utils import translate, Logo
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
@@ -95,6 +95,26 @@ def inject_static_file(filepath):
     with open(path(app.static_folder) / filepath, 'r') as f:
         data = f.read()
     return Markup(data)
+
+
+def inject_badge_context(participant):
+    product_logo = Logo('product_logo')
+    product_side_logo = Logo('product_side_logo')
+    participant_photo, background = None, None
+    if participant.photo:
+        participant_photo = crop(
+            app.config['FILES_PATH'] / app.config['PATH_CUSTOM_KEY'] /
+            participant.photo)
+
+    if participant.category.background:
+        background = (app.config['UPLOADED_BACKGROUNDS_DEST'] /
+                      participant.category.background)
+    return {
+        'product_logo': product_logo,
+        'product_side_logo': product_side_logo,
+        'participant_photo': participant_photo,
+        'background': background,
+    }
 
 
 def country_in(country, lang_code='en'):
