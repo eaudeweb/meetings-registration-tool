@@ -1,6 +1,6 @@
 from flask import render_template, jsonify, flash, abort, url_for
 from flask import request
-from flask.ext.login import login_required, current_user
+from flask.ext.login import current_user
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
@@ -11,8 +11,6 @@ from mrt.models import User, Meeting, Participant, db
 
 
 class Users(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required,)
 
     def get(self):
         page = request.args.get('page', 1, type=int)
@@ -26,8 +24,6 @@ class Users(PermissionRequiredMixin, MethodView):
 
 
 class UserDetail(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required,)
 
     def get(self, user_id):
         user = User.query.filter_by(id=user_id).first_or_404()
@@ -43,8 +39,6 @@ class UserDetail(PermissionRequiredMixin, MethodView):
 
 class UserToggle(PermissionRequiredMixin, MethodView):
 
-    decorators = (login_required,)
-
     def post(self, user_id):
         user = User.query.get_or_404(user_id)
         if user == current_user:
@@ -55,8 +49,6 @@ class UserToggle(PermissionRequiredMixin, MethodView):
 
 
 class UserPasswordChange(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required,)
 
     def post(self, user_id):
         user = User.query.get_or_404(user_id)

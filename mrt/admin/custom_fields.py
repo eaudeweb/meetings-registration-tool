@@ -1,7 +1,6 @@
 from flask import flash
 from flask import render_template, jsonify
 from flask import request, redirect, url_for
-from flask.ext.login import login_required
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
@@ -10,8 +9,6 @@ from mrt.models import db, CustomField, CustomFieldValue
 
 
 class CustomFields(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required,)
 
     def get(self):
         query = (
@@ -28,8 +25,6 @@ class CustomFields(PermissionRequiredMixin, MethodView):
 
 
 class CustomFieldEdit(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required,)
 
     def _get_object(self, custom_field_id=None):
         return (CustomField.query
@@ -76,8 +71,6 @@ class CustomFieldEdit(PermissionRequiredMixin, MethodView):
 
 
 class CustomFieldUpdatePosition(PermissionRequiredMixin, MethodView):
-
-    permission_required = ('manage_meeting', )
 
     def post(self):
         items = request.form.getlist('items[]')

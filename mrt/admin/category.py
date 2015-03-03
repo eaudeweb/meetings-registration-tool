@@ -1,7 +1,6 @@
 from flask import flash
 from flask import render_template, jsonify
 from flask import request, redirect, url_for
-from flask.ext.login import login_required
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
@@ -13,8 +12,6 @@ from mrt.utils import unlink_uploaded_file
 
 class Categories(PermissionRequiredMixin, MethodView):
 
-    decorators = (login_required,)
-
     def get(self):
         categories = (
             CategoryDefault.query.order_by(CategoryDefault.sort)
@@ -25,8 +22,6 @@ class Categories(PermissionRequiredMixin, MethodView):
 
 
 class CategoryEdit(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required, )
 
     def get(self, category_id=None):
         category = (CategoryDefault.query.get_or_404(category_id)

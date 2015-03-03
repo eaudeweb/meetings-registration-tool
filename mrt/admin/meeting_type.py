@@ -1,7 +1,6 @@
 from flask import (
     render_template, request, redirect, url_for, flash, jsonify, abort)
 from flask.views import MethodView
-from flask.ext.login import login_required
 
 from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.models import MeetingType, db
@@ -10,8 +9,6 @@ from mrt.forms.admin import MeetingTypeEditForm
 
 class MeetingTypes(PermissionRequiredMixin, MethodView):
 
-    decorators = (login_required,)
-
     def get(self):
         meeting_types = MeetingType.query.ignore_def()
         return render_template('admin/meeting_type/list.html',
@@ -19,8 +16,6 @@ class MeetingTypes(PermissionRequiredMixin, MethodView):
 
 
 class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required,)
 
     def get(self, meeting_type_slug=None):
         meeting_type = (

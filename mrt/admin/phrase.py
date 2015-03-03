@@ -1,7 +1,6 @@
 from flask import flash
 from flask import render_template
 from flask import request, redirect, url_for
-from flask.ext.login import login_required
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
@@ -11,16 +10,12 @@ from mrt.models import PhraseDefault, MeetingType
 
 class PhrasesTypes(PermissionRequiredMixin, MethodView):
 
-    decorators = (login_required,)
-
     def get(self):
         m_types = [(m.slug, m.label) for m in MeetingType.query.ignore_def()]
         return render_template('admin/phrase/list.html', meeting_types=m_types)
 
 
 class PhraseEdit(PermissionRequiredMixin, MethodView):
-
-    decorators = (login_required,)
 
     def get(self, meeting_type, phrase_id=None):
         phrases = (
