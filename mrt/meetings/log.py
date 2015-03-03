@@ -60,19 +60,19 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
 
     def get(self):
         activities = g.meeting.activities.order_by(ActivityLog.date.desc())
+        staff_members = [activity.staff for activity in
+                         g.meeting.activities.group_by('id', 'staff_id').all()]
 
-        staff_id = request.args.get('staff_id', None)
-        seconds = request.args.get('time', None)
-        part_id = request.args.get('part_id', None)
+        staff_id = request.args.get('staff_id', None, type=int)
+        seconds = request.args.get('time', None, type=int)
+        part_id = request.args.get('part_id', None, type=int)
         action = request.args.get('action', None)
 
-        if staff_id:
-            staff_id = None if int(staff_id) == 0 else int(staff_id)
-            activities = activities.filter_by(staff_id=staff_id)
-            staff_id = int(staff_id or 0)
+        if staff_id is not None:
+            activities = activities.filter_by(staff_id=staff_id or None)
 
         if seconds:
-            relative_date = datetime.now() - timedelta(seconds=int(seconds))
+            relative_date = datetime.now() - timedelta(seconds=seconds)
             activities = activities.filter(ActivityLog.date > relative_date)
 
         if part_id:
@@ -84,6 +84,7 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
         return render_template('meetings/log/activity.html',
                                activities=activities,
                                staff_id=staff_id,
+                               staff_members=staff_members,
                                seconds=seconds,
                                part_id=part_id,
                                action=action)

@@ -120,9 +120,8 @@ class MeetingEditForm(BaseForm):
 
         # Copy default custom fields for meeting type
         for field_default in meeting.meeting_type.default_fields:
-            field = copy_attributes(field_default.__class__(), field_default)
-            setattr(field, 'label', copy_attributes(Translation(),
-                                                    field_default.label))
+            field = copy_attributes(CustomField(), field_default)
+            field.label = copy_attributes(Translation(), field_default.label)
             field.sort = last_sort
             last_sort += 1
             field.meeting = meeting

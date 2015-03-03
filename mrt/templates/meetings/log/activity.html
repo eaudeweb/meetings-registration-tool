@@ -74,18 +74,20 @@
 
         {% else %}
           <li class="nav-header">Filter by staff</li>
-          <li class="{% if staff_id == None %}active {% endif %}">
+          <li {% if staff_id == None %}class="active"{% endif %}>
             <a href="{{ url_for('.activity') }}">All</a>
           </li>
-          {% for staff in activities|groupby('staff') %}
-            <li {% if staff_id|int == staff.grouper.id or (staff_id != None and staff_id|int == 0) %}class="active"{% endif %}>
-              {% if staff.grouper %}
-                {% set url = url_for('.activity', staff_id=staff.grouper.id, time=seconds) %}
-              {% else %}
-                {% set url = url_for('.activity', staff_id=0, time=seconds) %}
-              {% endif %}
-              <a href="{{ url }}">{{ staff.grouper or 'Online' }}</a>
-            </li>
+          {% for staff in staff_members %}
+            {% if staff %}
+            <li {% if staff_id == staff.id %}class="active"{% endif %}>
+                <a href="{{ url_for('.activity', staff_id=staff.id, time=seconds) }}">
+                  {{ staff.full_name or staff.user.email }}</a>
+              </li>
+            {% else %}
+              <li {% if staff_id == 0 %}class="active"{% endif %}>
+                <a href="{{ url_for('.activity', staff_id=0, time=seconds) }}">Online </a>
+              </li>
+            {% endif %}
           {% endfor %}
 
           <li class="nav-header">Filter by time span</li>
