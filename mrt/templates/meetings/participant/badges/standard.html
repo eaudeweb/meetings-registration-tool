@@ -2,8 +2,35 @@
 
 <div class="badge-container">
 
-{{ badge_context['product_logo'] }}
-{{ badge_context['product_side_logo'] }}
-{{ badge_context['participant_photo'] }}
+  <div class="badge-header">
+    {% if g.meeting.badge_header %}
+      {{ g.meeting.badge_header[participant.lang] }}
+    {% else %}
+      {{ g.meeting.title[participant.lang] }}
+    {% endif %}
+  </div> {# badge-container #}
 
-</div>
+  <div class="content">
+    <h1>{{ participant.first_name }} {{ participant.last_name }}</h1>
+    <h2>{{ participant.representing }}</h2>
+  </div> {# content #}
+
+  <div class="address">
+    <p>
+      <span class="date">
+        {{ date_processor(g.meeting.date_start, g.meeting.date_end) }},
+      </span>
+      {{ g.meeting.venue_city.english }} ({{ g.meeting.venue_country }})
+    </p>
+    {% if g.meeting.venue_address %}
+      <p>{{ g.meeting.venue_address }}</p>
+    {% endif %}
+  </div> {# #}
+
+ <div class="stripe {% if nostripe %}nostripe{% endif %}"
+       style="background: {{ participant.category.color }}">
+
+    {{ participant.category }}
+  </div>
+
+</div> {# badge-container #}
