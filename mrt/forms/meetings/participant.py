@@ -148,7 +148,9 @@ class BadgeCategories(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super(BadgeCategories, self).__init__(*args, **kwargs)
-        categories = Category.query.filter_by(meeting=g.meeting)
+        categories = Category.query.filter_by(
+            meeting=g.meeting,
+            category_type=Category.PARTICIPANT)
         self.categories.choices = [(c.id, c.title) for c in categories]
 
 
