@@ -1,0 +1,65 @@
+body {
+    font-family: Trebuchet, sans-serif;
+}
+
+h1, h2 {
+    padding: 0;
+    margin: 0;
+}
+
+h1 {
+    line-height: 45px;
+    font-weight: bold;
+    font-size: 40px;
+}
+
+p {
+    padding: 0;
+    margin: 0;
+}
+
+.badge-container {
+    position: relative;
+    height: 2.1in;
+    page-break-after: always !important;
+}
+
+.content {
+    padding: 15px 15px 0 15px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.representing {
+    border-top: 1px solid #ccc;
+    text-align: center;
+    font-weight: bold;
+    padding-top: 10px;
+    font-size: 16px;
+    margin: 0 25px;
+    color: #055c1e;
+}
+
+
+.footer {
+    background: #055c1e;
+    position: absolute;
+    padding: 7px 15px;
+    font-size: 10px;
+    font-weight: bold;
+    width: 100%;
+    bottom: 0;
+}
+
+.footer .meeting-title {
+    color: #fff;
+}
+.footer .stripe {
+    position: absolute;
+    padding: 7px 15px;
+    text-align: center;
+    min-width: 100px;
+    color: #fff;
+    bottom: 0;
+    right: 0;
+}

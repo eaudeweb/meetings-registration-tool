@@ -1,0 +1,35 @@
+
+<div class="badge-container">
+
+  <div class="content">
+    <h1>
+      {{ participant.first_name }}
+      {{ participant.last_name }}
+    </h1>
+  </div> {# content #}
+
+  <div class="representing">
+    {{ participant.representing }}
+  </div>
+
+  <div class="footer">
+    <div class="meeting-title">
+      {% if g.meeting.badge_header %}
+        {{ g.meeting.badge_header[participant.lang] }}
+      {% else %}
+        {{ g.meeting.title[participant.lang] }}
+      {% endif %}
+      &#8226;
+      {{ g.meeting.date_start.strftime('%d.%m.%Y') }}
+      &#8226;
+      {{ g.meeting.venue_city.english }}
+    </div>
+
+    <div class="stripe {% if nostripe %}nostripe{% endif %}"
+         style="background: {{ participant.category.color }}">
+      {{ participant.category }}
+    </div>
+
+  </div> {# footer #}
+
+</div> {# badge-container #}
