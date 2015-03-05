@@ -24,8 +24,11 @@
         <tr>
           <td><h4>Participant registration form</h4></td>
           <td>
-            {% set url = url_for('meetings.registration',
-                                 _external=True) %}
+            {% if config.DOMAIN_NAME %}
+              {% set url = config.DOMAIN_NAME ~ url_for('meetings.registration') %}
+            {% else %}
+              {% set url = url_for('meetings.registration', _external=True) %}
+            {% endif %}
             <h4><a href="{{ url }}">{{ url }}</a></h4>
           </td>
         </tr>
@@ -35,8 +38,11 @@
         <tr>
           <td><h4>Media Participant registration form</h4></td>
           <td>
-            {% set url = url_for('meetings.media_registration',
-                                 _external=True) %}
+            {% if config.DOMAIN_NAME %}
+              {% set url = config.DOMAIN_NAME ~ url_for('meetings.media_registration') %}
+            {% else %}
+              {% set url = url_for('meetings.media_registration', _external=True) %}
+            {% endif %}
             <h4><a href="{{ url }}">{{ url }}</a></h4>
           </td>
         </tr>
