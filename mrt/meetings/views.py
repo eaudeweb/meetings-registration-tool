@@ -10,3 +10,4 @@ from .log import *
 from .notification import *
 from .printouts import *
 from .rule import *
+from .badge_templates import *

@@ -1,0 +1,66 @@
+{% extends "meetings/_base.html" %}
+
+
+{% set title = "Badge templates" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      var container = $('#badge-templates-container');
+      container.on('click', '.thumbnail', function (e) {
+        e.preventDefault();
+        container.find('.thumbnail').removeClass('active');
+        $(this).addClass('active');
+        $.post($(this).attr('href'));
+      });
+    });
+  </script>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div id="badge-templates-container" class="row">
+
+    {% set tpl = g.meeting.settings.get('badge_template', 'default')%}
+
+    <div class="col-sm-4">
+      <a class="thumbnail {% if tpl == 'default'%}active{% endif %}"
+         href="{{ url_for('.badge_templates',
+                          badge_template='default') }}">
+        <img src="{{ url_for('static', filename='images/badges/default.png') }}" alt="Default badge">
+      </a>
+      <div class="text-center"><h4>Default badge</h4></div>
+    </div> {# col-sm-6 #}
+
+    <div class="col-sm-4">
+      <a class="thumbnail {% if tpl == 'standard'%}active{% endif %}"
+         href="{{ url_for('.badge_templates',
+                          badge_template='standard') }}">
+        <img src="{{ url_for('static', filename='images/badges/standard.png') }}" alt="Standard">
+      </a>
+      <div class="text-center"><h4>Standard</h4></div>
+    </div> {# col-sm-6 #}
+
+    <div class="col-sm-4">
+      <a class="thumbnail {% if tpl == 'optimized'%}active{% endif %}"
+         href="{{ url_for('.badge_templates',
+                          badge_template='optimized') }}">
+        <img src="{{ url_for('static', filename='images/badges/optimized.png') }}" alt="Optimized">
+      </a>
+      <div class="text-center"><h4>Optimized</h4></div>
+    </div> {# col-sm-6 #}
+
+  </div> {# row #}
+
+{% endblock %}

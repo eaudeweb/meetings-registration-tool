@@ -3,6 +3,7 @@ body {
 }
 
 h1, h2 {
+    font-family: Arial, sans-serif;
     font-weight: normal;
     padding: 0;
     margin: 0;
@@ -30,7 +31,6 @@ p {
 }
 
 .badge-header {
-    font-family: "Arial Narrow";
     padding: 6px 0;
     background: #e0ead2;
     text-align: center;

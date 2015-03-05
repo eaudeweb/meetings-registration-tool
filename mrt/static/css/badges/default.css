@@ -7,13 +7,12 @@ h1, h2 {
 }
 
 h1 {
-    font-family: "Arial Narrow";
     position: relative;
     top: 0.2500in;
-    font-size: 7pt;
+    font-size: 18px;
 }
 h2 {
-    font-size: 9pt;
+    font-size: 18px;
 }
 
 .badge-container {
@@ -60,9 +59,9 @@ h2 {
 }
 
 .content .description small {
-    padding: 0.0208in;
-    display: block;
-    font-size: 7pt;
+    position: relative;
+    top: 6px;
+    font-size: 14px;
 }
 
 .nostripe {

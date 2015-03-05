@@ -268,6 +268,17 @@ meetings.add_url_rule(
     view_func=views.RulesData.as_view('rules_data'))
 
 
+# badge tempaltes
+badge_template = views.BadgeTemplates.as_view('badge_templates')
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/badge/templates',
+    view_func=badge_template)
+meetings.add_url_rule(
+    '/<int:meeting_id>/settings/badge/templates/'
+    '<any(default, standard, optimized):badge_template>',
+    view_func=badge_template)
+
+
 @meetings.url_defaults
 def add_meeting_id(endpoint, values):
     meeting = getattr(g, 'meeting', None)
