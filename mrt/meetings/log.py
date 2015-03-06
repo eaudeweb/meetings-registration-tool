@@ -4,8 +4,7 @@ from flask.views import MethodView
 from blinker import ANY
 from datetime import datetime, timedelta
 
-from mrt.models import db, Participant
-from mrt.models import ActivityLog, MailLog
+from mrt.models import db, Category, ActivityLog, MailLog
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.signals import activity_signal
 
@@ -25,12 +24,12 @@ class Statistics(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', )
 
     def get(self):
-        query = Participant.query.current_meeting()
-        participants = query.participants()
-        media_participants = query.media_participants()
+        participant_categories = (
+            Category.get_categories_for_meeting(Category.PARTICIPANT))
+        media_categories = Category.get_categories_for_meeting(Category.MEDIA)
         return render_template('meetings/overview/statistics.html',
-                               participants=participants,
-                               media_participants=media_participants)
+                               participant_categories=participant_categories,
+                               media_categories=media_categories)
 
 
 class MailLogs(PermissionRequiredMixin, MethodView):

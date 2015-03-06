@@ -53,6 +53,7 @@
 
   <div class="row">
     <div class="col-sm-5">
+      {% if participant_categories.count() %}
       <table class="table table-bordered">
         <thead>
           <tr class="row">
@@ -62,23 +63,25 @@
           </tr>
         </thead>
 
-        {% for category, persons in participants|groupby('category.title.english') %}
+        {% for category in participant_categories %}
           <tr class="row">
-            <th rowspan="2" class="col-sm-6">{{ category }}</th>
+            <th rowspan="2" class="col-sm-6">{{ category.title.english }}</th>
             <td class="col-sm-4">Countries</td>
-            <td>{{ persons|countries|length }}</td>
+            <td>{{ category.participants|countries|length }}</td>
           </tr>
 
           <tr class="row">
             <td class="col-sm-4">Delegates</td>
-            <td>{{ persons|length }}</td>
+            <td>{{ category.participants.count() }}</td>
           </tr>
         {% endfor %}
 
       </table>
+      {% endif %}
     </div>
 
     <div class="col-sm-4 col-sm-offset-1">
+      {% if media_categories.count() %}
       <table class="table table-bordered">
         <thead>
           <tr class="row">
@@ -87,16 +90,17 @@
           </tr>
         </thead>
 
-        {% for category, persons in media_participants|groupby('category.title.english') %}
+        {% for category in media_categories %}
 
         <tr class="row">
-          <td class="col-sm-8">{{ category }}</td>
-          <td class="col-sm-4">{{ persons|length }}</td>
+          <td class="col-sm-8">{{ category.title.english }}</td>
+          <td class="col-sm-4">{{ category.participants.count() }}</td>
         </tr>
 
         {% endfor %}
 
       </table>
+      {% endif %}
     </div>
   </div>
 
