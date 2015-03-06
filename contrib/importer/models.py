@@ -131,7 +131,8 @@ def migrate_category(category_and_category_meeting, migrated_meeting):
     category, category_meeting = category_and_category_meeting
     try:
         migrated_category = models.Category.query.filter(
-            models.Category.title.has(english=category.data['name_E'])
+            models.Category.title.has(english=category.data['name_E']),
+            models.Category.meeting == migrated_meeting,
         ).one()
         return migrated_category
     except NoResultFound:
@@ -202,9 +203,9 @@ def migrate_category(category_and_category_meeting, migrated_meeting):
 def migrate_phrase(phrase, migrated_meeting):
     migrated_phrase = models.Phrase()
 
-    description= models.Translation(english=phrase.data['description_E'],
-                                    french=phrase.data['description_F'],
-                                    spanish=phrase.data['description_S'])
+    description = models.Translation(english=phrase.data['description_E'],
+                                     french=phrase.data['description_F'],
+                                     spanish=phrase.data['description_S'])
     db.session.add(description)
     db.session.flush()
     migrated_phrase.description = description
