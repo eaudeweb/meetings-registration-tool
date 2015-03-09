@@ -1,10 +1,12 @@
 {% extends "_layout_pdf.html" %}
 
+{% set badge_template = g.meeting.settings.get("badge_template",
+                                                 "default") %}
 
 {% block head %}
 
   <style type="text/css">
-    {{ inject_static_file('css/badges/default.css') }}
+    {{ inject_static_file("css/badges/" ~ badge_template ~ ".css") }}
   </style>
 
 {% endblock %}
@@ -14,7 +16,8 @@
 
   {% for participant in participants %}
     {% set badge_context = inject_badge_context(participant) %}
-    {% include "meetings/participant/badges/default.html" with context %}
+    {% include "meetings/participant/badges/" ~ badge_template ~ ".html"
+                with context %}
   {% endfor %}
 
 {% endblock %}

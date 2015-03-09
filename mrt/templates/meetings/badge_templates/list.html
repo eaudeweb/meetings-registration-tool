@@ -15,6 +15,7 @@
         e.preventDefault();
         container.find('.thumbnail').removeClass('active');
         $(this).addClass('active');
+        $(this).parent().effect('highlight');
         $.post($(this).attr('href'));
       });
     });
