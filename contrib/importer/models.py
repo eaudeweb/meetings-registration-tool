@@ -1,16 +1,18 @@
 from datetime import datetime
-
-from mrt import models
-from mrt.models import db
-from mrt.forms.meetings import add_custom_fields_for_meeting
-from mrt.utils import copy_attributes
+from urllib import urlretrieve
+from flask import current_app as app
 
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import Country
 
-from contrib.importer.definitions import COLORS, DEFAULT_COLOR
+from mrt import models
+from mrt.models import db
+from mrt.forms.meetings import add_custom_fields_for_meeting
+from mrt.utils import copy_attributes
+
+from contrib.importer.definitions import COLORS, DEFAULT_COLOR, PHOTOS_BASE_URL
 from contrib.importer.definitions import LANGUAGES, REGIONS, CUSTOM_FIELDS
 from contrib.importer.definitions import REPRESENTING_TEMPLATES
 
@@ -221,7 +223,7 @@ def migrate_phrase(phrase, migrated_meeting):
 
 
 def migrate_participant(participant, participant_meeting, migrated_category,
-                        migrated_meeting, custom_fields):
+                        migrated_meeting, custom_fields, photo_field):
     try:
         models.Participant.query.filter_by(
             first_name=participant.data['personal_first_name'],
@@ -276,6 +278,12 @@ def migrate_participant(participant, participant_meeting, migrated_category,
     for key, custom_field in custom_fields.iteritems():
         create_custom_field_value(migrated_participant, custom_field,
                                   participant.data[key])
+
+    photo = participant.data['photo']
+    if photo_field and photo:
+        create_custom_field_value(migrated_participant, photo_field, photo)
+        urlretrieve(PHOTOS_BASE_URL + photo,
+                    app.config['UPLOADED_CUSTOM_DEST'] / photo)
 
     return migrated_participant
 
@@ -348,3 +356,12 @@ def create_custom_fields(migrated_meeting):
             visible_on_registration_form=True,
             custom_field_type=models.CustomField.PARTICIPANT)
     return custom_fields
+
+
+def create_photo_field(migrated_meeting):
+    return create_custom_field(
+        migrated_meeting,
+        label={'english': u'Photo'},
+        field_type=models.CustomField.IMAGE,
+        visible_on_registration_form=True,
+        custom_field_type=models.CustomField.PARTICIPANT)

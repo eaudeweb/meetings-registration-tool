@@ -4,8 +4,9 @@ from sqlalchemy.exc import IntegrityError
 from contrib.importer.models import (
     Category, CategoryMeeting, Event, Meeting, Participant, ParticipantEvent,
     ParticipantMeeting, Phrase, session,
-    create_custom_field_value, create_custom_fields, migrate_category,
-    migrate_event, migrate_meeting, migrate_participant, migrate_phrase,
+    create_custom_field_value, create_custom_fields, create_photo_field,
+    migrate_category, migrate_event, migrate_meeting, migrate_participant,
+    migrate_phrase,
 )
 
 
@@ -17,8 +18,9 @@ def cli():
 @cli.command(name='import')
 @click.argument('database')
 @click.argument('meeting_id')
+@click.option('--with-photos', is_flag=True)
 @click.pass_context
-def import_(ctx, database, meeting_id):
+def import_(ctx, database, meeting_id, with_photos):
     app = ctx.obj['app']
     with app.test_request_context():
         uri_from_config = ctx.obj['app'].config['SQLALCHEMY_DATABASE_URI']
@@ -38,6 +40,9 @@ def import_(ctx, database, meeting_id):
         except IntegrityError:
             click.echo('Another meeting with this acronym exists')
             ctx.exit()
+
+        photo_field = (create_photo_field(migrated_meeting)
+                       if with_photos else None)
 
         custom_fields = create_custom_fields(migrated_meeting)
 
@@ -67,7 +72,8 @@ def import_(ctx, database, meeting_id):
                     participant_meeting,
                     migrated_category,
                     migrated_meeting,
-                    custom_fields)
+                    custom_fields,
+                    photo_field)
 
                 click.echo('Participant %r in category %r processed' %
                            (participant, category_meeting[0]))
@@ -76,7 +82,6 @@ def import_(ctx, database, meeting_id):
                 create_custom_field_value(
                     migrated_participants[participant],
                     migrated_events[participant_event.event_id],
-                    'true'
-                )
+                    'true')
 
         click.echo('Total participants processed %d' % participants.count())

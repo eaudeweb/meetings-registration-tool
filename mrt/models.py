@@ -703,8 +703,8 @@ class Meeting(db.Model):
 
 class CategoryMixin(object):
 
-    PARTICIPANT = 'participant'
-    MEDIA = 'media'
+    PARTICIPANT = u'participant'
+    MEDIA = u'media'
     CATEGORY_TYPES = (
         (PARTICIPANT, 'Category for participants'),
         (MEDIA, 'Category for media participants'),
