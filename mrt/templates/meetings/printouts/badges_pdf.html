@@ -1,7 +1,12 @@
 {% extends "_layout_pdf.html" %}
 
-{% set badge_template = g.meeting.settings.get("badge_template",
+{% if g.meeting.settings %}
+  {% set badge_template = g.meeting.settings.get("badge_template",
                                                  "default") %}
+{% else %}
+  {% set badge_template = 'default' %}
+{% endif %}
+
 
 {% block head %}
 
