@@ -8,8 +8,7 @@ import re
 import xlwt
 import operator
 
-from flask import _request_ctx_stack, current_app as app
-from flask import g
+from flask import _request_ctx_stack, current_app as app, g, url_for
 from flask.ext.babel import refresh
 from flask.ext.uploads import IMAGES, UploadSet
 from sqlalchemy_utils import i18n
@@ -45,7 +44,8 @@ class Logo(object):
     def url(self):
         if g.get('is_pdf_process'):
             return self.path
-        return logos_upload.url(self.filename)
+        filename = '{}/{}'.format(app.config['PATH_LOGOS_KEY'], self.filename)
+        return url_for('files', filename=filename)
 
     @property
     def default(self):
