@@ -662,7 +662,7 @@ class Meeting(db.Model):
         db.Boolean, nullable=False, default=True,
         info={'label': 'Allow Online Registration'})
 
-    settings = db.Column(JSONEncodedDict)
+    settings = db.Column(JSONEncodedDict, default={})
 
     photo_field_id = db.Column(
         db.Integer, db.ForeignKey('custom_field.id',
