@@ -279,7 +279,7 @@ def migrate_participant(participant, participant_meeting, migrated_category,
         create_custom_field_value(migrated_participant, custom_field,
                                   participant.data[key])
 
-    photo = participant.data['photo']
+    photo = participant.data.get('photo')
     if photo_field and photo:
         create_custom_field_value(migrated_participant, photo_field, photo)
         urlretrieve(PHOTOS_BASE_URL + photo,
