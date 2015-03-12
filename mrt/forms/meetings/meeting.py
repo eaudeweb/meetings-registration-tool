@@ -130,7 +130,11 @@ class MeetingEditForm(BaseForm):
 
     def save(self):
         meeting = self.obj or Meeting()
+        # Store meetings settings to prevent overwriting them
+        initial_settings = {k: v for k, v in (meeting.settings or {}).items()
+                            if k not in dict(MEETING_SETTINGS)}
         self.populate_obj(meeting)
+        meeting.settings.update(initial_settings)
         meeting.photo_field_id = meeting.photo_field_id or None
         meeting.media_photo_field_id = meeting.media_photo_field_id or None
         self._clean_badge_header(meeting)
