@@ -61,7 +61,7 @@
           {% for field in events %}
             {{ field() }}
             <label>{{ field.label.text }}</label>
-            <div class="help-block">{{ field.description }}</div>
+            <div class="help-block">{{ field.description | urlize }}</div>
           {% endfor %}
         </div>
       </div>
