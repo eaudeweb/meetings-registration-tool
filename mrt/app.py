@@ -40,6 +40,7 @@ DEFAULT_CONFIG = {
     'DEFAULT_PHRASES_PATH': (
         path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
     'TRANSLATIONS': ['english', 'french', 'spanish'],
+    'DEFAULT_MAIL_SENDER': '',
 }
 
 

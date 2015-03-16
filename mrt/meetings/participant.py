@@ -513,21 +513,19 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
             context = {
                 'participant': participant,
                 'template': 'meetings/printouts/acknowledge_detail.html'}
-            attachement = PdfRenderer('meetings/printouts/printout.html',
-                                      height='11.7in',
-                                      width='8.26in',
-                                      orientation='portrait',
-                                      as_attachement=True,
-                                      context=context).as_attachement()
+            attachment = PdfRenderer('meetings/printouts/printout.html',
+                                     height='11.7in',
+                                     width='8.26in',
+                                     orientation='portrait',
+                                     as_attachment=True,
+                                     context=context).as_attachment()
             if send_single_message(form.to.data, form.subject.data,
                                    form.message.data,
-                                   attachement=attachement,
-                                   attachement_name='registration_detail.pdf'):
+                                   attachment=attachment,
+                                   attachment_name='registration_detail.pdf'):
                 flash('Message successfully sent', 'success')
-                return redirect(
-                    url_for('.participant_detail',
-                            participant_id=participant.id)
-                )
+                return redirect(url_for('.participant_detail',
+                                        participant_id=participant.id))
             else:
                 flash('Message failed to send', 'error')
 

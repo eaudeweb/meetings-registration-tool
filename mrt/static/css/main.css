@@ -375,17 +375,17 @@ li.separator {
     top: 6px;
 }
 
-.attachement-label {
+.attachment-label {
     font-size: 18px;
     vertical-align: middle;
     padding-top: 7px;
 }
 
-.attachement {
+.attachment {
     position: relative;
     top: -10px;
 }
-.attachement a {
+.attachment a {
     text-decoration: none;
 }
 

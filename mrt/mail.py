@@ -13,7 +13,7 @@ mail = Mail()
 
 
 def get_default_sender():
-    if g.meeting.owner:
+    if hasattr(g, 'meeting') and g.meeting.owner:
         return g.meeting.owner.user.email
     return app.config['DEFAULT_MAIL_SENDER']
 
@@ -28,13 +28,16 @@ def get_recipients(meeting, notification_type):
     return recipients
 
 
-def send_single_message(to, subject, message, sender=None, attachement=None,
-                        attachement_name='attachement.pdf'):
+def send_single_message(to, subject, message, sender=None, attachment=None,
+                        attachment_name='attachment.pdf'):
     sender = sender or get_default_sender()
+    if not sender:
+        return False
+
     msg = Message(subject=subject, body=message, sender=sender,
                   recipients=[to])
-    if attachement:
-        msg.attach(attachement_name, "application/pdf", attachement.read())
+    if attachment:
+        msg.attach(attachment_name, "application/pdf", attachment.read())
     mail.send(msg)
     if g.get('meeting'):
         participant = (Participant.query.filter_by(email=to)
@@ -51,9 +54,8 @@ def send_reset_mail(email, token):
     url = request.url_root + 'reset/' + token
     subject = "Reset your password"
     body = "Your reset link is: " + url
-    sender = app.config['DEFAULT_MAIL_SENDER']
 
-    send_single_message(email, subject=subject, message=body, sender=sender)
+    send_single_message(email, subject=subject, message=body)
 
 
 def send_activation_mail(email, token):
@@ -61,16 +63,14 @@ def send_activation_mail(email, token):
     subject = "Activate your account"
     body = ("Your user has been created. To complete your activation "
             "follow the link: " + url)
-    sender = app.config['DEFAULT_MAIL_SENDER']
 
-    send_single_message(email, subject=subject, message=body, sender=sender)
+    send_single_message(email, subject=subject, message=body)
 
 
 def send_bulk_message(recipients, subject, message):
     sent = 0
-    sender = get_default_sender()
-
-    if not sender:
+    s = get_default_sender()
+    if not s:
         flash('No email for sender.', 'error')
         return sent
 
@@ -79,8 +79,7 @@ def send_bulk_message(recipients, subject, message):
         if not email:
             flash('No email for {0}'.format(participant), 'error')
             continue
-        send_single_message(email, subject=subject, message=message,
-                            sender=sender)
+        send_single_message(email, subject=subject, message=message, sender=s)
         sent += 1
     return sent
 
@@ -88,6 +87,9 @@ def send_bulk_message(recipients, subject, message):
 @notification_signal.connect_via(ANY)
 def send_notification_message(recipients, participant):
     sender = app.config['DEFAULT_MAIL_SENDER']
+    if not sender:
+        flash('No email for sender.', 'error')
+        return
     if participant.participant_type.code == Participant.PARTICIPANT:
         model_class = 'Participant'
         url = url_for('meetings.participant_detail',
@@ -123,6 +125,9 @@ def send_notification_message(recipients, participant):
 @registration_signal.connect_via(ANY)
 def send_registration_message(sender, participant):
     sender = app.config['DEFAULT_MAIL_SENDER']
+    if not sender:
+        flash('No email for sender.', 'error')
+        return
     subject = "%s registration confirmation" % (participant.meeting.acronym,)
     phrase = Phrase.query.filter_by(meeting=participant.meeting,
                                     group=Phrase.EMAIL_CONFIRMATION,

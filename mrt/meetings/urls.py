@@ -268,7 +268,7 @@ meetings.add_url_rule(
     view_func=views.RulesData.as_view('rules_data'))
 
 
-# badge tempaltes
+# badge templates
 badge_template = views.BadgeTemplates.as_view('badge_templates')
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/badge/templates',

@@ -51,9 +51,9 @@ def test_pdf_renderer_as_response(app, pdf_renderer):
                 renderer.template_path).exists()
 
 
-def test_pdf_renderer_as_attachement(app, pdf_renderer):
+def test_pdf_renderer_as_attachment(app, pdf_renderer):
     renderer = pdf_renderer('template.html')
-    res = renderer.as_attachement()
+    res = renderer.as_attachment()
     assert isinstance(res, file)
 
     # Assert content is the same
@@ -77,7 +77,7 @@ def test_pdf_renderer_deletes_on_error(app, pdf_renderer, monkeypatch):
     renderer = pdf_renderer('template.html')
 
     with pytest.raises(Exception):
-        renderer.as_attachement()
+        renderer.as_attachment()
 
     assert not (app.config['UPLOADED_PRINTOUTS_DEST'] /
                 renderer.pdf_path).exists()

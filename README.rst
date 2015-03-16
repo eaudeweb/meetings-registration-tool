@@ -64,10 +64,14 @@ settings.example for an settings example file::
     location for product logo images. Add to settings.py PRODUCT_LOGO and
     PRODUCT_SIDE_LOGO filenames.
 
-    Set the ADMINISTRATOR_EMAIL in the instance/settings.py representing the
+    Set the ADMINISTRATOR_EMAIL in instance/settings.py representing the
     administator email.
 
-    Set the GOOGLE_ANALYTICS_KEY in the instance/settings.py example if you
+    Set the DEFAULT_MAIL_SENDER variable in instance/settings.py.
+    Notifications, reset password tokens, activation emails will not be sent
+    unless this variable is set.
+
+    Set the GOOGLE_ANALYTICS_KEY in instance/settings.py example if you
     want to enable the Google Analytics tracking.
 
 

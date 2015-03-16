@@ -74,7 +74,7 @@ class PdfRenderer(object):
         return url_for('meetings.printouts_download',
                        filename=str(self.pdf_path.name))
 
-    def as_attachement(self):
+    def as_attachment(self):
         return self._pdf_file()
 
     def as_response(self):
