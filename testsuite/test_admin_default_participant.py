@@ -29,7 +29,7 @@ def test_default_participant_detail(app, user, default_meeting):
         data['category_id'] = category.id
         populate_participant_form(meeting, data)
         resp = client.post(url_for('meetings.registration',
-                           meeting_id=meeting.id), data=data)
+                           meeting_acronym=meeting.acronym), data=data)
         assert resp.status_code == 200
         assert meeting.participants.count() == 1
         participant = meeting.participants.first()
@@ -86,7 +86,7 @@ def test_default_participant_edit(app, user, default_meeting):
         data['diet'] = 'Vegetarian'
         populate_participant_form(meeting, data)
         resp = client.post(url_for('meetings.registration',
-                           meeting_id=meeting.id), data=data)
+                           meeting_acronym=meeting.acronym), data=data)
         assert resp.status_code == 200
         assert meeting.participants.count() == 1
         participant = meeting.participants.first()
@@ -127,7 +127,7 @@ def test_default_participant_edit_photo_field(app, user, default_meeting):
         data['picture'] = (StringIO('Test'), 'test.png')
         populate_participant_form(meeting, data)
         resp = client.post(url_for('meetings.registration',
-                           meeting_id=meeting.id), data=data)
+                           meeting_acronym=meeting.acronym), data=data)
         assert resp.status_code == 200
         assert meeting.participants.count() == 1
         participant = meeting.participants.first()

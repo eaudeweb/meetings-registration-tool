@@ -23,7 +23,7 @@ def test_meeting_resistration_open(app, default_meeting):
     with app.test_request_context():
         add_custom_fields_for_meeting(category.meeting)
         resp = client.get(url_for('meetings.registration',
-                                  meeting_id=category.meeting.id))
+                                  meeting_acronym=category.meeting.acronym))
         assert PyQuery(resp.data)('form').length == 1
 
 
@@ -34,7 +34,7 @@ def test_meeting_registration_closed(app, default_meeting):
     with app.test_request_context():
         add_custom_fields_for_meeting(category.meeting)
         resp = client.get(url_for('meetings.registration',
-                                  meeting_id=category.meeting.id))
+                                  meeting_acronym=category.meeting.acronym))
         html = PyQuery(resp.data)
         assert html('form').length == 0
         assert html('.alert').length == 1
@@ -111,9 +111,8 @@ def test_meeting_registration_media_add(app, user, default_meeting):
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
 
-def test_meeting_media_registration_default_participant_custom_fields(app,
-                                                                      default_meeting,
-                                                                      user):
+def test_meeting_media_registration_default_participant_custom_fields(
+        app, default_meeting, user):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting,
                                       category_type=Category.MEDIA)
@@ -320,8 +319,8 @@ def test_meeting_registration_default_participant_update(app, user,
         assert default_participant.first_name == 'Johny'
 
 
-def test_meeting_registration_default_participant_custom_fields(app, user,
-                                                                default_meeting):
+def test_meeting_registration_default_participant_custom_fields(
+        app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting)
     CustomFieldFactory(field_type='text', meeting=meeting,
@@ -381,9 +380,8 @@ def test_meeting_registration_default_participant_photo(app, user,
         assert upload_dir.join(default_photo_field).check()
 
 
-def test_meeting_registration_default_participant_custom_fields_update(app,
-                                                                       user,
-                                                                       default_meeting):
+def test_meeting_registration_default_participant_custom_fields_update(
+        app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting)
     photo_field = CustomFieldFactory(meeting=meeting)
@@ -432,7 +430,8 @@ def test_meeting_registration_default_participant_custom_fields_update(app,
                                    .filter(CustomFieldValue.custom_field
                                            .has(slug=cfv.custom_field.slug))
                                    .first())
-            assert default_participant_cfv.custom_field.meeting is default_meeting
+            assert (default_participant_cfv.custom_field.meeting
+                    is default_meeting)
             assert cfv.value == default_participant_cfv.value
 
 
@@ -499,7 +498,7 @@ def test_meeting_registration_is_prepopulated(app, user, default_meeting):
         add_custom_fields_for_meeting(default_meeting)
         add_custom_fields_for_meeting(meeting)
         resp = client.get(url_for('meetings.registration',
-                                  meeting_id=meeting.id))
+                                  meeting_acronym=meeting.acronym))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
         assert part.title.value == html('#title option[selected]').val()
@@ -510,8 +509,8 @@ def test_meeting_registration_is_prepopulated(app, user, default_meeting):
         assert part.country.code == html('#country option[selected]').val()
 
 
-def test_meeting_registration_multiple_email_user_form_prepopuluted(app, user,
-                                                                    default_meeting):
+def test_meeting_registration_multiple_email_user_form_prepopuluted(
+        app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting)
 
@@ -538,8 +537,8 @@ def test_meeting_user_registration_is_not_accesible_logged_in(app, user):
         assert resp.status_code == 404
 
 
-def test_meeting_registration_participant_and_media_on_same_user(app, user,
-                                                                 default_meeting):
+def test_meeting_registration_participant_and_media_on_same_user(
+        app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting)
     media_category = MeetingCategoryFactory(meeting=meeting,
@@ -582,7 +581,7 @@ def test_meeting_registration_participant_and_media_on_same_user(app, user,
 
     # CHECK PARTICIPANT REGISTRATION FORM IS POPULATED
         resp = client.get(url_for('meetings.registration',
-                                  meeting_id=meeting.id))
+                                  meeting_acronym=meeting.acronym))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
         assert participant.title.value == html('#title option[selected]').val()
@@ -596,7 +595,7 @@ def test_meeting_registration_participant_and_media_on_same_user(app, user,
 
     # CHECK MEDIA PARTICIPANT REGISTRATION FORM IS POPULATED
         resp = client.get(url_for('meetings.media_registration',
-                                  meeting_id=meeting.id))
+                                  meeting_acronym=meeting.acronym))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
         assert (media_participant.title.value ==
@@ -632,7 +631,7 @@ def register_participant_online(client, participant_data, meeting, user=None):
     add_custom_fields_for_meeting(meeting)
     populate_participant_form(meeting, participant_data)
     resp = client.post(url_for('meetings.registration',
-                       meeting_id=meeting.id), data=participant_data)
+                       meeting_acronym=meeting.acronym), data=participant_data)
     return resp
 
 
@@ -645,7 +644,7 @@ def register_media_participant_online(client, participant_data, meeting,
                                   form_class=MediaParticipantDummyForm)
     populate_participant_form(meeting, participant_data)
     resp = client.post(url_for('meetings.media_registration',
-                       meeting_id=meeting.id), data=participant_data)
+                       meeting_acronym=meeting.acronym), data=participant_data)
     return resp
 
 

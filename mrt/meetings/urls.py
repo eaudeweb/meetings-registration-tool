@@ -17,10 +17,10 @@ meetings.add_url_rule('/<int:meeting_id>/edit', view_func=meeting_edit_func)
 meetings.add_url_rule('/<int:meeting_id>/clone', view_func=meeting_clone_func)
 
 #  registration
-meetings.add_url_rule('/<int:meeting_id>/registration',
+meetings.add_url_rule('/<string:meeting_acronym>/registration',
                       view_func=views.Registration.as_view('registration'))
 meetings.add_url_rule(
-    '/<int:meeting_id>/registration/media',
+    '/<string:meeting_acronym>/registration/media',
     view_func=views.MediaRegistration.as_view('media_registration'))
 meetings.add_url_rule(
     '/<int:meeting_id>/registration/user',
@@ -286,6 +286,8 @@ def add_meeting_id(endpoint, values):
         return
     if app.url_map.is_endpoint_expecting(endpoint, 'meeting_id'):
         values.setdefault('meeting_id', meeting.id)
+    if app.url_map.is_endpoint_expecting(endpoint, 'meeting_acronym'):
+        values.setdefault('meeting_acronym', meeting.acronym)
 
 
 @meetings.url_value_preprocessor
@@ -295,3 +297,7 @@ def add_meeting_global(endpoint, values):
         meeting_id = values.pop('meeting_id', None)
         if meeting_id:
             g.meeting = Meeting.query.get_or_404(meeting_id)
+    if app.url_map.is_endpoint_expecting(endpoint, 'meeting_acronym'):
+        acronym = values.pop('meeting_acronym', None)
+        if acronym:
+            g.meeting = Meeting.query.filter_by(acronym=acronym).first_or_404()
