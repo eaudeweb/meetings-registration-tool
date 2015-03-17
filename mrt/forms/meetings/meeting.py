@@ -266,8 +266,8 @@ class ParticipantDummyForm(OrderedFieldsForm):
     class Meta:
         model = Participant
         exclude = ('deleted', 'registration_token', 'participant_type')
-        field_order = ('title', 'first_name', 'last_name', 'language',
-                       'country', 'email', 'category_id',
+        field_order = ('title', 'first_name', 'last_name', 'badge_name',
+                       'language', 'country', 'email', 'category_id',
                        'represented_organization', 'represented_country',
                        'represented_region', 'attended', 'verified',
                        'credentials')

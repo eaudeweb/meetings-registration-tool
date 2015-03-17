@@ -284,6 +284,9 @@ class Participant(db.Model):
     last_name = db.Column(db.String(64), nullable=False,
                           info={'label': _('Family name')})
 
+    badge_name = db.Column(db.String(64),
+                           info={'label': _('Name on the badge')})
+
     email = db.Column(db.String(128), nullable=False,
                       info={'label': _('Email')})
 
