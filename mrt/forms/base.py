@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from flask import request, g
+from flask import request, g, current_app as app
 from werkzeug import MultiDict
 
 from wtforms import ValidationError
@@ -28,7 +28,14 @@ class BaseForm(ModelForm):
         self.obj = obj
 
 
-class TranslationInputForm(BaseForm):
+class TranslationBase(BaseForm):
+
+    @property
+    def translations(self):
+        return [getattr(self, lang) for lang in app.config['TRANSLATIONS']]
+
+
+class TranslationInputForm(TranslationBase):
 
     class Meta:
         model = Translation
@@ -97,7 +104,7 @@ class AdminCustomFieldLabelInputForm(TranslationInputForm):
             raise ValidationError(self.duplicate_message)
 
 
-class DescriptionInputForm(BaseForm):
+class DescriptionInputForm(TranslationBase):
 
     class Meta:
         model = Translation

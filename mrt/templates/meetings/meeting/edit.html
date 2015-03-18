@@ -54,9 +54,9 @@
       </div>
 
       <div class="panel-body">
-        {{ form_group(form.title.english) }}
-        {{ form_group(form.title.french) }}
-        {{ form_group(form.title.spanish) }}
+        {% for translation in form.title.translations %}
+          {{ form_group(translation) }}
+        {% endfor %}
       </div> {# panel-body #}
 
     </div> {# panel #}
@@ -80,9 +80,9 @@
       </div>
 
       <div class="badge-body panel-body {{ cls }}">
-        {{ form_group(form.badge_header.english) }}
-        {{ form_group(form.badge_header.french) }}
-        {{ form_group(form.badge_header.spanish) }}
+        {% for translation in form.badge_header.translations %}
+          {{ form_group(translation) }}
+        {% endfor %}
       </div> {# panel-body #}
 
     </div> {# panel #}

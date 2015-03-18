@@ -109,7 +109,7 @@
 
   <ul class="list-unstyled row">
     {% for input in inputs %}
-      <li class="col-sm-4">
+      <li class="col-sm-{{ (12 / inputs|length) | int }}">
         {{ input.label }}
         {% if input.flags.required %}
           <span class="text-danger">*</span>
@@ -144,8 +144,7 @@
     <div class="col-sm-{{ input_size }}">
       <div class="panel panel-default">
         <div class="panel-body">
-          {{ list_inputs([field.english, field.french,
-                          field.spanish]) }}
+          {{ list_inputs(field.translations) }}
         </div>
       </div>
     </div>

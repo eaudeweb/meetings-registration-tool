@@ -25,3 +25,6 @@ PRODUCT_SIDE_LOGO = ''
 
 # Domain name for correctly displaying registration URLs
 DOMAIN_NAME = ''
+
+# Choose a subset of the available languages: ['english', 'french', 'spanish']
+# TRANSLATIONS = []

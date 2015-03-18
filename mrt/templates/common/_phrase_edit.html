@@ -36,12 +36,9 @@
           </div>
 
           <div class="panel-body">
-            {{ form_group(form.description.english, input_size="10",
-                          class_="autosize") }}
-            {{ form_group(form.description.french, input_size="10",
-                          class_="autosize") }}
-            {{ form_group(form.description.spanish, input_size="10",
-                          class_="autosize") }}
+          {% for translation in form.description.translations %}
+            {{ form_group(translation, input_size="10", class_="autosize") }}
+          {% endfor %}
           </div>
 
         </div> {# panel #}

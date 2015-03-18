@@ -10,9 +10,9 @@
     </div>
 
     <div class="panel-body">
-      {{ form_group(form.title.english, options={'autofocus':''}) }}
-      {{ form_group(form.title.french) }}
-      {{ form_group(form.title.spanish) }}
+      {% for translation in form.title.translations %}
+        {{ form_group(translation, options={'autofocus':''}) }}
+      {% endfor %}
     </div> {# panel-body #}
 
   </div> {# panel #}
