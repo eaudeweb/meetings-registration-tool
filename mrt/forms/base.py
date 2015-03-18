@@ -30,8 +30,6 @@ class BaseForm(ModelForm):
 
 class TranslationInputForm(BaseForm):
 
-    duplicate_message = 'A category with this title exists'
-
     class Meta:
         model = Translation
         field_args = {
@@ -49,6 +47,8 @@ class TranslationInputForm(BaseForm):
 
 class DefaultCategoryTitleInputForm(TranslationInputForm):
 
+    duplicate_message = 'A category with this title exists'
+
     def validate_english(self, field):
         category = CategoryDefault.query.filter(
             CategoryDefault.title.has(english=field.data)).first()
@@ -57,6 +57,8 @@ class DefaultCategoryTitleInputForm(TranslationInputForm):
 
 
 class CategoryTitleInputForm(TranslationInputForm):
+
+    duplicate_message = 'A category with this title exists'
 
     def validate_english(self, field):
         category = Category.query.filter(
@@ -82,6 +84,8 @@ class CustomFieldLabelInputForm(TranslationInputForm):
 
 
 class AdminCustomFieldLabelInputForm(TranslationInputForm):
+
+    duplicate_message = 'A field with this label already exists'
 
     def validate_english(self, field):
         custom_field = CustomField.query.filter(
