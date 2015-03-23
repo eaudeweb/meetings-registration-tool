@@ -65,15 +65,11 @@ class MeetingCategoryAddForm(BaseForm):
         db.session.commit()
 
 
-class CustomFieldChoiceForm(BaseForm):
-    class Meta:
-        model = CustomFieldChoice
-
 
 class CustomFieldEditForm(BaseForm):
 
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
-    choices = ModelFieldList(fields.FormField(CustomFieldChoiceForm))
+    custom_field_choices = fields.TextField('Choices')
 
     class Meta:
         model = CustomField

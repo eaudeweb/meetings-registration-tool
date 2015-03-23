@@ -7,7 +7,7 @@ _BUNDLE_CSS = (
     'css/bootstrap-datetimepicker.min.css',
     'css/dataTables.bootstrap.css',
     'css/fancybox/jquery.fancybox.css',
-    'css/select2.css',
+    'css/select2.min.css',
     'css/main.css',
 )
 
