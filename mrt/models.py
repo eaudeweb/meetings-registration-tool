@@ -479,6 +479,7 @@ class CustomField(db.Model):
     COUNTRY = 'country'
     CATEGORY = 'category'
     EVENT = 'event'
+    MULTI_CHECKBOX = 'multi_checkbox'
 
     CUSTOM_FIELDS = (
         (TEXT, 'Text Field'),
@@ -490,6 +491,7 @@ class CustomField(db.Model):
         (COUNTRY, 'Country Field'),
         (CATEGORY, 'Category Field'),
         (EVENT, 'Event Field'),
+        (MULTI_CHECKBOX, 'MultiCheckbox Field')
     )
 
     PARTICIPANT = u'participant'

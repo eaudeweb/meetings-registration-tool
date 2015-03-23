@@ -11,7 +11,7 @@ from wtforms.validators import DataRequired
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
 from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
-from mrt.forms.fields import EmailField, EmailRequired
+from mrt.forms.fields import EmailField, EmailRequired, MultiCheckboxField
 
 from mrt.models import CustomField, CustomFieldChoice, Rule
 from mrt.models import Category
@@ -28,6 +28,7 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.CATEGORY: {'field': CategoryField},
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
     CustomField.EVENT: {'field': CustomBooleanField},
+    CustomField.MULTI_CHECKBOX: {'field': MultiCheckboxField},
 }
 
 

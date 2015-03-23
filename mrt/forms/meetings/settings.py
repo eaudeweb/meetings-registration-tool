@@ -5,9 +5,10 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from wtforms import fields
 from wtforms.validators import DataRequired, ValidationError, Length
-from wtforms_alchemy import ModelFormField
+from wtforms_alchemy import ModelFormField, ModelFieldList
 
-from mrt.models import CategoryDefault, Category, CustomField
+from mrt.models import CategoryDefault, Category
+from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import db
 from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import Translation, UserNotification
@@ -64,9 +65,16 @@ class MeetingCategoryAddForm(BaseForm):
         db.session.commit()
 
 
+class CustomFieldChoiceForm(BaseForm):
+    class Meta:
+        model = CustomFieldChoice
+
+
 class CustomFieldEditForm(BaseForm):
 
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
+    custom_field_choices = ModelFieldList(
+        fields.FormField(CustomFieldChoiceForm))
 
     class Meta:
         model = CustomField
