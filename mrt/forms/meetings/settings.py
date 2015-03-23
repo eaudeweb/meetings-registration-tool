@@ -73,8 +73,7 @@ class CustomFieldChoiceForm(BaseForm):
 class CustomFieldEditForm(BaseForm):
 
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
-    custom_field_choices = ModelFieldList(
-        fields.FormField(CustomFieldChoiceForm))
+    choices = ModelFieldList(fields.FormField(CustomFieldChoiceForm))
 
     class Meta:
         model = CustomField

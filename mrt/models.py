@@ -604,15 +604,13 @@ class CustomFieldChoice(db.Model):
         nullable=False)
     custom_field = db.relationship(
         'CustomField',
-        backref=db.backref('custom_field_choices', lazy='dynamic',
+        backref=db.backref('choices', lazy='dynamic',
                            cascade='delete'))
 
     value_id = db.Column(
         db.Integer, db.ForeignKey('translation.id'),
         nullable=False)
-    value = db.relationship(
-        'Translation',
-        backref=db.backref('custom_field_choices', lazy='dynamic',))
+    value = db.relationship('Translation')
 
     def __repr__(self):
         return self.value.english

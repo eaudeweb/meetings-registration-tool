@@ -46,8 +46,7 @@ def populate_participant_form(meeting, data={}):
                                                 field_type=CustomField.SELECT)
 
     for custom_field in custom_fields:
-        data[custom_field.slug] = (
-            custom_field.custom_field_choices.first().value)
+        data[custom_field.slug] = custom_field.choices.first().value
     data['represented_country'] = 'RO'
     now = int(time.time())
     data['ts'] = b64encode(str(now))
