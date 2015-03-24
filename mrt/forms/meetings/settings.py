@@ -1,11 +1,11 @@
-from flask import g
+from flask import g, request
 
 from sqlalchemy import desc
 from sqlalchemy.orm.exc import NoResultFound
 
 from wtforms import fields
 from wtforms.validators import DataRequired, ValidationError, Length
-from wtforms_alchemy import ModelFormField, ModelFieldList
+from wtforms_alchemy import ModelFormField
 
 from mrt.models import CategoryDefault, Category
 from mrt.models import CustomField, CustomFieldChoice
@@ -19,6 +19,7 @@ from mrt.utils import copy_attributes, duplicate_uploaded_file
 from mrt.utils import get_all_countries
 
 from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
+from mrt.forms.fields import SelectMultipleFieldWithoutValidation
 
 
 class MeetingCategoryAddForm(BaseForm):
@@ -65,11 +66,11 @@ class MeetingCategoryAddForm(BaseForm):
         db.session.commit()
 
 
-
 class CustomFieldEditForm(BaseForm):
 
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
-    custom_field_choices = fields.TextField('Choices')
+    custom_field_choices = SelectMultipleFieldWithoutValidation(
+        'Choices', choices=[], coerce=str)
 
     class Meta:
         model = CustomField
@@ -81,9 +82,8 @@ class CustomFieldEditForm(BaseForm):
         excluded_types = [CustomField.SELECT, CustomField.CATEGORY]
         if custom_field_type == CustomField.MEDIA:
             excluded_types.append(CustomField.EVENT)
-        self.field_type.choices = [
-            i for i in self.field_type.choices
-            if i[0] not in excluded_types]
+        self.field_type.choices = [i for i in self.field_type.choices
+                                   if i[0] not in excluded_types]
 
         if custom_field_type:
             self.custom_field_type.data = custom_field_type
@@ -92,10 +92,30 @@ class CustomFieldEditForm(BaseForm):
         if self.field_type.data == CustomField.EVENT:
             self.required.data = False
 
+        if self.field_type.data == CustomField.MULTI_CHECKBOX and self.obj:
+            self.custom_field_choices.choices = (
+                CustomFieldChoice.query.filter_by(custom_field=self.obj)
+                .join(Translation)
+                .with_entities(Translation.english, Translation.english)
+            )
+            if request.method == 'GET':
+                self.custom_field_choices.data = [
+                    i[0] for i in self.custom_field_choices.choices]
+
     def save(self):
         custom_field = self.obj or CustomField()
         self.populate_obj(custom_field)
         custom_field.meeting = g.meeting
+
+        if custom_field.field_type == CustomField.MULTI_CHECKBOX:
+            CustomFieldChoice.query.filter_by(
+                custom_field=custom_field).delete()
+            for choice in self.custom_field_choices.data:
+                custom_field_choice = CustomFieldChoice(
+                    custom_field=custom_field)
+                custom_field_choice.value = Translation(english=choice)
+                db.session.add(custom_field_choice)
+
         if not custom_field.id:
             last_sort = (
                 CustomField.query.filter_by(meeting=g.meeting)

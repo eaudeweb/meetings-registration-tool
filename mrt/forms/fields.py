@@ -92,6 +92,9 @@ class MultiCheckboxField(fields.SelectMultipleField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
 
+
+class MeetingSettingsField(MultiCheckboxField):
+
     def process_data(self, data):
         data = data or {}
         try:
@@ -192,3 +195,8 @@ class CustomCountryField(CountryField):
 
 class CustomTextAreaField(fields.TextAreaField):
     pass
+
+
+class SelectMultipleFieldWithoutValidation(fields.SelectMultipleField):
+
+    pre_validate = lambda self, form: None

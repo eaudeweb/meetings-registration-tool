@@ -12,7 +12,7 @@ from mrt.models import CustomField, CustomFieldChoice
 from mrt.models import MeetingType, Category, Condition, ConditionValue
 
 from mrt.forms.base import BaseForm, TranslationInputForm, OrderedFieldsForm
-from mrt.forms.fields import MultiCheckboxField
+from mrt.forms.fields import MeetingSettingsField
 from mrt.forms.fields import CategoryField, EmailRequired, EmailField
 
 from mrt.utils import copy_attributes, Logo, logos_upload
@@ -52,7 +52,7 @@ class MeetingEditForm(BaseForm):
     meeting_type_slug = fields.SelectField('Meeting Type')
     photo_field_id = fields.SelectField('Photo Field', coerce=int)
     media_photo_field_id = fields.SelectField('Media Photo Field', coerce=int)
-    settings = MultiCheckboxField('Settings', choices=MEETING_SETTINGS)
+    settings = MeetingSettingsField('Settings', choices=MEETING_SETTINGS)
 
     def __init__(self, *args, **kwargs):
         super(MeetingEditForm, self).__init__(*args, **kwargs)

@@ -89,6 +89,11 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
             attrs['choices'] = [(c.id, c) for c in query]
             attrs['coerce'] = int
 
+        if f.field_type.code == CustomField.MULTI_CHECKBOX:
+            query = CustomFieldChoice.query.filter_by(custom_field=f)
+            attrs['choices'] = [(unicode(c.value), c.value) for c in query]
+            attrs['coerce'] = unicode
+
         # set field to form
         # _set_rules_for_custom_fields(f, attrs)
         field = data['field'](**attrs)

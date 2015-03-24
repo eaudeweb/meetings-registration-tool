@@ -487,11 +487,11 @@ class CustomField(db.Model):
         (IMAGE, 'Image Field'),
         (EMAIL, 'Email Field'),
         (CHECKBOX, 'Checkbox Field'),
+        (MULTI_CHECKBOX, 'MultiCheckbox Field'),
         (SELECT, 'Select Field'),
         (COUNTRY, 'Country Field'),
         (CATEGORY, 'Category Field'),
         (EVENT, 'Event Field'),
-        (MULTI_CHECKBOX, 'MultiCheckbox Field')
     )
 
     PARTICIPANT = u'participant'

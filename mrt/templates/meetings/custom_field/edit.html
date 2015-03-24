@@ -17,12 +17,17 @@
 
 <script>
   $(function() {
-    var required = $('#required').parent().parent();
+    var required = $('#required').parents('.form-group');
+    var choices = $('#custom_field_choices').parents('.form-group');
+    choices.find('select').select2({ tags: true });
     $('#field_type').on('change', function() {
-      if ($(this).val() == 'event')
-        required.hide();
-      else
-        required.show();
+      $(this).val() == 'event' ?  required.hide() : required.show();
+      if($(this).val() == 'multi_checkbox') {
+        choices.show();
+        choices.find('input').focus();
+      } else {
+        choices.hide();
+      }
     }).change();
   });
 </script>
@@ -57,7 +62,7 @@
 
         {{ form_group(form.description) }}
 
-        {{ form_group(form.field_type, input_size="3") }}
+        {{ form_group(form.field_type) }}
 
         {{ form_group(form.custom_field_choices) }}
 
