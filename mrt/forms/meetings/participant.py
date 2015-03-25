@@ -1,10 +1,7 @@
 import json
 from collections import OrderedDict
-from uuid import uuid4
 
 from flask import g
-from flask.ext.uploads import UploadSet, IMAGES
-from werkzeug import FileStorage
 
 from sqlalchemy import and_
 from sqlalchemy_utils import Country
@@ -16,10 +13,6 @@ from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
 from mrt.models import db, Participant, Category, Action, Condition
 from mrt.models import CustomField
-from mrt.utils import unlink_participant_photo
-
-
-custom_upload = UploadSet('custom', IMAGES)
 
 
 class _RulesMixin(object):
@@ -101,6 +94,7 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
     def save(self, participant=None, commit=True):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
+
         if participant.id is None:
             participant.participant_type = self.CUSTOM_FIELDS_TYPE
             db.session.add(participant)
@@ -111,21 +105,12 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
 
             cf = self._custom_fields[field.name]
             if cf.is_primary:
-                value = field.data
-                setattr(participant, field_name, value)
+                setattr(participant, field_name, field.data)
             elif field.data is not None:
-                cfv = cf.get_or_create_value(participant)
-                if isinstance(field.data, FileStorage):
-                    current_filename = cfv.value
-                    cfv.value = custom_upload.save(
-                        field.data, name=str(uuid4()) + '.')
-                    unlink_participant_photo(current_filename)
-                elif isinstance(field.data, Country):
-                    cfv.value = field.data.code
-                else:
-                    cfv.value = field.data
+                cfv = field.save(cf, participant)
                 if not cfv.id:
                     db.session.add(cfv)
+
         if commit:
             db.session.commit()
 

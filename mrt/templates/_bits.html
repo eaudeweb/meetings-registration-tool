@@ -16,9 +16,10 @@
           <span class="text-danger">*</span>
         {% endif %}
       </label>
-      {% if field.type not in ('FileField', 'BooleanField', 'CustomBooleanField',
-                               'MultiCheckboxField', 'RadioField',
-                               'CategoryField') and not css_clean %}
+      {% if field.type not in (
+          'CustomFileField', 'BooleanField', 'CustomBooleanField',
+          'MultiCheckboxField', 'RadioField',
+          'CategoryField') and not css_clean %}
         {% set cls = "form-control " + class_ %}
       {% else %}
         {% set cls = class_ %}

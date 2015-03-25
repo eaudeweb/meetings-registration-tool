@@ -1,8 +1,11 @@
 from itertools import groupby
+from uuid import uuid4
 
 from flask import current_app as app
 from flask import render_template, request
+from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField as _FileField
+
 
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import Country
@@ -13,7 +16,10 @@ from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import CountryField as _CountryField
 
 from mrt.models import MeetingType
-from mrt.utils import validate_email
+from mrt.utils import validate_email, unlink_participant_photo
+
+
+custom_upload = UploadSet('custom', IMAGES)
 
 
 class CategoryWidget(widgets.ListWidget):
@@ -81,6 +87,14 @@ class SlugUnique(object):
             pass
 
 
+class CustomBaseFieldMixin():
+
+    def save(self, cf, participant):
+        cfv = cf.get_or_create_value(participant)
+        cfv.value = self.data
+        return cfv
+
+
 class BooleanField(fields.BooleanField):
 
     def process_data(self, data):
@@ -106,7 +120,11 @@ class MeetingSettingsField(MultiCheckboxField):
         self.data = {setting: True for setting in valuelist}
 
 
-class CategoryField(fields.RadioField):
+class CustomMultiCheckboxField(CustomBaseFieldMixin, MultiCheckboxField):
+    pass
+
+
+class CategoryField(CustomBaseFieldMixin, fields.RadioField):
 
     widget = CategoryWidget()
 
@@ -133,12 +151,22 @@ class CountryField(_CountryField):
         return choices
 
 
-class FileField(_FileField):
+class _BaseFileFieldMixin(object):
+
+    def save(self, cf, participant):
+        cfv = cf.get_or_create_value(participant)
+        current_filename = cfv.value
+        cfv.value = custom_upload.save(self.data, name=str(uuid4()) + '.')
+        unlink_participant_photo(current_filename)
+        return cfv
+
+
+class RegistrationFileField(_BaseFileFieldMixin, _FileField):
 
     widget = FileInputWidget()
 
     def __init__(self, *args, **kwargs):
-        super(FileField, self).__init__(*args, **kwargs)
+        super(RegistrationFileField, self).__init__(*args, **kwargs)
         self._use_current_file = False
 
     def process_formdata(self, valuelist):
@@ -153,10 +181,10 @@ class FileField(_FileField):
             except IOError:
                 self.data = None
         else:
-            super(FileField, self).process_formdata(valuelist)
+            super(RegistrationFileField, self).process_formdata(valuelist)
 
     def process_data(self, value):
-        super(FileField, self).process_data(value)
+        super(RegistrationFileField, self).process_data(value)
         if isinstance(value, basestring):
             self._use_current_file = True
             file_path = app.config['UPLOADED_CUSTOM_DEST'] / value
@@ -168,20 +196,24 @@ class FileField(_FileField):
                 self.data = None
 
 
-class EmailField(fields.StringField):
+class CustomFileField(_BaseFileFieldMixin, _FileField):
+    pass
+
+
+class EmailField(CustomBaseFieldMixin, fields.StringField):
 
     validators = [EmailRequired()]
 
 
-class CustomStringField(fields.StringField):
+class CustomStringField(CustomBaseFieldMixin, fields.StringField):
     pass
 
 
-class CustomBooleanField(BooleanField):
+class CustomBooleanField(CustomBaseFieldMixin, BooleanField):
     pass
 
 
-class CustomSelectField(fields.SelectField):
+class CustomSelectField(CustomBaseFieldMixin, fields.SelectField):
 
     def process_data(self, value):
         super(CustomSelectField, self).process_data(value)
@@ -189,11 +221,15 @@ class CustomSelectField(fields.SelectField):
             self.data = ''
 
 
-class CustomCountryField(CountryField):
-    pass
+class CustomCountryField(CustomBaseFieldMixin, CountryField):
+
+    def save(self, cf, participant):
+        cfv = cf.get_or_create_value(participant)
+        cfv.value = self.data.code
+        return cfv
 
 
-class CustomTextAreaField(fields.TextAreaField):
+class CustomTextAreaField(CustomBaseFieldMixin, fields.TextAreaField):
     pass
 
 

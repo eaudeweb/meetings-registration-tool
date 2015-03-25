@@ -1,6 +1,6 @@
 from flask import g
 from flask.ext.uploads import IMAGES
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileAllowed
 from flask.ext.babel import lazy_gettext as __
 
 from sqlalchemy_utils import Choice
@@ -11,6 +11,7 @@ from wtforms.validators import DataRequired
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
 from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
+from mrt.forms.fields import CustomFileField
 from mrt.forms.fields import EmailField, EmailRequired, MultiCheckboxField
 
 from mrt.models import CustomField, CustomFieldChoice, Rule
@@ -21,7 +22,7 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.TEXT: {'field': CustomStringField},
     CustomField.TEXT_AREA: {'field': CustomTextAreaField},
     CustomField.CHECKBOX: {'field': CustomBooleanField},
-    CustomField.IMAGE: {'field': FileField,
+    CustomField.IMAGE: {'field': CustomFileField,
                         'validators': [FileAllowed(IMAGES)]},
     CustomField.SELECT: {'field': CustomSelectField},
     CustomField.COUNTRY: {'field': CustomCountryField},

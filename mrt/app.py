@@ -13,8 +13,11 @@ from path import path
 from mrt.admin.urls import admin
 from mrt.assets import assets_env
 from mrt.auth.urls import auth
+
 from mrt.forms.admin import backgrounds
-from mrt.forms.meetings import custom_upload, logos_upload
+from mrt.forms.meetings import logos_upload
+from mrt.forms.fields import custom_upload
+
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
 from mrt.models import db, redis_store, User, CustomField, Participant
