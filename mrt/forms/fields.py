@@ -15,7 +15,8 @@ from wtforms import widgets, fields, validators
 from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import CountryField as _CountryField
 
-from mrt.models import MeetingType
+from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
+from mrt.models import db
 from mrt.utils import validate_email, unlink_participant_photo
 
 
@@ -89,9 +90,18 @@ class SlugUnique(object):
 
 class CustomBaseFieldMixin():
 
+    @classmethod
+    def provide_data(cls, cf, participant):
+        cfv = (cf.custom_field_values
+               .filter_by(participant=participant)
+               .first())
+        return cfv.value if cfv else None
+
     def save(self, cf, participant):
         cfv = cf.get_or_create_value(participant)
         cfv.value = self.data
+        if not cfv.id:
+            db.session.add(cfv)
         return cfv
 
 
@@ -121,7 +131,21 @@ class MeetingSettingsField(MultiCheckboxField):
 
 
 class CustomMultiCheckboxField(CustomBaseFieldMixin, MultiCheckboxField):
-    pass
+
+    @classmethod
+    def provide_data(cls, cf, participant):
+        cfv = (cf.custom_field_values
+               .filter_by(participant=participant))
+        items = [i.choice.id for i in cfv.all()]
+        return items
+
+    def save(self, cf, participant):
+        choices = cf.choices.filter(CustomFieldChoice.id.in_(self.data))
+        cf.custom_field_values.filter_by(participant=participant).delete()
+        for choice in choices:
+            cfv = CustomFieldValue(custom_field=cf, participant=participant)
+            cfv.choice = choice
+            db.session.add(cfv)
 
 
 class CategoryField(CustomBaseFieldMixin, fields.RadioField):
@@ -153,11 +177,20 @@ class CountryField(_CountryField):
 
 class _BaseFileFieldMixin(object):
 
+    @classmethod
+    def provide_data(cls, cf, participant):
+        cfv = (cf.custom_field_values
+               .filter_by(participant=participant)
+               .first())
+        return cfv.value if cfv else None
+
     def save(self, cf, participant):
         cfv = cf.get_or_create_value(participant)
         current_filename = cfv.value
         cfv.value = custom_upload.save(self.data, name=str(uuid4()) + '.')
         unlink_participant_photo(current_filename)
+        if not cfv.id:
+            db.session.add(cfv)
         return cfv
 
 
@@ -226,6 +259,8 @@ class CustomCountryField(CustomBaseFieldMixin, CountryField):
     def save(self, cf, participant):
         cfv = cf.get_or_create_value(participant)
         cfv.value = self.data.code
+        if not cfv.id:
+            db.session.add(cfv)
         return cfv
 
 

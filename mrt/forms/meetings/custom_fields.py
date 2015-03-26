@@ -11,8 +11,8 @@ from wtforms.validators import DataRequired
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
 from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
-from mrt.forms.fields import CustomFileField
-from mrt.forms.fields import EmailField, EmailRequired, MultiCheckboxField
+from mrt.forms.fields import CustomFileField, CustomMultiCheckboxField
+from mrt.forms.fields import EmailField, EmailRequired
 
 from mrt.models import CustomField, CustomFieldChoice, Rule
 from mrt.models import Category
@@ -29,7 +29,7 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.CATEGORY: {'field': CategoryField},
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
     CustomField.EVENT: {'field': CustomBooleanField},
-    CustomField.MULTI_CHECKBOX: {'field': MultiCheckboxField},
+    CustomField.MULTI_CHECKBOX: {'field': CustomMultiCheckboxField},
 }
 
 
@@ -92,8 +92,8 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
 
         if f.field_type.code == CustomField.MULTI_CHECKBOX:
             query = CustomFieldChoice.query.filter_by(custom_field=f)
-            attrs['choices'] = [(unicode(c.value), c.value) for c in query]
-            attrs['coerce'] = unicode
+            attrs['choices'] = [(c.id, c.value) for c in query]
+            attrs['coerce'] = int
 
         # set field to form
         # _set_rules_for_custom_fields(f, attrs)
@@ -121,9 +121,9 @@ def custom_object_factory(participant, field_type=[], obj=object):
                     value = value.value
                 object_attrs[cf.slug] = value
             else:
-                cfv = (cf.custom_field_values
-                       .filter_by(participant=participant)
-                       .first())
-                object_attrs[cf.slug] = cfv.value if cfv else None
+                data = _CUSTOM_FIELDS_MAP[cf.field_type.code]
+                field = data['field']
+                object_attrs[cf.slug] = field.provide_data(cf, participant)
+                print object_attrs[cf.slug]
 
     return type(obj)(obj.__name__, (obj,), object_attrs)

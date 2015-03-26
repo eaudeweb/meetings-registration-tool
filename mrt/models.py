@@ -583,7 +583,7 @@ class CustomFieldValue(db.Model):
         backref=db.backref('custom_field_values', lazy='dynamic',
                            cascade="delete"))
 
-    value = db.Column(db.Text, nullable=False)
+    value = db.Column(db.Text)
 
     choice_id = db.Column(
         db.Integer, db.ForeignKey('custom_field_choice.id'))

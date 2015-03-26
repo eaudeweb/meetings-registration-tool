@@ -107,9 +107,7 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
             if cf.is_primary:
                 setattr(participant, field_name, field.data)
             elif field.data is not None:
-                cfv = field.save(cf, participant)
-                if not cfv.id:
-                    db.session.add(cfv)
+                field.save(cf, participant)
 
         if commit:
             db.session.commit()
