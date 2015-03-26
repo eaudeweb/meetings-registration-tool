@@ -11,7 +11,11 @@
 
     <div class="panel-body">
       {% for translation in form.title.translations %}
-        {{ form_group(translation, options={'autofocus':''}) }}
+        {% if loop.first %}
+          {{ form_group(translation, options={'autofocus':''}) }}
+        {% else %}
+          {{ form_group(translation) }}
+        {% endif %}
       {% endfor %}
     </div> {# panel-body #}
 

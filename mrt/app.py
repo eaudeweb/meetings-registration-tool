@@ -119,6 +119,13 @@ def create_app(config={}):
     app.config['REPRESENTING_TEMPLATES'] = (
         path('meetings/participant/representing'))
 
+    translations = [lang for lang in app.config['TRANSLATIONS'] if lang in
+                    DEFAULT_CONFIG['TRANSLATIONS']]
+    required_lang = DEFAULT_CONFIG['TRANSLATIONS'][0]
+    if required_lang not in translations:
+        translations.insert(0, required_lang)
+    app.config['TRANSLATIONS'] = translations
+
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(user_id)
