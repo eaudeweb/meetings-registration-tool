@@ -22,6 +22,8 @@ from mrt.models import search_for_participant, get_participants_full
 from mrt.pdf import PdfRenderer
 from mrt.signals import activity_signal
 from mrt.utils import generate_excel, set_language
+from mrt.definitions import (
+    BADGE_W, BADGE_H, LABEL_W, LABEL_H, ENVEL_W, ENVEL_H, ACK_W, ACK_H)
 
 
 def _check_category(category_type):
@@ -436,7 +438,7 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
         nostripe = request.args.get('nostripe')
         context = {'participant': participant, 'nostripe': nostripe}
         return PdfRenderer('meetings/participant/badge.html',
-                           width='3.4in', height='2.15in',
+                           width=BADGE_W, height=BADGE_H,
                            footer=False, orientation='portrait',
                            context=context).as_response()
 
@@ -453,7 +455,7 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
             .first_or_404())
         context = {'participant': participant}
         return PdfRenderer('meetings/participant/label.html',
-                           height="8.3in", width="11.7in",
+                           width=LABEL_W, height=LABEL_H,
                            orientation="landscape", footer=False,
                            context=context).as_response()
 
@@ -470,7 +472,7 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
             .first_or_404())
         context = {'participant': participant}
         return PdfRenderer('meetings/participant/envelope.html',
-                           height='6.4in', width='9.0in',
+                           width=ENVEL_W, height=ENVEL_H,
                            orientation="portrait", footer=False,
                            context=context).as_response()
 
@@ -514,8 +516,8 @@ class ParticipantAcknowledgeEmail(PermissionRequiredMixin, MethodView):
                 'participant': participant,
                 'template': 'meetings/printouts/acknowledge_detail.html'}
             attachment = PdfRenderer('meetings/printouts/printout.html',
-                                     height='11.7in',
-                                     width='8.26in',
+                                     width=ACK_W,
+                                     height=ACK_H,
                                      orientation='portrait',
                                      as_attachment=True,
                                      context=context).as_attachment()
@@ -548,7 +550,7 @@ class ParticipantAcknowledgePDF(PermissionRequiredMixin, MethodView):
         language = getattr(participant, 'lang', 'english')
         set_language(language)
         return PdfRenderer('meetings/printouts/acknowledge_detail.html',
-                           height='11.7in', width='8.26in',
+                           width=ACK_W, height=ACK_H,
                            orientation='portrait', footer=False,
                            context=context).as_response()
 

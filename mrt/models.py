@@ -350,11 +350,11 @@ class Participant(db.Model):
 
     @property
     def name(self):
-        return '%s %s %s' % (self.title.value, self.first_name, self.last_name)
+        return u'%s %s %s' % (self.title.value, self.first_name, self.last_name)
 
     @property
     def name_on_badge(self):
-        return self.badge_name or '%s %s' % (self.first_name, self.last_name)
+        return self.badge_name or u'%s %s' % (self.first_name, self.last_name)
 
     @property
     def lang(self):

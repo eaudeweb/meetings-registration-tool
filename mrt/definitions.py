@@ -90,3 +90,13 @@ CATEGORY_REPRESENTING = (
      'Representing country F'),
     ('category.html', 'Category'),
 )
+
+
+BADGE_W = '3.4in'
+BADGE_H = '2.15in'
+LABEL_W = '11.7in'
+LABEL_H = '8.3in'
+ENVEL_W = '9.0in'
+ENVEL_H = '6.4in'
+ACK_W = '8.26in'
+ACK_H = '11.7in'

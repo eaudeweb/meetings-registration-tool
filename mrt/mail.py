@@ -13,9 +13,13 @@ mail = Mail()
 
 
 def get_default_sender():
-    if hasattr(g, 'meeting') and g.meeting.owner:
-        return g.meeting.owner.user.email
     return app.config['DEFAULT_MAIL_SENDER']
+
+
+def get_meeting_sender():
+    if hasattr(g, 'meeting') and g.meeting and g.meeting.owner:
+        return g.meeting.owner.user.email
+    return get_default_sender()
 
 
 def get_recipients(meeting, notification_type):
@@ -30,7 +34,7 @@ def get_recipients(meeting, notification_type):
 
 def send_single_message(to, subject, message, sender=None, attachment=None,
                         attachment_name='attachment.pdf'):
-    sender = sender or get_default_sender()
+    sender = sender or get_meeting_sender()
     if not sender:
         return False
 
@@ -69,7 +73,7 @@ def send_activation_mail(email, token):
 
 def send_bulk_message(recipients, subject, message):
     sent = 0
-    s = get_default_sender()
+    s = get_meeting_sender()
     if not s:
         flash('No email for sender.', 'error')
         return sent
@@ -86,7 +90,7 @@ def send_bulk_message(recipients, subject, message):
 
 @notification_signal.connect_via(ANY)
 def send_notification_message(recipients, participant):
-    sender = app.config['DEFAULT_MAIL_SENDER']
+    sender = get_default_sender()
     if not sender:
         flash('No email for sender.', 'error')
         return
@@ -124,7 +128,7 @@ def send_notification_message(recipients, participant):
 
 @registration_signal.connect_via(ANY)
 def send_registration_message(sender, participant):
-    sender = app.config['DEFAULT_MAIL_SENDER']
+    sender = get_default_sender()
     if not sender:
         flash('No email for sender.', 'error')
         return
