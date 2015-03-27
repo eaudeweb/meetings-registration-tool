@@ -64,7 +64,13 @@
 
         {{ form_group(form.field_type) }}
 
-        {{ form_group(form.custom_field_choices) }}
+        {% if form.custom_field_choices.flags.disabled %}
+          {% set options = {'disabled': ''} %}
+        {% else %}
+          {% set options = {} %}
+        {% endif %}
+
+        {{ form_group(form.custom_field_choices, options=options) }}
 
         {{ form_group(form.required, input_size="3") }}
 

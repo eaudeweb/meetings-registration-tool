@@ -16,6 +16,7 @@ from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import CountryField as _CountryField
 
 from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
+from mrt.models import Translation
 from mrt.models import db
 from mrt.utils import validate_email, unlink_participant_photo
 
@@ -136,11 +137,17 @@ class CustomMultiCheckboxField(CustomBaseFieldMixin, MultiCheckboxField):
     def provide_data(cls, cf, participant):
         cfv = (cf.custom_field_values
                .filter_by(participant=participant))
-        items = [i.choice.id for i in cfv.all()]
+        items = [i.choice for i in cfv.all()]
         return items
 
     def save(self, cf, participant):
-        choices = cf.choices.filter(CustomFieldChoice.id.in_(self.data))
+        choices = (
+            cf.choices.filter(
+                CustomFieldChoice.value.has(
+                    Translation.english.in_(self.data)
+                )
+            )
+        )
         cf.custom_field_values.filter_by(participant=participant).delete()
         for choice in choices:
             cfv = CustomFieldValue(custom_field=cf, participant=participant)

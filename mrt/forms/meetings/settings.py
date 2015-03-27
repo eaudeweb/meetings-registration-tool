@@ -8,7 +8,7 @@ from wtforms.validators import DataRequired, ValidationError, Length
 from wtforms_alchemy import ModelFormField
 
 from mrt.models import CategoryDefault, Category
-from mrt.models import CustomField, CustomFieldChoice
+from mrt.models import CustomField, CustomFieldChoice, CustomFieldValue
 from mrt.models import db
 from mrt.models import RoleUser, Role, Staff, User
 from mrt.models import Translation, UserNotification
@@ -98,33 +98,37 @@ class CustomFieldEditForm(BaseForm):
                 .join(Translation)
                 .with_entities(Translation.english, Translation.english)
             )
+            count = CustomFieldValue.query.filter_by(
+                custom_field=self.obj).count()
+            if count:
+                self.custom_field_choices.flags.disabled = True
             if request.method == 'GET':
                 self.custom_field_choices.data = [
                     i[0] for i in self.custom_field_choices.choices]
 
     def save(self):
-        custom_field = self.obj or CustomField()
-        self.populate_obj(custom_field)
-        custom_field.meeting = g.meeting
+        cf = self.obj or CustomField()
+        self.populate_obj(cf)
+        cf.meeting = g.meeting
 
-        if custom_field.field_type == CustomField.MULTI_CHECKBOX:
-            CustomFieldChoice.query.filter_by(
-                custom_field=custom_field).delete()
+        is_choice_field_disabled = self.custom_field_choices.flags.disabled
+        if (cf.field_type == CustomField.MULTI_CHECKBOX
+            and not is_choice_field_disabled):
+            CustomFieldChoice.query.filter_by(custom_field=cf).delete()
             for choice in self.custom_field_choices.data:
-                custom_field_choice = CustomFieldChoice(
-                    custom_field=custom_field)
-                custom_field_choice.value = Translation(english=choice)
-                db.session.add(custom_field_choice)
+                cf_choice = CustomFieldChoice(custom_field=cf)
+                cf_choice.value = Translation(english=choice)
+                db.session.add(cf_choice)
 
-        if not custom_field.id:
+        if not cf.id:
             last_sort = (
                 CustomField.query.filter_by(meeting=g.meeting)
                 .with_entities(CustomField.sort)
                 .order_by(desc(CustomField.sort))
                 .first())
             if last_sort:
-                custom_field.sort = last_sort[0] + 1
-            db.session.add(custom_field)
+                cf.sort = last_sort[0] + 1
+            db.session.add(cf)
         db.session.commit()
 
 
