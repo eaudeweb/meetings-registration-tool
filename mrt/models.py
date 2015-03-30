@@ -562,9 +562,6 @@ class CustomField(db.Model):
 
 class CustomFieldValue(db.Model):
 
-    __table_args__ = (
-        db.UniqueConstraint('custom_field_id', 'participant_id'),)
-
     id = db.Column(db.Integer, primary_key=True)
 
     custom_field_id = db.Column(

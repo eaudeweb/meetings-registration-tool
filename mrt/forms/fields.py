@@ -5,7 +5,7 @@ from flask import current_app as app
 from flask import render_template, request
 from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField as _FileField
-
+from jinja2 import Markup
 
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import Country
@@ -46,6 +46,16 @@ class CategoryWidget(widgets.ListWidget):
 
         html.append('</%s>' % self.html_tag)
         return HTMLString(''.join(html))
+
+
+class ListWidgetWithReset(widgets.ListWidget):
+
+    css_class = 'list-unstyled'
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('class_', '')
+        kwargs['class_'] += ' ' + self.css_class
+        return super(ListWidgetWithReset, self).__call__(field, **kwargs)
 
 
 class FileInputWidget(object):
@@ -89,7 +99,10 @@ class SlugUnique(object):
             pass
 
 
-class CustomBaseFieldMixin():
+class CustomBaseFieldMixin(object):
+
+    def render_data(self):
+        return self.data or ''
 
     @classmethod
     def provide_data(cls, cf, participant):
@@ -133,6 +146,11 @@ class MeetingSettingsField(MultiCheckboxField):
 
 class CustomMultiCheckboxField(CustomBaseFieldMixin, MultiCheckboxField):
 
+    widget = ListWidgetWithReset(prefix_label=False)
+
+    def render_data(self):
+        return Markup('<br>'.join(self.data))
+
     @classmethod
     def provide_data(cls, cf, participant):
         cfv = (cf.custom_field_values
@@ -158,6 +176,9 @@ class CustomMultiCheckboxField(CustomBaseFieldMixin, MultiCheckboxField):
 class CategoryField(CustomBaseFieldMixin, fields.RadioField):
 
     widget = CategoryWidget()
+
+    def render_data(self):
+        return dict(self.choices).get(self.data)
 
 
 class CountryField(_CountryField):
@@ -243,6 +264,9 @@ class CustomFileField(_BaseFileFieldMixin, _FileField):
 class EmailField(CustomBaseFieldMixin, fields.StringField):
 
     validators = [EmailRequired()]
+
+    def render_data(self):
+        return Markup('<a href="mailto:%s">%s</a>' % (self.data, self.data))
 
 
 class CustomStringField(CustomBaseFieldMixin, fields.StringField):

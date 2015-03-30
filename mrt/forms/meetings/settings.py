@@ -70,7 +70,7 @@ class CustomFieldEditForm(BaseForm):
 
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
     custom_field_choices = SelectMultipleFieldWithoutValidation(
-        'Choices', choices=[], coerce=str)
+        'Choices', choices=[], coerce=unicode)
 
     class Meta:
         model = CustomField
@@ -113,7 +113,7 @@ class CustomFieldEditForm(BaseForm):
 
         is_choice_field_disabled = self.custom_field_choices.flags.disabled
         if (cf.field_type == CustomField.MULTI_CHECKBOX
-            and not is_choice_field_disabled):
+           and not is_choice_field_disabled):
             CustomFieldChoice.query.filter_by(custom_field=cf).delete()
             for choice in self.custom_field_choices.data:
                 cf_choice = CustomFieldChoice(custom_field=cf)

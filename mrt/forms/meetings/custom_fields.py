@@ -124,6 +124,5 @@ def custom_object_factory(participant, field_type=[], obj=object):
                 data = _CUSTOM_FIELDS_MAP[cf.field_type.code]
                 field = data['field']
                 object_attrs[cf.slug] = field.provide_data(cf, participant)
-                print object_attrs[cf.slug]
 
     return type(obj)(obj.__name__, (obj,), object_attrs)

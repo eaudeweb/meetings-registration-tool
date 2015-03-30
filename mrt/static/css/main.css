@@ -54,7 +54,8 @@ li.separator {
     border-bottom: 2px solid #eee;
 }
 
-.form-group input[type=checkbox] {
+.form-group input[type=checkbox],
+.form-group .list-unstyled label {
     position: relative;
     top: 5px;
 }

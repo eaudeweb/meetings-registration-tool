@@ -10,16 +10,7 @@
                                     CustomField.EVENT]) %}
         <tr>
           <th class="col-sm-3">{{ field.label.text }}</th>
-          <td>
-            {% if field.type == 'CategoryField' %}
-              {% set choices = field.choices|dict %}
-              {{ choices[field.data] }}
-            {% elif field.name == 'email' %}
-              <a href="mailto:{{ field.data }}">{{ field.data }}</a>
-            {% else %}
-              {{ field.data or '' }}
-            {% endif %}
-          </td>
+          <td>{{ field.render_data() }}</td>
         </tr>
       {% endfor %}
     </tbody>
