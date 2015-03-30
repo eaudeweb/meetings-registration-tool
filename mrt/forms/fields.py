@@ -58,6 +58,17 @@ class ListWidgetWithReset(widgets.ListWidget):
         return super(ListWidgetWithReset, self).__call__(field, **kwargs)
 
 
+class DateWidget(widgets.TextInput):
+
+    css_class = 'picker'
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('class_', '')
+        kwargs['class_'] += ' ' + self.css_class
+        kwargs['data-date-format'] = 'DD.MM.YYYY'
+        return super(DateWidget, self).__call__(field, **kwargs)
+
+
 class FileInputWidget(object):
 
     def __call__(self, field, **kwargs):
@@ -297,6 +308,15 @@ class CustomCountryField(CustomBaseFieldMixin, CountryField):
 
 class CustomTextAreaField(CustomBaseFieldMixin, fields.TextAreaField):
     pass
+
+
+class CustomDateField(CustomBaseFieldMixin, fields.DateField):
+
+    widget = DateWidget()
+
+    def __init__(self, *args, **kwargs):
+        kwargs['format'] = '%d.%m.%Y'
+        super(CustomDateField, self).__init__(*args, **kwargs)
 
 
 class SelectMultipleFieldWithoutValidation(fields.SelectMultipleField):

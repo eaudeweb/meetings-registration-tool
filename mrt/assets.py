@@ -26,6 +26,7 @@ _BUNDLE_JS = (
     'js/lib/jquery.typeahead.js',
     'js/lib/jquery.ba-dotimeout.js',
     'js/lib/jquery.infinitescroll.min.js',
+    'js/lib/bootstrap-datetimepicker.min.js',
     'js/main.js',
     'js/printouts.js',
     'js/rule.js',
@@ -39,10 +40,6 @@ _BUNDLE_COLORPICKER_CSS = (
     'css/spectrum.css',
 )
 
-
-_BUNDLE_DATEPICKER = (
-    'js/lib/bootstrap-datetimepicker.min.js',
-)
 
 _BUNDLE_SHOWIF = (
     'js/lib/jquery.min.js',
@@ -65,12 +62,15 @@ _BUNDLE_UPLOAD_CSS = (
 _BUNDLE_REGISTRATION_CSS = (
     'css/bootstrap.min.css',
     'css/bootstrap-theme.min.css',
+    'css/bootstrap-datetimepicker.min.css',
     'css/registration.css',
 )
 _BUNDLE_REGISTRATION_JS = (
     'js/lib/jquery.min.js',
     'js/lib/jquery.showif.js',
     'js/image_validation.js',
+    'js/lib/moment.js',
+    'js/lib/bootstrap-datetimepicker.min.js',
 )
 
 _BUNDLE_ERROR_CSS = (
@@ -80,8 +80,6 @@ _BUNDLE_ERROR_CSS = (
 
 css = Bundle(*_BUNDLE_CSS, filters='cssmin', output='gen/static.css')
 js = Bundle(*_BUNDLE_JS, filters='jsmin', output='gen/static.js')
-datepicker = Bundle(*_BUNDLE_DATEPICKER,
-                    output='gen/bootstrap-datetimepicker.min.js')
 showif = Bundle(*_BUNDLE_SHOWIF, output='gen/showif.js')
 upload_js = Bundle(*_BUNDLE_UPLOAD_JS, output='gen/jquery.file.upload.min.js')
 upload_css = Bundle(*_BUNDLE_UPLOAD_CSS,
@@ -100,7 +98,6 @@ error_css = Bundle(*_BUNDLE_REGISTRATION_CSS,
 assets_env = Environment()
 assets_env.register('css', css)
 assets_env.register('js', js)
-assets_env.register('datepicker', datepicker)
 assets_env.register('showif', showif)
 assets_env.register('upload_js', upload_js)
 assets_env.register('upload_css', upload_css)

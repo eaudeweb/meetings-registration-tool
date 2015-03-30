@@ -26,6 +26,7 @@ _CUSTOM_FIELD_MAPPER = {
     'CountryField': CustomField.COUNTRY,
     'CategoryField': CustomField.CATEGORY,
     'EmailField': CustomField.EMAIL,
+    'DateField': CustomField.DATE,
     'TextAreaField': CustomField.TEXT_AREA,
 }
 

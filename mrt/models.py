@@ -479,11 +479,13 @@ class CustomField(db.Model):
     COUNTRY = 'country'
     CATEGORY = 'category'
     EVENT = 'event'
+    DATE = 'date'
     MULTI_CHECKBOX = 'multi_checkbox'
 
     CUSTOM_FIELDS = (
         (TEXT, 'Text Field'),
         (TEXT_AREA, 'TextArea Field'),
+        (DATE, 'Date Field'),
         (IMAGE, 'Image Field'),
         (EMAIL, 'Email Field'),
         (CHECKBOX, 'Checkbox Field'),

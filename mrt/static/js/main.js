@@ -189,4 +189,6 @@ $(function () {
         'sProcessing': 'dataTables_processing_mrt'
     });
 
+    $(".picker").datetimepicker({pickTime: false});
+
 });

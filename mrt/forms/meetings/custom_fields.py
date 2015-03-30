@@ -12,6 +12,7 @@ from mrt.forms.fields import CustomBooleanField, CustomCountryField
 from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
 from mrt.forms.fields import CustomFileField, CustomMultiCheckboxField
+from mrt.forms.fields import CustomDateField
 from mrt.forms.fields import EmailField, EmailRequired
 
 from mrt.models import CustomField, CustomFieldChoice, Rule
@@ -30,6 +31,7 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
     CustomField.EVENT: {'field': CustomBooleanField},
     CustomField.MULTI_CHECKBOX: {'field': CustomMultiCheckboxField},
+    CustomField.DATE: {'field': CustomDateField},
 }
 
 

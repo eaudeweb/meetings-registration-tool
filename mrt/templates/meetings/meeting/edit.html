@@ -11,14 +11,8 @@
 
 {% block scripts %}
 
-  {% assets "datepicker" %}
-     <script src="{{ ASSET_URL }}"></script>
-  {% endassets %}
-
   <script>
     $(function () {
-      $(".picker").datetimepicker({pickTime: false});
-
       $("[data-toggle=add]").on('click', function () {
         $(".badge-label").removeClass("hide");
         $(".badge-body").removeClass("hide");

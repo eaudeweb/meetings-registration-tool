@@ -9,6 +9,9 @@
 
   <script>
     $(function () {
+
+      $('.picker').datetimepicker({pickTime: false});
+
       $('.use-current-file').on('change', function () {
         var is_checked = $(this).prop('checked');
         var parents = $(this).parents('.file-field-container');
