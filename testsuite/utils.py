@@ -77,3 +77,13 @@ def add_new_meeting(app, user):
 
         assert resp.status_code == 302
         return Meeting.query.filter_by(acronym=acronym).first()
+
+
+def add_multicheckbox_field(client, meeting, data, custom_field_id=None,
+                            status_code=302):
+    resp = client.post(url_for('meetings.custom_field_edit',
+                               meeting_id=meeting.id,
+                               custom_field_type=CustomField.PARTICIPANT,
+                               custom_field_id=custom_field_id),
+                       data=data)
+    assert resp.status_code == status_code

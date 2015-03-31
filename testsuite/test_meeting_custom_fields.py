@@ -1,12 +1,17 @@
 from flask import url_for
 from pyquery import PyQuery
 from factory import Sequence
+from werkzeug.datastructures import MultiDict
 
-from mrt.models import CustomField, Meeting
+from mrt.forms.meetings import add_custom_fields_for_meeting
+from mrt.models import CustomField, Meeting, CustomFieldChoice, Participant
+from mrt.models import CustomFieldValue
 from mrt.meetings.custom_field import CustomFields
 from .factories import CustomFieldFactory, MeetingFactory, normalize_data
-from .factories import MeetingTypeFactory
-from .utils import add_participant_custom_fields
+from .factories import MeetingTypeFactory, MeetingCategoryFactory
+from .factories import ParticipantFactory
+from .utils import add_participant_custom_fields, populate_participant_form
+from .utils import add_multicheckbox_field
 
 
 def test_meeting_custom_fields_list(app, user):
@@ -202,3 +207,75 @@ def test_meeting_custom_fields_list_with_media_participant_enabled(app, user):
                         .filter_by(meeting_id=1,
                                    custom_field_type=CustomField.MEDIA))
         assert len(media_list) == media_fields.count()
+
+
+def test_meeting_multicheckbox_field_add(app, user):
+    meeting = MeetingFactory()
+    data = MultiDict(CustomFieldFactory.attributes())
+    data['label-english'] = data['label'].english
+    data['field_type'] = CustomField.MULTI_CHECKBOX
+    data.setlist('custom_field_choices', ['first_choice', 'second_choice'])
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_multicheckbox_field(client, meeting, data)
+        assert CustomField.query.filter_by(meeting=meeting).count() == 1
+        assert CustomFieldChoice.query.count() == 2
+
+
+def test_meeting_multicheckbox_field_edit(app, user):
+    meeting = MeetingFactory()
+    data = MultiDict(CustomFieldFactory.attributes())
+    data['label-english'] = data['label'].english
+    data['field_type'] = CustomField.MULTI_CHECKBOX
+    data.setlist('custom_field_choices', ['first_choice', 'second_choice'])
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_multicheckbox_field(client, meeting, data)
+        assert CustomField.query.filter_by(meeting=meeting).count() == 1
+        assert CustomFieldChoice.query.count() == 2
+
+        data.add('custom_field_choices', 'third_choice')
+        custom_field = CustomField.query.get(1)
+        add_multicheckbox_field(client, meeting, data, custom_field.id)
+        assert CustomField.query.filter_by(meeting=meeting).count() == 1
+        assert CustomFieldChoice.query.count() == 3
+
+
+def test_meeting_multicheckbox_field_non_editable(app, user):
+    category = MeetingCategoryFactory(meeting__owner=user.staff)
+    meeting = category.meeting
+    data = MultiDict(ParticipantFactory.attributes())
+    data['category_id'] = category.id
+    field_data = MultiDict(CustomFieldFactory.attributes())
+    field_data['label-english'] = field_data['label'].english
+    field_data['field_type'] = CustomField.MULTI_CHECKBOX
+    field_data.setlist('custom_field_choices',
+                       ['first_choice', 'second_choice', 'third_choice'])
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_custom_fields_for_meeting(meeting)
+        add_multicheckbox_field(client, meeting, field_data)
+        field = (CustomField.query
+                 .filter_by(slug=field_data['label-english'])
+                 .one())
+
+        populate_participant_form(meeting, data)
+        data.setlist(field.slug, ['first_choice', 'third_choice'])
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().participants().first()
+        assert CustomFieldValue.query.count() == 2
+        assert field.choices.count() == 3
+
+        field_data.add('custom_field_choices', 'fourth_choice')
+        add_multicheckbox_field(client, meeting, field_data, field.id,
+                                302)
+        assert field.choices.count() == 3

@@ -19,7 +19,7 @@ from mrt.models import Participant, CustomField, Category, ActivityLog
 from mrt.models import CustomFieldValue
 from mrt.utils import translate
 
-from testsuite.utils import populate_participant_form
+from testsuite.utils import populate_participant_form, add_multicheckbox_field
 
 
 def test_meeting_participant_list(app, user):
@@ -150,6 +150,46 @@ def test_meeting_participant_detail_event_list(app, user):
         assert resp.status_code == 302
         assert Participant.query.current_meeting().participants().first()
         assert CustomFieldValue.query.count() == 2
+
+
+def test_meeting_participant_detail_multicheckbox_list(app, user):
+    category = MeetingCategoryFactory(meeting__owner=user.staff)
+    meeting = category.meeting
+    data = MultiDict(ParticipantFactory.attributes())
+    data['category_id'] = category.id
+    field_data = MultiDict(CustomFieldFactory.attributes())
+    field_data['label-english'] = field_data['label'].english
+    field_data['field_type'] = CustomField.MULTI_CHECKBOX
+    field_data.setlist('custom_field_choices',
+                       ['first_choice', 'second_choice', 'third_choice'])
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_custom_fields_for_meeting(meeting)
+        add_multicheckbox_field(client, meeting, field_data)
+        field = (CustomField.query
+                 .filter_by(slug=field_data['label-english'])
+                 .one())
+
+        populate_participant_form(meeting, data)
+        choices = ['first_choice', 'third_choice']
+        data.setlist(field.slug, choices)
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().participants().first()
+        participant = Participant.query.get(1)
+        participant.attended = True
+        resp = client.get(url_for('meetings.participant_detail',
+                                  meeting_id=category.meeting.id,
+                                  participant_id=1))
+
+        assert resp.status_code == 200
+        details = PyQuery(resp.data)('tr#row-' + field.slug)
+        assert len(details) == 1
+        assert ''.join(choices) == details[0].find('td').text_content()
 
 
 def test_meeting_participant_add_success(app, user):
