@@ -11,9 +11,10 @@ from wtforms.validators import DataRequired
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
 from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
-from mrt.forms.fields import CustomFileField, CustomMultiCheckboxField
-from mrt.forms.fields import CustomDateField
+from mrt.forms.fields import CustomImageField, CustomMultiCheckboxField
+from mrt.forms.fields import CustomDocumentField, CustomDateField
 from mrt.forms.fields import EmailField, EmailRequired
+from mrt.forms.fields import DOCUMENTS
 
 from mrt.models import CustomField, CustomFieldChoice, Rule
 from mrt.models import Category
@@ -23,8 +24,10 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.TEXT: {'field': CustomStringField},
     CustomField.TEXT_AREA: {'field': CustomTextAreaField},
     CustomField.CHECKBOX: {'field': CustomBooleanField},
-    CustomField.IMAGE: {'field': CustomFileField,
+    CustomField.IMAGE: {'field': CustomImageField,
                         'validators': [FileAllowed(IMAGES)]},
+    CustomField.DOCUMENT: {'field': CustomDocumentField,
+                           'validators': [FileAllowed(DOCUMENTS)]},
     CustomField.SELECT: {'field': CustomSelectField},
     CustomField.COUNTRY: {'field': CustomCountryField},
     CustomField.CATEGORY: {'field': CategoryField},

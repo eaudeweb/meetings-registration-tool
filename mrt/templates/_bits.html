@@ -17,9 +17,8 @@
         {% endif %}
       </label>
       {% if field.type not in (
-          'CustomFileField', 'BooleanField', 'CustomBooleanField',
-          'CustomMultiCheckboxField', 'RadioField',
-          'CategoryField') and not css_clean %}
+          'CustomImageField', 'CustomDocumentField', 'BooleanField', 'CustomBooleanField', 'CustomMultiCheckboxField', 'RadioField',
+          'MeetingSettingsField', 'CategoryField') and not css_clean %}
         {% set cls = "form-control " + class_ %}
       {% else %}
         {% set cls = class_ %}

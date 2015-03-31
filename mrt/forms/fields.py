@@ -2,8 +2,9 @@ from itertools import groupby
 from uuid import uuid4
 
 from flask import current_app as app
-from flask import render_template, request
+from flask import render_template, request, url_for
 from flask.ext.uploads import UploadSet, IMAGES
+from flask.ext.uploads import DOCUMENTS as _DOCUMENTS
 from flask_wtf.file import FileField as _FileField
 from jinja2 import Markup
 
@@ -21,7 +22,8 @@ from mrt.models import db
 from mrt.utils import validate_email, unlink_participant_photo
 
 
-custom_upload = UploadSet('custom', IMAGES)
+DOCUMENTS = _DOCUMENTS + ('pdf',)
+custom_upload = UploadSet('custom', IMAGES + DOCUMENTS)
 
 
 class CategoryWidget(widgets.ListWidget):
@@ -69,10 +71,16 @@ class DateWidget(widgets.TextInput):
         return super(DateWidget, self).__call__(field, **kwargs)
 
 
-class FileInputWidget(object):
+class DocumentWidget(widgets.FileInput):
 
     def __call__(self, field, **kwargs):
-        kwargs.setdefault('id', field.id)
+        kwargs['data-type'] = getattr(field, 'file_type', None)
+        return super(DocumentWidget, self).__call__(field, **kwargs)
+
+
+class ImageWidget(object):
+
+    def __call__(self, field, **kwargs):
         return HTMLString(render_template(
             'meetings/registration/_image_widget.html',
             field=field))
@@ -216,6 +224,36 @@ class CountryField(_CountryField):
 
 class _BaseFileFieldMixin(object):
 
+    def __init__(self, *args, **kwargs):
+        super(_BaseFileFieldMixin, self).__init__(*args, **kwargs)
+        self._use_current_file = False
+
+    def process_formdata(self, valuelist):
+        use_current_file = request.form.get(self.name + '-use-current-file')
+        if use_current_file:
+            self._use_current_file = True
+            file_path = app.config['UPLOADED_CUSTOM_DEST'] / use_current_file
+            try:
+                self.data = FileStorage(stream=file_path.open(),
+                                        filename=use_current_file,
+                                        name=self.name)
+            except IOError:
+                self.data = None
+        else:
+            super(_BaseFileFieldMixin, self).process_formdata(valuelist)
+
+    def process_data(self, value):
+        super(_BaseFileFieldMixin, self).process_data(value)
+        if isinstance(value, basestring):
+            self._use_current_file = True
+            file_path = app.config['UPLOADED_CUSTOM_DEST'] / value
+            try:
+                self.data = FileStorage(stream=file_path.open(),
+                                        filename=file_path.basename(),
+                                        name=self.name)
+            except IOError:
+                self.data = None
+
     @classmethod
     def provide_data(cls, cf, participant):
         cfv = (cf.custom_field_values
@@ -233,43 +271,26 @@ class _BaseFileFieldMixin(object):
         return cfv
 
 
-class RegistrationFileField(_BaseFileFieldMixin, _FileField):
+class RegistrationImageField(_BaseFileFieldMixin, _FileField):
 
-    widget = FileInputWidget()
-
-    def __init__(self, *args, **kwargs):
-        super(RegistrationFileField, self).__init__(*args, **kwargs)
-        self._use_current_file = False
-
-    def process_formdata(self, valuelist):
-        use_current_file = request.form.get(self.name + '-use-current-file')
-        if use_current_file:
-            self._use_current_file = True
-            file_path = app.config['UPLOADED_CUSTOM_DEST'] / use_current_file
-            try:
-                self.data = FileStorage(stream=file_path.open(),
-                                        filename=use_current_file,
-                                        name=self.name)
-            except IOError:
-                self.data = None
-        else:
-            super(RegistrationFileField, self).process_formdata(valuelist)
-
-    def process_data(self, value):
-        super(RegistrationFileField, self).process_data(value)
-        if isinstance(value, basestring):
-            self._use_current_file = True
-            file_path = app.config['UPLOADED_CUSTOM_DEST'] / value
-            try:
-                self.data = FileStorage(stream=file_path.open(),
-                                        filename=file_path.basename(),
-                                        name=self.name)
-            except IOError:
-                self.data = None
+    widget = ImageWidget()
 
 
-class CustomFileField(_BaseFileFieldMixin, _FileField):
+class CustomImageField(_BaseFileFieldMixin, _FileField):
     pass
+
+
+class CustomDocumentField(_BaseFileFieldMixin, _FileField):
+
+    widget = DocumentWidget()
+
+    def render_data(self):
+        return
+        if self.data:
+            filename = (app.config['PATH_CUSTOM_KEY'] + '/' +
+                        self.data.filename)
+            url = url_for('files', filename=filename)
+        return Markup('<a href="%s">%s</a>' % (url, self.data.filename))
 
 
 class EmailField(CustomBaseFieldMixin, fields.StringField):

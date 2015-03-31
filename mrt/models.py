@@ -473,6 +473,7 @@ class CustomField(db.Model):
     TEXT = 'text'
     TEXT_AREA = 'text_area'
     IMAGE = 'image'
+    DOCUMENT = 'document'
     EMAIL = 'email'
     CHECKBOX = 'checkbox'
     SELECT = 'select'
@@ -487,6 +488,7 @@ class CustomField(db.Model):
         (TEXT_AREA, 'TextArea Field'),
         (DATE, 'Date Field'),
         (IMAGE, 'Image Field'),
+        (DOCUMENT, 'Document Field'),
         (EMAIL, 'Email Field'),
         (CHECKBOX, 'Checkbox Field'),
         (MULTI_CHECKBOX, 'MultiCheckbox Field'),

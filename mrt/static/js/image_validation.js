@@ -4,7 +4,7 @@ $(function () {
   var allowedExtensions = ['jpg', 'jpe', 'jpeg', 'png', 'gif', 'svg', 'bmp'];
   var maxUploadSize = $('#max-upload-size').data('bytes');
   var maxUploadSizeMB = Math.floor(maxUploadSize / (1024 * 1024));
-  var fileInputs = $('input:file');
+  var fileInputs = $('input[data-type=image]');
 
   // initialize array for storing file size for each input[type=file]
   // on page (initially 0)

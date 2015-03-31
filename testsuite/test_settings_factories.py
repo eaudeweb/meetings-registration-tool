@@ -1,4 +1,5 @@
 from flask import g
+from py.path import local
 
 from mrt.forms.meetings import custom_object_factory, custom_form_factory
 from mrt.forms.meetings import ParticipantEditForm
@@ -24,6 +25,8 @@ def test_custom_object_factory(app):
 
 def test_custom_form_factory(app):
     pic = ProfilePictureFactory()
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    upload_dir.ensure(pic.value)
     g.meeting = pic.participant.meeting
     field_types = [CustomField.IMAGE]
     Obj = custom_object_factory(pic.participant, field_types)

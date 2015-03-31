@@ -11,7 +11,7 @@ from wtforms import Form, StringField, PasswordField, validators
 from wtforms import HiddenField
 
 from mrt.forms.meetings import BaseParticipantForm
-from mrt.forms.fields import RegistrationFileField
+from mrt.forms.fields import RegistrationImageField
 from mrt.models import db, User, CustomField
 from mrt import utils
 
@@ -25,7 +25,7 @@ class RegistrationForm(BaseParticipantForm):
 
     _CUSTOM_FIELDS_MAP = {
         CustomField.IMAGE: {
-            'field': RegistrationFileField,
+            'field': RegistrationImageField,
             'validators': [FileAllowed(IMAGES)]
         },
     }
