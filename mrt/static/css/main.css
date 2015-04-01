@@ -448,3 +448,14 @@ li.separator {
 .image-container img {
     height: 200px!important;
 }
+
+
+.trash-doc {
+    font-size: 11px;
+    color: #666;
+}
+.trash-doc:hover {
+    text-decoration: none;
+    color: #666;
+}
+

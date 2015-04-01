@@ -20,6 +20,7 @@ from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
 from mrt.models import Translation
 from mrt.models import db
 from mrt.utils import validate_email, unlink_participant_photo
+from mrt.utils import unlink_uploaded_file
 
 
 DOCUMENTS = _DOCUMENTS + ('pdf',)
@@ -75,7 +76,9 @@ class DocumentWidget(widgets.FileInput):
 
     def __call__(self, field, **kwargs):
         kwargs['data-type'] = getattr(field, 'file_type', None)
-        return super(DocumentWidget, self).__call__(field, **kwargs)
+        return HTMLString(render_template(
+            'meetings/custom_field/_document_widget.html',
+            field=field))
 
 
 class ImageWidget(object):
@@ -254,6 +257,14 @@ class _BaseFileFieldMixin(object):
             except IOError:
                 self.data = None
 
+    def render_data(self):
+        if self.data:
+            filename = (app.config['PATH_CUSTOM_KEY'] + '/' +
+                        self.data.filename)
+            url = url_for('files', filename=filename)
+            return Markup('<a href="%s">%s</a>' % (url, self.data.filename))
+        return ''
+
     @classmethod
     def provide_data(cls, cf, participant):
         cfv = (cf.custom_field_values
@@ -261,8 +272,10 @@ class _BaseFileFieldMixin(object):
                .first())
         return cfv.value if cfv else None
 
-    def save(self, cf, participant):
-        cfv = cf.get_or_create_value(participant)
+    def save(self, cf, participant, cfv=None):
+        if not self.data:
+            return
+        cfv = cfv or cf.get_or_create_value(participant)
         current_filename = cfv.value
         cfv.value = custom_upload.save(self.data, name=str(uuid4()) + '.')
         unlink_participant_photo(current_filename)
@@ -279,18 +292,9 @@ class RegistrationImageField(_BaseFileFieldMixin, _FileField):
 class CustomImageField(_BaseFileFieldMixin, _FileField):
     pass
 
-
 class CustomDocumentField(_BaseFileFieldMixin, _FileField):
 
     widget = DocumentWidget()
-
-    def render_data(self):
-        return
-        if self.data:
-            filename = (app.config['PATH_CUSTOM_KEY'] + '/' +
-                        self.data.filename)
-            url = url_for('files', filename=filename)
-        return Markup('<a href="%s">%s</a>' % (url, self.data.filename))
 
 
 class EmailField(CustomBaseFieldMixin, fields.StringField):

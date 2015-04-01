@@ -1,0 +1,23 @@
+
+{% set url = url_for(
+    'files',
+    filename=config['PATH_CUSTOM_KEY'] ~ '/' ~ field.data.filename) %}
+
+<div class="file-field-container">
+  {% set show = field.data and field._use_current_file %}
+  {% if show %}
+    {% set delete_url = url_for('.custom_field_upload',
+                                participant_id=participant.id,
+                                field_slug=field.name) %}
+    <p>
+      Current file:<br>
+      <a href="{{ url }}" target="_blank">{{ field.data.filename }}</a>
+      <small><a class="trash-doc glyphicon glyphicon-trash"></a></small>
+    </p>
+  {% endif %}
+
+  <div class="file-field-input" data-type="file_type">
+    <input type="file" name="{{ field.name }}">
+  </div>
+
+</div> {# /.file-field-container #}
