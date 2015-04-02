@@ -43,6 +43,21 @@
               empty: search_default_participant_empty_template
           }
       }).on('typeahead:selected', searchDefaultSelected);
+
+      $('.trash-doc').on('click', function () {
+        var msg = $(this).data("message");
+        var $parents = $(this).parents('.current-file');
+        if (confirm(msg)) {
+            var url = $(this).data("href");
+            $.ajax({
+                type: "DELETE",
+                url: url,
+                success: function (resp) {
+                  $parents.remove();
+                }
+            });
+        }
+      });
     });
   </script>
 

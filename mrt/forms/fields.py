@@ -19,7 +19,7 @@ from wtforms_alchemy import CountryField as _CountryField
 from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
 from mrt.models import Translation
 from mrt.models import db
-from mrt.utils import validate_email, unlink_participant_photo
+from mrt.utils import validate_email, unlink_participant_custom_file
 from mrt.utils import unlink_uploaded_file
 
 
@@ -78,7 +78,9 @@ class DocumentWidget(widgets.FileInput):
         kwargs['data-type'] = getattr(field, 'file_type', None)
         return HTMLString(render_template(
             'meetings/custom_field/_document_widget.html',
-            field=field))
+            field=field,
+            participant=getattr(field, '_participant', None))
+        )
 
 
 class ImageWidget(object):
@@ -278,7 +280,7 @@ class _BaseFileFieldMixin(object):
         cfv = cfv or cf.get_or_create_value(participant)
         current_filename = cfv.value
         cfv.value = custom_upload.save(self.data, name=str(uuid4()) + '.')
-        unlink_participant_photo(current_filename)
+        unlink_participant_custom_file(current_filename)
         if not cfv.id:
             db.session.add(cfv)
         return cfv
@@ -291,6 +293,7 @@ class RegistrationImageField(_BaseFileFieldMixin, _FileField):
 
 class CustomImageField(_BaseFileFieldMixin, _FileField):
     pass
+
 
 class CustomDocumentField(_BaseFileFieldMixin, _FileField):
 

@@ -9,10 +9,17 @@
     {% set delete_url = url_for('.custom_field_upload',
                                 participant_id=participant.id,
                                 field_slug=field.name) %}
-    <p>
+    {% set success_url = url_for('.participant_edit',
+                                 participant_id=participant.id) %}
+
+    <p class="current-file">
       Current file:<br>
       <a href="{{ url }}" target="_blank">{{ field.data.filename }}</a>
-      <small><a class="trash-doc glyphicon glyphicon-trash"></a></small>
+      <small>
+        <a data-href="{{ delete_url }}"
+           data-message="Are you sure you want to dele this file?"
+           class="trash-doc glyphicon glyphicon-trash"></a>
+      </small>
     </p>
   {% endif %}
 

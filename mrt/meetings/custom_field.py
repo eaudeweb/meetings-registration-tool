@@ -13,7 +13,7 @@ from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.models import db
 from mrt.models import Participant, CustomField, CustomFieldValue, Translation
 
-from mrt.utils import crop_file, unlink_participant_photo
+from mrt.utils import crop_file, unlink_participant_custom_file
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
 from mrt.common.custom_fields import (
     BaseCustomFieldEdit, BaseCustomFieldUpdatePosition as BaseUpdatePosition)
@@ -106,7 +106,7 @@ class CustomFieldUpload(BaseCustomFieldFile):
         filename = custom_field.value
         db.session.delete(custom_field)
         db.session.commit()
-        unlink_participant_photo(filename)
+        unlink_participant_custom_file(filename)
         return jsonify()
 
 
@@ -124,7 +124,7 @@ class CustomFieldRotate(BaseCustomFieldFile):
         if newfile == custom_field_value.value:
             return make_response(jsonify(), 400)
 
-        unlink_participant_photo(custom_field_value.value)
+        unlink_participant_custom_file(custom_field_value.value)
         custom_field_value.value = newfile
         db.session.commit()
 

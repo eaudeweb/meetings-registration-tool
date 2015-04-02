@@ -60,7 +60,7 @@ class Logo(object):
         unlink_thumbnail_file(self.meeting_name, dir_name='logos')
 
 
-def unlink_participant_photo(filename):
+def unlink_participant_custom_file(filename):
     unlink_uploaded_file(filename, 'custom')
     unlink_uploaded_file(filename, 'crop',
                          dir_name=app.config['PATH_CUSTOM_KEY'])

@@ -71,6 +71,14 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
 
     Meta = _RulesMeta
 
+    def __init__(self, *args, **kwargs):
+        obj = kwargs.get('obj', None)
+        super(BaseParticipantForm, self).__init__(*args, **kwargs)
+        if obj:
+            participant = getattr(obj, '_participant', None)
+            for field_name, field in self._fields.items():
+                setattr(field, '_participant', participant)
+
     def filter(self, field_types=[]):
         fields = OrderedDict([
             (slug, field) for slug, field in self._fields.items()

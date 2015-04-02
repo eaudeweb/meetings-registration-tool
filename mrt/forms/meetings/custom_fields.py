@@ -114,6 +114,7 @@ def custom_object_factory(participant, field_type=[], obj=object):
     object_attrs = {}
 
     if participant:
+        object_attrs['_participant'] = participant
         query = (CustomField.query
                  .filter_by(meeting=participant.meeting or g.meeting))
         if field_type:
