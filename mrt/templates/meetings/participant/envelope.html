@@ -30,14 +30,10 @@
       {% set product_side_logo = get_logo('PRODUCT_SIDE_LOGO') %}
       <img src="{{ product_logo.url }}" class="logo" alt="" >
       <img src="{{ product_side_logo.url }}" class="side-logo" alt="">
-      {# TODO GET SECRETARIAT INFO  #}
       <address>
-        Conference Service <br/>
-        SECRETARIAT/SECRETARIA <br/>
-        Maison internationale de l'environnement <br/>
-        Chemin des Anémones<br/>
-        CH-1219 CHATELAINE/Genève<br/>
-        (Switzerland/Suiza/Suisse)<br/>
+        {{ g.meeting.venue_address }}<br>
+        {{ g.meeting.venue_city }}<br>
+        {{ g.meeting.venue_country }}<br>
       </address>
     </div>
 
