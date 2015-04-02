@@ -344,6 +344,19 @@ class EventFactory(SQLAlchemyModelFactory):
     custom_field_type = models.CustomField.PARTICIPANT
 
 
+class DocumentFieldFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.CustomField
+        sqlalchemy_session = models.db.session
+
+    label = SubFactory(CustomFieldLabelFactory)
+    meeting = SubFactory(MeetingFactory)
+    field_type = models.CustomField.DOCUMENT
+    required = True
+    visible_on_registration_form = True
+    custom_field_type = models.CustomField.PARTICIPANT
+
+
 class EventValueFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.CustomFieldValue

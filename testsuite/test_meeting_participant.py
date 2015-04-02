@@ -1,15 +1,18 @@
 from flask import url_for
 from pyquery import PyQuery
+from py.path import local
 from jinja2 import FileSystemLoader
 from werkzeug.datastructures import MultiDict
 from sqlalchemy import not_
 from sqlalchemy_utils import types
+from StringIO import StringIO
 from urllib import urlencode
 import xlrd
 import json
 
 from .factories import ParticipantFactory, MeetingCategoryFactory
 from .factories import CustomFieldFactory, MediaParticipantFactory
+from .factories import DocumentFieldFactory
 
 from mrt.forms.fields import EmailRequired
 from mrt.forms.meetings import (add_custom_fields_for_meeting,
@@ -716,3 +719,134 @@ def test_meeting_participant_event_checkbox_add_form(app, user):
         html = PyQuery(resp.data)
         assert len(html('#Events div.form-group')) == 2
         assert len(html('#Flags div.form-group')) == 4
+
+
+def test_meeting_participant_document_field_upload(app, user):
+    category = MeetingCategoryFactory()
+    meeting = category.meeting
+    doc_field = DocumentFieldFactory(meeting=meeting)
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[doc_field.slug] = (StringIO('Test'), 'test.pdf')
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().participants().first()
+        participant = Participant.query.get(1)
+        doc_field_value = (participant.custom_field_values
+                           .filter_by(custom_field=doc_field).first())
+        assert doc_field_value is not None
+        assert upload_dir.join(doc_field_value.value).check()
+
+
+def test_meeting_particupant_document_field_reupload(app, user):
+    category = MeetingCategoryFactory()
+    meeting = category.meeting
+    doc_field = DocumentFieldFactory(meeting=meeting)
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[doc_field.slug] = (StringIO('Test'), 'test.pdf')
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().participants().first()
+        participant = Participant.query.get(1)
+        doc_field_value = (participant.custom_field_values
+                           .filter_by(custom_field=doc_field).first())
+        assert doc_field_value is not None
+        assert upload_dir.join(doc_field_value.value).check()
+        old_value = doc_field_value.value
+        data[doc_field.slug] = (StringIO('Test123'), 'new_test.pdf')
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=meeting.id,
+                                   participant_id=participant.id), data=data)
+        assert resp.status_code == 302
+        assert participant.custom_field_values.count() == 1
+        assert old_value != doc_field_value.value
+        assert upload_dir.join(doc_field_value.value).check()
+        assert not upload_dir.join(old_value).check()
+
+
+def test_meeting_participant_document_delete(app, user):
+    category = MeetingCategoryFactory()
+    meeting = category.meeting
+    doc_field = DocumentFieldFactory(meeting=meeting)
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[doc_field.slug] = (StringIO('Test'), 'test.pdf')
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().participants().first()
+        participant = Participant.query.get(1)
+        doc_field_value = (participant.custom_field_values
+                           .filter_by(custom_field=doc_field).first())
+        assert doc_field_value is not None
+        assert upload_dir.join(doc_field_value.value).check()
+
+        resp = client.delete(url_for('meetings.custom_field_upload',
+                                     participant_id=participant.id,
+                                     field_slug=doc_field.slug))
+        assert resp.status_code == 200
+        assert not upload_dir.join(doc_field_value.value).check()
+        assert participant.custom_field_values.count() == 0
+
+
+def test_meeting_participant_detail_document_field(app, user):
+    category = MeetingCategoryFactory()
+    meeting = category.meeting
+    doc_field = DocumentFieldFactory(meeting=meeting)
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[doc_field.slug] = (StringIO('Test'), 'test.pdf')
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(category.meeting)
+        populate_participant_form(category.meeting, data)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_edit',
+                                   meeting_id=category.meeting.id), data=data)
+        assert resp.status_code == 302
+        assert Participant.query.current_meeting().participants().first()
+        participant = Participant.query.get(1)
+        doc_field_value = (participant.custom_field_values
+                           .filter_by(custom_field=doc_field).first())
+        assert doc_field_value is not None
+        resp = client.get(url_for('meetings.participant_detail',
+                                  meeting_id=meeting.id,
+                                  participant_id=participant.id))
+        assert resp.status_code == 200
+        doc_detail_value = PyQuery(resp.data)('tr#row-' + doc_field.slug)
+        assert len(doc_detail_value) == 1
+        assert (doc_field_value.value ==
+                doc_detail_value[0].find('td').text_content())

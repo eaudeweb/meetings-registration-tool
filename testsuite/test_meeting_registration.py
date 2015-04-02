@@ -11,7 +11,7 @@ from mrt.forms.meetings import MediaParticipantDummyForm
 from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import RoleUserMeetingFactory, UserFactory
 from .factories import UserNotificationFactory, CustomFieldFactory
-from .factories import MediaParticipantFactory
+from .factories import MediaParticipantFactory, DocumentFieldFactory
 
 from testsuite.utils import populate_participant_form, add_new_meeting
 
@@ -621,6 +621,29 @@ def test_meeting_registration_timestamp_captcha(app, user, default_meeting):
             resp = register_participant_online(client, data, meeting)
             assert resp.status_code == 200
     assert Participant.query.count() == 0
+
+
+def test_meeting_registration_with_document_field(app, user):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+    doc_field = DocumentFieldFactory(meeting=meeting)
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data[doc_field.slug] = (StringIO('Test'), 'test.pdf')
+    upload_dir = local(app.config['UPLOADED_CUSTOM_DEST'])
+    client = app.test_client()
+    with app.test_request_context():
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert (meeting.participants
+                .filter_by(participant_type=Participant.PARTICIPANT)
+                .count() == 1)
+        participant = meeting.participants.first()
+        doc_field_value = (participant.custom_field_values
+                           .filter_by(custom_field=doc_field).first())
+        assert doc_field_value is not None
+        assert upload_dir.join(doc_field_value.value).check()
 
 
 def register_participant_online(client, participant_data, meeting, user=None):
