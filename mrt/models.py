@@ -248,6 +248,8 @@ class Participant(db.Model):
     TITLE_CHOICES = (
         ('Ms', 'Ms'),
         ('Mr', 'Mr'),
+        ('Dr', 'Dr'),
+        ('Prof', 'Prof'),
     )
     LANGUAGE_CHOICES = (
         ('English', __('English')),
