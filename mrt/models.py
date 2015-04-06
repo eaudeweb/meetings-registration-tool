@@ -811,10 +811,13 @@ class PhraseMixin(object):
     ACK_EMAIL = 'Acknowledge email'
     SUBJECT = 'Subject'
     BODY = 'Body'
-    ONLINE_CONFIRMATION = 'Online registration confirmation'
+    ONLINE_REGISTRATION = 'Online registration'
     EMAIL_CONFIRMATION = 'Email registration confirmation'
-    PARTICIPANT = 'for participants'
-    MEDIA = 'for media'
+    PARTICIPANT = 'Confirmation for participants'
+    FOR_PARTICIPANTS = 'for participants'
+    MEDIA = 'Confirmation for media'
+    FOOTER_PARTICIPANTS = 'Footer for participants'
+    FOOTER_MEDIA = 'Footer for media'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), nullable=False)

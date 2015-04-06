@@ -70,6 +70,14 @@
       </div>
     {% endif %}
 
+    {% if footer_phrase.description %}
+    <div class="row">
+      <div class="col-sm-4 col-sm-push-2">
+        <p><small>{{ footer_phrase.description }}</small></p>
+      </div>
+    </div>
+    {% endif %}
+
     <div class="form-actions row">
       <div class="col-sm-4 col-sm-push-2">
         <button type="submit" class="btn btn-primary">

@@ -35,14 +35,24 @@
         "sort": 0
     },
     {
-        "name": "for participants",
-        "group": "Online registration confirmation",
+        "name": "Confirmation for participants",
+        "group": "Online registration",
         "sort": 9
     },
     {
-        "name": "for media",
-        "group": "Online registration confirmation",
+        "name": "Confirmation for media",
+        "group": "Online registration",
         "sort": 10
+    },
+    {
+        "name": "Footer for participants",
+        "group": "Online registration",
+        "sort": 11
+    },
+    {
+        "name": "Footer for media",
+        "group": "Online registration",
+        "sort": 12
     },
     {
         "name": "Footer",

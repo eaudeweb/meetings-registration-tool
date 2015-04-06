@@ -133,9 +133,10 @@ def send_registration_message(sender, participant):
         flash('No email for sender.', 'error')
         return
     subject = "%s registration confirmation" % (participant.meeting.acronym,)
-    phrase = Phrase.query.filter_by(meeting=participant.meeting,
-                                    group=Phrase.EMAIL_CONFIRMATION,
-                                    name=Phrase.PARTICIPANT).first()
+    phrase = Phrase.query.filter_by(
+        meeting=participant.meeting,
+        group=Phrase.EMAIL_CONFIRMATION,
+        name=Phrase.FOR_PARTICIPANTS).first()
     template = app.jinja_env.get_template(
         'meetings/registration/mail_template.html')
     body_html = template.render({'participant': participant,
