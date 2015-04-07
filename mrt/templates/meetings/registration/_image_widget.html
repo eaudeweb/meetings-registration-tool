@@ -19,7 +19,7 @@
 
   <div class="file-field-input {% if show %}hide{% endif %}"
        data-type="image">
-    <input type="file" name="{{ field.name }}">
+    {{ default_widget(field, **field_kwargs) }}
   </div>
 
 </div> {# /.file-field-container #}

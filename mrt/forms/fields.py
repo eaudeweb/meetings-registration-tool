@@ -87,9 +87,13 @@ class DocumentWidget(widgets.FileInput):
 class ImageWidget(object):
 
     def __call__(self, field, **kwargs):
+        default_widget = widgets.FileInput()
+        kwargs.pop('class_', None)
         return HTMLString(render_template(
             'meetings/registration/_image_widget.html',
-            field=field))
+            field=field,
+            default_widget=default_widget,
+            field_kwargs=kwargs))
 
 
 class EmailRequired(object):
