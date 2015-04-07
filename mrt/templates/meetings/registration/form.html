@@ -39,12 +39,12 @@
 
   {{ flashed_messages() }}
 
-  <div class="text-right">
+  <div class="text-right" style="margin-bottom: 15px;">
     {% if current_user.is_authenticated() %}
     <a href="{{ url_for('.registration_user_logout') }}">
         Logout</a>
     {% else %}
-      <a href="{{ url_for('.registration_user_login', next=request.path) }}">
+      <a href="{{ url_for('.registration_user_login', next=request.path) }}" class="btn btn-default">
         Login and pre fill the registration form</a>
     {% endif %}
   </div>
