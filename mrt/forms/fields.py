@@ -1,10 +1,11 @@
+from datetime import datetime
 from itertools import groupby
 from uuid import uuid4
 
 from flask import current_app as app
 from flask import render_template, request, url_for
-from flask.ext.uploads import UploadSet, IMAGES
 from flask.ext.uploads import DOCUMENTS as _DOCUMENTS
+from flask.ext.uploads import UploadSet, IMAGES
 from flask_wtf.file import FileField as _FileField
 from jinja2 import Markup
 
@@ -16,11 +17,11 @@ from wtforms import widgets, fields, validators
 from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import CountryField as _CountryField
 
+from mrt.models import db
 from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
 from mrt.models import Translation
-from mrt.models import db
-from mrt.utils import validate_email, unlink_participant_custom_file
 from mrt.utils import unlink_uploaded_file
+from mrt.utils import validate_email, unlink_participant_custom_file
 
 
 DOCUMENTS = _DOCUMENTS + ('pdf',)
@@ -345,6 +346,12 @@ class CustomDateField(CustomBaseFieldMixin, fields.DateField):
     def __init__(self, *args, **kwargs):
         kwargs['format'] = '%d.%m.%Y'
         super(CustomDateField, self).__init__(*args, **kwargs)
+
+    def process_data(self, value):
+        try:
+            self.data = datetime.strptime(value, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            self.data = None
 
 
 class SelectMultipleFieldWithoutValidation(fields.SelectMultipleField):
