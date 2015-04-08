@@ -6,13 +6,20 @@ $(function () {
         $.each(data, function (k, v) {
             var $item = $('[name=' + k + ']');
             var val = $item.val();
+
             if($item.is(':radio')) {
                 val = $item.filter(':checked').val();
             }
+            if($item.is(':checkbox')) {
+                val = $item.filter(':checked').val();
+                val = (val == 'y') ? 'true' : 'false';
+            }
+
             if($.inArray(val, v) < 0) {
                 condition = false;
             }
         });
+
         if(condition) {
             $(this).parents('.form-group').show();
         } else {

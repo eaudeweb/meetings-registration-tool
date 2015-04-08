@@ -7,7 +7,7 @@ from flask import redirect, url_for, flash
 from flask.ext.login import login_required
 from flask.views import MethodView
 
-from mrt.forms.meetings import RuleForm
+from mrt.forms.meetings import RuleForm, ConditionForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.models import Category, CustomField, Rule
 from mrt.models import db
@@ -83,4 +83,6 @@ class RulesData(PermissionRequiredMixin, MethodView):
             return jsonify(data=[(i.id, unicode(i)) for i in query])
         if cf.field_type == CustomField.COUNTRY:
             return jsonify(data=get_all_countries())
+        if cf.field_type == CustomField.CHECKBOX:
+            return jsonify(data=ConditionForm.CHECKBOX_VALUES)
         return abort(400)

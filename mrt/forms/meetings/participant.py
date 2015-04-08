@@ -20,6 +20,8 @@ class _RulesMixin(object):
     def _normalize_data(self, data):
         if isinstance(data, Country):
             return data.code
+        if isinstance(data, bool):
+            return 'true' if data else 'false'
         return unicode(data)
 
     def _validate_conditions(self, rule):

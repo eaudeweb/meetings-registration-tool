@@ -208,6 +208,8 @@ class UserNotificationForm(BaseForm):
 
 class ConditionForm(BaseForm):
 
+    CHECKBOX_VALUES = [('true', 'True'), ('false', 'False')]
+
     field = fields.SelectField('Field', coerce=int)
     values = fields.SelectMultipleField('Values', [DataRequired()], choices=[])
 
@@ -217,8 +219,9 @@ class ConditionForm(BaseForm):
             CustomField.query.filter_by(meeting_id=g.meeting.id)
             .filter_by(custom_field_type=CustomField.PARTICIPANT)
             .filter(CustomField.field_type.in_(
-                [CustomField.CATEGORY, CustomField.COUNTRY])
-            )
+                [CustomField.CATEGORY, CustomField.COUNTRY,
+                 CustomField.CHECKBOX]))
+            .filter_by(visible_on_registration_form=True)
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
 
@@ -232,6 +235,7 @@ class ConditionForm(BaseForm):
             dispatch = {
                 CustomField.CATEGORY: self._get_query_for_category,
                 CustomField.COUNTRY: self._get_query_for_countries,
+                CustomField.CHECKBOX: self._get_query_for_checkbox,
             }
             self.values.choices = dispatch[cf.field_type.code]()
 
@@ -243,6 +247,9 @@ class ConditionForm(BaseForm):
 
     def _get_query_for_countries(self):
         return get_all_countries()
+
+    def _get_query_for_checkbox(self):
+        return self.CHECKBOX_VALUES
 
     def save(self, rule):
         condition = Condition(rule=rule, field=self.cf)
