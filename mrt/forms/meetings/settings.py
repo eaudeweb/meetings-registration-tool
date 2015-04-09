@@ -220,14 +220,14 @@ class ConditionForm(BaseForm):
             .filter_by(custom_field_type=CustomField.PARTICIPANT)
             .filter(CustomField.field_type.in_(
                 [CustomField.CATEGORY, CustomField.COUNTRY,
-                 CustomField.CHECKBOX]))
+                 CustomField.CHECKBOX, CustomField.SELECT]))
             .filter_by(visible_on_registration_form=True)
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
 
-        cf = None
+        self.cf = None
         if self.field.data:
-            cf = (
+            self.cf = (
                 CustomField.query
                 .filter_by(id=int(self.field.data), meeting=g.meeting)
                 .one()
@@ -236,10 +236,9 @@ class ConditionForm(BaseForm):
                 CustomField.CATEGORY: self._get_query_for_category,
                 CustomField.COUNTRY: self._get_query_for_countries,
                 CustomField.CHECKBOX: self._get_query_for_checkbox,
+                CustomField.SELECT: self._get_query_for_select,
             }
-            self.values.choices = dispatch[cf.field_type.code]()
-
-        self.cf = cf
+            self.values.choices = dispatch[self.cf.field_type.code]()
 
     def _get_query_for_category(self):
         query = Category.get_categories_for_meeting(Category.PARTICIPANT)
@@ -250,6 +249,9 @@ class ConditionForm(BaseForm):
 
     def _get_query_for_checkbox(self):
         return self.CHECKBOX_VALUES
+
+    def _get_query_for_select(self):
+        return [(unicode(i), unicode(i)) for i in self.cf.choices.all()]
 
     def save(self, rule):
         condition = Condition(rule=rule, field=self.cf)
