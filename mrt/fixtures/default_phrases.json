@@ -55,6 +55,11 @@
         "sort": 12
     },
     {
+        "name": "Create user after registration",
+        "group": "Online registration",
+        "sort": 13
+    },
+    {
         "name": "Footer",
         "group": "Acknowledge details",
         "sort": 10

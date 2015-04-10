@@ -20,7 +20,6 @@ from wtforms_alchemy import CountryField as _CountryField
 from mrt.models import db
 from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
 from mrt.models import Translation
-from mrt.utils import unlink_uploaded_file
 from mrt.utils import validate_email, unlink_participant_custom_file
 
 
@@ -327,6 +326,10 @@ class CustomSelectField(CustomBaseFieldMixin, fields.SelectField):
         super(CustomSelectField, self).process_data(value)
         if self.data == 'None':
             self.data = ''
+
+
+class LanguageField(CustomSelectField):
+    pass
 
 
 class CustomCountryField(CustomBaseFieldMixin, CountryField):

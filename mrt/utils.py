@@ -20,6 +20,10 @@ from path import path
 logos_upload = UploadSet('logos', IMAGES)
 
 
+_LANGUAGES_MAP = {'english': 'en', 'french': 'fr', 'spanish': 'es'}
+_LANGUAGES_ISO_MAP = {v: k for k, v in _LANGUAGES_MAP.items()}
+
+
 class Logo(object):
     def __init__(self, slug):
         self.default_filename = app.config[slug.upper()]
@@ -222,11 +226,11 @@ def translate(text, lang_code='en'):
 
 def set_language(lang='english'):
     if lang in ('english', 'french', 'spanish'):
-        iso = {'english': 'en',
-               'french': 'fr',
-               'spanish': 'es'}.get(lang, 'en')
+        iso = _LANGUAGES_MAP.get(lang, 'en')
+        g.language_verbose = lang
     if lang in ('en', 'fr', 'es'):
         iso = lang
+        g.language_verbose = _LANGUAGES_ISO_MAP.get(lang, 'english')
     g.language = iso
     refresh()
 

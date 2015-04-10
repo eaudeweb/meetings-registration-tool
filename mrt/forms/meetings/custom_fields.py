@@ -1,4 +1,5 @@
 from flask import g
+from flask import current_app as app
 from flask.ext.uploads import IMAGES
 from flask_wtf.file import FileAllowed
 from flask.ext.babel import lazy_gettext as __
@@ -13,11 +14,12 @@ from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
 from mrt.forms.fields import CustomImageField, CustomMultiCheckboxField
 from mrt.forms.fields import CustomDocumentField, CustomDateField
+from mrt.forms.fields import LanguageField
 from mrt.forms.fields import EmailField, EmailRequired
 from mrt.forms.fields import DOCUMENTS
 
 from mrt.models import CustomField, CustomFieldChoice, Rule
-from mrt.models import Category
+from mrt.models import Category, Participant
 
 
 _CUSTOM_FIELDS_MAP = {
@@ -29,6 +31,7 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.DOCUMENT: {'field': CustomDocumentField,
                            'validators': [FileAllowed(DOCUMENTS)]},
     CustomField.SELECT: {'field': CustomSelectField},
+    CustomField.LANGUAGE: {'field': LanguageField},
     CustomField.COUNTRY: {'field': CustomCountryField},
     CustomField.CATEGORY: {'field': CategoryField},
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
@@ -85,6 +88,14 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
             attrs['choices'] = [(unicode(c.value), c.value) for c in query]
             if not f.required:
                 attrs['choices'] = [('', '---')] + attrs['choices']
+            attrs['coerce'] = unicode
+
+        if f.field_type.code == CustomField.LANGUAGE:
+            attrs['choices'] = [i for i in Participant.LANGUAGE_CHOICES
+                                if i[0].lower() in app.config['TRANSLATIONS']]
+            if not f.required:
+                attrs['choices'] = [('', '---')] + attrs['choices']
+
             attrs['coerce'] = unicode
 
         if f.field_type.code == CustomField.CATEGORY:

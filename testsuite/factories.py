@@ -202,6 +202,7 @@ class RoleUserMeetingFactory(SQLAlchemyModelFactory):
 
 
 class ParticipantFactory(SQLAlchemyModelFactory):
+
     class Meta:
         model = models.Participant
         sqlalchemy_session = models.db.session

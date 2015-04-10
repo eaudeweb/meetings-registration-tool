@@ -14,6 +14,7 @@ from mrt.models import MeetingType, Category, Condition, ConditionValue
 from mrt.forms.base import BaseForm, TranslationInputForm, OrderedFieldsForm
 from mrt.forms.fields import MeetingSettingsField
 from mrt.forms.fields import CategoryField, EmailRequired, EmailField
+from mrt.forms.fields import LanguageField
 
 from mrt.utils import copy_attributes, Logo, logos_upload
 from mrt.definitions import MEETING_SETTINGS
@@ -25,6 +26,7 @@ _CUSTOM_FIELD_MAPPER = {
     'SelectField': CustomField.SELECT,
     'CountryField': CustomField.COUNTRY,
     'CategoryField': CustomField.CATEGORY,
+    'LanguageField': CustomField.LANGUAGE,
     'EmailField': CustomField.EMAIL,
     'DateField': CustomField.DATE,
     'TextAreaField': CustomField.TEXT_AREA,
@@ -264,6 +266,9 @@ class ParticipantDummyForm(OrderedFieldsForm):
                                 coerce=int, choices=[])
     email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
 
+    language = LanguageField('Working language',
+                             choices=Participant.LANGUAGE_CHOICES)
+
     class Meta:
         model = Participant
         exclude = ('deleted', 'registration_token', 'participant_type')
@@ -353,7 +358,8 @@ class MeetingChangeOwnerForm(BaseForm):
 
 class MeetingLogoEditForm(Form):
 
-    logo = FileField('Image', [FileAllowed(logos_upload, 'Image is not valid')])
+    logo = FileField('Image',
+                     [FileAllowed(logos_upload, 'Image is not valid')])
 
     def save(self, logo_slug):
         if self.logo.data:
@@ -388,9 +394,9 @@ def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
         custom_field.sort = i + 1
         db.session.add(custom_field)
 
-        if custom_field.field_type == CustomField.SELECT:
-            _add_choice_values_for_custom_field(
-                custom_field, field.choices)
+        if custom_field.field_type in (CustomField.SELECT,
+                                       CustomField.LANGUAGE):
+            _add_choice_values_for_custom_field(custom_field, field.choices)
     db.session.commit()
 
 

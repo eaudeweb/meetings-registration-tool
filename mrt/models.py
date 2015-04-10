@@ -477,6 +477,7 @@ class CustomField(db.Model):
     EMAIL = 'email'
     CHECKBOX = 'checkbox'
     SELECT = 'select'
+    LANGUAGE = 'language'
     COUNTRY = 'country'
     CATEGORY = 'category'
     EVENT = 'event'
@@ -493,6 +494,7 @@ class CustomField(db.Model):
         (CHECKBOX, 'Checkbox Field'),
         (MULTI_CHECKBOX, 'MultiCheckbox Field'),
         (SELECT, 'Select Field'),
+        (LANGUAGE, 'Language'),
         (COUNTRY, 'Country Field'),
         (CATEGORY, 'Category Field'),
         (EVENT, 'Event Field'),
@@ -814,6 +816,7 @@ class PhraseMixin(object):
     ONLINE_REGISTRATION = 'Online registration'
     EMAIL_CONFIRMATION = 'Email registration confirmation'
     PARTICIPANT = 'Confirmation for participants'
+    USER_REGISTRATION = 'Create user after registration'
     FOR_PARTICIPANTS = 'for participants'
     MEDIA = 'Confirmation for media'
     FOOTER_PARTICIPANTS = 'Footer for participants'

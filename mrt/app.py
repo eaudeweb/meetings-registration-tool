@@ -32,6 +32,10 @@ from mrt.template import convert_to_dict, has_perm
 from mrt.utils import slugify, Logo
 
 
+_DEFAULT_LANG = 'english'
+_TRANSLATIONS = [_DEFAULT_LANG, 'french', 'spanish']
+
+
 DEFAULT_CONFIG = {
     'REDIS_URL': 'redis://localhost:6379/0',
     'DEBUG': True,
@@ -42,8 +46,8 @@ DEFAULT_CONFIG = {
     'PRODUCT_SIDE_LOGO': '',
     'DEFAULT_PHRASES_PATH': (
         path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
-    'TRANSLATIONS': ['english', 'french', 'spanish'],
     'DEFAULT_MAIL_SENDER': '',
+    'TRANSLATIONS': _TRANSLATIONS,
 }
 
 
@@ -94,6 +98,7 @@ def create_app(config={}):
                 'CHECKBOX': CustomField.CHECKBOX,
                 'SELECT': CustomField.SELECT,
                 'COUNTRY': CustomField.COUNTRY,
+                'LANGUAGE': CustomField.LANGUAGE,
                 'CATEGORY': CustomField.CATEGORY,
                 'EVENT': CustomField.EVENT,
             },
@@ -123,12 +128,10 @@ def create_app(config={}):
     app.config['REPRESENTING_TEMPLATES'] = (
         path('meetings/participant/representing'))
 
-    translations = [lang for lang in app.config['TRANSLATIONS'] if lang in
-                    DEFAULT_CONFIG['TRANSLATIONS']]
-    required_lang = DEFAULT_CONFIG['TRANSLATIONS'][0]
-    if required_lang not in translations:
-        translations.insert(0, required_lang)
-    app.config['TRANSLATIONS'] = translations
+    _translations = app.config['TRANSLATIONS']
+    if _DEFAULT_LANG not in _translations:
+        _translations = [_DEFAULT_LANG] + _translations
+    app.config['TRANSLATIONS'] = _translations
 
     @login_manager.user_loader
     def load_user(user_id):

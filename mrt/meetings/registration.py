@@ -45,10 +45,18 @@ class BaseRegistration(MethodView):
     def get_footer_phrase(self):
         raise NotImplementedError
 
-    def get(self):
+    def get_user_phrase(self):
+        return g.meeting.phrases.filter_by(
+            group=Phrase.ONLINE_REGISTRATION,
+            name=Phrase.USER_REGISTRATION).scalar()
+
+    def dispatch_request(self, *args, **kwargs):
         lang = request.args.get('lang', 'en')
         if lang in ('en', 'fr', 'es'):
             set_language(lang)
+        return super(BaseRegistration, self).dispatch_request(*args, **kwargs)
+
+    def get(self):
         Form = custom_form_factory(self.form_class, registration_fields=True)
         form = Form()
         footer_phrase = self.get_footer_phrase()
@@ -84,12 +92,15 @@ class BaseRegistration(MethodView):
             email = clean_email(participant.email)
             user_form = RegistrationUserForm(email=email)
             session['registration_token'] = participant.registration_token
-            success_phrase = self.get_success_phrase()
 
+            phrases = {
+                'success_phrase': self.get_success_phrase(),
+                'user_phrase': self.get_user_phrase(),
+            }
             return render_template('meetings/registration/success.html',
                                    participant=participant,
                                    form=user_form,
-                                   success_phrase=success_phrase)
+                                   phrases=phrases)
         return render_template('meetings/registration/form.html',
                                form=form,
                                footer_phrase=footer_phrase)
@@ -149,13 +160,22 @@ class UserRegistration(MethodView):
             participant.clone()
             db.session.commit()
             return redirect(url_for('meetings.registration_user_success'))
-        success_phrase = self.get_success_phrase()
+
+        phrases = {
+            'success_phrase': self.get_success_phrase(),
+            'user_phrase': self.get_user_phrase(),
+        }
+
         return render_template('meetings/registration/success.html',
                                participant=participant,
-                               success_phrase=success_phrase,
+                               phrases=phrases,
                                form=form)
 
     def get_success_phrase(self):
+        return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
+                                           name=Phrase.MEDIA).scalar()
+
+    def get_user_phrase(self):
         return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
                                            name=Phrase.MEDIA).scalar()
 

@@ -79,7 +79,8 @@ class CustomFieldEditForm(BaseForm):
         custom_field_type = kwargs.pop('custom_field_type', None)
         super(CustomFieldEditForm, self).__init__(*args, **kwargs)
 
-        excluded_types = [CustomField.SELECT, CustomField.CATEGORY]
+        excluded_types = [CustomField.SELECT, CustomField.CATEGORY,
+                          CustomField.LANGUAGE]
         if custom_field_type == CustomField.MEDIA:
             excluded_types.append(CustomField.EVENT)
         self.field_type.choices = [i for i in self.field_type.choices

@@ -64,8 +64,9 @@ def test_meeting_registration_add(app, user, default_meeting):
 def test_meeting_registration_success_phrases(app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting)
-    online_phrase = meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
-                                              name=Phrase.PARTICIPANT).scalar()
+    online_phrase = meeting.phrases.filter_by(
+        group=Phrase.ONLINE_REGISTRATION,
+        name=Phrase.PARTICIPANT).scalar()
     online_phrase.description.english = 'Online success message'
     email_phrase = meeting.phrases.filter_by(
         group=Phrase.EMAIL_CONFIRMATION,

@@ -6,7 +6,7 @@
 
   <div class="text-center">
     <h2>Successfully registered  for {{ g.meeting.acronym }}.</h2>
-    <h4>{{ success_phrase.description.english }}</h4>
+    <h4>{{ phrases['success_phrase'].description[g.language_verbose] }}</h4>
   </div>
 
   {% if not current_user.is_authenticated() %}
@@ -19,11 +19,7 @@
 
           <div class="panel panel-default">
             <div class="panel-heading">
-              <b>By creating an account you will be able to register to future
-                  meetings more easily, as the information you have already
-                  provided will be filled in automatically in registration
-                  forms. You can disable your account anytime, if you don't
-                  need it anymore.</b>
+              <b>{{ phrases['user_phrase'].description[g.language_verbose] }}</b>
             </div>
 
             <div class="panel-body">
