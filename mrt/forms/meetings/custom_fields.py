@@ -7,7 +7,7 @@ from flask.ext.babel import lazy_gettext as __
 from sqlalchemy_utils import Choice
 
 from werkzeug import OrderedMultiDict
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
 from mrt.forms.fields import CustomSelectField, CustomTextAreaField
@@ -79,9 +79,13 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
                 data = form_fields_map[f.field_type.code]
             except KeyError:
                 pass
+
         if f.required:
             attrs['validators'].append(DataRequired())
         attrs['validators'].extend(data.get('validators', []))
+
+        if f.max_length:
+            attrs['validators'].append(Length(max=f.max_length))
 
         if f.field_type.code == CustomField.SELECT:
             query = CustomFieldChoice.query.filter_by(custom_field=f)

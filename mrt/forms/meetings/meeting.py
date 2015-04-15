@@ -1,7 +1,7 @@
 from flask.ext.login import current_user
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import fields, widgets, Form
-from wtforms.validators import ValidationError, InputRequired
+from wtforms.validators import ValidationError, InputRequired, Length
 from wtforms_alchemy import ModelFormField
 from sqlalchemy import desc
 from sqlalchemy.orm.exc import NoResultFound
@@ -368,6 +368,15 @@ class MeetingLogoEditForm(Form):
             return logo
 
 
+def _extract_max_length_from_field(field):
+    try:
+        [length_validator] = [i for i in field.validators
+                              if isinstance(i, Length)]
+        return length_validator.max
+    except ValueError:
+        pass
+
+
 def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
     """Adds participants fields as CustomFields to meeting."""
     form = form_class()
@@ -387,6 +396,7 @@ def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
         custom_field.field_type = _CUSTOM_FIELD_MAPPER[field.type]
         custom_field.is_primary = True
         custom_field.custom_field_type = form.CUSTOM_FIELD_TYPE
+        custom_field.max_length = _extract_max_length_from_field(field)
         if field.name in form.meta.visible_on_registration_form:
             custom_field.visible_on_registration_form = True
         else:
