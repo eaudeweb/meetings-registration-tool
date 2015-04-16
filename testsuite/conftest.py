@@ -12,6 +12,10 @@ from .factories import UserFactory, MeetingFactory
 from .factories import MeetingTypeFactory, StaffFactory
 
 
+_DEFAULT_LANG = 'english'
+_TRANSLATIONS = [_DEFAULT_LANG, 'french']
+
+
 @fixture
 def app(request, tmpdir):
     templates_path = tmpdir.ensure_dir('templates')
@@ -39,6 +43,7 @@ def app(request, tmpdir):
         'DEFAULT_MAIL_SENDER': 'noreply',
         'TEMPLATES_PATH': templates_path,
         'MAIL_SUPPRESS_SEND': True,
+        'TRANSLATIONS': _TRANSLATIONS,
     }
 
     app = create_app(test_config)
