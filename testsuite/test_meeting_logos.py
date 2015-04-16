@@ -159,12 +159,13 @@ def test_pdf_badge_with_default_logos(app, brand_dir):
     category = MeetingCategoryFactory(category_type=Category.PARTICIPANT)
     ParticipantFactory.create_batch(5, meeting=category.meeting)
 
-    g.meeting = category.meeting
-    participants = Participant.query.all()
-    context = {'participants': participants}
-    renderer = PdfRenderer('meetings/printouts/badges_pdf.html',
-                           height='2.15in', width='3.4in', context=context)
-    renderer._render_template()
+    with app.test_request_context():
+        g.meeting = category.meeting
+        participants = Participant.query.all()
+        context = {'participants': participants}
+        renderer = PdfRenderer('meetings/printouts/badges_pdf.html',
+                               height='2.15in', width='3.4in', context=context)
+        renderer._render_template()
 
     with open(renderer.template_path, 'r') as content_file:
         content = content_file.read()
@@ -188,12 +189,13 @@ def test_pdf_badge_with_custom_logos(app, user, brand_dir):
     upload_new_logo(app, user, category.meeting.id, 'PRODUCT_SIDE_LOGO',
                     left_logo)
 
-    g.meeting = category.meeting
-    participants = Participant.query.all()
-    context = {'participants': participants}
-    renderer = PdfRenderer('meetings/printouts/badges_pdf.html',
-                           height='2.15in', width='3.4in', context=context)
-    renderer._render_template()
+    with app.test_request_context():
+        g.meeting = category.meeting
+        participants = Participant.query.all()
+        context = {'participants': participants}
+        renderer = PdfRenderer('meetings/printouts/badges_pdf.html',
+                               height='2.15in', width='3.4in', context=context)
+        renderer._render_template()
 
     with open(renderer.template_path, 'r') as content_file:
         content = content_file.read()
