@@ -9,7 +9,9 @@
         {{ g.meeting.badge_header[participant.lang] }}
       {% else %}
         {{ g.meeting.title[participant.lang] }}
-      {% endif %}
+      {% endif %} <br>
+      {{ date_processor(g.meeting.date_start, g.meeting.date_end) }},
+      {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }}
     </h1>
     <img src="{{ badge_context['product_logo'].url }}" class="logo" alt="">
     <img src="{{ badge_context['product_side_logo'].url }}"
