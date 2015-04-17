@@ -109,8 +109,7 @@ def rq():
 @click.pass_context
 def workers(ctx, queues):
     app = ctx.obj['app']
-
-    with Connection(redis_store.connection), app.test_request_context():
+    with Connection(redis_store._redis_client), app.test_request_context():
         qs = map(Queue, queues) or [Queue()]
         worker = Worker(qs)
         g.is_rq_process = True
@@ -133,7 +132,7 @@ _CLEANUP_HOOKS = {
 def cleanup(ctx, hook):
     """ delete failed jobs from redis """
     app = ctx.obj['app']
-    with Connection(redis_store.connection):
+    with Connection(redis_store._redis_client):
         failed = get_failed_queue()
         count = failed.count
         failed.empty()

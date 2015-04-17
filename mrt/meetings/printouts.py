@@ -28,7 +28,7 @@ _PRINTOUT_MARGIN = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
 
 
 def _add_to_printout_queue(method, job_name, *args):
-    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store.connection,
+    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store._redis_client,
               default_timeout=1200)
     job_redis = q.enqueue(method, g.meeting.id, *args)
     job = Job(id=job_redis.id,
@@ -110,7 +110,7 @@ class JobStatus(MethodView):
         job_id = request.args['job_id']
         job = Job.query.get_or_404(job_id)
 
-        with Connection(redis_store.connection):
+        with Connection(redis_store._redis_client):
             try:
                 job_redis = JobRedis.fetch(job.id)
             except NoSuchJobError:

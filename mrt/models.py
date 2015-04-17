@@ -8,7 +8,7 @@ from flask.ext.babel import get_locale, Locale
 from flask.ext.babel import gettext as _
 from flask.ext.babel import lazy_gettext as __
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
-from flask_redis import Redis
+from flask.ext.redis import FlaskRedis
 from jinja2.exceptions import TemplateNotFound
 
 from sqlalchemy import cast
@@ -26,7 +26,7 @@ from mrt.utils import unlink_participant_custom_file
 
 
 db = SQLAlchemy()
-redis_store = Redis()
+redis_store = FlaskRedis()
 
 
 class ParticipantQuery(BaseQuery):

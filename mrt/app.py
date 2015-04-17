@@ -116,7 +116,7 @@ def create_app(config={}):
     login_manager.login_message_category = 'warning'
 
     mail.init_app(app)
-    redis_store.init_app(app)
+    redis_store.init_app(app, strict=True)
 
     if app.config.get('SENTRY_DSN'):
         from raven.contrib.flask import Sentry
