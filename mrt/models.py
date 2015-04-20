@@ -16,6 +16,7 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
 from sqlalchemy_utils import generates
+from sqlalchemy_utils import Choice
 from wtforms.fields import DateField
 
 from mrt.definitions import (
@@ -352,6 +353,8 @@ class Participant(db.Model):
 
     @property
     def name(self):
+        title = (self.title.value if isinstance(self.title, Choice)
+                 else self.title)
         return u'%s %s %s' % (self.title.value, self.first_name, self.last_name)
 
     @property
@@ -560,10 +563,9 @@ class CustomField(db.Model):
         return self.slug or slugify(self.label.english)
 
     def get_or_create_value(self, participant):
-        with db.session.no_autoflush:
-            value = (self.custom_field_values
-                     .filter_by(participant=participant)
-                     .first())
+        value = (self.custom_field_values
+                 .filter_by(participant=participant)
+                 .first()) if participant.id else None
         return value or CustomFieldValue(custom_field=self,
                                          participant=participant)
 
