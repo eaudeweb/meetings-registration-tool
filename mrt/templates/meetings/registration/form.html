@@ -49,6 +49,12 @@
     {% endif %}
   </div>
 
+  {% if header_phrase.description %}
+    <div class="text-center">
+      <h4><b>{{ header_phrase.description | nl2br }}</b></h4>
+    </div>
+  {% endif %}
+
   <form method="POST" class="form-horizontal"
         enctype="multipart/form-data">
 

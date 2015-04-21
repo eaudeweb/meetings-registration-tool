@@ -42,6 +42,9 @@ class BaseRegistration(MethodView):
     def get_success_phrase(self):
         raise NotImplementedError
 
+    def get_header_phrase(self):
+        raise NotImplementedError
+
     def get_footer_phrase(self):
         raise NotImplementedError
 
@@ -59,6 +62,7 @@ class BaseRegistration(MethodView):
     def get(self):
         Form = custom_form_factory(self.form_class, registration_fields=True)
         form = Form()
+        header_phrase = self.get_header_phrase()
         footer_phrase = self.get_footer_phrase()
         if current_user.is_authenticated():
             participant = self.get_default_participant(current_user)
@@ -66,11 +70,13 @@ class BaseRegistration(MethodView):
             form = Form(obj=Object())
         return render_template('meetings/registration/form.html',
                                form=form,
+                               header_phrase=header_phrase,
                                footer_phrase=footer_phrase)
 
     def post(self):
         Form = custom_form_factory(self.form_class, registration_fields=True)
         form = Form(request.form)
+        header_phrase = self.get_header_phrase()
         footer_phrase = self.get_footer_phrase()
         if form.validate():
             participant = form.save()
@@ -103,6 +109,7 @@ class BaseRegistration(MethodView):
                                    phrases=phrases)
         return render_template('meetings/registration/form.html',
                                form=form,
+                               header_phrase=header_phrase,
                                footer_phrase=footer_phrase)
 
 
@@ -117,6 +124,10 @@ class Registration(BaseRegistration):
     def get_success_phrase(self):
         return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
                                            name=Phrase.PARTICIPANT).scalar()
+
+    def get_header_phrase(self):
+        return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
+                                           name=Phrase.HEADER_PARTICIPANTS).scalar()
 
     def get_footer_phrase(self):
         return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
@@ -134,6 +145,10 @@ class MediaRegistration(BaseRegistration):
     def get_success_phrase(self):
         return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
                                            name=Phrase.MEDIA).scalar()
+
+    def get_header_phrase(self):
+        return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
+                                           name=Phrase.HEADER_MEDIA).scalar()
 
     def get_footer_phrase(self):
         return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,

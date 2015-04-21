@@ -47,17 +47,17 @@
     {
         "name": "Footer for participants",
         "group": "Online registration",
-        "sort": 11
+        "sort": 13
     },
     {
         "name": "Footer for media",
         "group": "Online registration",
-        "sort": 12
+        "sort": 14
     },
     {
         "name": "Create user after registration",
         "group": "Online registration",
-        "sort": 13
+        "sort": 15
     },
     {
         "name": "Footer",
@@ -72,6 +72,16 @@
     {
         "name": "for participants",
         "group": "Email registration confirmation",
-        "sort": 14
+        "sort": 16
+    },
+    {
+        "name": "Header for participants",
+        "group": "Online registration",
+        "sort": 11
+    },
+    {
+        "name": "Header for media",
+        "group": "Online registration",
+        "sort": 12
     }
 ]

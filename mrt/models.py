@@ -825,6 +825,8 @@ class PhraseMixin(object):
     MEDIA = 'Confirmation for media'
     FOOTER_PARTICIPANTS = 'Footer for participants'
     FOOTER_MEDIA = 'Footer for media'
+    HEADER_PARTICIPANTS = 'Header for participants'
+    HEADER_MEDIA = 'Header for media'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), nullable=False)
