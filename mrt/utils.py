@@ -3,15 +3,16 @@ from StringIO import StringIO
 from unicodedata import normalize
 from uuid import uuid4
 
+import operator
 import os
 import re
 import xlwt
-import operator
 
 from flask import _request_ctx_stack, current_app as app, g, url_for
 from flask.ext.babel import refresh
 from flask.ext.uploads import IMAGES, UploadSet
 from sqlalchemy_utils import i18n
+from werkzeug import FileStorage
 
 from babel import support, Locale
 from path import path
@@ -258,3 +259,14 @@ def get_all_countries():
         if len(code) == 2 and code not in ('QO', 'QU', 'ZZ')
     ]
     return sorted(territories, key=operator.itemgetter(1))
+
+
+def get_custom_file_as_filestorage(filename):
+    file_path = app.config['UPLOADED_CUSTOM_DEST'] / filename
+    try:
+        data = FileStorage(stream=file_path.open(),
+                           filename=file_path.basename())
+    except IOError:
+        data = None
+
+    return data

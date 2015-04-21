@@ -3,6 +3,7 @@ from flask import g
 from flask import render_template, make_response, jsonify
 from flask import request, redirect, url_for
 from flask.views import MethodView
+
 from sqlalchemy import not_
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
@@ -15,6 +16,7 @@ from mrt.models import Participant, CustomField, CustomFieldValue, Translation
 
 from mrt.utils import crop_file, unlink_participant_custom_file
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
+from mrt.utils import get_custom_file_as_filestorage
 from mrt.common.custom_fields import (
     BaseCustomFieldEdit, BaseCustomFieldUpdatePosition as BaseUpdatePosition)
 
@@ -73,21 +75,20 @@ class CustomFieldUpload(BaseCustomFieldFile):
         cf = CustomField.query.filter_by(slug=field_slug).first_or_404()
 
         if participant.participant_type == Participant.PARTICIPANT:
-            form = ParticipantEditForm
+            form_class = ParticipantEditForm
         else:
-            form = MediaParticipantEditForm
+            form_class = MediaParticipantEditForm
 
         field_types = [CustomField.IMAGE]
         Object = custom_object_factory(participant, field_types)
-        Form = custom_form_factory(form, field_slugs=[field_slug])
+        Form = custom_form_factory(form_class, field_slugs=[field_slug])
         form = Form(obj=Object())
 
         if form.validate():
-            try:
-                form.save(participant)
-                data = cf.custom_field_values.first()
-            except ValueError:
-                data = None
+            form.save(participant)
+            filename = cf.custom_field_values.first().value
+            data = get_custom_file_as_filestorage(filename)
+
         else:
             return make_response(jsonify(form.errors), 400)
 
@@ -128,8 +129,9 @@ class CustomFieldRotate(BaseCustomFieldFile):
         custom_field_value.value = newfile
         db.session.commit()
 
+        data = get_custom_file_as_filestorage(newfile)
         html = render_template('meetings/custom_field/_image_widget.html',
-                               data=custom_field_value.value)
+                               data=data)
         return jsonify(html=html)
 
 

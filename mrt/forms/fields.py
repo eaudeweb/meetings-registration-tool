@@ -11,7 +11,6 @@ from jinja2 import Markup
 
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_utils import Country
-from werkzeug import FileStorage
 
 from wtforms import widgets, fields, validators
 from wtforms.widgets.core import html_params, HTMLString
@@ -21,6 +20,7 @@ from mrt.models import db
 from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
 from mrt.models import Translation
 from mrt.utils import validate_email, unlink_participant_custom_file
+from mrt.utils import get_custom_file_as_filestorage
 
 
 DOCUMENTS = _DOCUMENTS + ('pdf',)
@@ -241,13 +241,8 @@ class _BaseFileFieldMixin(object):
         use_current_file = request.form.get(self.name + '-use-current-file')
         if use_current_file:
             self._use_current_file = True
-            file_path = app.config['UPLOADED_CUSTOM_DEST'] / use_current_file
-            try:
-                self.data = FileStorage(stream=file_path.open(),
-                                        filename=use_current_file,
-                                        name=self.name)
-            except IOError:
-                self.data = None
+            self.data = get_custom_file_as_filestorage(
+                filename=use_current_file)
         else:
             super(_BaseFileFieldMixin, self).process_formdata(valuelist)
 
@@ -255,13 +250,7 @@ class _BaseFileFieldMixin(object):
         super(_BaseFileFieldMixin, self).process_data(value)
         if isinstance(value, basestring):
             self._use_current_file = True
-            file_path = app.config['UPLOADED_CUSTOM_DEST'] / value
-            try:
-                self.data = FileStorage(stream=file_path.open(),
-                                        filename=file_path.basename(),
-                                        name=self.name)
-            except IOError:
-                self.data = None
+            self.data = get_custom_file_as_filestorage(filename=value)
 
     def render_data(self):
         if self.data:
