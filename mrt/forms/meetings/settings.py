@@ -133,6 +133,13 @@ class CustomFieldEditForm(BaseForm):
         db.session.commit()
 
 
+class CustomFieldPrimaryEditForm(CustomFieldEditForm):
+
+    def save(self):
+        cf = self.obj
+
+
+
 class RoleUserEditForm(BaseForm):
 
     class Meta:

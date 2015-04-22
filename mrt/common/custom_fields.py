@@ -11,7 +11,6 @@ class BaseCustomFieldEdit(MethodView):
     def _get_object(self, custom_field_id=None):
         return (CustomField.query
                 .filter_by(meeting_id=self.meeting_id, id=custom_field_id)
-                .filter_by(is_primary=False)
                 .first_or_404()
                 if custom_field_id else None)
 

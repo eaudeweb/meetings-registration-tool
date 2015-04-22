@@ -299,60 +299,6 @@
 {% endmacro %}
 
 
-{% macro render_fields(fields, default=False) %}
-
-  <p class="text-right"><small>{{ fields.count() }} fields</small></p>
-  <table class="table table-bordered table-condensed sortable"
-         data-url="{{ url_for('.custom_field_update_position') }}">
-
-    <thead>
-      <th class="handler"></th>
-      <th>Label</th>
-      <th>Type</th>
-      {% if default %}
-        <th>Meeting Types</th>
-      {% endif %}
-      <th>Required</th>
-      <th class="text-right col-sm-3">Visible on registration form</th>
-    </thead>
-
-    <tbody>
-      {% for field in fields %}
-        {% set url = url_for('.custom_field_edit',
-                             custom_field_id=field.id)%}
-        <tr id="items-{{ field.id }}"
-            class="{% if field.is_primary %}highlight{% endif %}">
-          <td class="handler">
-            <span class="glyphicon glyphicon-align-justify"></span>
-          </td>
-          <td class="field-label">
-            {% if field.is_primary %}
-              <b>{{ field.label }}</b>
-            {% else %}
-              <a href="{{ url }}">{{ field.label }}</a>
-            {% endif %}
-          </td>
-          <td>{{ field.field_type.value }}</td>
-          {% if default %}
-            <td>
-              <ul class="list-unstyled">
-                {% for meeting_type in field.meeting_types %}
-                  <li>- {{ meeting_type.slug }}</li>
-                {% endfor %}
-              </ul>
-            </td>
-          {% endif %}
-          <td><span class="glyphicon {% if field.required %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
-          <td class="text-right"><span class="glyphicon {% if field.visible_on_registration_form %} glyphicon-ok {% else %} glyphicon-remove {% endif %}"></span></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-
-  </table>
-
-{% endmacro %}
-
-
 {% macro actions(type) %}
 
     <div class="actions">
