@@ -21,6 +21,7 @@ from mrt.models import MeetingType, CustomFieldChoice, CustomFieldValue
 from mrt.models import Translation
 from mrt.utils import validate_email, unlink_participant_custom_file
 from mrt.utils import get_custom_file_as_filestorage
+from mrt.utils import sentry
 
 
 DOCUMENTS = _DOCUMENTS + ('pdf',)
@@ -272,7 +273,11 @@ class _BaseFileFieldMixin(object):
             return
         cfv = cfv or cf.get_or_create_value(participant)
         current_filename = cfv.value
-        cfv.value = custom_upload.save(self.data, name=str(uuid4()) + '.')
+        try:
+            cfv.value = custom_upload.save(self.data, name=str(uuid4()) + '.')
+        except:
+            sentry.captureException()
+            return cfv
         unlink_participant_custom_file(current_filename)
         if not cfv.id:
             db.session.add(cfv)

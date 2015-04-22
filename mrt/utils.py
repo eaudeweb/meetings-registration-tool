@@ -11,6 +11,8 @@ import xlwt
 from flask import _request_ctx_stack, current_app as app, g, url_for
 from flask.ext.babel import refresh
 from flask.ext.uploads import IMAGES, UploadSet
+
+from raven.contrib.flask import Sentry
 from sqlalchemy_utils import i18n
 from werkzeug import FileStorage
 
@@ -23,6 +25,9 @@ logos_upload = UploadSet('logos', IMAGES)
 
 _LANGUAGES_MAP = {'english': 'en', 'french': 'fr', 'spanish': 'es'}
 _LANGUAGES_ISO_MAP = {v: k for k, v in _LANGUAGES_MAP.items()}
+
+
+sentry = Sentry()
 
 
 class Logo(object):

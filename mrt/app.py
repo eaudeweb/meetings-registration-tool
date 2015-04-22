@@ -29,7 +29,7 @@ from mrt.template import pluralize
 from mrt.template import inject_badge_context
 from mrt.template import sort_by_tuple_element
 from mrt.template import convert_to_dict, has_perm
-from mrt.utils import slugify, Logo
+from mrt.utils import slugify, Logo, sentry
 
 
 _DEFAULT_LANG = 'english'
@@ -119,8 +119,7 @@ def create_app(config={}):
     redis_store.init_app(app, strict=True)
 
     if app.config.get('SENTRY_DSN'):
-        from raven.contrib.flask import Sentry
-        Sentry(app)
+        sentry.init_app(app)
 
     _configure_uploads(app)
     _configure_logging(app)
