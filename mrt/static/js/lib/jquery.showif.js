@@ -21,14 +21,14 @@ $(function () {
         });
 
         if(condition) {
-            $(this).parents('.form-group').show();
+            $(this).parents('.form-group').first().show();
         } else {
-            $(this).parents('.form-group').hide();
+            $(this).parents('.form-group').first().hide();
         }
     };
 
     var fields = $(document).find('[data-rules]');
-    fields.parents('.form-group').hide();
+    fields.parents('.form-group').first().hide();
 
     fields.each(function (i, field) {
         var data = $(field).data('rules');
