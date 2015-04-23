@@ -4,15 +4,13 @@ from flask import render_template, make_response, jsonify
 from flask import request, redirect, url_for
 from flask.views import MethodView
 
-from sqlalchemy import not_
-
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import CustomFieldEditForm
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 
 from mrt.models import db
-from mrt.models import Participant, CustomField, CustomFieldValue, Translation
+from mrt.models import Participant, CustomField, CustomFieldValue
 
 from mrt.utils import crop_file, unlink_participant_custom_file
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
@@ -24,13 +22,10 @@ from mrt.common.custom_fields import (
 class CustomFields(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting',)
-    excluded_fields = ('Country represented', 'Organization represented')
 
     def get(self):
         query = (
             CustomField.query.filter_by(meeting_id=g.meeting.id)
-            .filter(not_(CustomField.label.has(
-                Translation.english.in_(self.excluded_fields))))
             .order_by(CustomField.sort))
         custom_fields_for_participants = (
             query.filter_by(custom_field_type=CustomField.PARTICIPANT))

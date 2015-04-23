@@ -6,7 +6,6 @@ from werkzeug.datastructures import MultiDict
 from mrt.forms.meetings import add_custom_fields_for_meeting
 from mrt.models import CustomField, Meeting, CustomFieldChoice, Participant
 from mrt.models import CustomFieldValue
-from mrt.meetings.custom_field import CustomFields
 from .factories import CustomFieldFactory, MeetingFactory, normalize_data
 from .factories import MeetingTypeFactory, MeetingCategoryFactory
 from .factories import ParticipantFactory
@@ -197,10 +196,11 @@ def test_meeting_custom_fields_list_with_media_participant_enabled(app, user):
         tabs = html('div [role=tabpanel]')
         assert len(tabs) == 3
         participant_list = html('div#participant table tbody tr')
-        participant_fields = (CustomField.query
-                              .filter_by(meeting_id=1,
-                                         custom_field_type=CustomField.PARTICIPANT))
-        assert len(participant_list) == participant_fields.count() - len(CustomFields.excluded_fields)
+        participant_fields = (
+            CustomField.query
+            .filter_by(meeting_id=1,
+                       custom_field_type=CustomField.PARTICIPANT))
+        assert len(participant_list) == participant_fields.count()
 
         media_list = html('div#media table tbody tr')
         media_fields = (CustomField.query
