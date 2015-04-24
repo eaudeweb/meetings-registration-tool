@@ -285,6 +285,7 @@ class ParticipantDummyForm(OrderedFieldsForm):
             'language': {'validators': [InputRequired()]},
             'country': {'validators': [InputRequired()]}
         }
+        protected_fields = ('title', 'email', 'category_id', 'country')
 
 
 class DefaultParticipantDummyForm(BaseForm):
@@ -302,6 +303,8 @@ class DefaultParticipantDummyForm(BaseForm):
             'language': {'validators': [InputRequired()]},
             'country': {'validators': [InputRequired()]}
         }
+        protected_fields = []
+
 
 
 class MediaParticipantDummyForm(OrderedFieldsForm):
@@ -319,6 +322,7 @@ class MediaParticipantDummyForm(OrderedFieldsForm):
             'title', 'first_name', 'last_name', 'email', 'category_id')
         field_order = ('title', 'first_name', 'last_name', 'email',
                        'category_id')
+        protected_fields = ('title', 'email', 'category_id', 'country')
 
 
 class DefaultMediaParticipantDummyForm(BaseForm):
@@ -331,6 +335,7 @@ class DefaultMediaParticipantDummyForm(BaseForm):
         model = Participant
         only = ('title', 'first_name', 'last_name', 'email')
         visible_on_registration_form = []
+        protected_fields = []
 
 
 class MeetingFilterForm(BaseForm):
@@ -397,16 +402,25 @@ def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
         custom_field.is_primary = True
         custom_field.custom_field_type = form.CUSTOM_FIELD_TYPE
         custom_field.max_length = _extract_max_length_from_field(field)
+
         if field.name in form.meta.visible_on_registration_form:
             custom_field.visible_on_registration_form = True
         else:
             custom_field.visible_on_registration_form = False
+
+        print field.name, form.meta.protected_fields
+        if field.name in form.meta.protected_fields:
+            custom_field.is_protected = True
+        else:
+            custom_field.is_protected = False
+
         custom_field.sort = i + 1
         db.session.add(custom_field)
 
         if custom_field.field_type in (CustomField.SELECT,
                                        CustomField.LANGUAGE):
             _add_choice_values_for_custom_field(custom_field, field.choices)
+
     db.session.commit()
 
 

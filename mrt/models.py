@@ -355,7 +355,7 @@ class Participant(db.Model):
     def name(self):
         title = (self.title.value if isinstance(self.title, Choice)
                  else self.title)
-        return u'%s %s %s' % (self.title.value, self.first_name, self.last_name)
+        return u'%s %s %s' % (title, self.first_name, self.last_name)
 
     @property
     def name_on_badge(self):
@@ -543,6 +543,8 @@ class CustomField(db.Model):
     sort = db.Column(db.Integer, default=0)
 
     is_primary = db.Column(db.Boolean, default=False)
+
+    is_protected = db.Column(db.Boolean, default=False)
 
     visible_on_registration_form = db.Column(
         db.Boolean, default=False,

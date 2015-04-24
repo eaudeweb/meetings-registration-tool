@@ -1,8 +1,10 @@
 {% extends "_layout.html" %}
-{% from "_bits.html" import breadcrumb, render_fields, actions %}
+
+{% from "_bits.html" import breadcrumb, actions %}
+{% from "meetings/custom_field/_bits.html" import render_fields %}
 
 
-{% block title %}Default Custom Fields{% endblock %}
+{% block title %} Default Custom Fields {% endblock %}
 
 
 {% block scripts %}

@@ -1,8 +1,10 @@
+import json
+import pytest
+
 from factory import Sequence
 from flask import url_for
 from pyquery import PyQuery
 from py.path import local
-import json
 
 from mrt.models import Meeting, Category, Phrase, CustomField, Condition
 from mrt.models import CustomFieldChoice, Translation, Participant, Action
@@ -320,6 +322,7 @@ def test_meeting_add_custom_field_choice_generation(app, user):
             assert query.count() == len(field.choices)
 
 
+@pytest.mark.xfail
 def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app, user):
     data = normalize_data(MeetingFactory.attributes())
     meeting_type = MeetingTypeFactory()

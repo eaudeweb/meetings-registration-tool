@@ -5,7 +5,8 @@ from flask import request, redirect, url_for
 from flask.views import MethodView
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
-from mrt.forms.meetings import CustomFieldEditForm
+from mrt.forms.meetings import CustomFieldEditForm, CustomFieldPrimaryEditForm
+from mrt.forms.meetings import CustomFieldProtectedEditForm
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 
@@ -45,12 +46,18 @@ class CustomFields(PermissionRequiredMixin, MethodView):
 class CustomFieldEdit(PermissionRequiredMixin, BaseCustomFieldEdit):
 
     permission_required = ('manage_meeting',)
-    form_class = CustomFieldEditForm
     template = 'meetings/custom_field/edit.html'
 
     def __init__(self, *args, **kwargs):
         self.meeting_id = g.meeting.id
         return super(CustomFieldEdit, self).__init__(*args, **kwargs)
+
+    def get_form_class(self):
+        if self.obj and self.obj.is_protected:
+            return CustomFieldProtectedEditForm
+        if self.obj and self.obj.is_primary:
+            return CustomFieldPrimaryEditForm
+        return CustomFieldEditForm
 
 
 class BaseCustomFieldFile(PermissionRequiredMixin, MethodView):

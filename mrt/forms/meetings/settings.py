@@ -136,8 +136,20 @@ class CustomFieldEditForm(BaseForm):
 class CustomFieldPrimaryEditForm(CustomFieldEditForm):
 
     def save(self):
-        cf = self.obj
+        self.label.populate_obj(self.obj, 'label')
+        self.description.populate_obj(self.obj, 'description')
+        self.required.populate_obj(self.obj, 'required')
+        self.visible_on_registration_form.populate_obj(
+            self.obj, 'visible_on_registration_form')
+        db.session.commit()
 
+
+class CustomFieldProtectedEditForm(CustomFieldEditForm):
+
+    def save(self):
+        self.label.populate_obj(self.obj, 'label')
+        self.description.populate_obj(self.obj, 'description')
+        db.session.commit()
 
 
 class RoleUserEditForm(BaseForm):

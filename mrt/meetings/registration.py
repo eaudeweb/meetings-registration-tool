@@ -78,6 +78,7 @@ class BaseRegistration(MethodView):
         form = Form(request.form)
         header_phrase = self.get_header_phrase()
         footer_phrase = self.get_footer_phrase()
+
         if form.validate():
             participant = form.save()
             if current_user.is_authenticated():
