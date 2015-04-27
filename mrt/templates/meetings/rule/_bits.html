@@ -30,11 +30,11 @@
     <div class="form-group actions-options">
       <label class="col-sm-3 control-label"></label>
       <div class="col-sm-8">
-        <label>
+        <label for="{{ action.is_required.id }}">
           {{ action.is_required() }}
           {{ action.is_required.label.text }}
         </label>
-        <label>
+        <label for="{{ action.is_visible.id }}">
           {{ action.is_visible() }}
           {{ action.is_visible.label.text }}
         </label>

@@ -1,42 +1,60 @@
 
 $(function () {
 
-    var handleChangeConditionField = function (data) {
-        var condition = true;
-        $.each(data, function (k, v) {
-            var $item = $('[name=' + k + ']');
-            var val = $item.val();
+    var handleChangeConditionField = function (rules) {
 
-            if($item.is(':radio')) {
-                val = $item.filter(':checked').val();
-            }
-            if($item.is(':checkbox')) {
-                val = $item.filter(':checked').val();
-                val = (val == 'y') ? 'true' : 'false';
-            }
+        for(var i=0; i<rules.length; i++) {
+            var data = rules[i],
+                condition = true;
 
-            if($.inArray(val, v) < 0) {
-                condition = false;
-            }
-        });
+            $.each(data, function (k, v) {
+                var $item = $('[name=' + k + ']');
+                var val = $item.val();
 
-        if(condition) {
-            $(this).parents('.form-group').first().show();
-        } else {
-            $(this).parents('.form-group').first().hide();
+                if($item.is(':radio')) {
+                    val = $item.filter(':checked').val();
+                }
+                if($item.is(':checkbox')) {
+                    val = $item.filter(':checked').val();
+                    val = (val == 'y') ? 'true' : 'false';
+                }
+
+                if($.inArray(val, v) < 0) {
+                    condition = false;
+                }
+            });
+
+            if(condition) {
+                $(this).parents('.form-group').first().show();
+                return;
+            } else {
+                $(this).parents('.form-group').first().hide();
+            }
         }
+
     };
 
     var fields = $(document).find('[data-rules]');
     fields.parents('.form-group').first().hide();
 
     fields.each(function (i, field) {
-        var data = $(field).data('rules');
-        $.each(data, function (k, v) {
-            $('#' + k).on('change', function () {
-                handleChangeConditionField.bind(field)(data);
-            }).change();
-        });
+        var rules = $(field).data('rules');
+        var keys = [];
+
+        for(var i=0; i<rules.length; i++) {
+            for(var k in rules[i]) {
+                if($.inArray(k, keys)) {
+                    keys.push(k);
+                }
+            }
+        }
+
+        for(var i=0; i<keys.length; i++){
+            $('#' + keys[i]).on('change', function () {
+                handleChangeConditionField.bind(field)(rules);
+            });
+        }
+
     });
 
 });

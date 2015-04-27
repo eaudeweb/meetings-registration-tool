@@ -55,17 +55,25 @@ class _RulesMixin(object):
 class _RulesMeta(DefaultMeta):
 
     def render_field(self, field, render_kw):
-        action = (
-            Action.query.filter(and_(
-                Action.field.has(slug=field.name),
-                Action.rule.has(meeting=g.meeting))).scalar())
-        if action and action.is_visible:
+        actions = (
+            Action.query.filter(
+                and_(
+                    Action.field.has(slug=field.name),
+                    Action.rule.has(meeting=g.meeting),
+                    Action.is_visible == True
+                )
+            )
+        )
+        rules = []
+        for action in actions:
             conditions = Condition.query.filter_by(rule=action.rule).all()
-            data = {}
-            for condition in conditions:
-                data[condition.field.slug] = [i.value for i in
-                                              condition.values.all()]
-            render_kw.update({'data-rules': json.dumps(data)})
+            if conditions:
+                data = {}
+                for c in conditions:
+                    data[c.field.slug] = [i.value for i in c.values.all()]
+                rules.append(data)
+        if rules:
+            render_kw.update({'data-rules': json.dumps(rules)})
         return field.widget(field, **render_kw)
 
 
