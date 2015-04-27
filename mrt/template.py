@@ -1,5 +1,6 @@
 import re
 import time
+from bleach import clean
 
 from flask import current_app as app
 from flask import request, g
@@ -168,3 +169,7 @@ def convert_to_dict(value):
         return dict(value)
     except TypeError:
         return None
+
+
+def clean_html(text, **kwargs):
+    return Markup(clean(text, **kwargs))

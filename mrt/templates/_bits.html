@@ -26,7 +26,9 @@
       <div class="col-sm-{{ input_size }}">
         {{ field(class_=cls, placeholder=field.label.text, **options) }}
         {% if field.description %}
-          <div class="help-block">{{ field.description | urlize }}</div>
+          <div class="help-block">
+            {{ field.description | clean_html(attributes={'a': ['href', 'target']}) }}
+          </div>
         {% endif %}
         {% if field.errors %}
           <div class="text-danger"><small>{{ field.errors[0] }}</small></div>

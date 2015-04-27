@@ -70,7 +70,9 @@
           {% for field in events %}
             {{ field() }}
             <label>{{ field.label.text }}</label>
-            <div class="help-block">{{ field.description | urlize }}</div>
+            <div class="help-block">
+              {{ field.description | clean_html(attributes={'a': ['href', 'target']}) }}
+            </div>
           {% endfor %}
         </div>
       </div>
