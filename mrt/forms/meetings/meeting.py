@@ -241,6 +241,7 @@ class MeetingCloneForm(MeetingEditForm):
         meeting = Meeting()
         self.populate_obj(meeting)
         meeting.photo_field_id = meeting.photo_field_id or None
+        meeting.media_photo_field_id = meeting.media_photo_field_id or None
         self._clone_custom_fields(meeting, self.obj.custom_fields, ('label', ))
         self._clone_relation(meeting, self.obj.categories, ('title', ))
         self._clone_relation(meeting, self.obj.phrases, ('description', ))
@@ -253,6 +254,11 @@ class MeetingCloneForm(MeetingEditForm):
             meeting.photo_field = (meeting.custom_fields
                                    .filter_by(slug=meeting.photo_field.slug)
                                    .first())
+        if self.obj.media_photo_field_id:
+            meeting.media_photo_field = (
+                meeting.custom_fields
+                .filter_by(slug=meeting.media_photo_field.slug)
+                .first())
         db.session.add(meeting)
         db.session.commit()
         return meeting
@@ -304,7 +310,6 @@ class DefaultParticipantDummyForm(BaseForm):
             'country': {'validators': [InputRequired()]}
         }
         protected_fields = []
-
 
 
 class MediaParticipantDummyForm(OrderedFieldsForm):
