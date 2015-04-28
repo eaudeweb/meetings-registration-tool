@@ -1,29 +1,31 @@
 from functools import wraps
 
 from werkzeug.utils import HTMLBuilder
+
 from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash, Response
-from flask.views import MethodView
 from flask.ext.login import current_user as user
+from flask.views import MethodView
 
-from mrt.forms.meetings import custom_form_factory, custom_object_factory
-from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
-from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.forms.meetings import AcknowledgeEmailForm
+from mrt.forms.meetings import custom_form_factory, custom_object_factory
+from mrt.forms.meetings import MediaParticipantEditForm
+from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
 
+from mrt.admin.mixins import PermissionRequiredMixin as AdminPermRequiredMixin
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.mixins import FilterView
-from mrt.admin.mixins import PermissionRequiredMixin as AdminPermRequiredMixin
 
 from mrt.mail import send_single_message
 from mrt.models import db, Participant, CustomField, Category, Phrase
 from mrt.models import search_for_participant, get_participants_full
 
+from mrt.definitions import BADGE_W, BADGE_H, LABEL_W, LABEL_H, ENVEL_W
+from mrt.definitions import ENVEL_H, ACK_W, ACK_H
 from mrt.pdf import PdfRenderer
 from mrt.signals import activity_signal
 from mrt.utils import generate_excel, set_language
-from mrt.definitions import (
-    BADGE_W, BADGE_H, LABEL_W, LABEL_H, ENVEL_W, ENVEL_H, ACK_W, ACK_H)
+from mrt.utils import JSONEncoder
 
 
 def _check_category(category_type):
@@ -172,7 +174,7 @@ class BaseParticipantSearch(PermissionRequiredMixin, MethodView):
             info = self.serialize_participant(form)
             info['value'] = p.name
             results.append(info)
-        return json.dumps(results)
+        return json.dumps(results, cls=JSONEncoder)
 
 
 class DefaultParticipantSearch(BaseParticipantSearch):
@@ -188,9 +190,7 @@ class DefaultParticipantSearch(BaseParticipantSearch):
         info['represented_country'] = (
             info['represented_country'] and
             info['represented_country'].code)
-        info['country'] = (
-            info['country'] and
-            info['country'].code)
+        info['country'] = info['country'] and info['country'].code
         return info
 
 
