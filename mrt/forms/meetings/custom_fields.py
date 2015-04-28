@@ -21,6 +21,8 @@ from mrt.forms.fields import DOCUMENTS
 from mrt.models import CustomField, CustomFieldChoice, Rule
 from mrt.models import Category, Participant
 
+from mrt.utils import CustomFieldLabel
+
 
 _CUSTOM_FIELDS_MAP = {
     CustomField.TEXT: {'field': CustomStringField},
@@ -67,7 +69,8 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
         fields = fields.filter_by(custom_field_type=form.CUSTOM_FIELDS_TYPE)
 
     for f in fields:
-        attrs = {'label': __(unicode(f.label)), 'validators': [],
+        attrs = {'label': unicode(CustomFieldLabel(f.label)),
+                 'validators': [],
                  'description': f.description}
 
         data = _CUSTOM_FIELDS_MAP[f.field_type.code]

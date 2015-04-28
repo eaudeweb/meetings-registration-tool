@@ -284,3 +284,15 @@ class JSONEncoder(_JSONEncoder):
         if isinstance(o, FileStorage):
             return str(o.filename)
         return o
+
+
+class CustomFieldLabel(object):
+
+    def __init__(self, label):
+        self.english = label.english
+        self.french = label.french
+        self.spanish = label.spanish
+
+    def __unicode__(self):
+        lang = getattr(g, 'language_verbose', 'english')
+        return getattr(self, lang) or self.english
