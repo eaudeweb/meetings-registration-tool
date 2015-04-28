@@ -52,7 +52,7 @@ $(function () {
         for(var i=0; i<keys.length; i++){
             $('#' + keys[i]).on('change', function () {
                 handleChangeConditionField.bind(field)(rules);
-            });
+            }).change();
         }
 
     });
