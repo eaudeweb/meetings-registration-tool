@@ -61,7 +61,8 @@ def date_processor(date_start, date_end, in_format='%Y-%m-%d',
             if date_start.month != date_end.month:
                 # same years, different months
                 return '%s-%s' % (
-                    format_date(date_start, 'd MMMM', locale=locale),
+                    format_date(date_start, out_format.replace(' yyyy', ''),
+                                locale=locale),
                     format_date(date_end, out_format, locale=locale))
             else:
                 if date_start.day != date_end.day:

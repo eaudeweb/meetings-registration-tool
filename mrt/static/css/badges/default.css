@@ -64,14 +64,15 @@ h2 {
     line-height: 10pt;
     position: absolute;
     top: 0.1667in;
-    left: 1.1417in;
+    left: 1.1900in;
     z-index: 9999;
 }
 
 .content .description small {
     position: relative;
-    top: 6px;
     font-size: 14px;
+    display: block;
+    top: 6px;
 }
 
 .nostripe {
