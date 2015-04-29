@@ -29,6 +29,7 @@ def get_recipients(meeting, notification_type):
             notification_type=notification_type).all())
     if meeting.owner:
         recipients.append(meeting.owner)
+    recipients = {recipient.user.email for recipient in recipients}
     return recipients
 
 
@@ -122,7 +123,7 @@ def send_notification_message(recipients, participant):
 
     for recipient in recipients:
         msg = Message(subject=subject, body=body, sender=sender,
-                      recipients=[recipient.user.email])
+                      recipients=[recipient])
         mail.send(msg)
 
 
