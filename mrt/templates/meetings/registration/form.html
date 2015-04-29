@@ -53,7 +53,7 @@
 
   {% if header_phrase.description %}
     <div class="text-center">
-      <h4><b>{{ header_phrase.description | nl2br }}</b></h4>
+      <h4><b>{{ header_phrase.description[g.language_verbose] | nl2br }}</b></h4>
     </div>
   {% endif %}
 
@@ -83,7 +83,7 @@
     {% if footer_phrase.description %}
     <div class="row">
       <div class="col-sm-4 col-sm-push-2">
-        <p><small>{{ footer_phrase.description }}</small></p>
+        <p><small>{{ footer_phrase.description[g.language_verbose] }}</small></p>
       </div>
     </div>
     {% endif %}
