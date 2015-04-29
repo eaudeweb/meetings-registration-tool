@@ -4,13 +4,14 @@ $(function () {
   var allowedExtensions = ['jpg', 'jpe', 'jpeg', 'png', 'gif', 'svg', 'bmp'];
   var maxUploadSize = $('#max-upload-size').data('bytes');
   var maxUploadSizeMB = Math.floor(maxUploadSize / (1024 * 1024));
-  var fileInputs = $('input[data-type=image]');
+  var fileInputs = $('[data-type=image]').find('input');
 
   // initialize array for storing file size for each input[type=file]
   // on page (initially 0)
-  var fileSizes = Array
-                  .apply(null, Array(fileInputs.length))
-                  .map(function () { return 0 });
+  var fileSizes = [];
+  for(var i=0; i<fileInputs.length; i++) {
+    fileSizes.push(0);
+  }
 
   // resets file input value without losing bound events
   function resetFormElement(element) {
