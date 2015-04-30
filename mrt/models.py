@@ -1,5 +1,7 @@
 from datetime import datetime
 import json
+import random
+import string
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -562,7 +564,14 @@ class CustomField(db.Model):
 
     @generates('slug')
     def _create_slug(self):
-        return self.slug or slugify(self.label.english)
+        if self.slug:
+            return self.slug
+        slug = slugify(self.label.english)
+        if slug in dir(Participant):
+            rand = ''.join(random.choice(string.ascii_letters)
+                           for i in range(4))
+            slug += '_%s' % rand
+        return slug
 
     def get_or_create_value(self, participant):
         value = (self.custom_field_values

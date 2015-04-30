@@ -81,8 +81,9 @@ class CustomFieldLabelInputForm(TranslationInputForm):
     duplicate_message = 'A field with this label already exists'
 
     def validate_english(self, field):
+        slug = slugify(field.data)
         custom_field = CustomField.query.filter(
-            CustomField.slug == slugify(field.data),
+            CustomField.slug == slug,
             CustomField.meeting == g.meeting,
             CustomField.custom_field_type == self.custom_field_type).first()
 
