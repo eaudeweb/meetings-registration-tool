@@ -2,12 +2,11 @@ from flask import g
 from flask import current_app as app
 from flask.ext.uploads import IMAGES
 from flask_wtf.file import FileAllowed
-from flask.ext.babel import lazy_gettext as __
 
 from sqlalchemy_utils import Choice
 
 from werkzeug import OrderedMultiDict
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
 from mrt.forms.fields import CustomSelectField, CustomTextAreaField
@@ -39,7 +38,7 @@ _CUSTOM_FIELDS_MAP = {
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
     CustomField.EVENT: {'field': CustomBooleanField},
     CustomField.MULTI_CHECKBOX: {'field': CustomMultiCheckboxField},
-    CustomField.DATE: {'field': CustomDateField},
+    CustomField.DATE: {'field': CustomDateField, 'validators': [Optional()]},
 }
 
 

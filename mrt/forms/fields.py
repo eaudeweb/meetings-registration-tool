@@ -348,6 +348,12 @@ class CustomDateField(CustomBaseFieldMixin, fields.DateField):
         kwargs['format'] = '%d.%m.%Y'
         super(CustomDateField, self).__init__(*args, **kwargs)
 
+    def process_formdata(self, valuelist):
+        if not valuelist[0]:
+            self.data = ''
+            return
+        super(CustomDateField, self).process_formdata(valuelist)
+
     def process_data(self, value):
         try:
             self.data = datetime.strptime(value, '%Y-%m-%d').date()
