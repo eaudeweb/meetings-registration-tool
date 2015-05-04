@@ -222,6 +222,9 @@ meetings.add_url_rule(
 meetings.add_url_rule('/<int:meeting_id>/email/bulk',
                       view_func=views.BulkEmail.as_view('bulkemail'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/email/recipients',
+    view_func=views.RecipientsBulkList.as_view('recipients'))
+meetings.add_url_rule(
     '/<int:meeting_id>/email/recipients-count',
     view_func=views.RecipientsCount.as_view('recipients_count'))
 

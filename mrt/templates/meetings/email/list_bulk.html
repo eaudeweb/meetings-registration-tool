@@ -1,0 +1,78 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+
+{% set title = 'Bulk recipients' %}
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.bulkemail'), 'Bulk emails'),
+      ('', title),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block scripts %}
+
+  <script>
+    $(function () {
+      $('#recipients').dataTable({
+
+      });
+    });
+  </script>
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+  <div class="table-responsive">
+
+    <table class="table table-bordered table-condensed table-striped"
+           id="recipients">
+
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Language</th>
+          <th>Category</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for participant in participants %}
+          <tr>
+            <td>
+              {% if participant.participant_type == participant.PARTICIPANT %}
+                {% set url = url_for('.participant_detail',
+                                     participant_id=participant.id) %}
+              {% else %}
+                {% set url = url_for('.media_participant_detail',
+                                     participant_id=participant.id) %}
+              {% endif %}
+              <a href="{{ url }}">{{ participant.name }}</a>
+            </td>
+            <td>{{ participant.language }}</td>
+            <td>{{ participant.category }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="3">No recipents found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+
+  </div> {# table-responsive #}
+
+{% endblock %}

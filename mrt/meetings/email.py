@@ -58,6 +58,18 @@ class RecipientsCount(MethodView):
         return '{0}'.format(qs.count())
 
 
+class RecipientsBulkList(MethodView):
+
+    template_name = 'meetings/email/list_bulk.html'
+
+    def get(self):
+        language = request.args.get('language')
+        categories = request.args.getlist('categories[]')
+        participant_type = request.args.get('participant_type')
+        qs = get_recipients(language, categories, participant_type)
+        return render_template(self.template_name, participants=qs)
+
+
 class ResendEmail(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', 'manage_participant')

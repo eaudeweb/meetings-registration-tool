@@ -14,6 +14,7 @@
 
 {% endblock %}
 
+
 {% block head %}
 
   <style type="text/css">
@@ -37,16 +38,21 @@
         var categories =  $("#categories").val();
         var participant_type = $("#participant_type").val()
 
-        $.get('{{ url_for('.recipients_count') }}',
-            {'language': language, 'categories': categories,
-             'participant_type': participant_type},
-            function (data) {
-              $('#recipients-count').html(data);
-            });
+        var data = {'language': language,
+                    'categories': categories,
+                    'participant_type': participant_type};
+        var url = "{{ url_for('.recipients_count') }}";
+        $.get(url, data, function (resp) {
+          $('#recipients-count').html(resp);
+          $('#recipients-view').data('info', data);
+        });
       }
-      $("#language").change(update_count);
-      $("#categories").change(update_count);
-      $("#participant_type").change(update_count);
+      $('.email-filters').change(update_count);
+      $('#recipients-view').on('click', function () {
+        var data = $(this).data('info');
+        var url = $(this).data('href') + '?' + $.param(data);
+        window.open(url, '_blank');
+      });
       update_count();
     }
   )
@@ -68,13 +74,22 @@
 
         <div class="panel panel-default">
 
-          <div class="panel-heading"><b>Recipients</b> (<span id="recipients-count">-</span>)</div>
+          <div class="panel-heading">
+            <b>Recipients</b> (<span id="recipients-count">-</span>)
+            &mdash;
+            <a data-href="{{ url_for('.recipients') }}"
+               id="recipients-view" data-info="{}">
+              preview recipients</a>
+          </div>
 
           <div class="panel-body">
-            {{ form_group(form.language, label_size="2", input_size="3") }}
+            {{ form_group(form.language, label_size="2", input_size="3",
+                          class_="email-filters") }}
             {{ form_group(form.categories, label_size="2", input_size="6",
-                          options={"class": "form-control select"}) }}
-            {{ form_group(form.participant_type, label_size="2", input_size="3") }}
+                          class_="email-filters form-control select") }}
+            {{ form_group(form.participant_type,
+                          label_size="2",input_size="3",
+                          class_="email-filters") }}
           </div>
 
           <div class="panel-heading"><b>Message</b></div>
