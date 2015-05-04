@@ -585,7 +585,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['last_name'] = p.last_name
             data['country'] = p.country.name
             data['email'] = p.email
-            data['language'] = p.language.value
+            data['language'] = getattr(p.language, 'value', 'English')
             data['category_id'] = p.category.title
             data['represented_country'] = (
                 p.represented_country.name if p.represented_country else None)
