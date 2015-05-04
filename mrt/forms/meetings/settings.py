@@ -115,7 +115,7 @@ class CustomFieldEditForm(BaseForm):
         is_choice_field_disabled = self.custom_field_choices.flags.disabled
         if (cf.field_type == CustomField.MULTI_CHECKBOX
            and not is_choice_field_disabled):
-            CustomFieldChoice.query.filter_by(custom_field=cf).delete()
+            CustomFieldChoice.query.filter_by(custom_field_id=cf.id).delete()
             for choice in self.custom_field_choices.data:
                 cf_choice = CustomFieldChoice(custom_field=cf)
                 cf_choice.value = Translation(english=choice)
