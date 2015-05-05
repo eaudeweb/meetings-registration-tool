@@ -48,7 +48,7 @@
     </tr>
 
     <tr>
-      <td colspan="2">{{ mail.message|nl2br }}</td>
+      <td colspan="2">{{ mail.message|escape|nl2br }}</td>
     </tr>
 
   </table>

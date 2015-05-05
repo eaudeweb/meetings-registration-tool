@@ -65,7 +65,7 @@
             <td class="text-center">{{ meeting.acronym }}</td>
             <td>
               <div>
-                <a href="{{ url }}">{{ meeting.title.english }}</a>
+                <a href="{{ url }}">{{ meeting.title.english|clean_html(tags='sup') }}</a>
               </div>
               <div>
                 <small>
@@ -75,7 +75,7 @@
               </div>
             </td>
             <td>
-              <div>{{ meeting.venue_address|nl2br }}</div>
+              <div>{{ meeting.venue_address|escape|nl2br }}</div>
               {% if meeting.venue_code %}
                 <div>{{ meeting.venue_code }}</div>
               {% endif %}

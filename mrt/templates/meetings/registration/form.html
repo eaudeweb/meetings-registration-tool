@@ -53,7 +53,9 @@
 
   {% if header_phrase.description %}
     <div class="text-center">
-      <h4><b>{{ header_phrase.description[g.language_verbose] | nl2br }}</b></h4>
+      <h4><b>
+        {{ header_phrase.description[g.language_verbose]|nl2br|clean_html(tags='sup') }}
+      </b></h4>
     </div>
   {% endif %}
 
@@ -73,7 +75,7 @@
             {{ field() }}
             <label>{{ field.label.text }}</label>
             <div class="help-block">
-              {{ field.description | clean_html(attributes={'a': ['href', 'target']}) }}
+              {{ field.description|clean_html(attributes={'a': ['href', 'target']}) }}
             </div>
           {% endfor %}
         </div>

@@ -8,7 +8,7 @@
 
   <div class="meeting-title">
     <h2 style="text-align:center;">
-      {{ g.meeting.acronym }}: {{ g.meeting.title.english }}
+      {{ g.meeting.acronym }}: {{ g.meeting.title.english|clean_html(tags='sup') }}
     </h2>
     <h3 class="text-center">
       {{ g.meeting.venue_city.english }}

@@ -4,9 +4,9 @@
 
   <div class="badge-header">
     {% if g.meeting.badge_header %}
-      {{ g.meeting.badge_header[participant.lang] }}
+      {{ g.meeting.badge_header[participant.lang]|clean_html(tags='sup') }}
     {% else %}
-      {{ g.meeting.title[participant.lang] }}
+      {{ g.meeting.title[participant.lang]|clean_html(tags='sup') }}
     {% endif %}
   </div> {# badge-container #}
 
