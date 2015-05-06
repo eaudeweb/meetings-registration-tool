@@ -19,7 +19,7 @@ from mrt.utils import copy_attributes, duplicate_uploaded_file
 from mrt.utils import get_all_countries
 
 from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
-from mrt.forms.fields import SelectMultipleFieldWithoutValidation
+from mrt.forms.fields import SelectMultipleFieldWithoutValidation, NoRule
 
 
 class MeetingCategoryAddForm(BaseForm):
@@ -74,6 +74,7 @@ class CustomFieldEditForm(BaseForm):
 
     class Meta:
         model = CustomField
+        field_args = {'field_type': {'validators': [NoRule()]}}
 
     def __init__(self, *args, **kwargs):
         custom_field_type = kwargs.pop('custom_field_type', None)
