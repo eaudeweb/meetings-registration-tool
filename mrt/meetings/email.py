@@ -48,7 +48,9 @@ class BulkEmail(PermissionRequiredMixin, MethodView):
         return render_template(self.template_name, form=form)
 
 
-class RecipientsCount(MethodView):
+class RecipientsCount(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'manage_participant')
 
     def get(self):
         language = request.args.get('language')
@@ -58,9 +60,10 @@ class RecipientsCount(MethodView):
         return '{0}'.format(qs.count())
 
 
-class RecipientsBulkList(MethodView):
+class RecipientsBulkList(PermissionRequiredMixin, MethodView):
 
     template_name = 'meetings/email/list_bulk.html'
+    permission_required = ('manage_meeting', 'manage_participant')
 
     def get(self):
         language = request.args.get('language')
