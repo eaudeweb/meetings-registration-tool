@@ -4,6 +4,7 @@ from factory import Sequence
 from werkzeug.datastructures import MultiDict
 
 from mrt.forms.meetings import add_custom_fields_for_meeting
+from mrt.forms.meetings import ParticipantDummyForm
 from mrt.models import CustomField, Meeting, CustomFieldChoice, Participant
 from mrt.models import CustomFieldValue
 from .factories import CustomFieldFactory, MeetingFactory, normalize_data
@@ -26,6 +27,108 @@ def test_meeting_custom_fields_list(app, user):
         assert resp.status_code == 200
         rows = PyQuery(resp.data)('table tbody tr')
         assert len(rows) == 5
+
+
+def test_meeting_primary_custom_field_edit(app, user):
+    meeting = MeetingFactory()
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = new_label = 'new_label'
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        field = meeting.custom_fields.filter_by(is_primary=True).first()
+        resp = client.post(url_for('meetings.custom_field_edit',
+                                   meeting_id=meeting.id,
+                                   custom_field_id=field.id), data=data)
+        assert resp.status_code == 302
+        assert field.label.english == new_label
+
+
+def test_meeting_primary_custom_field_non_deletable(app, user):
+    meeting = MeetingFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        field = meeting.custom_fields.filter_by(is_primary=True).first()
+        resp = client.delete(url_for('meetings.custom_field_edit',
+                             meeting_id=meeting.id,
+                             custom_field_id=field.id))
+        assert resp.status_code == 400
+        assert CustomField.query.get(field.id) is not None
+
+
+def test_meeting_primary_custom_field_type_not_editable(app, user):
+    meeting = MeetingFactory()
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data.pop('label')
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        field = meeting.custom_fields.filter_by(is_primary=True).first()
+        assert field.field_type.code != data['field_type']
+        resp = client.post(url_for('meetings.custom_field_edit',
+                                   meeting_id=meeting.id,
+                                   custom_field_id=field.id), data=data)
+        assert resp.status_code == 302
+        assert field.field_type.code != data['field_type']
+
+
+def test_meeting_protected_custom_fields(app, user):
+    data = normalize_data(MeetingFactory.attributes())
+    meeting_type = MeetingTypeFactory()
+    data['title-english'] = data.pop('title')
+    data['venue_city-english'] = data.pop('venue_city')
+    data['badge_header-english'] = data.pop('badge_header')
+    data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['meeting_type_slug'] = meeting_type.slug
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        url = url_for('meetings.add')
+        resp = client.post(url, data=data)
+
+        assert resp.status_code == 302
+        assert Meeting.query.count() == 1
+        protected_fields = ParticipantDummyForm.Meta.protected_fields
+        for slug in protected_fields:
+            field = CustomField.query.filter_by(slug=slug).first()
+            assert field.is_protected is True
+
+
+def test_meeting_protected_field_required_and_visible_not_editable(app, user):
+    meeting = MeetingFactory()
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data.pop('label')
+    data['required'] = False
+    data['visible_on_registration_form'] = False
+
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        field = meeting.custom_fields.filter_by(is_protected=True).first()
+        assert field.is_protected is True
+        assert field.visible_on_registration_form is True
+        resp = client.post(url_for('meetings.custom_field_edit',
+                           meeting_id=meeting.id,
+                           custom_field_id=field.id), data=data)
+        assert resp.status_code == 302
+        assert field.is_protected is True
+        assert field.visible_on_registration_form is True
 
 
 def test_meeting_custom_field_add(app, user):
