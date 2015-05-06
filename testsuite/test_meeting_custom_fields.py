@@ -1,4 +1,5 @@
 from flask import url_for
+import json
 from pyquery import PyQuery
 from factory import Sequence
 from werkzeug.datastructures import MultiDict
@@ -9,7 +10,7 @@ from mrt.models import CustomField, Meeting, CustomFieldChoice, Participant
 from mrt.models import CustomFieldValue
 from .factories import CustomFieldFactory, MeetingFactory, normalize_data
 from .factories import MeetingTypeFactory, MeetingCategoryFactory
-from .factories import ParticipantFactory
+from .factories import ParticipantFactory, ConditionValueFactory, ActionFactory
 from .utils import add_participant_custom_fields, populate_participant_form
 from .utils import add_multicheckbox_field
 
@@ -382,3 +383,59 @@ def test_meeting_multicheckbox_field_non_editable(app, user):
         add_multicheckbox_field(client, meeting, field_data, field.id,
                                 302)
         assert field.choices.count() == 3
+
+
+def test_meeting_custom_field_with_rule_non_deletable(app, user):
+    meeting = MeetingFactory()
+    rule_field = CustomFieldFactory(meeting=meeting, slug='checkbox',
+                                    field_type=CustomField.CHECKBOX)
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        field = meeting.custom_fields.filter_by(is_primary=True).first()
+        cond_val = ConditionValueFactory(condition__rule__meeting=meeting,
+                                         condition__field=rule_field,
+                                         value='True')
+        ActionFactory(rule=cond_val.condition.rule,
+                      field=field,
+                      is_required=True)
+
+        resp = client.delete(url_for('meetings.custom_field_edit',
+                             meeting_id=meeting.id,
+                             custom_field_id=rule_field.id))
+        assert resp.status_code == 200
+        resp_data = json.loads(resp.data)
+        assert resp_data['status'] == 'error'
+        assert CustomField.query.get(field.id) is not None
+
+
+def test_meeting_custom_field_with_rule_unable_change_type(app, user):
+    meeting = MeetingFactory()
+    rule_field = CustomFieldFactory(meeting=meeting, slug='checkbox',
+                                    field_type=CustomField.CHECKBOX)
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data['label'].english
+    data['field_type'] = CustomField.TEXT
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        field = meeting.custom_fields.filter_by(is_primary=True).first()
+        cond_val = ConditionValueFactory(condition__rule__meeting=meeting,
+                                         condition__field=rule_field,
+                                         value='True')
+        ActionFactory(rule=cond_val.condition.rule,
+                      field=field,
+                      is_required=True)
+
+        resp = client.post(url_for('meetings.custom_field_edit',
+                           meeting_id=meeting.id,
+                           custom_field_id=rule_field.id), data=data)
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('.text-danger small')) == 1
+        assert rule_field.field_type == CustomField.CHECKBOX
