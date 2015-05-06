@@ -11,7 +11,7 @@ from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 
 from mrt.models import db
-from mrt.models import Participant, CustomField, CustomFieldValue
+from mrt.models import Participant, CustomField, CustomFieldValue, Rule
 
 from mrt.utils import crop_file, unlink_participant_custom_file
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
@@ -58,6 +58,15 @@ class CustomFieldEdit(PermissionRequiredMixin, BaseCustomFieldEdit):
         if self.obj and self.obj.is_primary:
             return CustomFieldPrimaryEditForm
         return CustomFieldEditForm
+
+    def check_dependencies(self):
+        msg = super(CustomFieldEdit, self).check_dependencies()
+        if not msg:
+            count = Rule.get_rules_for_fields([self.obj]).count()
+            if count:
+                msg = ("Unable to remove the custom field. There are rules "
+                       "defined for this field.")
+        return msg
 
 
 class BaseCustomFieldFile(PermissionRequiredMixin, MethodView):
