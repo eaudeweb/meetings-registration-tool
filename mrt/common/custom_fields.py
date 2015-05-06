@@ -3,7 +3,7 @@ from flask import render_template, jsonify
 from flask import request, redirect, url_for, abort
 from flask.views import MethodView
 
-from mrt.models import db, Action, Condition, CustomField, CustomFieldValue
+from mrt.models import db, CustomField, CustomFieldValue
 
 
 class BaseCustomFieldEdit(MethodView):
@@ -23,6 +23,12 @@ class BaseCustomFieldEdit(MethodView):
     def get_form_class(self):
         return self.form_class
 
+    def check_dependencies(self):
+        count = CustomFieldValue.query.filter_by(custom_field=self.obj).count()
+        if count:
+            return ("Unable to remove the custom field. There are participants"
+                    " with values for this field.")
+
     def get(self, custom_field_id=None, custom_field_type=None):
         custom_field_type = custom_field_type or self.obj.custom_field_type
         form_class = self.get_form_class()
@@ -41,16 +47,8 @@ class BaseCustomFieldEdit(MethodView):
         return render_template(self.template, form=form, custom_field=self.obj)
 
     def delete(self, custom_field_id, custom_field_type=None):
-        count = CustomFieldValue.query.filter_by(custom_field=self.obj).count()
-        if count:
-            msg = ("Unable to remove the custom field. There are participants "
-                   "with values for this field.")
-            return jsonify(status="error", message=msg)
-        count = (Condition.query.filter_by(field=self.obj).count() or
-                 Action.query.filter_by(field=self.obj).count())
-        if count:
-            msg = ("Unable to remove the custom field. There are rules defined"
-                   " for this field.")
+        msg = self.check_dependencies()
+        if msg:
             return jsonify(status="error", message=msg)
 
         if self.obj.is_primary:

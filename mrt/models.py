@@ -13,7 +13,7 @@ from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask.ext.redis import FlaskRedis
 from jinja2.exceptions import TemplateNotFound
 
-from sqlalchemy import cast
+from sqlalchemy import cast, or_
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
@@ -1043,8 +1043,8 @@ class Rule(db.Model):
         ids = [f.id for f in fields]
         return (
             cls.query.filter_by(meeting=g.meeting).filter(
-                Action.field.has(CustomField.id.in_(ids)),
-                Condition.field.has(CustomField.id.in_(ids)))
+                or_(Action.field.has(CustomField.id.in_(ids)),
+                    Condition.field.has(CustomField.id.in_(ids))))
         )
 
 
