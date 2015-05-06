@@ -2,7 +2,7 @@ from flask import url_for
 from pyquery import PyQuery
 
 from mrt.mail import mail
-from mrt.models import MailLog
+from mrt.models import MailLog, Participant
 from .factories import MeetingCategoryFactory, ParticipantFactory
 from .factories import MailLogFactory
 
@@ -51,6 +51,45 @@ def test_send_email_to_categories(app, user):
                                    meeting_id=cat_press.meeting.id), data=data)
         assert resp.status_code == 302
         assert len(outbox) == 7
+
+
+def test_meeting_bulk_email_recipients(app, user):
+    cat = MeetingCategoryFactory()
+    cat_press = MeetingCategoryFactory(meeting=cat.meeting,
+                                       category_type=Participant.MEDIA)
+    ParticipantFactory.create_batch(5, meeting=cat.meeting)
+    ParticipantFactory.create_batch(5, meeting=cat.meeting,
+                                    language='Spanish')
+    ParticipantFactory.create_batch(4, meeting=cat.meeting,
+                                    category=cat_press,
+                                    participant_type=Participant.MEDIA)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.get(url_for('meetings.recipients',
+                                  meeting_id=cat.meeting.id,
+                                  language='English'))
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('#recipients tbody tr')) == 9
+        resp = client.get(url_for('meetings.recipients',
+                                  meeting_id=cat.meeting.id,
+                                  language='Spanish'))
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('#recipients tbody tr')) == 5
+        resp = client.get(url_for('meetings.recipients',
+                                  meeting_id=cat.meeting.id,
+                                  language='English',
+                                  participant_type=Participant.MEDIA))
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('#recipients tbody tr')) == 4
+        resp = client.get(url_for('meetings.recipients',
+                                  meeting_id=cat.meeting.id,
+                                  language='English',
+                                  participant_type=Participant.MEDIA))
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('#recipients tbody tr')) == 4
 
 
 def test_send_bulk_email_logs(app, user):
