@@ -111,33 +111,29 @@ class EmailRequired(object):
                 raise validators.ValidationError(self.message)
 
 
-class SlugUnique(object):
-
-    def __call__(self, form, field):
-        if form.obj:
-            if form.obj.slug == field.data:
-                return True
-            else:
-                raise validators.ValidationError(
-                    'Meeting type slug is not editable')
-        try:
-            MeetingType.query.filter_by(slug=field.data).one()
+def slug_unique(form, field):
+    if form.obj:
+        if form.obj.slug == field.data:
+            return True
+        else:
             raise validators.ValidationError(
-                'Another meeting type with this slug exists')
-        except NoResultFound:
-            pass
+                'Meeting type slug is not editable')
+    try:
+        MeetingType.query.filter_by(slug=field.data).one()
+        raise validators.ValidationError(
+            'Another meeting type with this slug exists')
+    except NoResultFound:
+        pass
 
 
-class NoRule(object):
-
-    def __call__(self, form, field):
-        if form.obj and field.data != form.obj.field_type:
-            count = (Condition.query.filter_by(field=form.obj).count() or
-                     Action.query.filter_by(field=form.obj).count())
-            if count:
-                raise validators.ValidationError(
-                    'Custom field type cannot be changed as there are rules '
-                    'defined for this field.')
+def no_rule(form, field):
+    if form.obj and field.data != form.obj.field_type:
+        count = (Condition.query.filter_by(field=form.obj).count() or
+                 Action.query.filter_by(field=form.obj).count())
+        if count:
+            raise validators.ValidationError(
+                'Custom field type cannot be changed as there are rules '
+                'defined for this field')
 
 
 class CustomBaseFieldMixin(object):
