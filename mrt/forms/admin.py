@@ -24,7 +24,7 @@ from mrt.forms.meetings import CustomFieldEditForm
 from .base import BaseForm, DescriptionInputForm
 from .base import AdminCustomFieldLabelInputForm
 from .base import DefaultCategoryTitleInputForm, CategoryTitleInputForm
-from .fields import SlugUnique
+from .fields import slug_unique
 
 
 backgrounds = UploadSet('backgrounds', IMAGES)
@@ -210,7 +210,7 @@ class MeetingTypeEditForm(BaseForm):
         model = MeetingType
         only = ('slug', 'label')
         field_args = {
-            'slug': {'validators': [SlugUnique()]}
+            'slug': {'validators': [slug_unique]}
         }
 
     def __init__(self, *args, **kwargs):
