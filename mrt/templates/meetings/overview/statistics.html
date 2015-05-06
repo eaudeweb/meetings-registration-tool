@@ -67,12 +67,12 @@
           <tr class="row">
             <th rowspan="2" class="col-sm-6">{{ category.title.english }}</th>
             <td class="col-sm-4">Countries</td>
-            <td>{{ category.participants|countries|length }}</td>
+            <td>{{ category.participants.filter_by(deleted=False)|countries|length }}</td>
           </tr>
 
           <tr class="row">
             <td class="col-sm-4">Delegates</td>
-            <td>{{ category.participants.count() }}</td>
+            <td>{{ category.participants.filter_by(deleted=False).count() }}</td>
           </tr>
         {% endfor %}
 
@@ -94,7 +94,7 @@
 
         <tr class="row">
           <td class="col-sm-8">{{ category.title.english }}</td>
-          <td class="col-sm-4">{{ category.participants.count() }}</td>
+          <td class="col-sm-4">{{ category.participants.filter_by(deleted=False).count() }}</td>
         </tr>
 
         {% endfor %}
