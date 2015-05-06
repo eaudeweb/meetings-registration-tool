@@ -80,20 +80,34 @@
 
 {% endmacro %}
 
+
 {% macro activity_url(activity) %}
+
   {% if activity.participant.deleted %}
-    <span class="delete">deleted /
+
+    <div class="delete">
+      <span class="label label-danger">deleted</span> <br>
       <a data-toggle="restore"
          data-href="{{ url_for('.participant_restore', participant_id=activity.participant.id) }}"
          data-message="Are you sure you want to restore this participant?">Restore
       <small style="position:relative; right: -2px;">
         <span class="glyphicon glyphicon-repeat"></span>
-      </small></a>
-    </span>
+      </small></a> /
+      <a data-toggle="delete"
+        data-href="{{ url_for('.participant_permanently_delete', participant_id=activity.participant.id) }}"
+        data-message="Are you sure you want to permanently delete this participant?">
+        Permanently delete</a>
+    </div>
+
   {% else %}
+
     {% set url = activity.participant.get_absolute_url() %}
-    <a href="{{ url }}"><span class="glyphicon glyphicon-arrow-right"></span></a>
+    <a href="{{ url }}">
+      <span class="glyphicon glyphicon-arrow-right"></span>
+    </a>
+
   {% endif %}
+
 {% endmacro %}
 
 

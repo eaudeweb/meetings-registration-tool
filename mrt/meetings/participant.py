@@ -423,6 +423,21 @@ class ParticipantRestore(PermissionRequiredMixin, MethodView):
         return jsonify(status='success', url=participant.get_absolute_url())
 
 
+class ParticipantPermanentlyDelete(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'manage_participant')
+
+    def delete(self, participant_id):
+        participant = (
+            Participant.query
+            .filter_by(meeting_id=g.meeting.id, id=participant_id)
+            .first_or_404())
+        db.session.delete(participant)
+        db.session.commit()
+        flash('Participant permanently delete', 'success')
+        return jsonify(status='success', url=url_for('.activity'))
+
+
 class ParticipantBadge(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting',

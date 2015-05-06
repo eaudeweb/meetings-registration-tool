@@ -958,6 +958,9 @@ class MailLog(db.Model):
 
 class ActivityLog(db.Model):
 
+    DELETE = 'delete'
+    ADD = 'add'
+
     id = db.Column(db.Integer, primary_key=True)
 
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'))
@@ -977,7 +980,7 @@ class ActivityLog(db.Model):
         nullable=False)
     participant = db.relationship(
         'Participant',
-        backref=db.backref('activities', lazy='dynamic'))
+        backref=db.backref('activities', lazy='dynamic', cascade='delete'))
 
     date = db.Column(db.DateTime, nullable=False)
     action = db.Column(db.String(64), nullable=False)

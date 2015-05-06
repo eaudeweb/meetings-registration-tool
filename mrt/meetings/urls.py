@@ -76,6 +76,10 @@ meetings.add_url_rule(
     '/<int:meeting_id>/participants/<int:participant_id>/restore',
     view_func=views.ParticipantRestore.as_view('participant_restore'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/participants/<int:participant_id>/permanently/delete',
+    view_func=views.ParticipantPermanentlyDelete.as_view(
+        'participant_permanently_delete'))
+meetings.add_url_rule(
     '/<int:meeting_id>/participants/export',
     view_func=views.ParticipantsExport.as_view('participants_export'))
 
