@@ -132,8 +132,18 @@ def custom_object_factory(participant, field_type=[], obj=object):
 
     if participant:
         object_attrs['_participant'] = participant
+        if participant.participant_type in (CustomField.PARTICIPANT,
+                                            CustomField.MEDIA):
+            custom_field_type = participant.participant_type
+        else:
+            if participant.participant_type == participant.DEFAULT:
+                custom_field_type = CustomField.PARTICIPANT
+            else:
+                custom_field_type = CustomField.MEDIA
+
         query = (CustomField.query
-                 .filter_by(meeting=participant.meeting or g.meeting))
+                 .filter_by(meeting=participant.meeting or g.meeting)
+                 .filter_by(custom_field_type=custom_field_type))
         if field_type:
             query = query.filter(CustomField.field_type.in_(field_type))
 
@@ -147,5 +157,4 @@ def custom_object_factory(participant, field_type=[], obj=object):
                 data = _CUSTOM_FIELDS_MAP[cf.field_type.code]
                 field = data['field']
                 object_attrs[cf.slug] = field.provide_data(cf, participant)
-
     return type(obj)(obj.__name__, (obj,), object_attrs)

@@ -413,7 +413,6 @@ def add_custom_fields_for_meeting(meeting, form_class=ParticipantDummyForm):
         else:
             custom_field.visible_on_registration_form = False
 
-        print field.name, form.meta.protected_fields
         if field.name in form.meta.protected_fields:
             custom_field.is_protected = True
         else:
