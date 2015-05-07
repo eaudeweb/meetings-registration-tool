@@ -48,7 +48,7 @@
           <td class="jobid">{{ job.id }}</td>
           <td>{{ job.name|title }}</td>
           <td>{{ job.user }}</td>
-          <td>{{ job.meeting }}</td>
+          <td>{{ job.meeting|clean_html(tags='sup') }}</td>
           <td>{{ job.date.strftime('%d.%m.%Y %H:%M') }}</td>
           <td class="status">{{ job.status }}</td>
           <td class="result">
