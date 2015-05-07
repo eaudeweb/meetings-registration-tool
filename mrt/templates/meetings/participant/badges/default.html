@@ -1,4 +1,4 @@
-
+{% set language = participant.lang or DEFAULT_LANG %}
 
 <div class="badge-container">
 
@@ -6,9 +6,9 @@
        style="background: {{ participant.category.color }}">
     <h1>
       {% if g.meeting.badge_header %}
-        {{ g.meeting.badge_header[participant.lang]|clean_html(tags='sup') }}
+        {{ g.meeting.badge_header[language]|clean_html(tags='sup') }}
       {% else %}
-        {{ g.meeting.title[participant.lang]|clean_html(tags='sup') }}
+        {{ g.meeting.title[language]|clean_html(tags='sup') }}
       {% endif %} <br>
       {{ date_processor(g.meeting.date_start, g.meeting.date_end,
                         out_format='d MMM yyyy') }},

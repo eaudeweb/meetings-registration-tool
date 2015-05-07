@@ -108,7 +108,8 @@ def create_app(config={}):
                 'MEDIA': Participant.MEDIA,
                 'DEFAULT': Participant.DEFAULT,
                 'DEFAULT_MEDIA': Participant.DEFAULT_MEDIA,
-            }
+            },
+            'DEFAULT_LANG': _DEFAULT_LANG,
         }
 
     login_manager = LoginManager()
