@@ -715,8 +715,11 @@ class Meeting(db.Model):
 
     @property
     def media_participant_enabled(self):
-        return bool(self.settings and
-                    self.settings.get('media_participant_enabled', False))
+        return self.settings and self.settings.get('media_participant_enabled')
+
+    @property
+    def login_button_visible(self):
+        return not self.settings or not self.settings.get('hide_login_button')
 
     @classmethod
     def get_default(cls):

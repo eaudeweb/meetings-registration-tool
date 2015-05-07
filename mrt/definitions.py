@@ -18,6 +18,7 @@ MEETING_TYPES = (
 
 MEETING_SETTINGS = (
     ('media_participant_enabled', 'Enable Media Participants'),
+    ('hide_login_button', 'Hide Login button on registration form'),
 )
 
 
