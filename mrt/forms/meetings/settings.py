@@ -19,7 +19,7 @@ from mrt.utils import copy_attributes, duplicate_uploaded_file
 from mrt.utils import get_all_countries
 
 from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
-from mrt.forms.fields import SelectMultipleFieldWithoutValidation, no_rule
+from mrt.forms.fields import SelectMultipleFieldWithoutValidation
 
 
 class MeetingCategoryAddForm(BaseForm):
@@ -135,8 +135,12 @@ class CustomFieldEditForm(BaseForm):
 
 class CustomFieldAuxiliaryEditForm(CustomFieldEditForm):
 
-    class Meta:
-        field_args = {'field_type': {'validators': [no_rule]}}
+    def validate_field_type(self, field):
+        if self.obj and field.data != self.obj.field_type:
+            count = Rule.get_rules_for_fields([self.obj]).count()
+            if count:
+                raise ValidationError('Custom field type cannot be changed as '
+                                      'here are rules defined for this field')
 
 
 class CustomFieldPrimaryEditForm(CustomFieldEditForm):

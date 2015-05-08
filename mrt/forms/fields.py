@@ -17,7 +17,7 @@ from wtforms.widgets.core import html_params, HTMLString
 from wtforms_alchemy import CountryField as _CountryField
 
 from mrt.models import db, CustomFieldChoice, CustomFieldValue
-from mrt.models import MeetingType, Rule, Translation
+from mrt.models import MeetingType, Translation
 from mrt.utils import validate_email, unlink_participant_custom_file
 from mrt.utils import get_custom_file_as_filestorage
 from mrt.utils import sentry
@@ -123,15 +123,6 @@ def slug_unique(form, field):
             'Another meeting type with this slug exists')
     except NoResultFound:
         pass
-
-
-def no_rule(form, field):
-    if form.obj and field.data != form.obj.field_type:
-        count = Rule.get_rules_for_fields([form.obj]).count()
-        if count:
-            raise validators.ValidationError(
-                'Custom field type cannot be changed as there are rules '
-                'defined for this field')
 
 
 class CustomBaseFieldMixin(object):
