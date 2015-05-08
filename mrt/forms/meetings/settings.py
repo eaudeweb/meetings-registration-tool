@@ -74,7 +74,6 @@ class CustomFieldEditForm(BaseForm):
 
     class Meta:
         model = CustomField
-        field_args = {'field_type': {'validators': [no_rule]}}
 
     def __init__(self, *args, **kwargs):
         custom_field_type = kwargs.pop('custom_field_type', None)
@@ -132,6 +131,12 @@ class CustomFieldEditForm(BaseForm):
                 cf.sort = last_sort[0] + 1
             db.session.add(cf)
         db.session.commit()
+
+
+class CustomFieldAuxiliaryEditForm(CustomFieldEditForm):
+
+    class Meta:
+        field_args = {'field_type': {'validators': [no_rule]}}
 
 
 class CustomFieldPrimaryEditForm(CustomFieldEditForm):

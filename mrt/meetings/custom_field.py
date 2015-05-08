@@ -5,8 +5,9 @@ from flask import request, redirect, url_for
 from flask.views import MethodView
 
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
-from mrt.forms.meetings import CustomFieldEditForm, CustomFieldPrimaryEditForm
-from mrt.forms.meetings import CustomFieldProtectedEditForm
+from mrt.forms.meetings import (
+    CustomFieldPrimaryEditForm, CustomFieldAuxiliaryEditForm,
+    CustomFieldProtectedEditForm)
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 
@@ -57,7 +58,7 @@ class CustomFieldEdit(PermissionRequiredMixin, BaseCustomFieldEdit):
             return CustomFieldProtectedEditForm
         if self.obj and self.obj.is_primary:
             return CustomFieldPrimaryEditForm
-        return CustomFieldEditForm
+        return CustomFieldAuxiliaryEditForm
 
     def check_dependencies(self):
         msg = super(CustomFieldEdit, self).check_dependencies()
