@@ -8,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import g, render_template, current_app as app, url_for
 from flask.ext.babel import get_locale, Locale
 from flask.ext.babel import gettext as _
-from flask.ext.babel import lazy_gettext as __
+from flask.ext.babel import lazy_gettext
 from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask.ext.redis import FlaskRedis
 from jinja2.exceptions import TemplateNotFound
@@ -249,25 +249,25 @@ class Participant(db.Model):
     query_class = ParticipantQuery
 
     TITLE_CHOICES = (
-        ('Ms', 'Ms'),
-        ('Mr', 'Mr'),
-        ('Dr', 'Dr'),
-        ('Prof', 'Prof'),
+        ('Ms', lazy_gettext('Ms')),
+        ('Mr', lazy_gettext('Mr')),
+        ('Dr', lazy_gettext('Dr')),
+        ('Prof', lazy_gettext('Prof')),
     )
     LANGUAGE_CHOICES = (
-        ('English', __('English')),
-        ('Spanish', __('Spanish')),
-        ('French', __('French')),
+        ('English', lazy_gettext('English')),
+        ('Spanish', lazy_gettext('Spanish')),
+        ('French', lazy_gettext('French')),
     )
     PARTICIPANT = u'participant'
     MEDIA = 'media'
     DEFAULT = 'default'
     DEFAULT_MEDIA = 'default_media'
     PARTICIPANT_TYPE_CHOICES = (
-        (PARTICIPANT, __('Participant')),
-        (MEDIA, __('Media')),
-        (DEFAULT, __('Default')),
-        (DEFAULT_MEDIA, __('Default Media')),
+        (PARTICIPANT, lazy_gettext('Participant')),
+        (MEDIA, lazy_gettext('Media')),
+        (DEFAULT, lazy_gettext('Default')),
+        (DEFAULT_MEDIA, lazy_gettext('Default Media')),
     )
 
     EXCLUDE_WHEN_COPYING = ('meeting_id', 'category_id', 'registration_token',

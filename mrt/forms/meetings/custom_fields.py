@@ -1,5 +1,6 @@
 from flask import g
 from flask import current_app as app
+from flask.ext.babel import lazy_gettext as __
 from flask.ext.uploads import IMAGES
 from flask_wtf.file import FileAllowed
 
@@ -91,7 +92,8 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
 
         if f.field_type.code == CustomField.SELECT:
             query = CustomFieldChoice.query.filter_by(custom_field=f)
-            attrs['choices'] = [(unicode(c.value), c.value) for c in query]
+            attrs['choices'] = [(unicode(c.value), __(c.value.english))
+                                for c in query]
             if not f.required:
                 attrs['choices'] = [('', '---')] + attrs['choices']
             attrs['coerce'] = unicode

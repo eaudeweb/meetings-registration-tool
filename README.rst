@@ -205,12 +205,12 @@ i18n deployment
 
 Run the `pybabel` command that comes with Babel to extract your strings::
 
-    pybabel extract -F mrt/babel.cfg -o mrt/translations/messages.pot .
+    pybabel extract -F mrt/babel.cfg -k lazy_gettext -o mrt/translations/messages.pot mrt/
 
 Create translations::
 
-    pybabel init -i mrt/translations/messages.pot -d cites/translations -l es
-    pybabel init -i mrt/translations/messages.pot -d cites/translations -l fr
+    pybabel init -i mrt/translations/messages.pot -d mrt/translations -l es
+    pybabel init -i mrt/translations/messages.pot -d mrt/translations -l fr
 
 To compile the translations for use, pybabel helps again::
 

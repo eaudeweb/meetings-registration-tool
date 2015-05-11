@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from flask import current_app as app
 from flask.ext.babel import gettext as _
+from flask.ext.babel import lazy_gettext as __
 from flask_wtf.file import FileAllowed
 from flask.ext.uploads import IMAGES
 
@@ -64,9 +65,10 @@ class MediaRegistrationForm(RegistrationForm):
 
 class RegistrationUserForm(Form):
 
-    email = StringField('Email', [validators.Email()])
-    password = PasswordField('Password', [validators.DataRequired()])
-    confirm = PasswordField('Confirm Password', [validators.DataRequired()])
+    email = StringField(__('Email'), [validators.Email()])
+    password = PasswordField(__('Password'), [validators.DataRequired()])
+    confirm = PasswordField(
+        __('Confirm Password'), [validators.DataRequired()])
 
     def validate_email(self, field):
         if not utils.validate_email(field.data):

@@ -169,6 +169,9 @@ class UserRegistration(MethodView):
             .filter_by(registration_token=registration_token)
             .first_or_404())
 
+        if participant.language:
+            set_language(participant.lang)
+
         form = RegistrationUserForm(request.form)
         if form.validate():
             participant.user = form.save()
@@ -206,6 +209,10 @@ class UserRegistrationSuccess(MethodView):
         participant = (Participant.query
                        .filter_by(registration_token=registration_token)
                        .first_or_404())
+
+        if participant.language:
+            set_language(participant.lang)
+
         if participant.participant_type == Participant.PARTICIPANT:
             class_form = ParticipantEditForm
         else:
@@ -213,6 +220,7 @@ class UserRegistrationSuccess(MethodView):
         Form = custom_form_factory(class_form)
         Object = custom_object_factory(participant)
         form = Form(obj=Object())
+
         return render_template('meetings/registration/user_success.html',
                                form=form)
 

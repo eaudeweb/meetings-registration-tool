@@ -1,14 +1,14 @@
 # French translations for PROJECT.
-# Copyright (C) 2014 ORGANIZATION
+# Copyright (C) 2015 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2014.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-11-03 16:25+0200\n"
-"PO-Revision-Date: 2014-09-04 15:12+0300\n"
+"POT-Creation-Date: 2015-05-11 18:54+0300\n"
+"PO-Revision-Date: 2015-05-11 15:19+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
@@ -17,66 +17,114 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: mrt/models.py:203
+#: mrt/models.py:252
+msgid "Ms"
+msgstr "Mme"
+
+#: mrt/models.py:253
+msgid "Mr"
+msgstr "M."
+
+#: mrt/models.py:254
+msgid "Dr"
+msgstr "Dr"
+
+#: mrt/models.py:255
+msgid "Prof"
+msgstr "Prof"
+
+#: mrt/models.py:258
 msgid "English"
 msgstr "Anglais"
 
-#: mrt/models.py:204
+#: mrt/models.py:259
 msgid "Spanish"
 msgstr "Espagnol"
 
-#: mrt/models.py:205
+#: mrt/models.py:260
 msgid "French"
 msgstr "Français"
 
-#: mrt/models.py:217
+#: mrt/models.py:267
+msgid "Participant"
+msgstr "Participant"
+
+#: mrt/models.py:268
+msgid "Media"
+msgstr "Médias"
+
+#: mrt/models.py:269
+msgid "Default"
+msgstr "Défaut"
+
+#: mrt/models.py:270
+msgid "Default Media"
+msgstr "Médias par Défaut"
+
+#: mrt/models.py:284
 msgid "Title"
 msgstr "Titre"
 
-#: mrt/models.py:220
+#: mrt/models.py:287
 msgid "Given name"
 msgstr "Prénom"
 
-#: mrt/models.py:223
+#: mrt/models.py:290
 msgid "Family name"
 msgstr "Nom de famille"
 
-#: mrt/models.py:226
+#: mrt/models.py:293
+msgid "Name on the badge"
+msgstr "Nommer sur le badge"
+
+#: mrt/models.py:296
 msgid "Email"
 msgstr "Email"
 
-#: mrt/models.py:243
+#: mrt/models.py:309
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:58
 msgid "Working language"
 msgstr "Langue de travail"
 
-#: mrt/models.py:246
+#: mrt/models.py:312
 msgid "Country"
 msgstr "Pays"
 
-#: mrt/models.py:252
+#: mrt/models.py:318
 msgid "Country represented"
 msgstr "Pays représentés"
 
-#: mrt/models.py:256
+#: mrt/models.py:322
 msgid "Representing region"
 msgstr "Région représentant"
 
-#: mrt/models.py:260
+#: mrt/models.py:326
 msgid "Organization represented"
 msgstr "Organisation représentée"
 
-#: mrt/models.py:263
+#: mrt/models.py:329
 msgid "Attended"
 msgstr "Participation"
 
-#: mrt/models.py:266
+#: mrt/models.py:332
 msgid "Verified"
 msgstr "Vérifié"
 
-#: mrt/models.py:269
+#: mrt/models.py:335
 msgid "Credentials"
 msgstr "Lettres de créance"
+
+#: mrt/models.py:342
+msgid "Participant type"
+msgstr "Type de participant"
+
+#: mrt/forms/meetings/registration.py:76
+msgid "Invalid email. Enter another email."
+msgstr "Email invalide. Entrer un autre courriel."
+
+#: mrt/forms/meetings/registration.py:80
+msgid "Another participant is already registered with this email address."
+msgstr "Un autre participant est déjà enregistré avec cette adresse email."
 
 #: mrt/templates/meetings/participant/acknowledge.html:74
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:24
@@ -91,39 +139,29 @@ msgstr "Catégorie"
 msgid "Representative of"
 msgstr "Représentant de"
 
-#~ msgid "Home"
-#~ msgstr "Maison"
+#: mrt/templates/meetings/registration/_image_widget.html:15
+msgid "Use this photo for registration"
+msgstr "Utiliser cette photo pour l'inscription."
 
-#~ msgid "Africa"
-#~ msgstr "Afrique"
+#: mrt/templates/meetings/registration/success.html:8
+msgid "Successfully registered for"
+msgstr "Vous vous êtes enregistré avec succès pour"
 
-#~ msgid "Asia"
-#~ msgstr "Asie"
+#: mrt/templates/meetings/registration/success.html:34
+msgid "Create account"
+msgstr "Créer un compte"
 
-#~ msgid "Central and South America and the Caribbean"
-#~ msgstr "Am\\u00e9rique centrale et du Sud et Cara\\u00efbes"
+#: mrt/templates/meetings/registration/user_success.html:8
+msgid "A new user was created. You can now login for future meetings."
+msgstr "Un nouvel utilisateur a été créé. Vous pouvez maintenant vous connecter pour les prochaines réunions."
 
-#~ msgid "Europe"
-#~ msgstr "Europe"
+#: mrt/templates/meetings/registration/user_success.html:14
+msgid "Your participant details"
+msgstr "Vos détails"
 
-#~ msgid "North America"
-#~ msgstr "Am\\u00e9rique du Nord"
+msgid "Password"
+msgstr "Mot de passe"
 
-#~ msgid "Oceania"
-#~ msgstr "Oc\\u00e9anie"
-
-#~ msgid "Depositary Government"
-#~ msgstr "Gouvernement d\\u00e9positaire"
-
-#~ msgid "Previous host country"
-#~ msgstr "Pays h\\u00f4te pr\\u00e9c\\u00e9dent"
-
-#~ msgid "Next host country"
-#~ msgstr "Pays h\\u00f4te suivant"
-
-#~ msgid "Nomenclature specialist"
-#~ msgstr "Sp\\u00e9cialiste de la nomenclature"
-
-#~ msgid "Registration details"
-#~ msgstr "Détails de l'enregistrement"
+msgid "Confirm Password"
+msgstr "Confirmez le mot de passe"
 

@@ -4,11 +4,15 @@
 {% block content %}
 
   <div class="text-center">
-    <h2>A new user was created. You can now login for future meetings.</h2>
+    <h2>
+      {{ gettext('A new user was created. You can now login for future meetings.') }}
+    </h2>
   </div>
 
   <div class="col-sm-6 col-sm-offset-3">
-    <h2 class="text-center"><small>Your participant details</small></h2>
+    <h2 class="text-center">
+      <small>{{ gettext('Your participant details') }}</small>
+    </h2>
     <table class="table table-bordered table-condensed table-striped">
       <tbody>
         {% for field in form.exclude([CustomField.CHECKBOX,
