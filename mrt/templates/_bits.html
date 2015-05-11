@@ -27,7 +27,12 @@
         {{ field(class_=cls, placeholder=field.label.text, **options) }}
         {% if field.description %}
           <div class="help-block">
-            {{ field.description|clean_html(attributes={'a': ['href', 'target']}) }}
+            {% if g.language_verbose %}
+              {{ field.description[g.language_verbose]
+                  |clean_html(attributes={'a': ['href', 'target']}) }}
+            {% else %}
+              {{ field.description }}
+            {% endif %}
           </div>
         {% endif %}
         {% if field.errors %}

@@ -162,6 +162,7 @@ def test_meeting_participant_detail_multicheckbox_list(app, user):
     data['category_id'] = category.id
     field_data = MultiDict(CustomFieldFactory.attributes())
     field_data['label-english'] = field_data['label'].english
+    field_data['hint-english'] = field_data['hint'].english
     field_data['field_type'] = CustomField.MULTI_CHECKBOX
     field_data.setlist('custom_field_choices',
                        ['first_choice', 'second_choice', 'third_choice'])

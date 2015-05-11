@@ -532,9 +532,15 @@ class CustomField(db.Model):
         db.Integer, db.ForeignKey('translation.id'),
         nullable=False)
 
-    label = db.relationship('Translation', cascade='all, delete')
+    label = db.relationship('Translation', foreign_keys=label_id,
+                            cascade='all, delete')
 
     description = db.Column(db.String(512), info={'label': 'Hint'})
+
+    hint_id = db.Column(db.Integer, db.ForeignKey('translation.id'))
+
+    hint = db.relationship('Translation', foreign_keys=hint_id,
+                           cascade='all, delete')
 
     field_type = db.Column(ChoiceType(CUSTOM_FIELDS), nullable=False,
                            info={'label': 'Field type'})

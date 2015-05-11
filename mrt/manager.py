@@ -9,7 +9,7 @@ from rq import Queue, Connection, Worker
 from rq import get_failed_queue
 
 from mrt.models import redis_store
-from mrt.models import User, db, Staff, Job
+from mrt.models import User, db, Staff, Job, CustomField, Translation
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
@@ -160,3 +160,18 @@ def cleanup(ctx, hook):
 def meetings(ctx):
     import pprint
     pprint.pprint(get_meetings())
+
+
+@cli.command()
+@click.pass_context
+def migrate_hint(ctx):
+    app = ctx.obj['app']
+    with app.app_context():
+        for custom_field in CustomField.query.all():
+            if not custom_field.description:
+                continue
+            hint = Translation(english=custom_field.description)
+            db.session.add(hint)
+            db.session.flush()
+            custom_field.hint = hint
+        db.session.commit()

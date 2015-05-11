@@ -70,7 +70,7 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
     for f in fields:
         attrs = {'label': unicode(CustomFieldLabel(f.label)),
                  'validators': [],
-                 'description': f.description}
+                 'description': f.hint}
 
         data = _CUSTOM_FIELDS_MAP[f.field_type.code]
 

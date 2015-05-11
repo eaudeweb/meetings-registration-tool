@@ -19,6 +19,7 @@ from mrt.utils import copy_attributes, duplicate_uploaded_file
 from mrt.utils import get_all_countries
 
 from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
+from mrt.forms.base import TranslationInputForm
 from mrt.forms.fields import SelectMultipleFieldWithoutValidation
 
 
@@ -69,6 +70,7 @@ class MeetingCategoryAddForm(BaseForm):
 class CustomFieldEditForm(BaseForm):
 
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
+    hint = ModelFormField(TranslationInputForm, label='Hint')
     custom_field_choices = SelectMultipleFieldWithoutValidation(
         'Choices', choices=[], coerce=unicode)
 
@@ -147,6 +149,7 @@ class CustomFieldPrimaryEditForm(CustomFieldEditForm):
 
     def save(self):
         self.label.populate_obj(self.obj, 'label')
+        self.hint.populate_obj(self.obj, 'hint')
         self.description.populate_obj(self.obj, 'description')
         self.required.populate_obj(self.obj, 'required')
         self.visible_on_registration_form.populate_obj(
@@ -158,6 +161,7 @@ class CustomFieldProtectedEditForm(CustomFieldEditForm):
 
     def save(self):
         self.label.populate_obj(self.obj, 'label')
+        self.hint.populate_obj(self.obj, 'hint')
         self.description.populate_obj(self.obj, 'description')
         db.session.commit()
 

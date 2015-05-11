@@ -257,12 +257,21 @@ class CustomFieldLabelFactory(SQLAlchemyModelFactory):
     english = 'picture'
 
 
+class CustomFieldHintFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Translation
+        sqlalchemy_session = models.db.session
+
+    english = 'hint'
+
+
 class CustomFieldFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.CustomField
         sqlalchemy_session = models.db.session
 
     label = SubFactory(CustomFieldLabelFactory)
+    hint = SubFactory(CustomFieldHintFactory)
     meeting = SubFactory(MeetingFactory)
     field_type = 'image'
     required = True

@@ -24,6 +24,7 @@ def test_default_custom_field_add(app, user):
     data = CustomFieldFactory.attributes()
     data.pop('meeting')
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -35,6 +36,7 @@ def test_default_custom_field_add(app, user):
         assert CustomField.query.filter_by(meeting=None).count() == 1
         custom_field = CustomField.query.get(1)
         assert custom_field.custom_field_type.code == CustomField.PARTICIPANT
+        assert custom_field.hint.english == data['hint'].english
 
 
 def test_default_custom_field_add_with_meeting_types(app, user):
@@ -42,6 +44,7 @@ def test_default_custom_field_add_with_meeting_types(app, user):
     data = CustomFieldFactory.attributes()
     data.pop('meeting')
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     data['meeting_type_slugs'] = [m.slug for m in meeting_types]
     client = app.test_client()
     with app.test_request_context():
@@ -53,6 +56,7 @@ def test_default_custom_field_add_with_meeting_types(app, user):
         assert resp.status_code == 302
         assert CustomField.query.filter_by(meeting=None).count() == 1
         custom_field = CustomField.query.get(1)
+        assert custom_field.hint.english == data['hint'].english
         assert set(custom_field.meeting_types) == set(meeting_types)
 
 
@@ -61,6 +65,7 @@ def test_default_custom_field_edit(app, user):
     data = CustomFieldFactory.attributes()
     data.pop('meeting')
     data['label-english'] = field.label.english
+    data['hint-english'] = field.hint.english
     data.pop('required')
     client = app.test_client()
     with app.test_request_context():

@@ -34,6 +34,7 @@ def test_meeting_primary_custom_field_edit(app, user):
     meeting = MeetingFactory()
     data = CustomFieldFactory.attributes()
     data['label-english'] = new_label = 'new_label'
+    data['hint-english'] = data['hint'].english
 
     client = app.test_client()
     with app.test_request_context():
@@ -70,6 +71,7 @@ def test_meeting_primary_custom_field_type_not_editable(app, user):
     meeting = MeetingFactory()
     data = CustomFieldFactory.attributes()
     data['label-english'] = data.pop('label')
+    data['hint-english'] = data.pop('hint')
 
     client = app.test_client()
     with app.test_request_context():
@@ -113,6 +115,7 @@ def test_meeting_protected_field_required_and_visible_not_editable(app, user):
     meeting = MeetingFactory()
     data = CustomFieldFactory.attributes()
     data['label-english'] = data.pop('label')
+    data['hint-english'] = data.pop('hint')
     data['required'] = False
     data['visible_on_registration_form'] = False
 
@@ -136,6 +139,7 @@ def test_meeting_custom_field_add(app, user):
     meeting = MeetingFactory()
     data = CustomFieldFactory.attributes()
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -155,6 +159,7 @@ def test_meeting_custom_field_event_add(app, user):
     data = CustomFieldFactory.attributes()
     data['field_type'] = CustomField.EVENT
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -173,6 +178,7 @@ def test_meeting_custom_field_add_for_media_participant(app, user):
     meeting = MeetingFactory()
     data = CustomFieldFactory.attributes()
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -192,6 +198,7 @@ def test_meeting_custom_field_add_with_same_slug_and_different_type(app, user):
     participant_field = CustomFieldFactory(meeting=meeting)
     data = CustomFieldFactory.attributes()
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -212,6 +219,7 @@ def test_meeting_custom_field_add_with_same_slug_and_type_fails(app, user):
     CustomFieldFactory(meeting=meeting)
     data = CustomFieldFactory.attributes()
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     client = app.test_client()
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -229,6 +237,7 @@ def test_meeting_custom_field_add_sort_init(app, user):
     meeting = MeetingFactory()
     data = CustomFieldFactory.attributes()
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     client = app.test_client()
     with app.test_request_context():
         add_participant_custom_fields(meeting)
@@ -248,6 +257,7 @@ def test_meeting_custom_field_edit(app, user):
     field = CustomFieldFactory()
     data = CustomFieldFactory.attributes()
     data['label-english'] = field.label.english
+    data['hint-english'] = data['hint'].english
     data.pop('required')
     client = app.test_client()
     with app.test_request_context():
@@ -317,6 +327,7 @@ def test_meeting_multicheckbox_field_add(app, user):
     meeting = MeetingFactory()
     data = MultiDict(CustomFieldFactory.attributes())
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     data['field_type'] = CustomField.MULTI_CHECKBOX
     data.setlist('custom_field_choices', ['first_choice', 'second_choice'])
     client = app.test_client()
@@ -332,6 +343,7 @@ def test_meeting_multicheckbox_field_edit(app, user):
     meeting = MeetingFactory()
     data = MultiDict(CustomFieldFactory.attributes())
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     data['field_type'] = CustomField.MULTI_CHECKBOX
     data.setlist('custom_field_choices', ['first_choice', 'second_choice'])
     client = app.test_client()
@@ -356,6 +368,7 @@ def test_meeting_multicheckbox_field_non_editable(app, user):
     data['category_id'] = category.id
     field_data = MultiDict(CustomFieldFactory.attributes())
     field_data['label-english'] = field_data['label'].english
+    field_data['hint-english'] = field_data['hint'].english
     field_data['field_type'] = CustomField.MULTI_CHECKBOX
     field_data.setlist('custom_field_choices',
                        ['first_choice', 'second_choice', 'third_choice'])
@@ -418,6 +431,7 @@ def test_meeting_custom_field_with_rule_unable_change_type(app, user):
                                     field_type=CustomField.CHECKBOX)
     data = CustomFieldFactory.attributes()
     data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
     data['field_type'] = CustomField.TEXT
     client = app.test_client()
     with app.test_request_context():

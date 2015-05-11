@@ -55,7 +55,21 @@
 
         {{ form_group_with_list_inputs(form.label) }}
 
-        {{ form_group(form.description) }}
+        <div class="form-group">
+          <label class="col-sm-2 control-label">
+            {{ form.hint.label.text }}
+          </label>
+
+          <div class="col-sm-8">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                {% for hint in form.hint.translations %}
+                  {{ form_group(hint) }}
+                {% endfor %}
+              </div>
+            </div> {# panel #}
+          </div>
+        </div> {# form-group #}
 
         {{ form_group(form.field_type, input_size="3") }}
 
