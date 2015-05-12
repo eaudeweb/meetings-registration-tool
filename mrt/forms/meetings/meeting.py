@@ -24,6 +24,7 @@ _CUSTOM_FIELD_MAPPER = {
     'StringField': CustomField.TEXT,
     'BooleanField': CustomField.CHECKBOX,
     'SelectField': CustomField.SELECT,
+    'RadioField': CustomField.RADIO,
     'CountryField': CustomField.COUNTRY,
     'CategoryField': CustomField.CATEGORY,
     'LanguageField': CustomField.LANGUAGE,

@@ -319,6 +319,12 @@ class CustomSelectField(CustomBaseFieldMixin, fields.SelectField):
             self.data = ''
 
 
+class CustomSelectRadioField(CustomSelectField):
+
+    widget = ListWidgetWithReset(prefix_label=False)
+    option_widget = widgets.RadioInput()
+
+
 class LanguageField(CustomSelectField):
     pass
 

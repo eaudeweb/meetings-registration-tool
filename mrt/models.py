@@ -482,6 +482,7 @@ class CustomField(db.Model):
     EMAIL = 'email'
     CHECKBOX = 'checkbox'
     SELECT = 'select'
+    RADIO ='radio'
     LANGUAGE = 'language'
     COUNTRY = 'country'
     CATEGORY = 'category'
@@ -499,6 +500,7 @@ class CustomField(db.Model):
         (CHECKBOX, 'Checkbox Field'),
         (MULTI_CHECKBOX, 'MultiCheckbox Field'),
         (SELECT, 'Select Field'),
+        (RADIO, 'Select Radio Field'),
         (LANGUAGE, 'Language'),
         (COUNTRY, 'Country Field'),
         (CATEGORY, 'Category Field'),

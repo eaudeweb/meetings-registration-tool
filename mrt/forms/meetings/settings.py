@@ -95,7 +95,9 @@ class CustomFieldEditForm(BaseForm):
         if self.field_type.data == CustomField.EVENT:
             self.required.data = False
 
-        if self.field_type.data == CustomField.MULTI_CHECKBOX and self.obj:
+        if (self.field_type.data in (CustomField.MULTI_CHECKBOX,
+                                     CustomField.RADIO)
+            and self.obj):
             self.custom_field_choices.choices = (
                 CustomFieldChoice.query.filter_by(custom_field=self.obj)
                 .join(Translation)
@@ -115,8 +117,8 @@ class CustomFieldEditForm(BaseForm):
         cf.meeting = g.meeting
 
         is_choice_field_disabled = self.custom_field_choices.flags.disabled
-        if (cf.field_type == CustomField.MULTI_CHECKBOX
-           and not is_choice_field_disabled):
+        if (cf.field_type in (CustomField.MULTI_CHECKBOX, CustomField.RADIO)
+            and not is_choice_field_disabled):
             CustomFieldChoice.query.filter_by(custom_field_id=cf.id).delete()
             for choice in self.custom_field_choices.data:
                 cf_choice = CustomFieldChoice(custom_field=cf)

@@ -22,7 +22,7 @@
     choices.find('select').select2({ tags: true });
     $('#field_type').on('change', function() {
       $(this).val() == 'event' ?  required.hide() : required.show();
-      if($(this).val() == 'multi_checkbox') {
+      if($(this).val() == 'multi_checkbox' || $(this).val() == 'radio') {
         choices.show();
         choices.find('input').focus();
       } else {

@@ -14,7 +14,7 @@ from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
 from mrt.forms.fields import CustomImageField, CustomMultiCheckboxField
 from mrt.forms.fields import CustomDocumentField, CustomDateField
-from mrt.forms.fields import LanguageField
+from mrt.forms.fields import LanguageField, CustomSelectRadioField
 from mrt.forms.fields import EmailField, EmailRequired
 from mrt.forms.fields import DOCUMENTS
 
@@ -34,6 +34,7 @@ _CUSTOM_FIELDS_MAP = {
                            'validators': [FileAllowed(DOCUMENTS)]},
     CustomField.SELECT: {'field': CustomSelectField},
     CustomField.LANGUAGE: {'field': LanguageField},
+    CustomField.RADIO: {'field': CustomSelectRadioField},
     CustomField.COUNTRY: {'field': CustomCountryField},
     CustomField.CATEGORY: {'field': CategoryField},
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
@@ -114,7 +115,7 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
             attrs['choices'] = [(c.id, c) for c in query]
             attrs['coerce'] = int
 
-        if f.field_type.code == CustomField.MULTI_CHECKBOX:
+        if f.field_type.code in (CustomField.MULTI_CHECKBOX,CustomField.RADIO):
             query = CustomFieldChoice.query.filter_by(custom_field=f)
             attrs['choices'] = [(unicode(c.value), c.value) for c in query]
             attrs['coerce'] = unicode
