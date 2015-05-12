@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-05-11 18:54+0300\n"
+"POT-Creation-Date: 2015-05-12 15:04+0300\n"
 "PO-Revision-Date: 2015-05-11 15:51+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -143,6 +143,18 @@ msgstr "Representante de"
 msgid "Use this photo for registration"
 msgstr "Utilice esta foto para el registro"
 
+#: mrt/templates/meetings/registration/form.html:48
+msgid "Logout"
+msgstr "Desloguearse"
+
+#: mrt/templates/meetings/registration/form.html:52
+msgid "Login and pre-fill the registration form"
+msgstr "Acceder para pre-llenar el formulario de inscripción"
+
+#: mrt/templates/meetings/registration/form.html:102
+msgid "Submit"
+msgstr "Someter"
+
 #: mrt/templates/meetings/registration/success.html:8
 msgid "Successfully registered for"
 msgstr "Registrado con éxito para"
@@ -153,7 +165,9 @@ msgstr "Crear una cuenta"
 
 #: mrt/templates/meetings/registration/user_success.html:8
 msgid "A new user was created. You can now login for future meetings."
-msgstr "Se creó un nuevo usuario. Ahora puede iniciar sesión para futuras reuniones."
+msgstr ""
+"Se creó un nuevo usuario. Ahora puede iniciar sesión para futuras "
+"reuniones."
 
 #: mrt/templates/meetings/registration/user_success.html:14
 msgid "Your participant details"
