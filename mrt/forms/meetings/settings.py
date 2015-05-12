@@ -81,6 +81,9 @@ class CustomFieldEditForm(BaseForm):
         custom_field_type = kwargs.pop('custom_field_type', None)
         super(CustomFieldEditForm, self).__init__(*args, **kwargs)
 
+        self.hint.english.validators = []
+        delattr(self.hint.english.flags, 'required')
+
         excluded_types = [CustomField.SELECT, CustomField.CATEGORY,
                           CustomField.LANGUAGE]
         if custom_field_type == CustomField.MEDIA:
