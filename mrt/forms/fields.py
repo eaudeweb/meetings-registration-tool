@@ -319,8 +319,9 @@ class CustomSelectField(CustomBaseFieldMixin, fields.SelectField):
             self.data = ''
 
 
-class CustomSelectRadioField(CustomSelectField):
+class CustomRadioField(CustomSelectField):
 
+    pre_validate = lambda self, form: None
     widget = ListWidgetWithReset(prefix_label=False)
     option_widget = widgets.RadioInput()
 

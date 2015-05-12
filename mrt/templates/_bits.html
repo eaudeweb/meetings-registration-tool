@@ -18,7 +18,7 @@
       </label>
       {% if field.type not in (
           'CustomImageField', 'CustomDocumentField', 'BooleanField', 'CustomBooleanField', 'CustomMultiCheckboxField',
-          'CustomSelectRadioField', 'RadioField', 'MeetingSettingsField',
+          'CustomRadioField', 'RadioField', 'MeetingSettingsField',
           'CategoryField') and not css_clean %}
         {% set cls = "form-control " + class_ %}
       {% else %}

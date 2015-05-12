@@ -14,7 +14,7 @@ from mrt.forms.fields import CustomSelectField, CustomTextAreaField
 from mrt.forms.fields import CustomStringField, CategoryField
 from mrt.forms.fields import CustomImageField, CustomMultiCheckboxField
 from mrt.forms.fields import CustomDocumentField, CustomDateField
-from mrt.forms.fields import LanguageField, CustomSelectRadioField
+from mrt.forms.fields import LanguageField, CustomRadioField
 from mrt.forms.fields import EmailField, EmailRequired
 from mrt.forms.fields import DOCUMENTS
 
@@ -34,7 +34,7 @@ _CUSTOM_FIELDS_MAP = {
                            'validators': [FileAllowed(DOCUMENTS)]},
     CustomField.SELECT: {'field': CustomSelectField},
     CustomField.LANGUAGE: {'field': LanguageField},
-    CustomField.RADIO: {'field': CustomSelectRadioField},
+    CustomField.RADIO: {'field': CustomRadioField},
     CustomField.COUNTRY: {'field': CustomCountryField},
     CustomField.CATEGORY: {'field': CategoryField},
     CustomField.EMAIL: {'field': EmailField, 'validators': [EmailRequired()]},
