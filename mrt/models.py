@@ -353,6 +353,16 @@ class Participant(db.Model):
         }.get(self.participant_type.code, 'meetings.participant_detail')
         return url_for(url, participant_id=self.id, meeting_id=self.meeting.id)
 
+    def label(self, field_name):
+        custom_field = (CustomField.query
+                        .filter_by(meeting=self.meeting, slug=field_name,
+                                   custom_field_type=self.participant_type)
+                        .first())
+        if custom_field and custom_field.label:
+            lang = getattr(g, 'language_verbose', app.config['DEFAULT_LANG'])
+            return getattr(custom_field.label, lang)
+        return ''
+
     @property
     def name(self):
         title = (self.title.value if isinstance(self.title, Choice)
@@ -365,7 +375,7 @@ class Participant(db.Model):
 
     @property
     def lang(self):
-        return self.language.value.lower()
+        return self.language.code.lower()
 
     @property
     def representing(self):

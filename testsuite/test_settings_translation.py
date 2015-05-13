@@ -143,6 +143,7 @@ def test_meeting_registration_success_phrases(app, user, default_meeting):
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
+    data['language'] = 'French'
 
     client = app.test_client()
     with app.test_request_context():
@@ -156,6 +157,7 @@ def test_meeting_registration_success_phrases(app, user, default_meeting):
         success_message = PyQuery(resp.data)('.text-center h4')
         assert success_message.text() == online_phrase.description.french
 
+        data['language'] = 'English'
         resp = client.post(url_for('meetings.registration',
                                    meeting_acronym=meeting.acronym,
                                    lang='en'),

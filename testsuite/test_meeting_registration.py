@@ -90,6 +90,42 @@ def test_meeting_registration_success_phrases(app, user, default_meeting):
         assert success_message == email_phrase.description.english
 
 
+def test_meeting_registration_success_phrases_fr(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+    online_phrase = meeting.phrases.filter_by(
+        group=Phrase.ONLINE_REGISTRATION,
+        name=Phrase.PARTICIPANT).scalar()
+    online_phrase.description.french = 'Online success message french'
+    email_phrase = meeting.phrases.filter_by(
+        group=Phrase.EMAIL_CONFIRMATION,
+        name=Phrase.FOR_PARTICIPANTS).scalar()
+    email_phrase.description.french = 'Email success message french'
+
+    for field in meeting.custom_fields:
+        field.label.french = field.label.english + ' french'
+
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+    data['language'] = 'French'
+
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        success_message = PyQuery(resp.data)('h4').text()
+        assert success_message == online_phrase.description.french
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+        participant = Participant.query.get(1)
+        assert participant.participant_type.code == Participant.PARTICIPANT
+        assert len(outbox) == 2
+        success_message = PyQuery(outbox[1].html)('h4').text()
+        assert success_message == email_phrase.description.french
+        labels = PyQuery(outbox[1].html)('th')
+        for label in labels:
+            assert label.text.endswith('french')
+
+
 def test_meeting_registration_media_add(app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting,

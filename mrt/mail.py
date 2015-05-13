@@ -7,6 +7,7 @@ from blinker import ANY
 from mrt.models import db, Participant, MailLog, Phrase
 from mrt.models import UserNotification
 from mrt.signals import notification_signal, registration_signal
+from mrt.utils import set_language
 
 
 mail = Mail()
@@ -138,6 +139,10 @@ def send_registration_message(sender, participant):
         meeting=participant.meeting,
         group=Phrase.EMAIL_CONFIRMATION,
         name=Phrase.FOR_PARTICIPANTS).first()
+
+    if participant.language:
+        set_language(participant.lang)
+
     template = app.jinja_env.get_template(
         'meetings/registration/mail_template.html')
     body_html = template.render({'participant': participant,

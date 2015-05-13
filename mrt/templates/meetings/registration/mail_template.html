@@ -23,47 +23,47 @@
 <body>
 </body>
 
-<h4>{{ phrase.description }}</h4>
+<h4>{{ phrase.description[g.language_verbose]|nl2br }}</h4>
 
 <table>
   <tbody>
     <tr>
-      <th>Category </th>
+      <th>{{ participant.label('category_id') }}</th>
       <td>{{ participant.category }}</td>
     </tr>
 
     <tr>
-      <th>Given name</th>
+      <th>{{ participant.label('first_name') }}</th>
       <td>{{ participant.first_name }}</td>
     </tr>
 
     <tr>
-      <th>Family name</th>
+      <th>{{ participant.label('last_name') }}</th>
       <td>{{ participant.last_name }}</td>
     </tr>
 
     <tr>
-      <th>Email</th>
+      <th>{{ participant.label('email') }}</th>
       <td>{{ participant.email }}</td>
     </tr>
 
     <tr>
-      <th>Working language</th>
+      <th>{{ participant.label('language') }}</th>
       <td>{{ participant.language }}</td>
     </tr>
 
     <tr>
-      <th>Country</th>
+      <th>{{ participant.label('country') }}</th>
       <td>{{ participant.country }}</td>
     </tr>
 
     <tr>
-      <th>Country represented</th>
+      <th>{{ participant.label('represented_country') }}</th>
       <td>{{ participant.represented_country }}</td>
     </tr>
 
     <tr>
-      <th>Organization represented</th>
+      <th>{{ participant.label('represented_organization') }}</th>
       <td>{{ participant.represented_organization }}</td>
     </tr>
 

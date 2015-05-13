@@ -47,6 +47,7 @@ DEFAULT_CONFIG = {
     'DEFAULT_PHRASES_PATH': (
         path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
     'DEFAULT_MAIL_SENDER': '',
+    'DEFAULT_LANG': _DEFAULT_LANG,
     'TRANSLATIONS': _TRANSLATIONS,
 }
 
@@ -109,7 +110,6 @@ def create_app(config={}):
                 'DEFAULT': Participant.DEFAULT,
                 'DEFAULT_MEDIA': Participant.DEFAULT_MEDIA,
             },
-            'DEFAULT_LANG': _DEFAULT_LANG,
         }
 
     login_manager = LoginManager()
