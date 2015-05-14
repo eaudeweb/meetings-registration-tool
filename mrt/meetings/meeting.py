@@ -100,7 +100,6 @@ class MeetingLogoUpload(PermissionRequiredMixin, MethodView):
             logo = form.save(logo_slug)
         else:
             return make_response(jsonify(form.errors), 400)
-
         html = render_template('meetings/logos/_image_container.html',
                                logo=logo)
         return jsonify(html=html)
@@ -118,10 +117,18 @@ class Logos(PermissionRequiredMixin, MethodView):
     def get(self):
         left_logo = Logo('PRODUCT_LOGO')
         left_logo_form = MeetingLogoEditForm(logo=left_logo.filename)
+
         right_logo = Logo('PRODUCT_SIDE_LOGO')
         right_logo_form = MeetingLogoEditForm(logo=right_logo.filename)
+
+        badge_back_logo = Logo('BADGE_BACK_LOGO')
+        badge_back_logo_form = MeetingLogoEditForm(
+            logo=badge_back_logo.filename)
+
         return render_template('meetings/logos/logos.html',
                                left_logo_form=left_logo_form,
                                left_logo=left_logo,
                                right_logo_form=right_logo_form,
-                               right_logo=right_logo)
+                               right_logo=right_logo,
+                               badge_back_logo=badge_back_logo,
+                               badge_back_logo_form=badge_back_logo_form)

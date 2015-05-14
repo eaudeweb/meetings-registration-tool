@@ -3,7 +3,9 @@
     <h4 class="text-center">{{ title|capitalize|replace('_', ' ') }}</h4>
 
     <div class="image-container" id="{{ title }}">
-      {% include "meetings/logos/_image_container.html" %}
+      {% if logo.path.exists() %}
+        {% include "meetings/logos/_image_container.html" %}
+      {% endif %}
     </div>
 
     <div class="caption text-center">
@@ -25,7 +27,8 @@
           <img src="/static/images/ajax.gif" width="24" height="24"
          alt="loading">
         </div>
-        <form action="{{ url_for('.logo_upload', logo_slug=title) }}" method="post"
+        <form action="{{ url_for('.logo_upload', logo_slug=title) }}"
+              method="post"
               enctype="multipart/form-data">
           {{ form.logo(class_="image-upload") }}
           <div class="text-danger"></div>

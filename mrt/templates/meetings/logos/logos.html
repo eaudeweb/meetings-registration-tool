@@ -39,4 +39,14 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="col-sm-6">
+      {% with title='BADGE_BACK_LOGO',
+              form=badge_back_logo_form,
+              logo=badge_back_logo %}
+        {% include "meetings/logos/_image_widget.html" %}
+      {% endwith %}
+    </div>
+  </div>
+
 {% endblock %}

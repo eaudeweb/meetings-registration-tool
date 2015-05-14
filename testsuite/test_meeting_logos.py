@@ -17,19 +17,27 @@ def test_meeting_default_logos(app, user, brand_dir):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
+
         product_logo = Logo('product_logo')
         product_side_logo = Logo('product_side_logo')
+        product_back_logo = Logo('badge_back_logo')
+        product_logo.path.touch()
+        product_side_logo.path.touch()
+        product_back_logo.path.touch()
 
         resp = client.get(url_for('meetings.logos', meeting_id=meeting.id))
         assert resp.status_code == 200
+
         html = PyQuery(resp.data)
         logo_src = html('#PRODUCT_LOGO img').attr('src')
         assert logo_src == product_logo.url
         side_logo_src = html('#PRODUCT_SIDE_LOGO img').attr('src')
         assert side_logo_src == product_side_logo.url
+        product_back_logo_stc = html('#BADGE_BACK_LOGO img').attr('src')
+        assert product_back_logo_stc == product_back_logo.url
 
         remove_buttons = html('.remove-photo')
-        assert len(remove_buttons) == 2
+        assert len(remove_buttons) == 3
         for button in remove_buttons:
             assert 'display: none' in button.attrib['style']
 
