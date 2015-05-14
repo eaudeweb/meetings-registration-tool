@@ -360,7 +360,8 @@ class Participant(db.Model):
                         .first())
         if custom_field and custom_field.label:
             lang = getattr(g, 'language_verbose', app.config['DEFAULT_LANG'])
-            return getattr(custom_field.label, lang)
+            return getattr(custom_field.label, lang) or \
+                getattr(custom_field.label, app.config['DEFAULT_LANG'])
         return ''
 
     @property
@@ -492,7 +493,7 @@ class CustomField(db.Model):
     EMAIL = 'email'
     CHECKBOX = 'checkbox'
     SELECT = 'select'
-    RADIO ='radio'
+    RADIO = 'radio'
     LANGUAGE = 'language'
     COUNTRY = 'country'
     CATEGORY = 'category'
