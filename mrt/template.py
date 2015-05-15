@@ -102,7 +102,9 @@ def inject_static_file(filepath):
 def inject_badge_context(participant):
     product_logo = Logo('product_logo')
     product_side_logo = Logo('product_side_logo')
-    participant_photo, background = None, None
+    badge_back_logo = Logo('badge_back_logo')
+
+    participant_photo, background,  = None, None
     if participant.photo:
         participant_photo = crop(
             app.config['FILES_PATH'] / app.config['PATH_CUSTOM_KEY'] /
@@ -114,6 +116,7 @@ def inject_badge_context(participant):
     return {
         'product_logo': product_logo,
         'product_side_logo': product_side_logo,
+        'badge_back_logo': badge_back_logo,
         'participant_photo': participant_photo,
         'background': background,
     }

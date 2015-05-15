@@ -31,37 +31,56 @@
 
   <h3 class="page-title">{{ title }}</h3>
 
-  <div id="badge-templates-container" class="row">
+  <div id="badge-templates-container">
 
-    {% set tpl = g.meeting.settings.get('badge_template', 'default')%}
+    <div class="row">
 
-    <div class="col-sm-4">
-      <a class="thumbnail {% if tpl == 'default'%}active{% endif %}"
-         href="{{ url_for('.badge_templates',
-                          badge_template='default') }}">
-        <img src="{{ url_for('static', filename='images/badges/default.png') }}" alt="Default badge">
-      </a>
-      <div class="text-center"><h4>Default badge</h4></div>
-    </div> {# col-sm-6 #}
+      {% set tpl = g.meeting.settings.get('badge_template', 'default')%}
 
-    <div class="col-sm-4">
-      <a class="thumbnail {% if tpl == 'standard'%}active{% endif %}"
-         href="{{ url_for('.badge_templates',
-                          badge_template='standard') }}">
-        <img src="{{ url_for('static', filename='images/badges/standard.png') }}" alt="Standard">
-      </a>
-      <div class="text-center"><h4>Standard</h4></div>
-    </div> {# col-sm-6 #}
+      <div class="col-sm-4">
+        <a class="thumbnail {% if tpl == 'default'%}active{% endif %}"
+           href="{{ url_for('.badge_templates',
+                            badge_template='default') }}">
+          <img src="{{ url_for('static', filename='images/badges/default.png') }}" alt="Default badge">
+        </a>
+        <div class="text-center"><h4>Default badge</h4></div>
+      </div> {# col-sm-6 #}
 
-    <div class="col-sm-4">
-      <a class="thumbnail {% if tpl == 'optimized'%}active{% endif %}"
-         href="{{ url_for('.badge_templates',
-                          badge_template='optimized') }}">
-        <img src="{{ url_for('static', filename='images/badges/optimized.png') }}" alt="Optimized">
-      </a>
-      <div class="text-center"><h4>Optimized</h4></div>
-    </div> {# col-sm-6 #}
+      <div class="col-sm-4">
+        <a class="thumbnail {% if tpl == 'standard'%}active{% endif %}"
+           href="{{ url_for('.badge_templates',
+                            badge_template='standard') }}">
+          <img src="{{ url_for('static', filename='images/badges/standard.png') }}" alt="Standard">
+        </a>
+        <div class="text-center"><h4>Standard</h4></div>
+      </div> {# col-sm-6 #}
 
-  </div> {# row #}
+      <div class="col-sm-4">
+        <a class="thumbnail {% if tpl == 'optimized'%}active{% endif %}"
+           href="{{ url_for('.badge_templates',
+                            badge_template='optimized') }}">
+          <img src="{{ url_for('static', filename='images/badges/optimized.png') }}" alt="Optimized">
+        </a>
+        <div class="text-center"><h4>Optimized</h4></div>
+      </div> {# col-sm-6 #}
+
+    </div> {# row #}
+
+    <div class="row" style="margin-top: 25px;">
+      <div class="col-sm-8" style="margin: auto; float:none;">
+        <a class="thumbnail {% if tpl == 'default'%}active{% endif %}"
+           href="{{ url_for('.badge_templates',
+                            badge_template='default_front_and_back') }}">
+          <img src="{{ url_for(
+              'static',
+              filename='images/badges/default_front_and_back.png') }}"
+              alt="Default badge">
+        </a>
+        <div class="text-center">
+          <h4>Default badge width back background image</h4></div>
+      </div> {# col-sm-8 #}
+    </div>
+
+  </div> {# badge-templates-container #}
 
 {% endblock %}

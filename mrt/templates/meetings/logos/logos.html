@@ -26,27 +26,25 @@
 
 
   <div class="row">
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       {% with title='PRODUCT_LOGO', form=left_logo_form, logo=left_logo %}
         {% include "meetings/logos/_image_widget.html" %}
       {% endwith %}
     </div>
 
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       {% with title='PRODUCT_SIDE_LOGO', form=right_logo_form, logo=right_logo %}
         {% include "meetings/logos/_image_widget.html" %}
       {% endwith %}
     </div>
-  </div>
-
-  <div class="row">
-    <div class="col-sm-6">
+    <div class="col-sm-4">
       {% with title='BADGE_BACK_LOGO',
               form=badge_back_logo_form,
               logo=badge_back_logo %}
         {% include "meetings/logos/_image_widget.html" %}
       {% endwith %}
     </div>
+
   </div>
 
 {% endblock %}

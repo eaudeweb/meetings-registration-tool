@@ -22,6 +22,7 @@ GOOGLE_ANALYTICS_KEY = ''
 # Logos filenames; files should be located at project_dir/instance/files/logos/
 PRODUCT_LOGO = ''
 PRODUCT_SIDE_LOGO = ''
+BADGE_BACK_LOGO = ''
 
 # Domain name for correctly displaying registration URLs
 DOMAIN_NAME = ''
