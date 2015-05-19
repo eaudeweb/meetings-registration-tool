@@ -50,7 +50,7 @@
     <td class="text-right">
       <b><em>{{ gettext('Representative of') }}</em></b>
     </td>
-    <td class="pad-left">{{ participant.representing }}</td>
+    <td class="pad-left">{{ participant.representing|default('') }}</td>
   </tr>
 
   <tr>
@@ -58,6 +58,25 @@
       <b><em>{{ gettext('Working language') }}</em></b>
     </td>
     <td class="pad-left">{{ participant.language.value }}</td>
+  </tr>
+
+  <tr>
+    <td class="text-right">
+      <b><em>{{ gettext('Country represented') }}</em></b>
+    </td>
+    <td class="pad-left">
+      {% if participant.represented_country %}
+        {{ participant.represented_country }}
+      {% else %}
+      {% endif %}
+    </td>
+  </tr>
+
+  <tr>
+    <td class="text-right">
+      <b><em>{{ gettext('Representing region') }}</em></b>
+    </td>
+    <td class="pad-left">{{ participant.represented_region|default('') }}</td>
   </tr>
 
 </table>
