@@ -109,7 +109,9 @@ def brand_dir(app, tmpdir):
     brand_path = tmpdir.ensure_dir('brand/static')
     app.config['PRODUCT_LOGO'] = product_logo = 'product_logo.png'
     app.config['PRODUCT_SIDE_LOGO'] = side_logo = 'product_side_logo.png'
+    app.config['BADGE_BACK_LOGO'] = badge_logo = 'product_badge_back_logo.jpg'
     brand_path.ensure(product_logo)
     brand_path.ensure(side_logo)
+    brand_path.ensure(badge_logo)
     app.config['BRAND_PATH'] = path(brand_path)
     return app.config['BRAND_PATH']
