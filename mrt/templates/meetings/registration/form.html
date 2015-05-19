@@ -56,23 +56,21 @@
   {% endif %}
 
   {% if header_phrase.description %}
-
     {% set product_logo = get_logo('PRODUCT_LOGO') %}
     {% set product_side_logo = get_logo('PRODUCT_SIDE_LOGO') %}
 
-    <div class="row">
-      <div class="col-sm-1">
-        <img src="{{ product_logo.url }}" width="60" alt="">
-      </div>
-      <div class="col-sm-10 text-center">
-        <h4>{{ header_phrase.description[g.language_verbose]
+  <div class="product-container">
+    <div class="product-logo hidden-xs">
+      <img src="{{ product_logo.url }}" width="60" alt="">
+    </div>
+    <div class="product-side-logo hidden-xs">
+      <img src="{{ product_side_logo.url }}" width="60" alt="">
+    </div>
+    <div class="title text-center">
+      <h4>{{ header_phrase.description[g.language_verbose]
                |nl2br|clean_html(tags='sup') }}</h4>
-      </div>
-      <div class="col-sm-1">
-        <img src="{{ product_side_logo.url }}" width="60" alt="">
-      </div>
-    </div> {# /row #}
-
+    </div>
+  </div>
   {% endif %}
 
   <form method="POST" class="form-horizontal"

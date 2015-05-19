@@ -22,3 +22,24 @@ li.separator {
 .form-group li label {
     font-weight: normal;
 }
+
+.product-container {
+    margin-bottom: 30px;
+    margin-top: 30px;
+    overflow: hidden;
+}
+.product-logo {
+    text-align: center;
+    float: left;
+    width: 140px;
+}
+.product-side-logo {
+    text-align: center;
+    float: right;
+    width: 140px;
+}
+.title {
+    margin: auto 124px;
+}
+
+
