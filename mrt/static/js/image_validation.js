@@ -44,7 +44,7 @@ $(function () {
       // calculate sum of values in file sizes array
       var totalUploadSize = fileSizes.reduce(function (a, b) {return a + b});
 
-      if (allowedExtensions.indexOf(fileExtension) == -1) {
+      if (allowedExtensions.indexOf(fileExtension.toLowerCase()) == -1) {
         message = file.name + ' is not in the allowed extensions: ' + allowedExtensions.join(', ');
       }
       else if (file.size >= 1024 * 1024) {

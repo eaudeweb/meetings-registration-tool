@@ -192,7 +192,8 @@ class CustomMultiCheckboxField(CustomBaseFieldMixin, MultiCheckboxField):
                 )
             )
         )
-        cf.custom_field_values.filter_by(participant=participant).delete()
+        if participant.id:
+            cf.custom_field_values.filter_by(participant=participant).delete()
         for choice in choices:
             cfv = CustomFieldValue(custom_field=cf, participant=participant)
             cfv.choice = choice
