@@ -106,9 +106,9 @@ def inject_badge_context(participant):
 
     participant_photo, background,  = None, None
     if participant.photo:
-        participant_photo = crop(
-            app.config['FILES_PATH'] / app.config['PATH_CUSTOM_KEY'] /
-            participant.photo)
+        crop_photo = crop(path(app.config['PATH_CUSTOM_KEY']) /
+                          participant.photo)
+        participant_photo = app.config['FILES_PATH'] / crop_photo
 
     if participant.category.background:
         background = (app.config['UPLOADED_BACKGROUNDS_DEST'] /
