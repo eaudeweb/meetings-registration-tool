@@ -85,7 +85,7 @@ def crop(filename):
 def no_image_cache(url):
     if app.config['TESTING']:
         return url
-    return url + '?' + str(int(time.time()))
+    return url + '?' + str(int(time.time())) if url else ''
 
 
 def activity_map(action):
