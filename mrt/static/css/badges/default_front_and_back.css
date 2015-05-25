@@ -31,10 +31,6 @@ h2 {
     page-break-after: always !important;
 }
 
-.image-container img {
-    height: 144px;
-}
-
 .stripe {
     text-align: center;
     height: 0.6694in;
