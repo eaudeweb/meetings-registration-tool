@@ -8,6 +8,11 @@ from contrib.importer.models import (
     migrate_category, migrate_event, migrate_meeting, migrate_participant,
     migrate_phrase,
 )
+from mrt.models import (
+    db, Meeting as Meeting_, PhraseDefault as PhraseDefault_,
+    Phrase as Phrase_, Translation as Translation_,
+)
+from mrt.utils import copy_attributes
 
 
 @click.group()
@@ -85,3 +90,28 @@ def import_(ctx, database, meeting_id, with_photos):
                     'true')
 
         click.echo('Total participants processed %d' % participants.count())
+
+
+# QUICKFIX! TODO: remove this & fix import
+@cli.command()
+@click.argument('meeting_id')
+@click.pass_context
+def fix_phrases(ctx, meeting_id):
+    app = ctx.obj['app']
+    with app.test_request_context():
+        meeting = Meeting_.query.get(meeting_id)
+        for phrase in meeting.phrases:
+            db.session.delete(phrase)
+            db.session.flush()
+        phrases_default = (
+            PhraseDefault_.query
+            .filter_by(meeting_type_slug=meeting.meeting_type_slug)
+        )
+        for phrase_default in phrases_default:
+            phrase = copy_attributes(Phrase_(), phrase_default)
+            phrase.description = (
+                copy_attributes(Translation_(), phrase_default.description)
+                if phrase_default.description else Translation_(english=''))
+            phrase.meeting = meeting
+            db.session.add(phrase)
+            db.session.commit()
