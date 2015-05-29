@@ -46,10 +46,10 @@ def send_single_message(to, subject, message, sender=None, attachment=None,
         msg.attach(attachment_name, "application/pdf", attachment.read())
     mail.send(msg)
     if g.get('meeting'):
-        participant = (Participant.query.filter_by(email=to)
+        participant = (Participant.query.filter_by(email=to, meeting=g.meeting)
                        .participants().first())
         mail_log = MailLog(meeting=g.meeting, to=participant,
-                           subject=subject, message=message,
+                           to_email=to, subject=subject, message=message,
                            date_sent=datetime.now())
         db.session.add(mail_log)
         db.session.commit()

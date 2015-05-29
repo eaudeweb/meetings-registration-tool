@@ -963,19 +963,18 @@ class MailLog(db.Model):
         'Meeting',
         backref=db.backref('mails', lazy='dynamic', cascade='delete'))
 
-    to_id = db.Column(
-        db.Integer, db.ForeignKey('participant.id'),
-        nullable=False)
+    to_id = db.Column(db.Integer, db.ForeignKey('participant.id'))
     to = db.relationship(
         'Participant',
         backref=db.backref('mails', lazy='dynamic', cascade='delete'))
 
+    to_email = db.Column(db.String(128))
     subject = db.Column(db.String(128), nullable=False)
     message = db.Column(db.Text, nullable=False)
     date_sent = db.Column(db.DateTime)
 
     def __repr__(self):
-        return self.to.email
+        return self.to.email if self.to else self.to_email
 
 
 class ActivityLog(db.Model):
