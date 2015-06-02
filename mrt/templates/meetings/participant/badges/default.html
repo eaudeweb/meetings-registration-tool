@@ -27,7 +27,7 @@
     <div class="description">
       <h2>
        {{ participant.name_on_badge }}
-        <small>{{ participant.representing }}</small>
+        <small>{{ participant.representing|safe }}</small>
       </h2>
     </div> {# description #}
 

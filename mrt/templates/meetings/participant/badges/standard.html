@@ -12,7 +12,7 @@
 
   <div class="content">
     <h1>{{ participant.name_on_badge }}</h1>
-    <h2>{{ participant.representing }}</h2>
+    <h2>{{ participant.representing|safe }}</h2>
   </div> {# content #}
 
   <div class="address">
