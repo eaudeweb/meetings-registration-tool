@@ -444,6 +444,27 @@ def test_meeting_participant_delete(app, user):
         assert Participant.query.current_meeting().participants().count() == 0
 
 
+def test_meeting_participant_permanently_delete(app, user):
+    part = ParticipantFactory()
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.delete(url_for('meetings.participant_edit',
+                                     meeting_id=part.meeting.id,
+                                     participant_id=part.id))
+        assert resp.status_code == 200
+        assert Participant.query.current_meeting().participants().count() == 0
+        assert Participant.query.count() == 1
+
+        resp = client.delete(url_for('meetings.participant_permanently_delete',
+                             meeting_id=part.meeting.id,
+                             participant_id=part.id))
+        assert Participant.query.current_meeting().participants().count() == 0
+        assert Participant.query.count() == 0
+
+
 def test_meeting_participant_restore_after_delete(app, user):
     part = ParticipantFactory()
 
