@@ -61,6 +61,21 @@ def test_meeting_registration_add(app, user, default_meeting):
         assert ActivityLog.query.filter_by(meeting=meeting).count() == 1
 
 
+def test_meeting_registration_email_sender(app, user, default_meeting):
+    meeting = add_new_meeting(app, user)
+    category = MeetingCategoryFactory(meeting=meeting)
+    data = ParticipantFactory.attributes()
+    data['category_id'] = category.id
+
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        resp = register_participant_online(client, data, meeting)
+        assert resp.status_code == 200
+        assert Participant.query.filter_by(meeting=meeting).count() == 1
+        assert len(outbox) == 2
+        assert outbox[1].sender == meeting.owner.user.email
+
+
 def test_meeting_registration_success_phrases(app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting)

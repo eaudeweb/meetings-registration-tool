@@ -130,7 +130,7 @@ def send_notification_message(recipients, participant):
 
 @registration_signal.connect_via(ANY)
 def send_registration_message(sender, participant):
-    sender = get_default_sender()
+    sender = get_meeting_sender()
     if not sender:
         flash('No email for sender.', 'error')
         return
