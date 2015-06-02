@@ -1130,7 +1130,7 @@ def search_for_participant(search, queryset=None):
     queryset = queryset or Participant.query.current_meeting().participants()
     if not isinstance(search, basestring):
         search = str(search)
-    search = '{}{}{}'.format('%', search, '%')
+    search = '%%%s%%' % (search, )
     return queryset.filter(
         (cast(Participant.id, String) == search) |
         Participant.first_name.ilike(search) |
