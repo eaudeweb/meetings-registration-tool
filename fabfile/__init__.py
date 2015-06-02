@@ -32,6 +32,16 @@ def aewa():
 
 
 @task
+def cites():
+    enviroment('cites')
+
+
+@task
+def cms():
+    enviroment('cms')
+
+
+@task
 def deploy():
     require('deployment_location', used_for=USED_FOR_MSG)
     if hasattr(env, 'brand_path'):
