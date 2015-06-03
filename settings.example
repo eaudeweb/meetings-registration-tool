@@ -29,3 +29,6 @@ DOMAIN_NAME = ''
 
 # Choose a subset of the available languages: ['english', 'french', 'spanish']
 # TRANSLATIONS = []
+
+# URL used by importer for participants photos
+# PHOTOS_BASE_URL = ''

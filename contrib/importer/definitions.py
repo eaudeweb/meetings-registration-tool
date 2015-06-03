@@ -78,5 +78,3 @@ CUSTOM_FIELDS = {
     'personal_address': u'Address',
     'personal_cellular': u'Mobile',
 }
-
-PHOTOS_BASE_URL = 'http://meetings.cites.org/static/photos/'

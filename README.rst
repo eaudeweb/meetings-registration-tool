@@ -221,6 +221,16 @@ Merge the changes::
     pybabel update -i mrt/translations/messages.pot -d mrt/translations
 
 
+Import meeting from old version
+-----------------------
+Simply run the next commands::
+
+    ./manage.py import <database> <meeting_id>
+
+In order to get the participants photos you must complete the PHOTOS_BASE_URL in settings and run:
+    ./manage.py import <database> <meeting_id> --with-photos
+
+
 Contacts
 ========
 

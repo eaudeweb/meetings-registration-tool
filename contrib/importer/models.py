@@ -12,7 +12,7 @@ from mrt.models import db
 from mrt.forms.meetings import add_custom_fields_for_meeting
 from mrt.utils import copy_attributes
 
-from contrib.importer.definitions import COLORS, DEFAULT_COLOR, PHOTOS_BASE_URL
+from contrib.importer.definitions import COLORS, DEFAULT_COLOR
 from contrib.importer.definitions import LANGUAGES, REGIONS, CUSTOM_FIELDS
 from contrib.importer.definitions import REPRESENTING_TEMPLATES
 
@@ -304,7 +304,7 @@ def migrate_participant(participant, participant_meeting, migrated_category,
     photo = participant.data.get('photo')
     if photo_field and photo:
         create_custom_field_value(migrated_participant, photo_field, photo)
-        urlretrieve(PHOTOS_BASE_URL + photo,
+        urlretrieve(app.config['PHOTOS_BASE_URL'] + photo,
                     app.config['UPLOADED_CUSTOM_DEST'] / photo)
 
     return migrated_participant
