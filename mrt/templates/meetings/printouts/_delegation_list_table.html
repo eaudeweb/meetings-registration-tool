@@ -30,7 +30,7 @@
         {% for representing, participants in list|groupby('representing')|sort_by_tuple_element %}
           <tr>
             <td class="text-center">{{ participants|length }}</td>
-            <td>{{ representing }}</td>
+            <td>{{ representing|safe }}</td>
           </tr>
         {% endfor %}
 
