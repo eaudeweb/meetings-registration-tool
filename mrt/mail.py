@@ -119,8 +119,14 @@ def send_notification_message(recipients, participant):
         return
 
     subject = "New %s has registered" % (model_class,)
-    body = "A new %s has been registered %s" % (model_class,
-                                                request.url_root + url)
+    body = "A new %s has been registered %s\n\n" % (model_class,
+                                                    request.url_root + url)
+    url = request.url_root + url_for('meetings.notifications',
+                                     meeting_id=participant.meeting.id)
+    footer = "You're receiving this notifications because you are subscribed \
+to them. Click on %s to change your subscription settings or ask the meeting \
+administrator to unsubscribe you from these emails." % (url, )
+    body += footer
 
     for recipient in recipients:
         msg = Message(subject=subject, body=body, sender=sender,
