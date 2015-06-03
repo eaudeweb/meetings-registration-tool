@@ -119,17 +119,17 @@ def send_notification_message(recipients, participant):
         return
 
     subject = "New %s has registered" % (model_class,)
-    body = "A new %s has been registered %s\n\n" % (model_class,
-                                                    request.url_root + url)
+    template = app.jinja_env.get_template(
+        'meetings/notification/notification_template.html')
     url = request.url_root + url_for('meetings.notifications',
                                      meeting_id=participant.meeting.id)
-    footer = "You're receiving this notifications because you are subscribed \
-to them. Click on %s to change your subscription settings or ask the meeting \
-administrator to unsubscribe you from these emails." % (url, )
-    body += footer
-
+    notification_url = request.url_root + url_for(
+        'meetings.notifications', meeting_id=participant.meeting.id)
+    html = template.render({'model_class': model_class,
+                            'detail_url': url,
+                            'notification_url': notification_url})
     for recipient in recipients:
-        msg = Message(subject=subject, body=body, sender=sender,
+        msg = Message(subject=subject, html=html, sender=sender,
                       recipients=[recipient])
         mail.send(msg)
 
