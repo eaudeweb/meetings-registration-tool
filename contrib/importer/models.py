@@ -203,6 +203,8 @@ def migrate_category(category_and_category_meeting, migrated_meeting):
 
 
 def migrate_phrase(phrase, migrated_meeting):
+    online_registration = 'Online registration'
+    confirmation = 'Confirmation '
     migrated_phrase = models.Phrase()
 
     description = models.Translation(english=phrase.data['description_E'],
@@ -213,12 +215,32 @@ def migrate_phrase(phrase, migrated_meeting):
     migrated_phrase.description = description
 
     migrated_phrase.name = phrase.data['label']
-    migrated_phrase.group = phrase.data['group']
+    if online_registration in phrase.data['group']:
+        migrated_phrase.group = online_registration
+        migrated_phrase.name = confirmation + migrated_phrase.name
+    else:
+        migrated_phrase.group = phrase.data['group']
     migrated_phrase.sort = phrase.data['sort']
 
     migrated_phrase.meeting = migrated_meeting
 
     db.session.add(migrated_phrase)
+    db.session.commit()
+
+
+def copy_missing_phrases(default_phrases, migrated_meeting):
+    last_sort = max([x.sort for x in migrated_meeting.phrases.all()])
+    for phrase in default_phrases:
+        if not migrated_meeting.phrases.filter_by(name=phrase.name,
+                                                  group=phrase.group).first():
+            new_phrase = copy_attributes(models.Phrase(), phrase)
+            new_phrase.description = (
+                copy_attributes(models.Translation(), phrase.description)
+                if phrase.description else models.Translation(english=''))
+            new_phrase.meeting = migrated_meeting
+            new_phrase.sort = last_sort + 1
+            db.session.add(new_phrase)
+            last_sort += 1
     db.session.commit()
 
 

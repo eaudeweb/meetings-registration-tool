@@ -1,4 +1,5 @@
 import click
+import json
 from sqlalchemy.exc import IntegrityError
 
 from contrib.importer.models import (
@@ -6,7 +7,7 @@ from contrib.importer.models import (
     ParticipantMeeting, Phrase, session,
     create_custom_field_value, create_custom_fields, create_photo_field,
     migrate_category, migrate_event, migrate_meeting, migrate_participant,
-    migrate_phrase,
+    migrate_phrase, copy_missing_phrases
 )
 from mrt.models import (
     db, Meeting as Meeting_, PhraseDefault as PhraseDefault_,
@@ -59,6 +60,10 @@ def import_(ctx, database, meeting_id, with_photos):
         phrases = ses.query(Phrase).filter(Phrase.meeting_id == meeting.id)
         for phrase in phrases.all():
             migrate_phrase(phrase, migrated_meeting)
+        with open(ctx.obj['app'].config['DEFAULT_PHRASES_PATH'], 'r') as f:
+            default_phrases = json.load(f)
+        default_phrases = [PhraseDefault_(**d) for d in default_phrases]
+        copy_missing_phrases(default_phrases, migrated_meeting)
 
         migrated_participants = {}
         for participant, participant_meeting, participant_event in participants:
