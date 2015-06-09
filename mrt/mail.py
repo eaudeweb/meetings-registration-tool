@@ -121,8 +121,7 @@ def send_notification_message(recipients, participant):
     subject = "New %s has registered" % (model_class,)
     template = app.jinja_env.get_template(
         'meetings/notification/notification_template.html')
-    url = request.url_root + url_for('meetings.notifications',
-                                     meeting_id=participant.meeting.id)
+    url = request.url_root + url
     notification_url = request.url_root + url_for(
         'meetings.notifications', meeting_id=participant.meeting.id)
     html = template.render({'model_class': model_class,
