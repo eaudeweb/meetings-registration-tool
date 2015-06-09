@@ -4,6 +4,7 @@
 <div class="printout-doc-title">
   <h4>{{ meeting_title_for_printouts() }}</h4>
   <h2>{{ title }} - Total: {{ count }}</h2>
+  {% if flag %}<h3>{{ flag|capitalize }}</h3>{% endif %}
 </div>
 
 

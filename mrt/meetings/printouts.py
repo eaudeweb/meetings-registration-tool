@@ -15,7 +15,7 @@ from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
-from mrt.forms.meetings import BadgeCategories, EventsForm
+from mrt.forms.meetings import BadgeCategories, EventsForm, FlagForm
 from mrt.models import Participant, Category, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
@@ -153,14 +153,14 @@ class PDFDownload(MethodView):
 class ShortList(PermissionRequiredMixin, MethodView):
 
     JOB_NAME = 'short list'
-    DOC_TITLE = 'List of announced participants'
+    DOC_TITLE = 'List of participants'
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
 
     @staticmethod
-    def _get_query():
-        return (
+    def _get_query(flag):
+        query = (
             Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
@@ -169,22 +169,33 @@ class ShortList(PermissionRequiredMixin, MethodView):
                       Participant.last_name, Participant.id)
         )
 
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
     def get(self):
+        flag = request.args.get('flag')
         page = request.args.get('page', 1, type=int)
-        query = self._get_query()
+        query = self._get_query(flag)
         count = query.count()
         pagination = query.paginate(page, per_page=50)
         participants = groupby(pagination.items, key=attrgetter('category'))
+        flag_form = FlagForm(request.args)
         return render_template(
             'meetings/printouts/short_list.html',
             participants=participants,
             pagination=pagination,
             count=count,
-            title=self.DOC_TITLE)
+            title=self.DOC_TITLE,
+            flag=flag,
+            flag_form=flag_form)
 
     def post(self):
+        flag = request.args.get('flag')
         _add_to_printout_queue(_process_short_list, self.JOB_NAME,
-                               self.DOC_TITLE)
+                               self.DOC_TITLE, flag)
         return redirect(url_for('.printouts_short_list'))
 
 
@@ -278,14 +289,15 @@ class PrintoutFooter(MethodView):
                                now=datetime.now())
 
 
-def _process_short_list(meeting_id, title):
+def _process_short_list(meeting_id, title, flag):
     g.meeting = Meeting.query.get(meeting_id)
-    query = ShortList._get_query()
+    query = ShortList._get_query(flag)
     count = query.count()
     participants = groupby(query, key=attrgetter('category'))
     context = {'participants': participants,
                'count': count,
                'title': title,
+               'flag': flag,
                'template': 'meetings/printouts/_short_list_table.html'}
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

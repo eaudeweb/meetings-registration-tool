@@ -160,6 +160,18 @@ class PrintoutForm(BadgeCategories):
     printout_type = fields.SelectField('Type', choices=PRINTOUT_TYPES)
 
 
+class FlagForm(BaseForm):
+
+    flag = fields.SelectField()
+
+    def __init__(self, *args, **kwargs):
+        super(FlagForm, self).__init__(*args, **kwargs)
+        flags = g.meeting.custom_fields.filter_by(
+            field_type=CustomField.CHECKBOX,
+            is_primary=True)
+        self.flag.choices = [('', '---')] + [(f.slug, f.label) for f in flags]
+
+
 class EventsForm(BaseForm):
 
     events = fields.SelectMultipleField()
