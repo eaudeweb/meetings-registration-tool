@@ -3,6 +3,7 @@ import os
 import re
 import xlwt
 
+from datetime import date
 from json import JSONEncoder as _JSONEncoder
 from PIL import Image
 from StringIO import StringIO
@@ -283,6 +284,8 @@ class JSONEncoder(_JSONEncoder):
     def default(self, o):
         if isinstance(o, FileStorage):
             return str(o.filename)
+        elif isinstance(o, date):
+            return o.isoformat()
         return o
 
 
