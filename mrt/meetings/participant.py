@@ -53,9 +53,13 @@ class Participants(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', 'view_participant',
                            'manage_participant')
+    form_class = ParticipantEditForm
 
     def get(self):
-        return render_template('meetings/participant/participant/list.html')
+        Form = custom_form_factory(self.form_class)
+        form = Form()
+        return render_template('meetings/participant/participant/list.html',
+                               form=form)
 
 
 class MediaParticipants(PermissionRequiredMixin, MethodView):
