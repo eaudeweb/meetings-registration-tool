@@ -23,6 +23,16 @@ class Meeting(object):
 
 class Participant(object):
 
+    TITLE_MAPPING = {
+        'Mr': 'Mr',
+        'Ms': 'Ms',
+        'M': 'Mr',
+        'Sra.': 'Ms',
+        'Sr.': 'Mr',
+        'Mme.': 'Ms',
+        '': 'Mr'
+    }
+
     def __repr__(self):
         return str(self.id)
 
@@ -257,7 +267,8 @@ def migrate_participant(participant, participant_meeting, migrated_category,
         pass
 
     migrated_participant = models.Participant()
-    migrated_participant.title = participant.data['personal_name_title']
+    migrated_participant.title = Participant.TITLE_MAPPING[
+        participant.data['personal_name_title']]
     migrated_participant.first_name = participant.data['personal_first_name']
     migrated_participant.last_name = participant.data['personal_last_name']
     migrated_participant.email = participant.data['personal_email']
