@@ -4,6 +4,7 @@ from pyquery import PyQuery
 from testsuite.factories import RoleUserMeetingFactory, ParticipantFactory
 from testsuite.factories import MediaParticipantFactory, StaffFactory
 from testsuite.factories import MeetingFactory
+from testsuite.utils import add_participant_custom_fields
 
 from mrt.models import Category
 
@@ -81,6 +82,7 @@ def test_meeting_tab_menu(app, url_name, perms, element_id, status):
                                   meeting__settings=MEDIA_ENABLED)
     client = app.test_client()
     with app.test_request_context():
+        add_participant_custom_fields(role.meeting)
         _login_user(client, role.user)
         _test(client, url_for(url_name, meeting_id=role.meeting_id),
               element_id, status)
@@ -162,6 +164,7 @@ def test_meeting_owner_tab_menu(app, url_name, element_id, status):
 
     client = app.test_client()
     with app.test_request_context():
+        add_participant_custom_fields(meeting)
         _login_user(client, owner.user)
         _test(client, url_for(url_name, meeting_id=meeting.id),
               element_id, status)
@@ -220,6 +223,7 @@ def test_meeting_superuser_sees_everything(app, user, url_name, element_id,
     meeting = MeetingFactory(settings=MEDIA_ENABLED)
     client = app.test_client()
     with app.test_request_context():
+        add_participant_custom_fields(meeting)
         _login_user(client, user)
         _test(client, url_for(url_name, meeting_id=meeting.id),
               element_id, status)

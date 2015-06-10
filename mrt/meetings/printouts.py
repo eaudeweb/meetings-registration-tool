@@ -183,6 +183,7 @@ class ShortList(PermissionRequiredMixin, MethodView):
         pagination = query.paginate(page, per_page=50)
         participants = groupby(pagination.items, key=attrgetter('category'))
         flag_form = FlagForm(request.args)
+        flag = g.meeting.custom_fields.filter_by(slug=flag).first()
         return render_template(
             'meetings/printouts/short_list.html',
             participants=participants,
@@ -294,6 +295,7 @@ def _process_short_list(meeting_id, title, flag):
     query = ShortList._get_query(flag)
     count = query.count()
     participants = groupby(query, key=attrgetter('category'))
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     context = {'participants': participants,
                'count': count,
                'title': title,

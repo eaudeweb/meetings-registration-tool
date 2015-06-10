@@ -4,6 +4,7 @@ from testsuite.factories import RoleUserMeetingFactory, ParticipantFactory
 from testsuite.factories import MeetingCategoryFactory, MediaParticipantFactory
 from testsuite.factories import CustomFieldFactory, UserNotificationFactory
 from testsuite.factories import PhraseMeetingFactory, StaffFactory
+from testsuite.utils import add_participant_custom_fields
 
 from mrt.models import Category
 
@@ -65,6 +66,7 @@ def test_permissions_participant(app, monkeypatch, pdf_renderer,
     participant = ParticipantFactory(category__meeting=role.meeting)
     client = app.test_client()
     with app.test_request_context():
+        add_participant_custom_fields(role.meeting)
         _login_user(client, role.user)
         _test(client, url_for(url_name,
                               participant_id=participant.id,
@@ -232,6 +234,7 @@ def test_permissions_meeting_owner(app, url_name, status, default_meeting,
     participant = ParticipantFactory(category__meeting__owner=staff)
     client = app.test_client()
     with app.test_request_context():
+        add_participant_custom_fields(participant.meeting)
         _login_user(client, staff.user)
         _test(client, url_for(url_name,
                               participant_id=participant.id,
