@@ -51,7 +51,7 @@
         {% for mail in mails %}
           {% set url = url_for('.mail_detail', mail_id=mail.id) %}
           <tr>
-            <td><a href="{{ url }}">{{ mail.to.email }}</a></td>
+            <td><a href="{{ url }}">{{ mail }}</a></td>
             <td>{{ mail.to.name }}</td>
             <td>{{ mail.to.country }}</td>
             <td>{{ mail.date_sent.strftime('%Y-%m-%d %H:%M:%S') }}</td>
