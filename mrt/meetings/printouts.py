@@ -69,32 +69,41 @@ class Badges(PermissionRequiredMixin, MethodView):
     def get(self):
         category_ids = request.args.getlist('categories')
         page = request.args.get('page', 1, type=int)
+        flag = request.args.get('flag')
         participants = Participant.query.current_meeting().participants()
         if category_ids:
             participants = participants.filter(
                 Participant.category.has(Category.id.in_(category_ids))
             )
+        if flag:
+            attr = getattr(Participant, flag)
+            participants = participants.filter(attr == True)
         badge_categories_form = BadgeCategories(request.args)
         participants = participants.paginate(page, per_page=50)
         return render_template('meetings/printouts/badges.html',
                                participants=participants,
                                category_ids=category_ids,
+                               flag=flag,
                                badge_categories_form=badge_categories_form)
 
     def post(self):
         category_ids = request.args.getlist('categories')
+        flag = request.args.get('flag')
         _add_to_printout_queue(_process_badges, self.JOB_NAME,
-                               *[category_ids])
+                               flag, *[category_ids])
         return redirect(url_for('.printouts_participant_badges'))
 
 
-def _process_badges(meeting_id, category_ids):
+def _process_badges(meeting_id, flag, category_ids):
     g.meeting = Meeting.query.get(meeting_id)
     participants = Participant.query.current_meeting().participants()
     if category_ids:
         participants = participants.filter(
             Participant.category.has(Category.id.in_(category_ids))
         )
+    if flag:
+            attr = getattr(Participant, flag)
+            participants = participants.filter(attr == True)
     context = {'participants': participants}
     return PdfRenderer('meetings/printouts/badges_pdf.html',
                        height='2.15in', width='3.4in',

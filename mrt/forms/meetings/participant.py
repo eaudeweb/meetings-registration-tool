@@ -146,6 +146,7 @@ class MediaParticipantEditForm(ParticipantEditForm):
 class BadgeCategories(BaseForm):
 
     categories = fields.SelectMultipleField()
+    flag = fields.SelectField()
 
     def __init__(self, *args, **kwargs):
         super(BadgeCategories, self).__init__(*args, **kwargs)
@@ -153,6 +154,10 @@ class BadgeCategories(BaseForm):
             meeting=g.meeting,
             category_type=Category.PARTICIPANT)
         self.categories.choices = [(c.id, c.title) for c in categories]
+        flags = g.meeting.custom_fields.filter_by(
+            field_type=CustomField.CHECKBOX,
+            is_primary=True)
+        self.flag.choices = [('', '---')] + [(f.slug, f.label) for f in flags]
 
 
 class PrintoutForm(BadgeCategories):

@@ -28,6 +28,10 @@
         {{ badge_categories_form.categories(
             class_="form-control form-reset-control select",
             **{'data-placeholder': 'Select one or more categories' }) }}
+      </div>
+      <div class="panel-body">
+        {{ badge_categories_form.flag(
+            class_="form-control form-reset-control select") }}
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>
@@ -40,7 +44,8 @@
       <p>A number of <b>{{ participants.total }} badges</b> will be printed.</p>
     </div>
     <div class="col-sm-6 text-right">
-      {% set url = url_for('.printouts_participant_badges', categories=category_ids) %}
+      {% set url = url_for('.printouts_participant_badges', categories=category_ids,
+                           flag=flag) %}
       <form method="POST" action="{{ url }}">
         <button class="btn btn-danger btn-sm btn-download" type="submit">
           <span class="glyphicon glyphicon-download"></span>
@@ -86,6 +91,6 @@
 
   {{ render_pagination(participants,
                        '.printouts_participant_badges',
-                       extra={'categories': category_ids}) }}
+                       extra={'categories': category_ids, 'flag': flag}) }}
 
 {% endblock %}
