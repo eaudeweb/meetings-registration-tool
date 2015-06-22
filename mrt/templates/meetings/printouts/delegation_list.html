@@ -26,6 +26,19 @@
 
   {{ super() }}
 
+  <form method="GET">
+    <div class="panel panel-default">
+      <div class="panel-heading"><b>{{ title }}</b></div>
+      <div class="panel-body">
+        {{ flag_form.flag(
+            class_="form-control form-reset-control select") }}
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Preview</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
   <div id="infinite-scroll-container" class="printout-container">
 
     <div>

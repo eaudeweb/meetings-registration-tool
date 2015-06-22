@@ -209,8 +209,8 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
                            'view_participant')
 
     @staticmethod
-    def _get_query():
-        return (
+    def _get_query(flag):
+        query = (
             Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
@@ -219,18 +219,30 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
                       Participant.last_name, Participant.id)
         )
 
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
     def get(self):
-        query = self._get_query()
+        flag = request.args.get('flag')
+        query = self._get_query(flag)
         participants = groupby(query, key=attrgetter('category'))
+        flag_form = FlagForm(request.args)
+        flag = g.meeting.custom_fields.filter_by(slug=flag).first()
         return render_template(
             'meetings/printouts/delegation_list.html',
             participants=participants,
-            title=self.DOC_TITLE,)
+            title=self.DOC_TITLE,
+            flag=flag,
+            flag_form=flag_form)
 
     def post(self):
+        flag = request.args.get('flag')
         _add_to_printout_queue(_process_delegation_list, self.JOB_NAME,
-                               self.DOC_TITLE)
-        return redirect(url_for('.printouts_short_list'))
+                               self.DOC_TITLE, flag)
+        return redirect(url_for('.printouts_delegation_list'))
 
 
 class EventList(PermissionRequiredMixin, MethodView):
@@ -308,12 +320,14 @@ def _process_short_list(meeting_id, title, flag):
                        context=context).as_rq()
 
 
-def _process_delegation_list(meeting_id, title):
+def _process_delegation_list(meeting_id, title, flag):
     g.meeting = Meeting.query.get(meeting_id)
-    query = DelegationsList._get_query()
+    query = DelegationsList._get_query(flag)
     participants = groupby(query, key=attrgetter('category'))
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     context = {'participants': participants,
                'title': title,
+               'flag': flag,
                'template': 'meetings/printouts/_delegation_list_table.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
