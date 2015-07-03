@@ -1,0 +1,40 @@
+{% from "_bits.html" import meeting_title_for_printouts %}
+
+
+<div class="printout-doc-title">
+  <h4>{{ meeting_title_for_printouts() }}</h4>
+  <h2>{{ title }} - Total: {{ count }}</h2>
+</div>
+
+
+<div class="printout-item-container">
+
+  {% for group, list in participants|groupby('category') %}
+
+    <h4 class="highlight text-center">
+      {{ group.title.english }} /
+      {{ group.title.french }} /
+      {{ group.title.spanish }}
+    </h4>
+
+    {% for country, participant_group in list|groupby('represented_country') %}
+
+    <h5><b>
+      {{ country or 'Not specified' }}
+    </b><h5>
+
+      {% for participant in participant_group %}
+        <dl>
+          <dd>{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
+          {% if country != participant.country %}
+            <dd>{{ participant.country }}</dd>
+          {% endif %}
+          <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
+        </dl>
+      {% endfor %}
+    {% endfor %}
+
+
+  {% endfor %}
+
+</div> {# printout-item-container #}
