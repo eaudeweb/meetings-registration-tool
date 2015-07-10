@@ -218,7 +218,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                            'view_participant')
 
     @staticmethod
-    def _get_query():
+    def _get_query(flag):
         query = (
             Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
@@ -228,24 +228,35 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                       Participant.represented_country.name,
                       Participant.last_name, Participant.id)
         )
+
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
         return query
 
     def get(self):
+        flag = request.args.get('flag')
         page = request.args.get('page', 1, type=int)
-        query = self._get_query()
+        query = self._get_query(flag)
         count = query.count()
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
+        flag_form = FlagForm(request.args)
+        flag = g.meeting.custom_fields.filter_by(slug=flag).first()
         return render_template(
             'meetings/printouts/provisional_list.html',
             participants=participants,
             pagination=pagination,
             count=count,
-            title=self.DOC_TITLE)
+            title=self.DOC_TITLE,
+            flag_form=flag_form,
+            flag=flag)
 
     def post(self):
+        flag = request.args.get('flag')
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               self.DOC_TITLE)
+                               self.DOC_TITLE, flag)
         return redirect(url_for('.printouts_provisional_list'))
 
 
@@ -369,14 +380,16 @@ def _process_short_list(meeting_id, title, flag):
                        context=context).as_rq()
 
 
-def _process_provisional_list(meeting_id, title):
+def _process_provisional_list(meeting_id, title, flag):
     g.meeting = Meeting.query.get(meeting_id)
-    query = ProvisionalList._get_query()
+    query = ProvisionalList._get_query(flag)
     count = query.count()
     participants = query
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     context = {'participants': participants,
                'count': count,
                'title': title,
+               'flag': flag,
                'template': 'meetings/printouts/_provisional_list_pdf.html'}
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

@@ -4,6 +4,7 @@
 <div class="printout-doc-title">
   <h4>{{ meeting_title_for_printouts() }}</h4>
   <h2>{{ title }} - Total: {{ count }}</h2>
+  {% if flag %}<h3>{{ flag|capitalize }}</h3>{% endif %}
 </div>
 
 
@@ -17,10 +18,10 @@
       {{ group.title.spanish }}
     </h4>
 
-    {% for country, participant_group in list|groupby('represented_country') %}
+    {% for country, participant_group in list|selectattr('represented_country')|groupby('represented_country.name') %}
 
     <h5><b>
-      {{ country or 'Not specified' }}
+      {{ country }}
     </b><h5>
 
       {% for participant in participant_group %}
@@ -32,6 +33,17 @@
           <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
         </dl>
       {% endfor %}
+    {% endfor %}
+
+    <h5><b>Not specified</b><h5>
+    {% for participant in list|selectattr('represented_country', 'none') %}
+        <dl>
+          <dd>{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
+          {% if country != participant.country %}
+            <dd>{{ participant.country }}</dd>
+          {% endif %}
+          <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
+        </dl>
     {% endfor %}
 
 
