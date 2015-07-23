@@ -35,8 +35,10 @@
       {% endfor %}
     {% endfor %}
 
-    <h5><b>Not specified</b><h5>
     {% for participant in list|selectattr('represented_country', 'none') %}
+      {% if loop.first %}
+        <h5><b>Not specified</b><h5>
+      {% endif %}
         <dl>
           <dd>{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
           {% if country != participant.country %}
