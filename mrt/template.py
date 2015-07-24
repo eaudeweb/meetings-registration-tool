@@ -176,4 +176,4 @@ def convert_to_dict(value):
 
 
 def clean_html(text, **kwargs):
-    return Markup(clean(text, **kwargs))
+    return Markup(clean(unicode(text).encode('utf-8'), **kwargs))
