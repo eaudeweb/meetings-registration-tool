@@ -37,7 +37,7 @@
 
               <tr>
                 <td class="text-center">{{ persons|length }}</td>
-                <td>{{ representing|safe }}</td>
+                <td id="representing-name" data-id="{{ representing|safe|slugify }}">{{ representing|safe }}</td>
               </tr>
 
             {% endfor %}
