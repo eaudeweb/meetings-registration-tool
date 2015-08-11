@@ -370,8 +370,7 @@ class DocumentDistribution(PermissionRequiredMixin, MethodView):
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
-            .order_by(Participant.language,
-                      Category.sort, Category.id)
+            .order_by(Participant.language, Category.sort)
         )
 
         if flag:
@@ -385,13 +384,18 @@ class DocumentDistribution(PermissionRequiredMixin, MethodView):
         page = request.args.get('page', 1, type=int)
         query = self._get_query(flag)
         count = query.count()
-        pagination = query.paginate(page, per_page=50)
+        pagination = query.paginate(page, per_page=1000)
         participants = groupby(pagination.items, key=attrgetter('language'))
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
-        print participants
+
+        categories_map = {}
+        for category in g.meeting.categories:
+            categories_map[category.sort] = category
+
         return render_template(
             'meetings/printouts/document_distribution.html',
+            categories_map=categories_map,
             participants=participants,
             pagination=pagination,
             count=count,

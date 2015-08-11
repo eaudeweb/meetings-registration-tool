@@ -14,7 +14,7 @@
 
       <h3> {{ language|upper }} </h3>
 
-      <table class="table table-bordered table-condensed">
+      <table id="{{ language|lower }}-container" class="table table-bordered table-condensed">
 
         <thead>
           <tr class="column-headers">
@@ -25,11 +25,11 @@
 
         <tbody>
 
-          {% for category, list in new_people|groupby('category') %}
+          {% for category_sort_id, list in new_people|groupby('category.sort') %}
 
             <tr class="highlight">
-              <th colspan="4" class = "text-center" data-id="{{ category.title.english|slugify }}">
-                {{category}} - Total: {{ list|length }} 
+              <th colspan="4" id="category-name" class = "text-center" data-id="{{ categories_map[category_sort_id].title.english|slugify }}">
+                {{categories_map[category_sort_id]}} - Total: {{ list|length }}
               </th>
             </tr>
 
