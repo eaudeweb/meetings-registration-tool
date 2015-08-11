@@ -355,6 +355,57 @@ class EventList(PermissionRequiredMixin, MethodView):
         return redirect(url_for('.printouts_participant_events'))
 
 
+class DocumentDistribution(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'document distribution'
+    DOC_TITLE = 'Distribution of documents'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(flag):
+        query = (
+            Participant.query.current_meeting().participants()
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Participant.language,
+                      Category.sort, Category.id)
+        )
+
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
+    def get(self):
+        flag = request.args.get('flag')
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query(flag)
+        count = query.count()
+        pagination = query.paginate(page, per_page=50)
+        participants = groupby(pagination.items, key=attrgetter('language'))
+        flag_form = FlagForm(request.args)
+        flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+        print participants
+        return render_template(
+            'meetings/printouts/document_distribution.html',
+            participants=participants,
+            pagination=pagination,
+            count=count,
+            title=self.DOC_TITLE,
+            flag=flag,
+            flag_form=flag_form)
+
+    def post(self):
+        flag = request.args.get('flag')
+        _add_to_printout_queue(_process_document_distribution, self.JOB_NAME,
+                               self.DOC_TITLE, flag)
+        return redirect(url_for('.printouts_document_distribution'))
+
+
 class PrintoutFooter(MethodView):
 
     def get(self):
@@ -424,6 +475,22 @@ def _process_event_list(meeting_id, title, event_ids):
                'count': count,
                'title': title,
                'template': 'meetings/printouts/_event_list_table.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
+
+def _process_document_distribution(meeting_id, title, flag):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = DocumentDistribution._get_query(flag)
+    participants = groupby(query, key=attrgetter('language'))
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+    context = {'participants': participants,
+               'title': title,
+               'flag': flag,
+               'template': 'meetings/printouts/_document_distribution_table.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

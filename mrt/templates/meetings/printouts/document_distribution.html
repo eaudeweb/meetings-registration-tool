@@ -1,0 +1,73 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Distribution of documents'),
+  ] ) }}
+
+{% endblock %}
+
+
+{% block head %}
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/printouts.css') }}">
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <form method="GET">
+    <div class="panel panel-default">
+      <div class="panel-heading"><b>{{ title }}</b></div>
+      <div class="panel-body">
+        {{ flag_form.flag(
+            class_="form-control form-reset-control select") }}
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Preview</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div id="infinite-scroll-container" class="printout-container">
+
+    <div>
+      <form method="POST" class="text-right">
+        <button class="btn btn-danger btn-sm btn-download" type="submit">
+          <span class="glyphicon glyphicon-download"></span>
+          Download as pdf</button>
+      </form>
+    </div>
+
+    {% with title=title %}
+      {% include "meetings/printouts/_document_distribution_table.html" %}
+    {% endwith %}
+
+    <div class="printout-loading"></div>
+
+    <ul class="pagination">
+      {% if pagination.has_prev %}
+        {% set prev_url = url_for('.printouts_short_list',
+                                  page=pagination.prev().page) %}
+        <li><a href="{{ prev_url }}">Previous</a></li>
+      {% endif %}
+      {% if pagination.has_next %}
+        {% set next_url = url_for('.printouts_short_list',
+                                  page=pagination.next().page) %}
+        <li><a href="{{ next_url }}" class="next">Next</a></li>
+      {% endif %}
+    </ul>
+
+  </div>
+
+{% endblock %}
