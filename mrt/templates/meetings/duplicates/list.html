@@ -1,0 +1,84 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+
+{% set title = 'Manage duplicates' %}
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      ('', 'Manage duplicates')
+  ] ) }}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(".showdetails").click(function(){
+    if($(this).text().indexOf("View") > -1) {
+      $(this).text("Hide participants");
+    }
+    else {
+      $(this).text("View participants");
+    }
+    if($(this).hasClass("btn-primary")) {
+      $(this).removeClass("btn-primary").addClass("btn-default");
+    }
+    else {
+      $(this).removeClass("btn-default").addClass("btn-primary");
+    }
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+
+  {{ super() }}
+
+  <ul>
+
+  {% for group in groups %}
+
+    <div class="row">
+
+      <div class="col-md-5">
+        <li> There are <strong>{{ group|length }}</strong> participants with email address <strong> {{ group[0].email }}</strong></li>
+      </div>
+
+      <button style="margin-bottom: 10px;" class="btn showdetails btn-primary btn-sm" id="button-{{ loop.index }}" data-toggle="collapse" data-target="#group{{ loop.index }}">View participants</button>
+
+      <div class="collapse" id="group{{loop.index}}">
+
+        <table class="table table-bordered table-condensed">
+
+            <thead>
+              <tr class="column-headers">
+                <th style="width: 33%;">Name</th>
+                <th style="width: 33%;">Category</th>
+                <th style="width: 33%;">Representing</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for participant in group %}
+
+                <tr>
+                  <td><a href="{{ participant.get_absolute_url() }}"> {{ participant.title.value + ' ' + participant.first_name + ' ' + participant.last_name }}</a></td>
+                  <td> {{ participant.category }} </td>
+                  <td> {{ participant.representing }} </td>
+                </tr>
+
+              {% endfor %}
+            </tbody>
+
+        </table>  
+
+      </div>
+    
+    </div>
+
+  {% endfor %}
+  </ul>
+{% endblock %}
