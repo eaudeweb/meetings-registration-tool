@@ -629,7 +629,7 @@ class CustomFieldValue(db.Model):
         backref=db.backref('custom_field_values', lazy='dynamic'))
 
     def __repr__(self):
-        return self.value
+        return self.value or ''
 
 
 class CustomFieldChoice(db.Model):

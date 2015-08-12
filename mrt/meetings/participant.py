@@ -1,5 +1,7 @@
 from functools import wraps
 
+from sqlalchemy_utils.types.country import Country
+
 from werkzeug.utils import HTMLBuilder
 
 from flask import g, request, redirect, url_for, jsonify, json
@@ -11,6 +13,7 @@ from mrt.forms.meetings import AcknowledgeEmailForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import MediaParticipantEditForm
 from mrt.forms.meetings import ParticipantDummyForm, ParticipantEditForm
+from mrt.forms.meetings.custom_fields import _CUSTOM_FIELDS_MAP
 
 from mrt.admin.mixins import PermissionRequiredMixin as AdminPermRequiredMixin
 from mrt.meetings.mixins import PermissionRequiredMixin
@@ -580,28 +583,28 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
                            'manage_participant')
 
     def get(self):
-
         participants = get_participants_full(g.meeting.id)
-
-        columns = []
 
         custom_fields = (
             g.meeting.custom_fields
-            .filter_by(custom_field_type=CustomField.PARTICIPANT,
-                       is_primary=True)
+            .filter_by(custom_field_type=CustomField.PARTICIPANT)
             .order_by(CustomField.sort))
-        cfs = [cf.slug for cf in custom_fields
-               if cf.field_type.code not in ('image',)]
-        form = ParticipantDummyForm()
-        header = [str(form._fields[k].label.text) for k in columns]
-        header.extend([cf.title() for cf in cfs])
-        columns += cfs
+
+        columns = [cf.slug for cf in custom_fields
+               if cf.field_type.code not in ('image', 'document')]
+        header = [cf.label.english for cf in custom_fields]
+
+        added_custom_fields = custom_fields.filter_by(is_protected=False,
+                                                      is_primary=False)
+
         rows = []
+
         for p in participants:
             data = {}
             data['title'] = p.title.value
             data['first_name'] = p.first_name
             data['last_name'] = p.last_name
+            data['badge_name'] = p.name_on_badge
             data['country'] = p.country.name
             data['email'] = p.email
             data['language'] = getattr(p.language, 'value', '-')
@@ -614,6 +617,22 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['attended'] = 'Yes' if p.attended else None
             data['verified'] = 'Yes' if p.verified else None
             data['credentials'] = 'Yes' if p.credentials else None
+
+            for custom_field in added_custom_fields:
+                dat = _CUSTOM_FIELDS_MAP[custom_field.field_type.code]
+                field = dat['field']
+                value = field.provide_data(custom_field, p)
+
+                if value == 'false' or not value:
+                    continue
+
+                if custom_field.field_type.code == u'country':
+                    value = Country(value).name
+
+                if custom_field.field_type.code == u'multi_checkbox':
+                    value = ', '.join([str(v) for v in value])
+
+                data[custom_field.slug] = value
 
             rows.append([data.get(k) or '' for k in columns])
 
