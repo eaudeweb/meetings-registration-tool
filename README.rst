@@ -22,8 +22,8 @@ Debian based systems
 ~~~~~~~~~~~~~~~~~~~~
 Install these before setting up an environment::
 
-    apt-get install python-setuptools python-dev python-virtualenv git \
-    postgresql-9.1 postgresql-contrib-9.1 postgresql-server-dev-9.1 \
+    apt-get install -y python-setuptools python-dev python-virtualenv git \
+    postgresql postgresql-contrib postgresql-server-dev \
     libxml2-dev libxslt1-dev redis-server libjpeg-dev
 
 
@@ -58,21 +58,21 @@ settings.example for an settings example file::
     echo '*' >> instance/.gitignore
     touch instance/settings.py
 
-    Complete the PRODUCT_NAME and PRODUCT_TITLE settings.
+Complete the PRODUCT_NAME and PRODUCT_TITLE settings.
 
-    Create a directory named 'logos' inside instance directory which is the
-    location for product logo images. Add to settings.py PRODUCT_LOGO and
-    PRODUCT_SIDE_LOGO filenames.
+Create a directory named 'logos' inside instance directory which is the
+location for product logo images. Add to settings.py PRODUCT_LOGO and
+PRODUCT_SIDE_LOGO filenames.
 
-    Set the ADMINISTRATOR_EMAIL in instance/settings.py representing the
-    administator email.
+Set the ADMINISTRATOR_EMAIL in instance/settings.py representing the
+administator email.
 
-    Set the DEFAULT_MAIL_SENDER variable in instance/settings.py.
-    Notifications, reset password tokens, activation emails will not be sent
-    unless this variable is set.
+Set the DEFAULT_MAIL_SENDER variable in instance/settings.py.
+Notifications, reset password tokens, activation emails will not be sent
+unless this variable is set.
 
-    Set the GOOGLE_ANALYTICS_KEY in instance/settings.py example if you
-    want to enable the Google Analytics tracking.
+Set the GOOGLE_ANALYTICS_KEY in instance/settings.py example if you
+want to enable the Google Analytics tracking.
 
 
 5. Set up the PostgreSQL database::
@@ -93,7 +93,7 @@ settings.example for an settings example file::
 
 After that, run alembic upgrade to have the tables created::
 
-    ./manage.py alembic upgrade head\
+    ./manage.py alembic upgrade head
 
 6. Start RQ workers by running (for printouts):
 
@@ -108,7 +108,7 @@ problems in rendering pdfs.
 
 If you don't have this version installed, add it to your virtualenv.
 
-1. Go to http://sourceforge.net/projects/wkhtmltopdf/files/0.12.1/ and select the build
+1. Go to http://download.gna.org/wkhtmltopdf/0.12/0.12.1/ and select the build
    corresponding with your system. Copy the direct link into your clipboard
 
 2. Install it locally in your virtualenv
