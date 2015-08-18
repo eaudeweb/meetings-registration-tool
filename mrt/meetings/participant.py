@@ -1,5 +1,7 @@
 from functools import wraps
 
+from sqlalchemy_utils.types.country import Country
+
 from werkzeug.utils import HTMLBuilder
 
 from flask import g, request, redirect, url_for, jsonify, json
@@ -580,28 +582,29 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
                            'manage_participant')
 
     def get(self):
-
         participants = get_participants_full(g.meeting.id)
-
-        columns = []
 
         custom_fields = (
             g.meeting.custom_fields
-            .filter_by(custom_field_type=CustomField.PARTICIPANT,
-                       is_primary=True)
+            .filter_by(custom_field_type=CustomField.PARTICIPANT)
+            .filter(CustomField.field_type.notin_((unicode(CustomField.IMAGE),
+                                                   unicode(CustomField.DOCUMENT))))
             .order_by(CustomField.sort))
-        cfs = [cf.slug for cf in custom_fields
-               if cf.field_type.code not in ('image',)]
-        form = ParticipantDummyForm()
-        header = [str(form._fields[k].label.text) for k in columns]
-        header.extend([cf.title() for cf in cfs])
-        columns += cfs
+
+        columns = [cf.slug for cf in custom_fields]
+        header = [cf.label.english for cf in custom_fields]
+
+        added_custom_fields = custom_fields.filter_by(is_protected=False,
+                                                      is_primary=False)
+
         rows = []
+
         for p in participants:
             data = {}
             data['title'] = p.title.value
             data['first_name'] = p.first_name
             data['last_name'] = p.last_name
+            data['badge_name'] = p.name_on_badge
             data['country'] = p.country.name
             data['email'] = p.email
             data['language'] = getattr(p.language, 'value', '-')
@@ -614,6 +617,24 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['attended'] = 'Yes' if p.attended else None
             data['verified'] = 'Yes' if p.verified else None
             data['credentials'] = 'Yes' if p.credentials else None
+
+            for custom_field in added_custom_fields:
+                if custom_field .field_type == CustomField.MULTI_CHECKBOX:
+                    custom_value = custom_field.custom_field_values.filter_by(participant=p).all()
+                else:
+                    custom_value = custom_field.custom_field_values.filter_by(participant=p).first()
+
+                if not custom_value:
+                    continue
+
+                if custom_field.field_type == CustomField.COUNTRY:
+                    custom_value = Country(custom_value.value).name
+                elif custom_field.field_type == CustomField.MULTI_CHECKBOX:
+                    custom_value = ', '.join([unicode(v.choice) for v in custom_value])
+                else:
+                    custom_value = custom_value.value
+
+                data[custom_field.slug] = custom_value
 
             rows.append([data.get(k) or '' for k in columns])
 
