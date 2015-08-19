@@ -10,11 +10,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from wtforms import ValidationError, BooleanField, fields
 from wtforms.validators import DataRequired
 from wtforms_alchemy import ModelFormField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
 from mrt.models import Staff, User, Role
-from mrt.models import CategoryDefault, Category
+from mrt.models import CategoryDefault, Category, CategoryClass
 from mrt.models import PhraseDefault, Phrase
 from mrt.models import MeetingType, CustomField
 from mrt.utils import unlink_uploaded_file
@@ -102,6 +103,11 @@ class CategoryEditBaseForm(BaseForm):
     background = FileField('Background',
                            [FileAllowed(backgrounds, 'Image is not valid')])
     background_delete = BooleanField()
+    category_class = QuerySelectField(get_label='label', allow_blank=True, blank_text=u'No class')
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryEditBaseForm, self).__init__(*args, **kwargs)
+        self.category_class.query = CategoryClass.query.order_by(CategoryClass.label)
 
     def save(self):
         category = self.obj or self.meta.model()
@@ -156,6 +162,24 @@ class CategoryEditForm(CategoryEditBaseForm):
 
     class Meta:
         model = Category
+
+
+class CategoryClassEditForm(BaseForm):
+
+    class Meta:
+        model = CategoryClass
+        only = ('label',)
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryClassEditForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        category_class = self.obj or self.meta.model()
+        self.populate_obj(category_class)
+        db.session.add(category_class)
+        db.session.commit()
+
+        return category_class
 
 
 class PhraseEditBaseForm(BaseForm):
