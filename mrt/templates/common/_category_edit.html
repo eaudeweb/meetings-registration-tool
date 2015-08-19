@@ -6,6 +6,18 @@
   <div class="panel panel-default">
 
     <div class="panel-heading">
+      <b>{{ form.category_class.label.text }}</b>
+    </div>
+
+    <div class="panel-body">
+     {{ form_group(form.category_class, label_size="2", input_size="4") }}
+    </div> {# panel-body #}
+
+  </div> {# panel #}
+
+  <div class="panel panel-default">
+
+    <div class="panel-heading">
       <b>{{ form.title.label.text }}</b>
     </div>
 
