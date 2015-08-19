@@ -1,0 +1,35 @@
+
+{% if category_classes.count() %}
+
+  <div class="category_classes-container">
+
+    <div class="table-responsive">
+
+      <table id="category_classes" class="table table-bordered table-condensed sortable table-hover">
+
+        <thead>
+          <tr>
+            <th>Slug</th>
+            <th>Label</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for category_class in category_classes %}
+            {% set url = url_for('.category_class_edit', category_class_slug=category_class.slug) %}
+            <tr id="items-{{ category_class.slug }}">
+              <td>{{ category_class.slug }}</td>
+              <td>
+                <a href="{{ url }}">{{ category_class.label }}</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+
+    </div> {# table-responsive #}
+
+  </div> {# category-container #}
+
+{% endif %}
