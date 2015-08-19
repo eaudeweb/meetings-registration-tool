@@ -749,6 +749,14 @@ class Meeting(db.Model):
         return self.title.english
 
 
+class CategoryClass(db.Model):
+
+    __tablename__ = 'category_class'
+
+    slug = db.Column(db.String(16), primary_key=True, info={'label': 'Slug'})
+    label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
+
+
 class CategoryMixin(object):
 
     PARTICIPANT = u'participant'
@@ -775,6 +783,14 @@ class CategoryMixin(object):
     @declared_attr
     def title(cls):
         return db.relationship('Translation', cascade='all, delete')
+
+    @declared_attr
+    def category_class_slug(cls):
+        return db.Column(db.String(16), db.ForeignKey('category_class.slug'))
+
+    @declared_attr
+    def category_class(cls):
+        return db.relationship('CategoryClass')
 
     color = db.Column(db.String(7), nullable=False, info={'label': 'Color'})
 
