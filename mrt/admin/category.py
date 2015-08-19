@@ -100,10 +100,9 @@ class CategoryClassEdit(PermissionRequiredMixin, MethodView):
             return redirect(url_for('.categories'))
         flash('Category class was not saved. Please see the errors bellow',
               'danger')
-        return render_template('admin/category/edit.html',
+        return render_template('admin/category_class/edit.html',
                                form=form,
-                               category=category,
-                               colors=COLORS)
+                               category_class=category_class)
 
     def delete(self, category_class_slug):
         category_class = CategoryClass.query.get_or_404(category_class_slug)
