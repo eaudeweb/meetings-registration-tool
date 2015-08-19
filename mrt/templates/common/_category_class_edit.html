@@ -1,0 +1,40 @@
+{% from "_bits.html" import form_group, static_form_group %}
+
+<form class="form-horizontal" role="form" method="POST">
+    {{ form.csrf_token }}
+
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <b>Category class details</b>
+      </div>
+
+      <div class="panel-body">
+        {% if category_class %}
+          {{ static_form_group('Slug', category_class.slug) }}
+        {% else %}
+          {{ form_group(form.slug) }}
+        {% endif %}
+
+        {{ form_group(form.label) }}
+      </div>
+    </div>
+
+    <div class="form-actions row">
+      <div class="col-sm-6">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <small>or <a href="{{ url_for('.meeting_types') }}">Cancel</a></small>
+      </div>
+      {% if category_class %}
+        {% set url = url_for('.category_class_edit', category_class_slug=category_class.slug)%}
+        <div class="col-sm-6 text-right">
+          <a class="delete" data-toggle="delete"
+             data-href="{{ url }}"
+             data-message="Are you sure you want to delete this category class?">
+            <span class="glyphicon glyphicon-remove"></span>
+            Delete this category class</a>
+        </div>
+      {% endif %}
+    </div>
+
+  </form>
