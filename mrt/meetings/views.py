@@ -11,3 +11,4 @@ from .notification import *
 from .printouts import *
 from .rule import *
 from .badge_templates import *
+from .duplicates import *

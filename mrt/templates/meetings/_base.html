@@ -81,6 +81,11 @@
         <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>
       </li>
 
+      <li class="{{ active('/duplicates') }}" id="duplicates_tab">
+        <a href="{{ url_for('.duplicates') }}">
+          Manage duplicates</a>
+      </li>
+
       <li class="dropdown {{ active('/logs') }}">
         <a class="dropdown-toggle" data-toggle="dropdown">
           Logs <span class="caret"></span></a>

@@ -459,3 +459,9 @@ li.separator {
     color: #666;
 }
 
+.showdetails {
+    margin-bottom: 10px;
+}
+
+.table-duplicates th {
+    width: 33%;

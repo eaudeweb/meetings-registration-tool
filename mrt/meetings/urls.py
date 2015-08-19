@@ -291,6 +291,10 @@ meetings.add_url_rule(
     '<any(default, standard, optimized, default_front_and_back):badge_template>',
     view_func=badge_template)
 
+# manage duplicates
+meetings.add_url_rule(
+    '/<int:meeting_id>/duplicates/',
+    view_func=views.ManageDuplicates.as_view('duplicates'))
 
 @meetings.url_defaults
 def add_meeting_id(endpoint, values):
