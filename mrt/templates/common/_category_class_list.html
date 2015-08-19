@@ -16,7 +16,7 @@
         <tbody>
           {% for category_class in category_classes %}
             {% set url = url_for('.category_class_edit', category_class_id=category_class.id) %}
-            <tr id="items-{{ category_class.slug }}">
+            <tr id="items-{{ category_class.id }}">
               <td>
                 <a href="{{ url }}">{{ category_class.label }}</a>
               </td>
