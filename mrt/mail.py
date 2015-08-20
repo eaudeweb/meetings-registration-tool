@@ -118,7 +118,10 @@ def send_notification_message(recipients, participant):
         flash('This model has no notification type set')
         return
 
-    subject = "New %s has registered" % (model_class,)
+    subject = u"New registration: %s %s %s for %s" % (
+        participant.title, participant.first_name, participant.last_name,
+        participant.meeting.title.english
+    )
     template = app.jinja_env.get_template(
         'meetings/notification/notification_template.html')
     url = request.url_root + url
