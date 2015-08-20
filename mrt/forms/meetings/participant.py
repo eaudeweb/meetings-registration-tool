@@ -8,11 +8,12 @@ from sqlalchemy_utils import Country
 from wtforms import fields, compat
 from wtforms.meta import DefaultMeta
 from wtforms.validators import DataRequired
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
 from mrt.models import db, Participant, Category, Action, Condition
-from mrt.models import CustomField
+from mrt.models import CustomField, CategoryClass
 
 
 class _RulesMixin(object):
@@ -186,3 +187,13 @@ class EventsForm(BaseForm):
         events = g.meeting.custom_fields.filter_by(
             field_type=CustomField.EVENT)
         self.events.choices = [(e.id, e.label) for e in events]
+
+class CategoryClassForm(BaseForm):
+
+    category_class = QuerySelectField(get_label='label', allow_blank=True,
+                                      blank_text=u'---')
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryClassForm, self).__init__(*args, **kwargs)
+        self.category_class.query = (CategoryClass.query
+                                     .order_by(CategoryClass.label))
