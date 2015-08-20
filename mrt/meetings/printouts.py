@@ -91,7 +91,8 @@ class Badges(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_badges, self.JOB_NAME,
                                flag, *[category_ids])
-        return redirect(url_for('.printouts_participant_badges'))
+        return redirect(url_for('.printouts_participant_badges',
+                                categories=category_ids, flag=flag))
 
 
 def _process_badges(meeting_id, flag, category_ids):
@@ -206,7 +207,7 @@ class ShortList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_short_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_short_list'))
+        return redirect(url_for('.printouts_short_list', flag=flag))
 
 
 class ProvisionalList(PermissionRequiredMixin, MethodView):
@@ -257,7 +258,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_provisional_list'))
+        return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
 class DelegationsList(PermissionRequiredMixin, MethodView):
@@ -302,7 +303,7 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_delegation_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_delegation_list'))
+        return redirect(url_for('.printouts_delegation_list', flag=flag))
 
 
 class EventList(PermissionRequiredMixin, MethodView):
@@ -407,7 +408,7 @@ class DocumentDistribution(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_document_distribution, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_document_distribution'))
+        return redirect(url_for('.printouts_document_distribution', flag=flag))
 
 
 class PrintoutFooter(MethodView):
