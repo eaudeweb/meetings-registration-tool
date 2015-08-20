@@ -103,11 +103,13 @@ class CategoryEditBaseForm(BaseForm):
     background = FileField('Background',
                            [FileAllowed(backgrounds, 'Image is not valid')])
     background_delete = BooleanField()
-    category_class = QuerySelectField(get_label='label', allow_blank=True, blank_text=u'No class')
+    category_class = QuerySelectField(get_label='label', allow_blank=True,
+                                      blank_text=u'---')
 
     def __init__(self, *args, **kwargs):
         super(CategoryEditBaseForm, self).__init__(*args, **kwargs)
-        self.category_class.query = CategoryClass.query.order_by(CategoryClass.label)
+        self.category_class.query = (CategoryClass.query
+                                     .order_by(CategoryClass.label))
 
     def save(self):
         category = self.obj or self.meta.model()
