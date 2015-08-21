@@ -15,9 +15,12 @@
 
     <ul class="list-unstyled">
       <li>{{ participant.name }}</li>
-      <li>person representing</li>
-      <li>person address</li>
-      <li>PERSON PLACE</li>
+      {% if participant.representing %}
+      <li>{{ participant.representing|safe }}</li>
+      {% endif %}
+      {% if participant.address %}
+      <li>{{ participant.address }}</li>
+      {% endif %}
       <li>
         {{ participant.country|country_in('en') }} /
         {{ participant.country|country_in('fr') }} /

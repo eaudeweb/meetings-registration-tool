@@ -17,11 +17,20 @@
     <div class="participant-container">
       <ul class="list-unstyled">
         <li>{{ participant.name }}</li>
-        <li>person representing</li>
-        <li>person address</li>
-        <li>PERSON PLACE</li>
-        {# TODO country in multiple languages / #}
-        <li>{{ participant.country }}</li>
+
+        {% if participant.representing %}
+        <li>{{ participant.representing|safe }}</li>
+        {% endif %}
+
+        {% if participant.address %}
+        <li>{{ participant.address }}</li>
+        {% endif %}
+
+        <li>
+          {{ participant.country|country_in('en') }} /
+          {{ participant.country|country_in('fr') }} /
+          {{ participant.country|country_in('es') }}
+        </li>
       </ul>
     </div>
 
