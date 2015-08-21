@@ -1,6 +1,6 @@
 {% extends "_layout.html" %}
 {% from "_bits.html" import breadcrumb, form_group, form_group_with_list_inputs %}
-{% from "_bits.html" import form_photo_field %}
+{% from "_bits.html" import form_printout_field %}
 
 {% if g.meeting %}
   {% set title = title ~ ' (%s)'|format(g.meeting.acronym) %}
@@ -124,7 +124,7 @@
     <div class="panel panel-default">
 
       <div class="panel-heading">
-        <b>General</b>
+        <strong>General</strong>
       </div>
 
       <div class="panel-body">
@@ -135,19 +135,32 @@
         {{ form_group(form.online_registration) }}
         {{ form_group(form.settings,
                       class_="list-unstyled meeting-settings") }}
+      </div>
 
+    </div> {# panel #}
+
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <strong>Printout fields</strong>
+      </div>
+
+      <div class="panel-body">
         {% if g.meeting %}
-          {{ form_photo_field(form.photo_field_id, url_for('.custom_fields')) }}
+          {{ form_printout_field(form.address_field_id, url_for('.custom_fields')) }}
+          {{ form_printout_field(form.telephone_field_id, url_for('.custom_fields')) }}
+          {{ form_printout_field(form.photo_field_id, url_for('.custom_fields')) }}
         {% else %}
+          <input type="hidden" name="address_field_id" value="0">
+          <input type="hidden" name="telephone_field_id" value="0">
           <input type="hidden" name="photo_field_id" value="0">
         {% endif %}
 
         {% if g.meeting and g.meeting.media_participant_enabled %}
-            {{ form_photo_field(form.media_photo_field_id, url_for('.custom_fields') + '#media') }}
+            {{ form_printout_field(form.media_photo_field_id, url_for('.custom_fields') + '#media') }}
         {% else %}
           <input type="hidden" name="media_photo_field_id" value="0">
         {% endif %}
-
       </div>
 
     </div> {# panel #}
