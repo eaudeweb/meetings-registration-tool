@@ -21,6 +21,7 @@ def test_meeting_add_with_no_spanish(app, user):
     data['badge_header-english'] = data.pop('badge_header')
     data['badge_header-header'] = 'Spanish header'
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
