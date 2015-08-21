@@ -719,6 +719,26 @@ class Meeting(db.Model):
                                   foreign_keys=photo_field_id,
                                   post_update=True)
 
+    address_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id',
+                                  ondelete="SET NULL",
+                                  use_alter=True,
+                                  name='fk_address_field'),)
+
+    address_field = db.relationship('CustomField',
+                                    foreign_keys=address_field_id,
+                                    post_update=True)
+
+    telephone_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id',
+                                  ondelete="SET NULL",
+                                  use_alter=True,
+                                  name='fk_telephone_field'),)
+
+    telephone_field = db.relationship('CustomField',
+                                      foreign_keys=telephone_field_id,
+                                      post_update=True)
+
     media_photo_field_id = db.Column(
         db.Integer, db.ForeignKey('custom_field.id',
                                   ondelete="SET NULL",
