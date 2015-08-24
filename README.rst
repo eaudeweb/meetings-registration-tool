@@ -136,6 +136,36 @@ If you don't have this version installed, add it to your virtualenv.
          dpkg-deb -x wkhtmltox-0.12.1_<your_distro>.deb sandbox
          cp sandbox/usr/local/bin/wkhtmltopdf sandbox/bin
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+Use the UN official list of countries
+-------------------------------------
+
+By default, the list of countries used in country selection fields is the one
+supplied by the ``babel`` package (which in turn gets the data from CLDR). If you
+want to switch to the UN official list of countries, you can do so by running
+the command::
+
+    ./manage.py countries_un
+
+Running this command is a one-time step. The list of countries is extracted
+from the excel file ``mrt/static/localedata/countries_un.xslx`` and based on the
+information parsed, the data files used by ``babel`` are partially overwritten.
+Since running the command modifies the files used by ``babel``, the only way to
+restore the default list is to restore those data files (which can be done
+by reinstalling the ``babel`` package, for example).
+
+<<<<<<< Updated upstream
+If the ``babel`` package is updated, the command will have to be runned again, to
+modify the newly added locale data files.
+=======
+If the ``babel`` package is updated, the command will have to be run again, to
+modify the newly added locale data files.
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 Development hints
 =================
