@@ -639,9 +639,6 @@ class CustomFieldValue(db.Model):
         'CustomFieldChoice',
         backref=db.backref('custom_field_values', lazy='dynamic'))
 
-    def is_null(self):
-        return not self.value and not self.choice or self.value == 'false'
-
     def __repr__(self):
         return self.value or ''
 

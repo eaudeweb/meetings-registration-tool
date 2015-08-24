@@ -10,7 +10,7 @@ from flask_wtf.file import FileField as _FileField
 from jinja2 import Markup
 
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils import Country
+from sqlalchemy_utils import Country, i18n
 
 from wtforms import widgets, fields, validators
 from wtforms.widgets.core import html_params, HTMLString
@@ -340,6 +340,14 @@ class CustomCountryField(CustomBaseFieldMixin, CountryField):
             db.session.add(cfv)
         return cfv
 
+    def render_data(self):
+        # check if it is a country code
+        if isinstance(self.data, unicode):
+            return i18n.get_locale().territories.get(self.data, self.data)
+        # check if it is a Country instance
+        if isinstance(self.data, Country):
+            return self.data.name
+        return ''
 
 class CustomTextAreaField(CustomBaseFieldMixin, fields.TextAreaField):
     pass
