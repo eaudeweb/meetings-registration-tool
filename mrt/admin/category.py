@@ -5,8 +5,8 @@ from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
 from mrt.definitions import COLORS
-from mrt.forms.admin import CategoryDefaultEditForm
-from mrt.models import db, CategoryDefault
+from mrt.forms.admin import CategoryDefaultEditForm, CategoryClassEditForm
+from mrt.models import db, CategoryDefault, CategoryClass, Category
 from mrt.utils import unlink_uploaded_file
 
 
@@ -17,8 +17,13 @@ class Categories(PermissionRequiredMixin, MethodView):
             CategoryDefault.query.order_by(CategoryDefault.sort)
             .order_by(CategoryDefault.id)
         )
+        category_classes = (
+            CategoryClass.query.order_by(CategoryClass.label)
+        )
+
         return render_template('admin/category/list.html',
-                               categories=categories)
+                               categories=categories,
+                               category_classes=category_classes)
 
 
 class CategoryEdit(PermissionRequiredMixin, MethodView):
@@ -45,6 +50,7 @@ class CategoryEdit(PermissionRequiredMixin, MethodView):
             return redirect(url_for('.categories'))
         flash('Category was not saved. Please see the errors bellow',
               'danger')
+
         return render_template('admin/category/edit.html',
                                form=form,
                                category=category,
@@ -70,3 +76,54 @@ class CategoryUpdatePosition(MethodView, PermissionRequiredMixin):
             category.sort = i
         db.session.commit()
         return jsonify()
+
+
+class CategoryClassEdit(PermissionRequiredMixin, MethodView):
+
+    def get(self, category_class_id=None):
+        category_class = (CategoryClass.query.get_or_404(category_class_id)
+                          if category_class_id else None)
+        form = CategoryClassEditForm(obj=category_class)
+        return render_template('admin/category_class/edit.html',
+                               form=form,
+                               category_class=category_class)
+
+    def post(self, category_class_id=None):
+        category_class = (CategoryClass.query.get_or_404(category_class_id)
+                          if category_class_id else None)
+        form = CategoryClassEditForm(request.form, obj=category_class)
+        if form.validate():
+            form.save()
+            if category_class_id:
+                flash('Category class successfully updated', 'success')
+            else:
+                flash('Category class successfully added', 'success')
+            return redirect(url_for('.categories'))
+        flash('Category class was not saved. Please see the errors bellow',
+              'danger')
+        return render_template('admin/category_class/edit.html',
+                               form=form,
+                               category_class=category_class)
+
+    def delete(self, category_class_id):
+        category_class = CategoryClass.query.get_or_404(category_class_id)
+
+        categories_nr = (Category.query
+                        .filter_by(category_class_id=category_class_id)
+                        .count())
+        categories_nr += (CategoryDefault.query
+                          .filter_by(category_class_id=category_class_id)
+                          .count())
+
+        if categories_nr:
+            categories_message = (
+                'There is {} category' if categories_nr == 1
+                else 'There are {} categories').format(categories_nr)
+            message = 'Cannot delete {0}. {1} with this category class'.format(
+                category_class.label, categories_message)
+            return jsonify(status='error', message=message)
+
+        db.session.delete(category_class)
+        db.session.commit()
+        flash('Category class successfully deleted', 'warning')
+        return jsonify(status="success", url=url_for('.categories'))

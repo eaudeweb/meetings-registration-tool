@@ -15,8 +15,9 @@ from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
-from mrt.forms.meetings import BadgeCategories, EventsForm, FlagForm
-from mrt.models import Participant, Category, Meeting, Job
+from mrt.forms.meetings import BadgeCategories, EventsForm
+from mrt.forms.meetings import FlagForm, CategoryClassForm
+from mrt.models import Participant, Category, Meeting, Job, CategoryClass
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
@@ -91,7 +92,8 @@ class Badges(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_badges, self.JOB_NAME,
                                flag, *[category_ids])
-        return redirect(url_for('.printouts_participant_badges'))
+        return redirect(url_for('.printouts_participant_badges',
+                                categories=category_ids, flag=flag))
 
 
 def _process_badges(meeting_id, flag, category_ids):
@@ -206,7 +208,7 @@ class ShortList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_short_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_short_list'))
+        return redirect(url_for('.printouts_short_list', flag=flag))
 
 
 class ProvisionalList(PermissionRequiredMixin, MethodView):
@@ -257,7 +259,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_provisional_list'))
+        return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
 class DelegationsList(PermissionRequiredMixin, MethodView):
@@ -302,7 +304,7 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_delegation_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_delegation_list'))
+        return redirect(url_for('.printouts_delegation_list', flag=flag))
 
 
 class EventList(PermissionRequiredMixin, MethodView):
@@ -389,13 +391,8 @@ class DocumentDistribution(PermissionRequiredMixin, MethodView):
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
 
-        categories_map = {}
-        for category in g.meeting.categories:
-            categories_map[category.sort] = category
-
         return render_template(
             'meetings/printouts/document_distribution.html',
-            categories_map=categories_map,
             participants=participants,
             pagination=pagination,
             count=count,
@@ -407,8 +404,75 @@ class DocumentDistribution(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_document_distribution, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_document_distribution'))
+        return redirect(url_for('.printouts_document_distribution', flag=flag))
 
+
+class Admission(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'admission'
+    DOC_TITLE = 'Admission'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(flag, category_class):
+        query = (
+            Participant.query.current_meeting().participants()
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Category.sort)
+            .order_by(Category.id)
+        )
+
+        if category_class:
+            category_ids = [c.id for c in (g.meeting
+                .categories.filter_by(category_class_id=category_class.id))]
+            query = query.filter(Participant.category_id.in_(category_ids))
+
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
+    def get(self):
+        flag = request.args.get('flag')
+        category_class = request.args.get('category_class')
+        category_class = (CategoryClass.query
+                          .filter_by(id=category_class).first()
+                          if category_class and 'None' not in category_class
+                          else None)
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query(flag, category_class)
+        count = query.count()
+        pagination = query.paginate(page, per_page=1000)
+        participants = pagination.items
+        flag_form = FlagForm(request.args)
+        category_class_form = CategoryClassForm(request.args)
+        title = ((category_class.label if category_class else 'General')
+                 + ' ' + self.DOC_TITLE)
+        flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+
+        return render_template(
+            'meetings/printouts/admission.html',
+            participants=participants,
+            pagination=pagination,
+            count=count,
+            title=title,
+            flag=flag,
+            category_class=category_class,
+            flag_form=flag_form,
+            category_class_form=category_class_form)
+
+    def post(self):
+        flag = request.args.get('flag')
+        category_class = request.args.get('category_class')
+        _add_to_printout_queue(_process_admission, self.JOB_NAME,
+                               self.DOC_TITLE, flag, category_class)
+        return redirect(url_for('.printouts_admission', flag=flag,
+                                category_class=category_class))
 
 class PrintoutFooter(MethodView):
 
@@ -495,6 +559,29 @@ def _process_document_distribution(meeting_id, title, flag):
                'title': title,
                'flag': flag,
                'template': 'meetings/printouts/_document_distribution_table.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
+
+def _process_admission(meeting_id, title, flag, category_class):
+    g.meeting = Meeting.query.get(meeting_id)
+    category_class = (CategoryClass.query
+                      .filter_by(id=category_class).first()
+                      if category_class and 'None' not in category_class
+                      else None)
+    query = Admission._get_query(flag, category_class)
+    participants = query.all()
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+    title = ((category_class.label if category_class else 'General')
+              + ' ' + title)
+    context = {'participants': participants,
+               'title': title,
+               'flag': flag,
+               'category_class': category_class,
+               'template': 'meetings/printouts/_admission_table.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

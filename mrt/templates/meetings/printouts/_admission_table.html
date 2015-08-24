@@ -1,0 +1,39 @@
+{% from "_bits.html" import meeting_title_for_printouts %}
+
+
+<div class="printout-doc-title">
+  <h4>{{ meeting_title_for_printouts() }}</h4>
+  <h2>{{ title }}</h2>
+  {% if flag %}<h3>{{ flag|capitalize }}</h3>{% endif %}
+</div>
+
+
+<div class="printout-item-container">
+
+    <table id="{{ language|lower }}-container" class="table table-bordered table-condensed">
+
+      <tbody>
+
+    {% for category_title, people in participants|groupby('category.title.english') %}
+
+      <tr class="highlight">
+        <th colspan="4" id="category-name" class = "text-center">
+          {{ category_title }}
+        </th>
+      </tr>
+
+      {% for delegation, delegates in participants|groupby('representing') %}
+
+        <tr>
+          <td>{{ delegation }}</td>
+        <tr>
+
+      {% endfor %}
+
+    {% endfor %}
+
+      </tbody>
+
+    </table>
+
+</div> {# printout-item-container #}

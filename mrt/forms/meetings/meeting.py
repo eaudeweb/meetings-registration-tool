@@ -123,6 +123,7 @@ class MeetingEditForm(BaseForm):
             category = copy_attributes(Category(), category_default)
             category.title = copy_attributes(Translation(),
                                              category_default.title)
+            category.category_class = category_default.category_class
             category.meeting = meeting
             db.session.add(category)
             db.session.flush()
@@ -196,6 +197,15 @@ class MeetingCloneForm(MeetingEditForm):
             db.session.add(clone)
             db.session.flush()
 
+    def _clone_categories(self, meeting, categories):
+        for category in categories:
+            clone = copy_attributes(Category(), category)
+            clone.category_class = category.category_class
+            clone.title = copy_attributes(Translation(), category.title)
+            clone.meeting = meeting
+            db.session.add(clone)
+            db.session.flush()
+
     def _clone_custom_fields(self, meeting, custom_fields,
                              translation_attrs=[]):
         for custom_field in custom_fields:
@@ -260,7 +270,7 @@ class MeetingCloneForm(MeetingEditForm):
         meeting.photo_field_id = meeting.photo_field_id or None
         meeting.media_photo_field_id = meeting.media_photo_field_id or None
         self._clone_custom_fields(meeting, self.obj.custom_fields, ('label', ))
-        self._clone_relation(meeting, self.obj.categories, ('title', ))
+        self._clone_categories(meeting, self.obj.categories)
         self._clone_relation(meeting, self.obj.phrases, ('description', ))
         self._clone_relation(meeting, self.obj.role_users, exclude_fk=False)
         self._clone_relation(meeting, self.obj.user_notifications,
