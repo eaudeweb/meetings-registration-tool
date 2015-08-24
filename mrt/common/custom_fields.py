@@ -2,8 +2,9 @@ from flask import flash
 from flask import render_template, jsonify
 from flask import request, redirect, url_for, abort
 from flask.views import MethodView
+from sqlalchemy import or_
 
-from mrt.models import db, CustomField, CustomFieldValue
+from mrt.models import db, CustomField, CustomFieldValue, Meeting
 
 
 class BaseCustomFieldEdit(MethodView):
@@ -24,10 +25,22 @@ class BaseCustomFieldEdit(MethodView):
         return self.form_class
 
     def check_dependencies(self):
-        count = CustomFieldValue.query.filter_by(custom_field=self.obj).count()
-        if count:
+        custom_values = (CustomFieldValue.query.filter_by(custom_field=self.obj)
+                         .filter(or_(CustomFieldValue.value != None,
+                                     CustomFieldValue.value != '',
+                                     CustomFieldValue.choice != None)))
+        if custom_values.count():
             return ("Unable to remove the custom field. There are participants"
                     " with values for this field.")
+
+        custom_values.delete()
+        db.session.commit()
+
+        meeting = self.obj.meeting
+        for printout_field in Meeting.PRINTOUT_FIELDS:
+            printout_field_id = getattr(meeting, printout_field + '_id', None)
+            if self.obj.id == printout_field_id:
+                return ("This field is currently selected as a printout field")
 
     def get(self, custom_field_id=None, custom_field_type=None):
         custom_field_type = custom_field_type or self.obj.custom_field_type
@@ -53,6 +66,7 @@ class BaseCustomFieldEdit(MethodView):
 
         if self.obj.is_primary:
             abort(400)
+
         db.session.delete(self.obj)
         db.session.commit()
         flash('Custom field successfully deleted', 'warning')
