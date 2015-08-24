@@ -395,11 +395,11 @@ class Participant(db.Model):
         return self._get_printout_field_value('photo')
 
     @property
-    def address(self):
+    def address_value(self):
         return self._get_printout_field_value('address')
 
     @property
-    def telephone(self):
+    def telephone_value(self):
         return self._get_printout_field_value('telephone')
 
     def _get_printout_field_value(self, field_name):

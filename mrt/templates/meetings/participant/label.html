@@ -18,8 +18,8 @@
       {% if participant.representing %}
       <li>{{ participant.representing|safe }}</li>
       {% endif %}
-      {% if participant.address %}
-      <li>{{ participant.address }}</li>
+      {% if participant.address_value %}
+      <li>{{ participant.address_value }}</li>
       {% endif %}
       <li>
         {{ participant.country|country_in('en') }} /
