@@ -126,6 +126,8 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
                 setattr(participant, field_name, field.data)
             elif field.data is not None:
                 field.save(cf, participant)
+            else:
+                cf.custom_field_values.filter_by(participant_id=participant.id).delete()
 
         if commit:
             db.session.commit()
