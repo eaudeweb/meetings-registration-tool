@@ -87,6 +87,7 @@ def test_meeting_add(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -113,6 +114,7 @@ def test_meeting_add_with_global_custom_fields(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
     data['settings'] = 'media_participant_enabled'
 
@@ -153,6 +155,7 @@ def test_meeting_add_custom_fields_default_order(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
     data['settings'] = 'media_participant_enabled'
 
@@ -184,6 +187,7 @@ def test_meeting_add_default_categories_clone(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -218,6 +222,7 @@ def test_meeting_add_without_badge_header(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -240,6 +245,7 @@ def test_meeting_add_participant_custom_field_generation(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -269,6 +275,7 @@ def test_meeting_add_with_media_participants_disabled(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -300,6 +307,7 @@ def test_meeting_add_custom_field_choice_generation(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -330,6 +338,7 @@ def test_meeting_primary_custom_fields_noneditable_and_nondeletable(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -362,6 +371,7 @@ def test_meeting_edit(app, user):
     data['venue_city-english'] = 'Rome'
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -385,6 +395,7 @@ def test_meeting_edit_with_photo_field(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = photo_field.id
     data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -407,6 +418,7 @@ def test_meeting_edit_with_media_photo_field(app, user):
     data['badge_header-english'] = data.pop('badge_header')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['media_photo_field_id'] = photo_field.id
 
     client = app.test_client()
@@ -431,6 +443,7 @@ def test_meeting_edit_with_photo_field_and_media_field_choice(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = photo_field.id
     data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -455,6 +468,7 @@ def test_meeting_edit_with_media_photo_field_and_field_choice(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = '0'
     data['media_photo_field_id'] = photo_field.id
+    data['address_field_id'] = data['telephone_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -521,6 +535,7 @@ def test_meeting_edit_removes_badge_header(app, user):
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
 
     client = app.test_client()
     with app.test_request_context():
@@ -746,6 +761,7 @@ def test_meeting_add_phrase_edit(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
@@ -774,6 +790,7 @@ def test_meeting_add_default_phrase_edit(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = default_phrase.meeting_type_slug
 
     client = app.test_client()
@@ -803,6 +820,7 @@ def test_meeting_add_default_phrase_copies(app, user):
     data['title-english'] = data.pop('title')
     data['venue_city-english'] = data.pop('venue_city')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -823,6 +841,7 @@ def test_meeting_add_with_meeting_settings(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['settings'] = 'media_participant_enabled'
     data['meeting_type_slug'] = meeting_type.slug
 
@@ -844,6 +863,7 @@ def test_meeting_edit_with_meeting_settings(app, user):
     data['title-english'] = 'Sixtieth meeting of the Standing Committee'
     data['venue_city-english'] = 'Rome'
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['badge_header-english'] = data.pop('badge_header')
     data['settings'] = 'media_participant_enabled'
 
@@ -912,6 +932,7 @@ def test_clone_meeting_same_acronym(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
     data['acronym'] = meeting.acronym
 
@@ -933,6 +954,7 @@ def test_clone_meeting_attributes_are_equal(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -980,6 +1002,7 @@ def test_clone_meeting_custom_fields_clones(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -1012,6 +1035,7 @@ def test_clone_meeting_category_clones(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -1040,6 +1064,7 @@ def test_clone_meeting_role_clones(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -1071,6 +1096,7 @@ def test_clone_meeting_subscriber_clones(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -1112,6 +1138,7 @@ def test_clone_meeting_rules_clones(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()
@@ -1171,6 +1198,7 @@ def test_clone_meeting_participants_are_not_cloned(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting.meeting_type.slug
 
     client = app.test_client()

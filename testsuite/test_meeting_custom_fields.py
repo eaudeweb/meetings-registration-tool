@@ -94,6 +94,7 @@ def test_meeting_protected_custom_fields(app, user):
     data['venue_city-english'] = data.pop('venue_city')
     data['badge_header-english'] = data.pop('badge_header')
     data['photo_field_id'] = data['media_photo_field_id'] = '0'
+    data['address_field_id'] = data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()
@@ -295,6 +296,8 @@ def test_meeting_custom_fields_list_with_media_participant_enabled(app, user):
     data['settings'] = 'media_participant_enabled'
     data['photo_field_id'] = '0'
     data['media_photo_field_id'] = '0'
+    data['address_field_id'] = '0'
+    data['telephone_field_id'] = '0'
     data['meeting_type_slug'] = meeting_type.slug
 
     client = app.test_client()

@@ -392,13 +392,24 @@ class Participant(db.Model):
 
     @property
     def photo(self):
-        field = g.meeting.photo_field
-        if field:
-            photo = (
-                field.custom_field_values
-                .filter_by(participant_id=self.id).first())
-            return photo.value if photo else None
-        return None
+        return self._get_printout_field_value('photo')
+
+    @property
+    def address(self):
+        return self._get_printout_field_value('address')
+
+    @property
+    def telephone(self):
+        return self._get_printout_field_value('telephone')
+
+    def _get_printout_field_value(self, field_name):
+        field = getattr(self.meeting, '%s_field' % field_name, None)
+        if not field:
+            return None
+
+        custom_value = (field.custom_field_values
+                        .filter_by(participant_id=self.id).first())
+        return custom_value.value if custom_value else None
 
     def _clone_custom_field(self, custom_field):
         cf = (CustomField.query
@@ -718,6 +729,26 @@ class Meeting(db.Model):
     photo_field = db.relationship('CustomField',
                                   foreign_keys=photo_field_id,
                                   post_update=True)
+
+    address_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id',
+                                  ondelete="SET NULL",
+                                  use_alter=True,
+                                  name='fk_address_field'),)
+
+    address_field = db.relationship('CustomField',
+                                    foreign_keys=address_field_id,
+                                    post_update=True)
+
+    telephone_field_id = db.Column(
+        db.Integer, db.ForeignKey('custom_field.id',
+                                  ondelete="SET NULL",
+                                  use_alter=True,
+                                  name='fk_telephone_field'),)
+
+    telephone_field = db.relationship('CustomField',
+                                      foreign_keys=telephone_field_id,
+                                      post_update=True)
 
     media_photo_field_id = db.Column(
         db.Integer, db.ForeignKey('custom_field.id',

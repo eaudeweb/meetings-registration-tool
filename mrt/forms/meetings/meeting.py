@@ -55,6 +55,8 @@ class MeetingEditForm(BaseForm):
     venue_city = ModelFormField(TranslationInputForm, label='City')
     meeting_type_slug = fields.SelectField('Meeting Type')
     photo_field_id = fields.SelectField('Photo Field', coerce=int)
+    address_field_id = fields.SelectField('Address Field', coerce=int)
+    telephone_field_id = fields.SelectField('Telephone Field', coerce=int)
     media_photo_field_id = fields.SelectField('Media Photo Field', coerce=int)
     settings = MeetingSettingsField('Settings', choices=MEETING_SETTINGS)
 
@@ -65,18 +67,30 @@ class MeetingEditForm(BaseForm):
         self.meeting_type_slug.choices = [
             (mt.slug, mt.label) for mt in MeetingType.query.ignore_def()]
         self.photo_field_id.choices = [(0, '-----')]
+        self.address_field_id.choices = [(0, '-----')]
+        self.telephone_field_id.choices = [(0, '-----')]
         self.media_photo_field_id.choices = [(0, '-----')]
         if self.obj:
-            query = self.obj.custom_fields.filter_by(
+            image_query = self.obj.custom_fields.filter_by(
                 field_type=CustomField.IMAGE)
-            participant_query = query.filter_by(
+            participant_query = image_query.filter_by(
                 custom_field_type=CustomField.PARTICIPANT)
             image_fields = [(x.id, x.label) for x in participant_query]
             self.photo_field_id.choices += image_fields
-            media_query = query.filter_by(
+            media_query = image_query.filter_by(
                 custom_field_type=CustomField.MEDIA)
             image_fields = [(x.id, x.label) for x in media_query]
             self.media_photo_field_id.choices += image_fields
+
+            text_query = (self.obj.custom_fields
+                .filter_by(is_primary=False, is_protected=False)
+                .filter(
+                    CustomField.field_type.in_([CustomField.TEXT, CustomField.TEXT_AREA])
+                )
+            )
+            text_fields = [(x.id, x.label) for x in text_query]
+            self.address_field_id.choices += text_fields
+            self.telephone_field_id.choices += text_fields
 
     def validate_settings(self, field):
         settings = dict(MEETING_SETTINGS)
@@ -140,6 +154,8 @@ class MeetingEditForm(BaseForm):
         self.populate_obj(meeting)
         meeting.settings.update(initial_settings)
         meeting.photo_field_id = meeting.photo_field_id or None
+        meeting.address_field_id = meeting.address_field_id or None
+        meeting.telephone_field_id = meeting.telephone_field_id or None
         meeting.media_photo_field_id = meeting.media_photo_field_id or None
         self._clean_badge_header(meeting)
         if meeting.id is None:

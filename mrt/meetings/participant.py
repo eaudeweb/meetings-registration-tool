@@ -491,7 +491,11 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
             Participant.query.current_meeting().participants()
             .filter_by(id=participant_id)
             .first_or_404())
+
+        set_language(participant.lang)
+
         context = {'participant': participant}
+
         return PdfRenderer('meetings/participant/envelope.html',
                            width=ENVEL_W, height=ENVEL_H,
                            orientation="portrait", footer=False,

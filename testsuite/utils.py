@@ -68,6 +68,8 @@ def add_new_meeting(app, user):
         data['badge_header-english'] = data.pop('badge_header')
         data['online_registration'] = 'y'
         data['photo_field_id'] = '0'
+        data['address_field_id'] = '0'
+        data['telephone_field_id'] = '0'
         data['media_photo_field_id'] = '0'
         data['settings'] = 'media_participant_enabled'
         data['meeting_type_slug'] = meeting_type.slug
