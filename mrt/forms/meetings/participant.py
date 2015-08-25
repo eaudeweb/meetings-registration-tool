@@ -130,6 +130,8 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
             else:
                 cf.custom_field_values.filter_by(participant_id=participant.id).delete()
 
+        participant.set_representing()
+
         if commit:
             db.session.commit()
 
@@ -141,7 +143,7 @@ class ParticipantEditForm(BaseParticipantForm):
     CUSTOM_FIELDS_TYPE = 'participant'
 
 
-class MediaParticipantEditForm(ParticipantEditForm):
+class MediaParticipantEditForm(BaseParticipantForm):
 
     CUSTOM_FIELDS_TYPE = 'media'
 

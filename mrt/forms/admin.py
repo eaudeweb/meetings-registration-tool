@@ -10,7 +10,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from wtforms import ValidationError, BooleanField, fields
 from wtforms.validators import DataRequired
 from wtforms_alchemy import ModelFormField
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
@@ -169,6 +168,14 @@ class CategoryEditForm(CategoryEditBaseForm):
 
     class Meta:
         model = Category
+
+    def save(self):
+        category = super(CategoryEditForm, self).save()
+        for participant in category.participants:
+            participant.set_representing()
+
+        db.session.commit()
+        return category
 
 
 class CategoryTagEditForm(BaseForm):

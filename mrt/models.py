@@ -13,7 +13,7 @@ from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
 from flask.ext.redis import FlaskRedis
 from jinja2.exceptions import TemplateNotFound
 
-from sqlalchemy import cast, event, or_
+from sqlalchemy import cast, or_
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
 from sqlalchemy_utils import ChoiceType, CountryType, EmailType
@@ -380,17 +380,17 @@ class Participant(db.Model):
     def lang(self):
         return self.language.code.lower()
 
-    def get_representing(self):
-        category = self.category or Category.query.get(self.category_id)
-        if not category.representing:
-            return ''
+    def set_representing(self):
+        self.representing = ''
+        if not self.category.representing:
+            return
         template_name = str(app.config['REPRESENTING_TEMPLATES']
-                            / category.representing.code)
+                            / self.category.representing.code)
         try:
             template = app.jinja_env.get_template(template_name)
         except TemplateNotFound:
-            return ''
-        return render_template(template, participant=self)
+            return
+        self.representing = render_template(template, participant=self)
 
     @property
     def photo(self):
@@ -1227,14 +1227,3 @@ def get_participants_full(meeting_id):
             setattr(last_participant, slug, value)
     if last_participant:
         yield last_participant
-
-
-@event.listens_for(Participant, 'after_insert')
-@event.listens_for(Participant, 'after_update')
-def receive_after_update(mapper, connection, target):
-    representing = target.get_representing()
-    connection.execute(
-        mapper.mapped_table.update()
-        .where(mapper.columns.get('id') == target.id)
-        .values(representing=representing)
-    )
