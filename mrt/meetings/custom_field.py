@@ -66,9 +66,9 @@ class CustomFieldEdit(PermissionRequiredMixin, BaseCustomFieldEdit):
             return msg
 
         custom_values = CustomFieldValue.query.filter_by(custom_field=self.obj)
-        non_empty_values = custom_values.filter(CustomFieldValue.value != None,
-                                                CustomFieldValue.value != u'',
-                                                CustomFieldValue.choice != None)
+        non_empty_values = custom_values.filter(
+            (CustomFieldValue.value != None) & (CustomFieldValue.value != u'')
+            | (CustomFieldValue.choice != None))
         if non_empty_values.count():
             return ("Unable to remove the custom field. There are "
                     "participants with values for this field.")
@@ -84,8 +84,8 @@ class CustomFieldEdit(PermissionRequiredMixin, BaseCustomFieldEdit):
 
         count = Rule.get_rules_for_fields([self.obj]).count()
         if count:
-            msg = ("Unable to remove the custom field. There are rules"
-                   "defined for this field.")
+            return ("Unable to remove the custom field. There are rules"
+                    "defined for this field.")
 
 
 class BaseCustomFieldFile(PermissionRequiredMixin, MethodView):
