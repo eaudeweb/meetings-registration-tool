@@ -780,6 +780,27 @@ class Meeting(db.Model):
         return self.title.english
 
 
+default_category_tags = db.Table('default_category_tags',
+    db.Column('category_tag_id', db.Integer, db.ForeignKey('category_tag.id')),
+    db.Column('category_default_id', db.Integer,
+              db.ForeignKey('category_default.id'))
+)
+
+
+category_tags = db.Table('category_tags',
+    db.Column('category_tag_id', db.Integer, db.ForeignKey('category_tag.id')),
+    db.Column('category_id', db.Integer, db.ForeignKey('category.id'))
+)
+
+
+class CategoryTag(db.Model):
+
+    __tablename__ = 'category_tag'
+
+    id = db.Column(db.Integer, primary_key=True)
+    label = db.Column(db.String(128), nullable=False, info={'label': 'Label'})
+
+
 class CategoryMixin(object):
 
     PARTICIPANT = u'participant'
@@ -846,6 +867,9 @@ class Category(CategoryMixin, db.Model):
         'Meeting',
         backref=db.backref('categories', lazy='dynamic', cascade="delete"))
 
+    tags = db.relationship('CategoryTag', secondary=category_tags,
+                           backref=db.backref('categories', lazy='dynamic'))
+
     @classmethod
     def get_categories_for_meeting(cls, category_type=None):
         return (
@@ -857,6 +881,10 @@ class Category(CategoryMixin, db.Model):
 class CategoryDefault(CategoryMixin, db.Model):
 
     __tablename__ = 'category_default'
+
+    tags = db.relationship('CategoryTag', secondary=default_category_tags,
+                           backref=db.backref('default_categories',
+                                              lazy='dynamic'))
 
 
 class Translation(db.Model):
