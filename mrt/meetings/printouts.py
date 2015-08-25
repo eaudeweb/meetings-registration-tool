@@ -15,8 +15,9 @@ from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
-from mrt.forms.meetings import BadgeCategories, EventsForm, FlagForm
-from mrt.models import Participant, Category, Meeting, Job
+from mrt.forms.meetings import BadgeCategories, EventsForm
+from mrt.forms.meetings import FlagForm, CategoryTagForm
+from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
@@ -91,7 +92,8 @@ class Badges(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_badges, self.JOB_NAME,
                                flag, *[category_ids])
-        return redirect(url_for('.printouts_participant_badges'))
+        return redirect(url_for('.printouts_participant_badges',
+                                categories=category_ids, flag=flag))
 
 
 def _process_badges(meeting_id, flag, category_ids):
@@ -206,7 +208,7 @@ class ShortList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_short_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_short_list'))
+        return redirect(url_for('.printouts_short_list', flag=flag))
 
 
 class ProvisionalList(PermissionRequiredMixin, MethodView):
@@ -257,7 +259,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_provisional_list'))
+        return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
 class DelegationsList(PermissionRequiredMixin, MethodView):
@@ -302,7 +304,7 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_delegation_list, self.JOB_NAME,
                                self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_delegation_list'))
+        return redirect(url_for('.printouts_delegation_list', flag=flag))
 
 
 class EventList(PermissionRequiredMixin, MethodView):
@@ -352,7 +354,8 @@ class EventList(PermissionRequiredMixin, MethodView):
         event_ids = request.args.getlist('events')
         _add_to_printout_queue(_process_event_list, self.JOB_NAME,
                                self.DOC_TITLE, event_ids)
-        return redirect(url_for('.printouts_participant_events'))
+        return redirect(url_for('.printouts_participant_events',
+                                events=event_ids))
 
 
 class DocumentDistribution(PermissionRequiredMixin, MethodView):
