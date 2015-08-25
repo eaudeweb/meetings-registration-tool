@@ -666,6 +666,9 @@ class CustomFieldChoice(db.Model):
 
 class Meeting(db.Model):
 
+    PRINTOUT_FIELDS = ('photo_field', 'media_photo_field', 'address_field',
+                       'telephone_field',)
+
     query_class = MeetingQuery
 
     id = db.Column(db.Integer, primary_key=True)

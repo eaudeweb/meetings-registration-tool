@@ -3,7 +3,7 @@ from flask import render_template, jsonify
 from flask import request, redirect, url_for, abort
 from flask.views import MethodView
 
-from mrt.models import db, CustomField, CustomFieldValue
+from mrt.models import db, CustomField
 
 
 class BaseCustomFieldEdit(MethodView):
@@ -24,10 +24,7 @@ class BaseCustomFieldEdit(MethodView):
         return self.form_class
 
     def check_dependencies(self):
-        count = CustomFieldValue.query.filter_by(custom_field=self.obj).count()
-        if count:
-            return ("Unable to remove the custom field. There are participants"
-                    " with values for this field.")
+        return
 
     def get(self, custom_field_id=None, custom_field_type=None):
         custom_field_type = custom_field_type or self.obj.custom_field_type
@@ -53,6 +50,7 @@ class BaseCustomFieldEdit(MethodView):
 
         if self.obj.is_primary:
             abort(400)
+
         db.session.delete(self.obj)
         db.session.commit()
         flash('Custom field successfully deleted', 'warning')

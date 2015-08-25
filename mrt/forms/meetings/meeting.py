@@ -254,10 +254,22 @@ class MeetingCloneForm(MeetingEditForm):
 
             db.session.flush()
 
+    def _clone_printout_fields(self, meeting):
+        for field_name in Meeting.PRINTOUT_FIELDS:
+            if not getattr(self.obj, field_name, None):
+                continue
+
+            custom_field = (meeting.custom_fields
+                            .filter_by(slug=getattr(meeting, field_name).slug)
+                            .first())
+            setattr(meeting, field_name, custom_field)
+
     def save(self):
         meeting = Meeting()
         self.populate_obj(meeting)
         meeting.photo_field_id = meeting.photo_field_id or None
+        meeting.address_field_id = meeting.address_field_id or None
+        meeting.telephone_field_id = meeting.telephone_field_id or None
         meeting.media_photo_field_id = meeting.media_photo_field_id or None
         self._clone_custom_fields(meeting, self.obj.custom_fields, ('label', ))
         self._clone_relation(meeting, self.obj.categories, ('title', ))
@@ -266,16 +278,8 @@ class MeetingCloneForm(MeetingEditForm):
         self._clone_relation(meeting, self.obj.user_notifications,
                              exclude_fk=False)
         self._clone_rules(meeting, self.obj.rules)
+        self._clone_printout_fields(meeting)
         meeting.owner = self.obj.owner
-        if self.obj.photo_field_id:
-            meeting.photo_field = (meeting.custom_fields
-                                   .filter_by(slug=meeting.photo_field.slug)
-                                   .first())
-        if self.obj.media_photo_field_id:
-            meeting.media_photo_field = (
-                meeting.custom_fields
-                .filter_by(slug=meeting.media_photo_field.slug)
-                .first())
         db.session.add(meeting)
         db.session.commit()
         return meeting

@@ -12,7 +12,7 @@ from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 
 from mrt.models import db
-from mrt.models import Participant, CustomField, Rule
+from mrt.models import Participant, CustomField, CustomFieldValue, Rule, Meeting
 
 from mrt.utils import crop_file, unlink_participant_custom_file
 from mrt.utils import unlink_uploaded_file, rotate_file, unlink_thumbnail_file
@@ -62,12 +62,30 @@ class CustomFieldEdit(PermissionRequiredMixin, BaseCustomFieldEdit):
 
     def check_dependencies(self):
         msg = super(CustomFieldEdit, self).check_dependencies()
-        if not msg:
-            count = Rule.get_rules_for_fields([self.obj]).count()
-            if count:
-                msg = ("Unable to remove the custom field. There are rules "
-                       "defined for this field.")
-        return msg
+        if msg:
+            return msg
+
+        custom_values = CustomFieldValue.query.filter_by(custom_field=self.obj)
+        non_empty_values = custom_values.filter(
+            (CustomFieldValue.value != None) & (CustomFieldValue.value != u'')
+            | (CustomFieldValue.choice != None))
+        if non_empty_values.count():
+            return ("Unable to remove the custom field. There are "
+                    "participants with values for this field.")
+
+        # Clean up empty values
+        custom_values.delete()
+        db.session.commit()
+
+        printout_fields = [getattr(self.obj.meeting, field, None)
+                           for field in Meeting.PRINTOUT_FIELDS]
+        if self.obj in printout_fields:
+            return ("This field is currently selected as a printout field")
+
+        count = Rule.get_rules_for_fields([self.obj]).count()
+        if count:
+            return ("Unable to remove the custom field. There are rules"
+                    "defined for this field.")
 
 
 class BaseCustomFieldFile(PermissionRequiredMixin, MethodView):
