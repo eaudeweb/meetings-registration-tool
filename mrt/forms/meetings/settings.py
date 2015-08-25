@@ -58,6 +58,7 @@ class MeetingCategoryAddForm(BaseForm):
             db.session.add(translation)
             db.session.flush()
             category.title = translation
+            category.tags = category_default.tags
             category.meeting = g.meeting
             filename = duplicate_uploaded_file(category_default.background,
                                                'backgrounds')

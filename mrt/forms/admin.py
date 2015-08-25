@@ -10,11 +10,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from wtforms import ValidationError, BooleanField, fields
 from wtforms.validators import DataRequired
 from wtforms_alchemy import ModelFormField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField
 
 from mrt.mail import send_activation_mail
 from mrt.models import db
 from mrt.models import Staff, User, Role
-from mrt.models import CategoryDefault, Category
+from mrt.models import CategoryDefault, Category, CategoryTag
 from mrt.models import PhraseDefault, Phrase
 from mrt.models import MeetingType, CustomField
 from mrt.utils import unlink_uploaded_file
@@ -102,6 +103,16 @@ class CategoryEditBaseForm(BaseForm):
     background = FileField('Background',
                            [FileAllowed(backgrounds, 'Image is not valid')])
     background_delete = BooleanField()
+    category_tags = fields.SelectMultipleField('Category tags', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryEditBaseForm, self).__init__(*args, **kwargs)
+        category_tags_query = CategoryTag.query.order_by(CategoryTag.label)
+        self.category_tags.choices = [
+            (tag.id, tag.label) for tag in category_tags_query]
+        if self.obj and self.category_tags.data is None:
+            self.category_tags.data = [
+                tag.id for tag in self.obj.tags]
 
     def save(self):
         category = self.obj or self.meta.model()
@@ -118,6 +129,8 @@ class CategoryEditBaseForm(BaseForm):
             unlink_uploaded_file(background, 'backgrounds')
             category.background = None
 
+        category.tags = CategoryTag.query.filter(
+            CategoryTag.id.in_(self.category_tags.data)).all()
         if category.id is None:
             db.session.add(category)
         db.session.commit()
@@ -156,6 +169,24 @@ class CategoryEditForm(CategoryEditBaseForm):
 
     class Meta:
         model = Category
+
+
+class CategoryTagEditForm(BaseForm):
+
+    class Meta:
+        model = CategoryTag
+        only = ('label',)
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryTagEditForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        category_tag = self.obj or self.meta.model()
+        self.populate_obj(category_tag)
+        db.session.add(category_tag)
+        db.session.commit()
+
+        return category_tag
 
 
 class PhraseEditBaseForm(BaseForm):
