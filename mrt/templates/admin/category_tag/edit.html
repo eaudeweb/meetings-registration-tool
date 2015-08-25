@@ -1,0 +1,29 @@
+{% extends "_layout.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+{% set title = "Edit category tag" if category_class else "Add a new category tag" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+
+{% block breadcrumb %}
+
+  {{ breadcrumb( [
+      (url_for('.categories'), 'Default Categories'),
+      ('', title)]
+  ) }}
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="page-header">
+    <h2>{{ title }}</h2>
+  </div>
+
+  <div class="category-container">
+    {% include "common/_category_tag_edit.html" %}
+  </div> {# category-container #}
+
+{% endblock %}

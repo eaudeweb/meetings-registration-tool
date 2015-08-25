@@ -37,15 +37,43 @@
     <h2>Default Categories</h2>
   </div>
 
-  {% with default = True %}
-    {% include "common/_category_list.html"  %}
-  {% endwith %}
+  <div role="tabpanel">
 
-  <div class="actions">
-    <a href="{{ url_for('.category_edit') }}"
-       class="btn btn-primary btn-sm">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add a new category</a>
+    <ul class="nav nav-tabs" id="nav_tabs">
+      <li class="active">
+        <a href="#categories_list" data-toggle="tab">Categories</a>
+      </li>
+      <li>
+        <a href="#tags" data-toggle="tab">Category tags</a>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+
+      <div role="tabpanel" class="tab-pane active" id="categories_list">
+        {% with default = True %}
+          {% include "common/_category_list.html"  %}
+        {% endwith %}
+
+        <div class="actions">
+          <a href="{{ url_for('.category_edit') }}"
+             class="btn btn-primary btn-sm">
+            <span class="glyphicon glyphicon-plus"></span>
+            Add a new category</a>
+        </div>
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="tags">
+        {% include "common/_category_tag_list.html"  %}
+        <div class="actions">
+          <a href="{{ url_for('.category_tag_edit') }}"
+             class="btn btn-primary btn-sm">
+            <span class="glyphicon glyphicon-plus"></span>
+            Add a new category tag</a>
+        </div>
+
+      </div>
+
   </div>
 
 {% endblock %}

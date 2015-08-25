@@ -1,0 +1,32 @@
+{% if category_tags.count() %}
+
+  <div class="category_classes-container">
+
+    <div class="table-responsive">
+
+      <table id="category_tags" class="table table-bordered table-condensed sortable table-hover">
+
+        <thead>
+          <tr>
+            <th>Label</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for category_tag in category_tags %}
+            {% set url = url_for('.category_tag_edit', category_tag_id=category_tag.id) %}
+            <tr id="items-{{ category_tag.id }}">
+              <td>
+                <a href="{{ url }}">{{ category_tag.label }}</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+
+      </table>
+
+    </div> {# table-responsive #}
+
+  </div> {# category_tags-container #}
+
+{% endif %}

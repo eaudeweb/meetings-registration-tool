@@ -11,8 +11,9 @@ from wtforms.validators import DataRequired
 
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
-from mrt.models import db, Participant, Category, Action, Condition
+from mrt.models import db, Participant, Action, Condition
 from mrt.models import CustomField
+from mrt.models import CategoryTag, Category
 
 
 class _RulesMixin(object):
@@ -188,3 +189,14 @@ class EventsForm(BaseForm):
         events = g.meeting.custom_fields.filter_by(
             field_type=CustomField.EVENT)
         self.events.choices = [(e.id, e.label) for e in events]
+
+
+class CategoryTagForm(BaseForm):
+
+    category_tags = fields.SelectMultipleField()
+
+    def __init__(self, *args, **kwargs):
+        super(CategoryTagForm, self).__init__(*args, **kwargs)
+        category_tags_query = CategoryTag.query.order_by(CategoryTag.label)
+        self.category_tags.choices = [
+            (tag.id, tag.label) for tag in category_tags_query]
