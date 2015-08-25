@@ -256,9 +256,7 @@ class MeetingCloneForm(MeetingEditForm):
 
     def _clone_printout_fields(self, meeting):
         for field_name in Meeting.PRINTOUT_FIELDS:
-            field_id = field_name + '_id'
-
-            if not getattr(self.obj, field_id, None):
+            if not getattr(self.obj, field_name, None):
                 continue
 
             custom_field = (meeting.custom_fields
