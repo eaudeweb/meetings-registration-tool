@@ -6,6 +6,22 @@
   <div class="panel panel-default">
 
     <div class="panel-heading">
+      <b>Category tags</b>
+    </div>
+
+    <div class="panel-body">
+      {{ form.category_tags(class_="form-control form-reset-control select",
+        **{"data-placeholder": "Select category tags for this default category"}) }}
+      {% if form.category_tags.errors %}
+        <div class="text-danger"><small>{{ form.category_tags.errors[0] }}</small></div>
+      {% endif %}
+    </div>
+
+  </div> {# panel #}
+
+  <div class="panel panel-default">
+
+    <div class="panel-heading">
       <b>{{ form.title.label.text }}</b>
     </div>
 
