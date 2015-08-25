@@ -25,11 +25,11 @@
 
         <tbody>
 
-          {% for category_sort_id, list in new_people|groupby('category.sort') %}
+          {% for category_title, list in new_people|groupby('category.title.english') %}
 
             <tr class="highlight">
-              <th colspan="4" id="category-name" class = "text-center" data-id="{{ categories_map[category_sort_id].title.english|slugify }}">
-                {{categories_map[category_sort_id]}} - Total: {{ list|length }}
+              <th colspan="4" id="category-name" class = "text-center" data-id="{{ category_title|slugify }}">
+                {{ category_title }} - Total: {{ list|length }}
               </th>
             </tr>
 
