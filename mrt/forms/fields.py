@@ -349,6 +349,7 @@ class CustomCountryField(CustomBaseFieldMixin, CountryField):
             return self.data.name
         return ''
 
+
 class CustomTextAreaField(CustomBaseFieldMixin, fields.TextAreaField):
     pass
 

@@ -382,7 +382,7 @@ class Participant(db.Model):
 
     def set_representing(self):
         self.representing = ''
-        if not self.category.representing:
+        if not self.category or not self.category.representing:
             return
         template_name = str(app.config['REPRESENTING_TEMPLATES']
                             / self.category.representing.code)
