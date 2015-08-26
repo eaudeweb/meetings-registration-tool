@@ -26,6 +26,7 @@ SQLAlchemy==1.0.0b5
 webassets==0.10.1
 Werkzeug==0.10.4
 xlwt==0.7.5
+xlrd==0.9.4
 
 # flask mail
 blinker==1.3
