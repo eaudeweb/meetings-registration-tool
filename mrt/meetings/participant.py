@@ -598,8 +598,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
         columns = [cf.slug for cf in custom_fields]
         header = [cf.label.english for cf in custom_fields]
 
-        added_custom_fields = custom_fields.filter_by(is_protected=False,
-                                                      is_primary=False)
+        added_custom_fields = custom_fields.filter_by(is_primary=False)
 
         rows = []
 
@@ -609,7 +608,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
             data['first_name'] = p.first_name
             data['last_name'] = p.last_name
             data['badge_name'] = p.name_on_badge
-            data['country'] = p.country.name
+            data['country'] = p.country.name if p.country else None
             data['email'] = p.email
             data['language'] = getattr(p.language, 'value', '-')
             data['category_id'] = p.category.title
