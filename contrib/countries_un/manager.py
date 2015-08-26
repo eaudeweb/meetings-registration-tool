@@ -22,6 +22,7 @@ def update_countries_(ctx):
     country_codes = [str(cell.value) for cell in sheet.col(0)[1:]]
     template_name = babel.__path__[0] + '/localedata/%s.dat'
     for index, language in enumerate(['en', 'fr', 'es']):
+        click.echo(u'Changed countries for language %s' % language)
         countries = [cell.value for cell in sheet.col(index + 1)[1:]]
         new_territories = dict(zip(country_codes, countries))
 
@@ -34,3 +35,6 @@ def update_countries_(ctx):
         f = open(path_to_file, 'w')
         cPickle.dump(locale_pickle, f)
         f.close()
+
+    click.echo(u'A total of %d countries are now available for selection' %
+               len(countries))

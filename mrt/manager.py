@@ -186,3 +186,27 @@ def update_representing(ctx):
             participant.set_representing()
         db.session.commit()
         click.echo('Updated representing for all participants.')
+
+
+@cli.command()
+@click.pass_context
+def remove_missing_countries(ctx):
+    app = ctx.obj['app']
+    with app.test_request_context():
+        for participant in Participant.query.all():
+            try:
+                if participant.country:
+                    participant.country.name
+            except KeyError:
+                click.echo(u'Removed territory with code %s' %
+                           participant.country.code)
+                participant.country = None
+            try:
+                if participant.represented_country:
+                    participant.represented_country.name
+            except KeyError:
+                click.echo(u'Removed territory with code %s' %
+                           participant.represented_country.code)
+                participant.represented_country = None
+
+        db.session.commit()
