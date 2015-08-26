@@ -209,6 +209,9 @@ meetings.add_url_rule(
     '/<int:meeting_id>/printouts/participant/events',
     view_func=views.EventList.as_view('printouts_participant_events'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/participant/media',
+    view_func=views.MediaList.as_view('printouts_media'))
+meetings.add_url_rule(
     '/<int:meeting_id>/printouts/document_distribution',
     view_func=views.DocumentDistribution.as_view('printouts_document_distribution'))
 meetings.add_url_rule(

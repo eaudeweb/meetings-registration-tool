@@ -193,6 +193,19 @@ class EventsForm(BaseForm):
         self.events.choices = [(e.id, e.label) for e in events]
 
 
+class MediaCategoriesForm(BaseForm):
+
+    categories = fields.SelectMultipleField()
+    flag = fields.SelectField()
+
+    def __init__(self, *args, **kwargs):
+        super(MediaCategoriesForm, self).__init__(*args, **kwargs)
+        categories = Category.query.filter_by(
+            meeting=g.meeting,
+            category_type=Category.MEDIA)
+        self.categories.choices = [(c.id, c.title) for c in categories]
+
+
 class CategoryTagForm(BaseForm):
 
     category_tags = fields.SelectMultipleField()
