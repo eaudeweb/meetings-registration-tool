@@ -123,10 +123,14 @@ def inject_badge_context(participant):
 
 
 def country_in(country, lang_code='en'):
+    if not country:
+        return ''
     return Locale(lang_code).territories.get(country.code)
 
 
 def region_in(region, lang_code='en'):
+    if not region:
+        return ''
     return translate(region.value, lang_code)
 
 

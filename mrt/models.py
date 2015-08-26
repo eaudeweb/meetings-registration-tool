@@ -325,6 +325,8 @@ class Participant(db.Model):
         db.String(64),
         info={'label': _('Organization represented')})
 
+    representing = db.Column(db.String(255), info={'label': _('Representing')})
+
     attended = db.Column(db.Boolean, default=False,
                          info={'label': _('Attended')})
 
@@ -378,17 +380,17 @@ class Participant(db.Model):
     def lang(self):
         return self.language.code.lower()
 
-    @property
-    def representing(self):
-        if not self.category.representing:
-            return ''
+    def set_representing(self):
+        self.representing = ''
+        if not self.category or not self.category.representing:
+            return
         template_name = str(app.config['REPRESENTING_TEMPLATES']
                             / self.category.representing.code)
         try:
             template = app.jinja_env.get_template(template_name)
         except TemplateNotFound:
-            return ''
-        return render_template(template, participant=self)
+            return
+        self.representing = render_template(template, participant=self)
 
     @property
     def photo(self):

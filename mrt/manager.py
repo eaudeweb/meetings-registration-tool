@@ -8,8 +8,8 @@ from alembic.config import CommandLine
 from rq import Queue, Connection, Worker
 from rq import get_failed_queue
 
-from mrt.models import redis_store
-from mrt.models import User, db, Staff, Job, CustomField, Translation
+from mrt.models import redis_store, db
+from mrt.models import User, Staff, Job, CustomField, Translation, Participant
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
@@ -175,3 +175,14 @@ def migrate_hint(ctx):
             db.session.flush()
             custom_field.hint = hint
         db.session.commit()
+
+
+@cli.command()
+@click.pass_context
+def update_representing(ctx):
+    app = ctx.obj['app']
+    with app.test_request_context():
+        for participant in Participant.query.all():
+            participant.set_representing()
+        db.session.commit()
+        click.echo('Updated representing for all participants.')

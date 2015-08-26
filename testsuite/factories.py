@@ -217,6 +217,10 @@ class ParticipantFactory(SQLAlchemyModelFactory):
     country = 'FR'
     represented_region = 'Asia'
 
+    @post_generation
+    def representing(self, create, extracted, **kwargs):
+        self.set_representing()
+
 
 class ParticipantUserFactory(ParticipantFactory):
 
