@@ -212,6 +212,9 @@ meetings.add_url_rule(
     '/<int:meeting_id>/printouts/document_distribution',
     view_func=views.DocumentDistribution.as_view('printouts_document_distribution'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/credentials',
+    view_func=views.Credentials.as_view('printouts_credentials'))
+meetings.add_url_rule(
     '/<int:meeting_id>/printouts/pigeon_holes',
     view_func=views.PigeonHoles.as_view('printouts_pigeon_holes'))
 meetings.add_url_rule(
