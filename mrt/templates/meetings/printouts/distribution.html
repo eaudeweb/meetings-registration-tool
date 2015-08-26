@@ -8,7 +8,7 @@
 {% block breadcrumb %}
 
   {{ breadcrumb( [
-      ('', 'Distribution of documents'),
+      ('', title),
   ] ) }}
 
 {% endblock %}
@@ -50,7 +50,7 @@
     </div>
 
     {% with title=title %}
-      {% include "meetings/printouts/_document_distribution_table.html" %}
+      {% include "meetings/printouts/_distribution_table.html" %}
     {% endwith %}
 
     <div class="printout-loading"></div>
