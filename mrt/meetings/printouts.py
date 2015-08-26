@@ -452,7 +452,7 @@ class Admission(PermissionRequiredMixin, MethodView):
             category_ids += [category.id for category in
                 tag.categories.filter_by(meeting_id=g.meeting.id)]
 
-        if category_ids:
+        if category_tags:
             query = query.filter(Participant.category_id.in_(category_ids))
 
         if flag:

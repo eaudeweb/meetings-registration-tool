@@ -32,7 +32,7 @@
           {% for category_title, list in new_people|groupby('category.title.english') %}
 
             <tr class="highlight">
-              <th colspan="2" id="category-name" class = "text-center" data-id="{{ category_title|slugify }}">
+              <th colspan="2" id="category-name" class = "category" data-id="{{ category_title|slugify }}">
                 {{ category_title }} - Total: {{ list|length }}
               </th>
             </tr>

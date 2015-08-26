@@ -68,3 +68,10 @@ tr {
 .printout-item-container .quantity {
     width: 10%;
 }
+
+.printout-item-container .category {
+    background: #F9F9F9 none repeat scroll 0% 0%;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
