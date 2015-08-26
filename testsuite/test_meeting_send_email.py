@@ -10,7 +10,7 @@ from .factories import MailLogFactory
 def test_send_email_in_english(app, user):
     cat = MeetingCategoryFactory()
     ParticipantFactory.create_batch(5, meeting=cat.meeting)
-    ParticipantFactory.create_batch(5, meeting=cat.meeting, language='fr')
+    ParticipantFactory.create_batch(5, meeting=cat.meeting, language='French')
     data = {
         'message': 'Test',
         'subject': 'Test subject',
@@ -96,7 +96,7 @@ def test_send_bulk_email_logs(app, user):
     cat = MeetingCategoryFactory()
     ParticipantFactory.create_batch(5, meeting=cat.meeting)
     ParticipantFactory.create_batch(3, meeting=cat.meeting,
-                                    language='fr')
+                                    language='French')
 
     data = {
         'message': 'Test',

@@ -325,7 +325,7 @@ class Participant(db.Model):
         db.String(64),
         info={'label': _('Organization represented')})
 
-    representing = db.Column(db.String(255))
+    representing = db.Column(db.String(255), info={'label': _('Representing')})
 
     attended = db.Column(db.Boolean, default=False,
                          info={'label': _('Attended')})

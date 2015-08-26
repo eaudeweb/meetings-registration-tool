@@ -96,49 +96,44 @@ def test_event_list_printout(app, user):
         rows = PyQuery(resp.data)('table tbody tr')
         assert len(rows) == 8
 
+
 def test_distribution_of_documents_printout(app, user):
     category_default = MeetingCategoryFactory(title__english='Default')
     meeting = category_default.meeting
     category_observer = MeetingCategoryFactory(meeting=meeting,
-                                     title__english='Observer')
+                                               title__english='Observer')
     category_staff = MeetingCategoryFactory(meeting=meeting,
-                                     title__english='Staff')
+                                            title__english='Staff')
     categories = [category_default, category_observer, category_staff]
 
     for lang in ['English', 'French', 'Spanish']:
         ParticipantFactory.create_batch(5,
-                 meeting=meeting,
-                 category=category_default,
-                 language=unicode(lang)
-        )
+                                        meeting=meeting,
+                                        category=category_default,
+                                        language=unicode(lang))
         ParticipantFactory.create_batch(5,
-                 meeting=meeting,
-                 category=category_default,
-                 language=unicode(lang),
-                 represented_region=u'Africa'
-        )
+                                        meeting=meeting,
+                                        category=category_default,
+                                        language=unicode(lang),
+                                        represented_region=u'Africa')
         ParticipantFactory.create_batch(5,
-                 meeting=meeting,
-                 category=category_staff,
-                 language=unicode(lang)
-        )
+                                        meeting=meeting,
+                                        category=category_staff,
+                                        language=unicode(lang))
         ParticipantFactory.create_batch(5,
-                 meeting=meeting,
-                 category=category_staff,
-                 language=unicode(lang),
-                 represented_region=u'Africa'
-        )
+                                        meeting=meeting,
+                                        category=category_staff,
+                                        language=unicode(lang),
+                                        represented_region=u'Africa')
         ParticipantFactory.create_batch(5,
-                 meeting=meeting,
-                 category=category_observer,
-                 language=unicode(lang)
-        )
+                                        meeting=meeting,
+                                        category=category_observer,
+                                        language=unicode(lang))
         ParticipantFactory.create_batch(5,
-                 meeting=meeting,
-                 category=category_observer,
-                 language=unicode(lang),
-                 represented_region=u'Africa'
-        )
+                                        meeting=meeting,
+                                        category=category_observer,
+                                        language=unicode(lang),
+                                        represented_region=u'Africa')
 
     client = app.test_client()
 
@@ -155,11 +150,13 @@ def test_distribution_of_documents_printout(app, user):
         for lang in ['english', 'french', 'spanish']:
             assert len(html('#english-container tbody tr')) == 9
 
-            representings = list(x.attrib['data-id'] for x in html('#english-container tbody tr td#representing-name'))
+            representings = [x.attrib['data-id'] for x in html(
+                '#english-container tbody tr td#representing-name')]
             assert representings.count('africa') is 3
             assert representings.count('asia') is 3
 
-            category_ids = list(x.attrib['data-id'] for x in html('#%s-container tbody tr th#category-name' % lang))
+            category_ids = [x.attrib['data-id'] for x in html(
+                '#%s-container tbody tr th#category-name' % lang)]
             # Test that categories order on the page respects categories alphabetical order
             assert slugify(categories[0].title.english) == category_ids[0] and \
                 slugify(categories[1].title.english) == category_ids[1] and \
