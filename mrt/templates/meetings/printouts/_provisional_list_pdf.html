@@ -1,12 +1,25 @@
-{% from "_bits.html" import meeting_title_for_printouts %}
+{% from "_bits.html" import meeting_title_all_languages %}
+{% set product_logo = get_logo('PRODUCT_LOGO') %}
+{% set product_side_logo = get_logo('PRODUCT_SIDE_LOGO') %}
 
+<table class="title">
+    <tr>
+        <td>
+          <img class="printout-logo" src="{{ product_logo.url }}">
+        </td>
 
-<div class="printout-doc-title">
-  <h4>{{ meeting_title_for_printouts() }}</h4>
-  <h2>{{ title }} - Total: {{ count }}</h2>
-  {% if flag %}<h3>{{ flag|capitalize }}</h3>{% endif %}
-</div>
+        <td>
+          <div class="printout-doc-title">
+            <h4>{{ meeting_title_all_languages() }}</h4>
+            <h2>{{ title }} - Total: {{ count }}</h2>
+          </div>
+        </td>
 
+        <td>
+          <img class="printout-logo" src="{{ product_side_logo.url }}">
+        </td>
+    </tr>
+</table>
 
 <div class="printout-item-container">
 
@@ -18,36 +31,65 @@
       {{ group.title.spanish }}
     </h4>
 
-    {% for country, participant_group in list|selectattr('represented_country')|groupby('represented_country.name') %}
+    {% for representing, participant_group in list|selectattr('representing')|groupby('representing') %}
 
-    <h5><b>
-      {{ country }}
-    </b><h5>
+    <div style="page-break-inside: avoid;">
+      <hr>
+      <h5><b>
+        {{ representing|safe }}
+      </b><h5>
 
-      {% for participant in participant_group %}
-        <dl>
-          <dd>{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
-          {% if country != participant.country %}
-            <dd>{{ participant.country }}</dd>
-          {% endif %}
-          <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
-        </dl>
-      {% endfor %}
+        {% for participant in participant_group %}
+          <dl>
+            <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
+            {% if participant.address_value %}
+              <dd style="width:50%;">{{ participant.address_value }}</dd>
+            {% endif %}
+            {% if participant.country and participant.country.name not in representing %}
+              <dd>{{ participant.country }}</dd>
+            {% endif %}
+            {% if participant.telephone_value %}
+              <dd style="padding-left:40px;">T: {{ participant.telephone_value }}</dd>
+            {% endif %}
+            {% if participant.hardcoded_mobile_value %}
+              <dd style="padding-left:40px;">M: {{ participant.hardcoded_mobile_value }}</dd>
+            {% endif %}
+            {% if participant.hardcoded_fax_value %}
+              <dd style="padding-left:40px;">F: {{ participant.hardcoded_fax_value }}</dd>
+            {% endif %}
+            <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
+          </dl>
+        {% endfor %}
+    </div>
     {% endfor %}
 
-    {% for participant in list|selectattr('represented_country', 'none') %}
+    <div style="page-break-inside: avoid;">
+    {% for participant in list|selectattr('representing', 'none') %}
       {% if loop.first %}
+        <hr>
         <h5><b>Not specified</b><h5>
       {% endif %}
-        <dl>
-          <dd>{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
-          {% if country != participant.country %}
+        <dl style="page-break-inside: avoid;">
+          <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
+          {% if participant.address_value %}
+            <dd style="width:50%;">{{ participant.address_value }}</dd>
+          {% endif %}
+          {% if participant.country and participant.country.name not in representing %}
             <dd>{{ participant.country }}</dd>
+          {% endif %}
+          {% if participant.telephone_value %}
+            <dd style="padding-left:40px;">T: {{ participant.telephone_value }}</dd>
+          {% endif %}
+          {% if participant.hardcoded_mobile_value %}
+            <dd style="padding-left:40px;">M: {{ participant.hardcoded_mobile_value }}</dd>
+          {% endif %}
+          {% if participant.hardcoded_fax_value %}
+            <dd style="padding-left:40px;">F: {{ participant.hardcoded_fax_value }}</dd>
           {% endif %}
           <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
         </dl>
     {% endfor %}
-
+    </div>
 
   {% endfor %}
 

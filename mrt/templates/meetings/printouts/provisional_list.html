@@ -58,12 +58,14 @@
     <ul class="pagination">
       {% if pagination.has_prev %}
         {% set prev_url = url_for('.printouts_provisional_list',
-                                  page=pagination.prev().page) %}
+                                  page=pagination.prev().page,
+                                  flag=flag.slug) %}
         <li><a href="{{ prev_url }}">Previous</a></li>
       {% endif %}
       {% if pagination.has_next %}
         {% set next_url = url_for('.printouts_provisional_list',
-                                  page=pagination.next().page) %}
+                                  page=pagination.next().page,
+                                  flag=flag.slug) %}
         <li><a href="{{ next_url }}" class="next">Next</a></li>
       {% endif %}
     </ul>

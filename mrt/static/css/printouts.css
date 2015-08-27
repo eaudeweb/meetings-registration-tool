@@ -79,3 +79,13 @@ tr {
 .printout-item-container .printout-representing {
     width: 36%;
 }
+
+.printout-meeting-title {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.printout-logo {
+    width: 0.6097in;
+}

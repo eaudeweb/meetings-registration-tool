@@ -4,7 +4,6 @@
 <div class="printout-doc-title">
   <h4>{{ meeting_title_for_printouts() }}</h4>
   <h2>{{ title }} - Total: {{ count }}</h2>
-  {% if flag %}<h3>{{ flag|capitalize }}</h3>{% endif %}
 </div>
 
 
@@ -18,6 +17,12 @@
           <th>Category</th>
           <th>Representing</th>
           <th>Country</th>
+          {% if g.meeting.address_field_id %}
+          <th>Address</th>
+          {% endif %}
+          {% if g.meeting.telephone_field_id %}
+          <th>Telephone</th>
+          {% endif %}
           <th>Email</th>
         </tr>
       </thead>
@@ -34,6 +39,12 @@
           <td style="width: 20%;">
             {{ participant.representing|safe }}</td>
           <td>{{ participant.country }}</td>
+          {% if meeting.address_field_id %}
+          <td>{{ participant.address_value }}</td>
+          {% endif %}
+          {% if meeting.telephone_field_id %}
+          <td>{{ participant.telephone_value }}</td>
+          {% endif %}
           <td>{{ participant.email }}</td>
         </tr>
         {% endfor %}

@@ -391,6 +391,7 @@ class Participant(db.Model):
         except TemplateNotFound:
             return
         self.representing = render_template(template, participant=self)
+        self.representing = self.representing.strip()
 
     @property
     def photo(self):
@@ -403,6 +404,23 @@ class Participant(db.Model):
     @property
     def telephone_value(self):
         return self._get_printout_field_value('telephone')
+
+    @property
+    def hardcoded_fax_value(self):
+        return self._get_hardcoded_printout_field_value('fax')
+
+    @property
+    def hardcoded_mobile_value(self):
+        return self._get_hardcoded_printout_field_value('mobile')
+
+    def _get_hardcoded_printout_field_value(self, field_name):
+        field = self.meeting.custom_fields.filter_by(slug=field_name).first()
+        if not field:
+            return None
+
+        custom_value = (field.custom_field_values
+                        .filter_by(participant_id=self.id).first())
+        return custom_value.value if custom_value else None
 
     def _get_printout_field_value(self, field_name):
         field = getattr(self.meeting, '%s_field' % field_name, None)
