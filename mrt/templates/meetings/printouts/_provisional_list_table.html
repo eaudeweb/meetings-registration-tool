@@ -39,10 +39,10 @@
           <td style="width: 20%;">
             {{ participant.representing|safe }}</td>
           <td>{{ participant.country }}</td>
-          {% if meeting.address_field_id %}
+          {% if participant.address_value %}
           <td>{{ participant.address_value }}</td>
           {% endif %}
-          {% if meeting.telephone_field_id %}
+          {% if participant.telephone_value %}
           <td>{{ participant.telephone_value }}</td>
           {% endif %}
           <td>{{ participant.email }}</td>
