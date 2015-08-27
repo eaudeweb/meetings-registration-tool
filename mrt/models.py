@@ -355,6 +355,13 @@ class Participant(db.Model):
         }.get(self.participant_type.code, 'meetings.participant_detail')
         return url_for(url, participant_id=self.id, meeting_id=self.meeting.id)
 
+    def attended_event(self, event_field_id):
+        cvalue = (self.custom_field_values
+                 .filter(CustomFieldValue.custom_field_id == event_field_id)
+                 .first())
+
+        return cvalue.value == 'true' if cvalue else False
+
     def label(self, field_name):
         custom_field = (CustomField.query
                         .filter_by(meeting=self.meeting, slug=field_name,
