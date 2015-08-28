@@ -233,6 +233,9 @@ meetings.add_url_rule(
     '/<int:meeting_id>/printouts/parties',
     view_func=views.PartiesList.as_view('printouts_parties'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/observers',
+    view_func=views.ObserversList.as_view('printouts_observers'))
+meetings.add_url_rule(
     '/<int:meeting_id>/printouts/categories_for_tags',
     view_func=views.CategoriesForTags.as_view('categories_for_tags'))
 

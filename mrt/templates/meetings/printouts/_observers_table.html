@@ -1,0 +1,61 @@
+{% from "_bits.html" import meeting_title_for_printouts %}
+
+
+<div class="printout-doc-title">
+  <h4>{{ meeting_title_for_printouts() }}</h4>
+  <h2>{{ title }} - Total: {{ count }}</h2>
+</div>
+
+
+<div class="printout-item-container">
+
+  <table class="table table-bordered table-condensed">
+
+      <thead>
+        <tr class="column-headers">
+          <th>Representing</th>
+          <th>Name</th>
+          {% for event in events %}
+            <th>
+              {{ event }}
+            </th>
+          {% endfor %}
+          <th>Category</th>
+          <th>Cred</th>
+          <th>Lang</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for participant in participants %}
+        <tr>
+          <td style="width: 20%;">
+            {{ participant.representing }}
+          </td>
+          <td id="participant-name">
+            {{ participant.last_name|upper }}
+            {{ participant.first_name }}
+          </td>
+          {% for event in events %}
+            <td>
+              {% if participant.attended_event(event.id) %}
+                <span class="checked">✔</span>
+              {% endif %}
+            </td>
+          {% endfor %}
+          <td>{{ participant.category }}</th>
+          <td>
+            {% if participant.credentials %}
+              <span class="checked">✔</span>
+            {% endif %}
+          </td>
+          <td>{{ participant.language }}</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+
+  </table>
+
+</div> {# printout-item-container #}
