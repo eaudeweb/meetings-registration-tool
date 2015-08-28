@@ -8,7 +8,7 @@ from mrt.meetings.mixins import PermissionRequiredMixin
 
 def get_duplicates_by_email():
     groups = []
-    participants = g.meeting.participants
+    participants = g.meeting.participants.filter_by(deleted=False)
     email_hash = {}
 
     for participant in participants:
