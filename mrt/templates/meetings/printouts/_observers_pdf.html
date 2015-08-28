@@ -24,7 +24,7 @@
     <tbody>
       {% for category, list in participants|groupby('category') %}
         <tr class="highlight">
-          <th colspan="{{ 3 + events.count() }}" class="text-center">
+          <th colspan="{{ 4 + events.count() }}" class="text-center">
             {{ category }}
           </th>
         </tr>
