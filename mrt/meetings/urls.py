@@ -229,6 +229,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/list_for_verification',
     view_func=views.VerificationList.as_view('printouts_verification'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/parties',
+    view_func=views.PartiesList.as_view('printouts_parties'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',
