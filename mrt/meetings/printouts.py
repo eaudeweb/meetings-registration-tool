@@ -689,7 +689,6 @@ class VerificationList(PermissionRequiredMixin, MethodView):
             categories_form=categories_form)
 
     def post(self):
-        flag = request.args.get('flag')
         category_ids = request.args.getlist('categories')
         _add_to_printout_queue(_process_verification, self.JOB_NAME,
                                self.DOC_TITLE, category_ids)
@@ -706,7 +705,7 @@ class PartiesList(PermissionRequiredMixin, MethodView):
                            'view_participant')
 
     @staticmethod
-    def _get_query(flag, category_tags):
+    def _get_query(flag, category_tags, categories):
         query = (
             Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
@@ -716,11 +715,13 @@ class PartiesList(PermissionRequiredMixin, MethodView):
             .order_by(Participant.last_name)
         )
 
-        if category_tags:
+        if category_tags and not categories:
             categories = (
                 g.meeting.categories
                 .filter(Category.tags.any(CategoryTag.id.in_(category_tags)))
                 .with_entities('id'))
+
+        if categories:
             query = query.filter(Participant.category_id.in_(categories))
 
         if flag:
@@ -732,17 +733,19 @@ class PartiesList(PermissionRequiredMixin, MethodView):
     def get(self):
         flag = request.args.get('flag')
         category_tags = request.args.getlist('category_tags')
+        categories = request.args.getlist('categories')
         page = request.args.get('page', 1, type=int)
 
         events = g.meeting.custom_fields.filter_by(field_type=CustomField.EVENT)
 
-        query = self._get_query(flag, category_tags)
+        query = self._get_query(flag, category_tags, categories)
         count = query.count()
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
 
         flag_form = FlagForm(request.args)
         category_tags_form = CategoryTagForm(request.args)
+        categories_form = ParticipantCategoriesForm(request.args)
 
         return render_template(
             'meetings/printouts/parties.html',
@@ -754,15 +757,20 @@ class PartiesList(PermissionRequiredMixin, MethodView):
             flag=flag,
             flag_form=flag_form,
             category_tags=category_tags,
-            category_tags_form=category_tags_form)
+            category_tags_form=category_tags_form,
+            categories=categories,
+            categories_form=categories_form,
+        )
 
     def post(self):
         flag = request.args.get('flag')
         category_tags = request.args.getlist('category_tags')
+        categories = request.args.getlist('categories')
         _add_to_printout_queue(_process_parties, self.JOB_NAME, self.DOC_TITLE,
-                               flag, category_tags)
+                               flag, category_tags, categories)
         return redirect(url_for('.printouts_parties', flag=flag,
-                                category_tags=category_tags))
+                                category_tags=category_tags,
+                                categories=categories))
 
 
 class PrintoutFooter(MethodView):
@@ -950,9 +958,9 @@ def _process_verification(meeting_id, title, category_ids):
                        context=context).as_rq()
 
 
-def _process_parties(meeting_id, title, flag, category_tags):
+def _process_parties(meeting_id, title, flag, category_tags, categories):
     g.meeting = Meeting.query.get(meeting_id)
-    query = PartiesList._get_query(flag, category_tags)
+    query = PartiesList._get_query(flag, category_tags, categories)
     participants = query.all()
     count = query.count()
     events = g.meeting.custom_fields.filter_by(field_type=CustomField.EVENT)
@@ -969,3 +977,17 @@ def _process_parties(meeting_id, title, flag, category_tags):
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='portrait',
                        context=context).as_rq()
+
+
+class CategoriesForTags(MethodView):
+
+    decorators = (login_required,)
+
+    def get(self):
+        category_tags = request.args.getlist('category_tags')
+        categories = g.meeting.categories.order_by(Category.sort)
+        if category_tags:
+            categories = categories.filter(
+                Category.tags.any(CategoryTag.id.in_(category_tags)))
+        categories = [(c.id, c.title.english) for c in categories]
+        return jsonify(categories)

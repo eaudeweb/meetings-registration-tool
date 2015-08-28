@@ -29,7 +29,7 @@
   <form method="GET">
     <div class="panel panel-default">
       <div class="panel-heading"><b>{{ title }}</b></div>
-      <div class="panel-body">
+      <div class="panel-body" id="filter-form">
         <h4> Flag </h4>
         {{ flag_form.flag(
             class_="form-control form-reset-control select") }}
@@ -37,6 +37,11 @@
         {{ category_tags_form.category_tags(
             class_="form-control form-reset-control select",
             **{'data-placeholder': 'Select one or more category tags' }) }}
+        <h4> Categories </h4>
+        {{ categories_form.categories(
+            class_="form-control form-reset-control select",
+            **{'data-placeholder': 'Select one or more categories',
+               'data-href': url_for('.categories_for_tags') }) }}
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>
@@ -65,6 +70,7 @@
         {% set prev_url = url_for('.printouts_parties',
                                   page=pagination.prev().page,
                                   category_tags=category_tags,
+                                  categories=categories,
                                   flag=flag.slug) %}
         <li><a href="{{ prev_url }}">Previous</a></li>
       {% endif %}
@@ -72,6 +78,7 @@
         {% set next_url = url_for('.printouts_parties',
                                   page=pagination.next().page,
                                   category_tags=category_tags,
+                                  categories=categories,
                                   flag=flag.slug) %}
         <li><a href="{{ next_url }}" class="next">Next</a></li>
       {% endif %}

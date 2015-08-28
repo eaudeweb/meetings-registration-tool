@@ -27,6 +27,7 @@ _BUNDLE_JS = (
     'js/lib/jquery.ba-dotimeout.js',
     'js/lib/jquery.infinitescroll.min.js',
     'js/lib/bootstrap-datetimepicker.min.js',
+    'js/lib/jquery.chained.remote.min.js',
     'js/main.js',
     'js/printouts.js',
     'js/rule.js',
