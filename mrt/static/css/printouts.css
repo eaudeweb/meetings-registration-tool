@@ -89,3 +89,18 @@ tr {
 .printout-logo {
     width: 0.6097in;
 }
+
+.printout-item-container .subheader {
+    margin: 15px;
+    background: #CCC;
+    border: 1px solid black;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.printout-item-container .group {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}

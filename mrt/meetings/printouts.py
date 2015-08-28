@@ -17,6 +17,7 @@ from sqlalchemy.orm import joinedload
 
 from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm, MediaCategoriesForm
+from mrt.forms.meetings import ParticipantCategoriesForm
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
@@ -638,7 +639,62 @@ class MediaList(PermissionRequiredMixin, MethodView):
         _add_to_printout_queue(_process_media, self.JOB_NAME,
                                self.DOC_TITLE, flag, category_ids)
         return redirect(url_for('.printouts_media', flag=flag,
-                                category_ids=category_ids))
+                                categories=category_ids))
+
+
+class VerificationList(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'verification list'
+    DOC_TITLE = 'List of participants for verification'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(category_ids):
+
+        query = (
+            Participant.query.current_meeting().participants()
+            .filter_by(attended=True)
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Category.sort)
+            .order_by(Category.id)
+            .order_by(Participant.representing)
+            .order_by(Participant.last_name)
+        )
+
+        if category_ids:
+            query = query.filter(Participant.category_id.in_(category_ids))
+
+        return query
+
+    def get(self):
+        category_ids = request.args.getlist('categories')
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query(category_ids)
+        count = query.count()
+        pagination = query.paginate(page, per_page=50)
+        participants = pagination.items
+        categories_form = ParticipantCategoriesForm(request.args)
+
+        return render_template(
+            'meetings/printouts/verification.html',
+            participants=participants,
+            pagination=pagination,
+            title=self.DOC_TITLE,
+            count=count,
+            category_ids=category_ids,
+            categories_form=categories_form)
+
+    def post(self):
+        flag = request.args.get('flag')
+        category_ids = request.args.getlist('categories')
+        _add_to_printout_queue(_process_verification, self.JOB_NAME,
+                               self.DOC_TITLE, category_ids)
+        return redirect(url_for('.printouts_verification',
+                                categories=category_ids))
 
 
 class PrintoutFooter(MethodView):
@@ -719,6 +775,7 @@ def _process_event_list(meeting_id, title, event_ids):
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
 
+
 def _process_distribution(meeting_id, printout_type, title, flag):
     if printout_type == 'distribution':
         view_class = DocumentDistribution
@@ -740,6 +797,7 @@ def _process_distribution(meeting_id, printout_type, title, flag):
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
+
 
 def _process_admission(meeting_id, flag, category_tags):
     g.meeting = Meeting.query.get(meeting_id)
@@ -766,6 +824,7 @@ def _process_admission(meeting_id, flag, category_tags):
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
 
+
 def _process_credentials(meeting_id, title, flag, category_tags):
     g.meeting = Meeting.query.get(meeting_id)
     category_tags = (CategoryTag.query
@@ -786,6 +845,7 @@ def _process_credentials(meeting_id, title, flag, category_tags):
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
 
+
 def _process_media(meeting_id, title, flag, category_ids):
     g.meeting = Meeting.query.get(meeting_id)
     query = MediaList._get_query(flag, category_ids)
@@ -801,4 +861,22 @@ def _process_media(meeting_id, title, flag, category_ids):
                        title=title,
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
+
+
+def _process_verification(meeting_id, title, category_ids):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = VerificationList._get_query(category_ids)
+    count = query.count()
+    participants = query
+    context = {'participants': participants,
+               'count': count,
+               'title': title,
+               'category_ids': category_ids,
+               'template': 'meetings/printouts/_verification_table_pdf.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='portrait',
                        context=context).as_rq()
