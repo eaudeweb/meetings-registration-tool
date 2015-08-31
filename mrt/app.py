@@ -28,7 +28,7 @@ from mrt.template import no_image_cache, activity_map, inject_static_file
 from mrt.template import pluralize, clean_html
 from mrt.template import inject_badge_context
 from mrt.template import sort_by_tuple_element
-from mrt.template import convert_to_dict, has_perm
+from mrt.template import convert_to_dict, has_perm, url_external
 from mrt.utils import slugify, Logo, sentry
 
 
@@ -88,6 +88,7 @@ def create_app(config={}):
     app.add_template_global(inject_static_file)
     app.add_template_global(inject_badge_context)
     app.add_template_global(has_perm)
+    app.add_template_global(url_external)
     app.add_template_global(Logo, name='get_logo')
 
     @app.context_processor
