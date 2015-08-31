@@ -137,6 +137,23 @@ If you don't have this version installed, add it to your virtualenv.
          cp sandbox/usr/local/bin/wkhtmltopdf sandbox/bin
 
 
+Set up a cron job for deletion of old printout files
+----------------------------------------------------
+
+Printout files older than one month are deleted by using a managing command::
+
+        ./manage.py rq cleanup
+
+In order for this command to work properly, the ``redis`` system package (not
+the python package) version must be above ``2.8``, otherwise the command will
+fail due to ``redis`` lacking ``EVALSHA``.
+
+Printout files deletion should be set up as a cron job. Here is an example of
+such a job set to run daily:
+
+        0 0 * * * /path/to/virtualenv/python /path/to/package/manage.py rq cleanup &>/dev/null
+
+
 Use the UN official list of countries
 -------------------------------------
 
@@ -243,7 +260,7 @@ Merge the changes::
 
 
 Import meeting from old version
------------------------
+-------------------------------
 Simply run the next commands::
 
     ./manage.py import <database> <meeting_id>
