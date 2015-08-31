@@ -2,6 +2,7 @@ import re
 import time
 from bleach import clean
 
+from flask import url_for
 from flask import current_app as app
 from flask import request, g
 from flask.ext.login import current_user
@@ -181,3 +182,9 @@ def convert_to_dict(value):
 
 def clean_html(text, **kwargs):
     return Markup(clean(unicode(text).encode('utf-8'), **kwargs))
+
+
+def url_external(view_name):
+    if app.config.get('DOMAIN_NAME', None):
+        return app.config['DOMAIN_NAME'] + url_for(view_name)
+    return url_for(view_name, _external=True)

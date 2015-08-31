@@ -4,6 +4,7 @@ import uuid
 
 from flask import current_app as app
 from flask import Response, g, url_for
+from mrt.template import url_external
 
 from mrt.utils import read_file
 
@@ -55,7 +56,7 @@ class PdfRenderer(object):
             command += ['--title', self.title]
 
         if self.footer and not app.config['DEBUG']:
-            footer_url = url_for('meetings.printouts_footer', _external=True)
+            footer_url = url_external('meetings.printouts_footer')
             command += ['--footer-html', footer_url]
         command += [str(self.template_path), str(self.pdf_path)]
 
