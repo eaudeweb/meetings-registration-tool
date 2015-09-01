@@ -118,6 +118,7 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
             participant.participant_type = self.CUSTOM_FIELDS_TYPE
             db.session.add(participant)
 
+        saveable_added_custom_fields = []
         for field_name, field in self._fields.items():
             if field_name.endswith('_'):
                 continue
@@ -126,9 +127,11 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
             if cf.is_primary:
                 setattr(participant, field_name, field.data)
             elif field.data is not None:
-                field.save(cf, participant)
-            else:
-                cf.custom_field_values.filter_by(participant_id=participant.id).delete()
+                saveable_added_custom_fields.append(field)
+
+        for field in saveable_added_custom_fields:
+            cf = self._custom_fields[field.name]
+            field.save(cf, participant)
 
         participant.set_representing()
 
