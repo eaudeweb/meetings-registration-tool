@@ -84,7 +84,7 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
         return html.a(participant.name, href=url)
 
     def process_category_id(self, participant, val):
-        return str(participant.category)
+        return unicode(participant.category)
 
     def process_attended(self, participant, val):
         return '<span class="glyphicon glyphicon-ok"></span>' if val else ''
