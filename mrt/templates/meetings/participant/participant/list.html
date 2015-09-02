@@ -18,11 +18,11 @@
   <script>
     $(function () {
       var participants =  $("#participants");
-      participants.dataTable({
+      var pTable = participants.dataTable({
         "processing": true,
         "serverSide": true,
         "ajax": participants.data("ajax"),
-        "bFilter": false,
+        "bFilter": true,
         "sDom": '<"row"<"col-xs-6"l><"#custom-search.col-xs-6">>t<"row"<"col-xs-6"i><"col-xs-6"p>>',
         "columns": [
             { "data": "last_name" },
@@ -31,10 +31,15 @@
             { "data": "attended", "className": "text-center" },
             { "data": "verified", "className": "text-center" },
             { "data": "credentials", "className": "text-center" }
-        ]
+        ],
       });
-      var search = $("#search-participant").detach();
-      $("#custom-search").append(search);
+
+
+      var filter_box = $("#filter-participants input");
+      var do_filter = function() { pTable.fnFilter(filter_box.val()); };
+      filter_box.unbind("keyup").bind("keyup", $.debounce(do_filter, 300));
+      var filter = $("#filter-participants").detach();
+      $("#custom-search").append(filter);
     });
   </script>
 
@@ -82,13 +87,12 @@
 
   <div class="hidden">
     {% if has_perm('view_participant') %}
-      <form class="form-inline form-search pull-right" id="search-participant"
-              action="{{ url_for('.participant_search') }}">
+      <div class="form-inline form-search pull-right" id="filter-participants">
         <div class="form-group">
           <span class="glyphicon glyphicon-search"></span>
           <input type="text" name="search" class="form-control input-sm" placeholder="Search for participants" tabindex="1">
         </div>
-      </form>
+      </div>
     {% endif %}
   </div>
 

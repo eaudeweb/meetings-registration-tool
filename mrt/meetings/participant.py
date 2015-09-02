@@ -60,8 +60,10 @@ class Participants(PermissionRequiredMixin, MethodView):
     def get(self):
         Form = custom_form_factory(self.form_class)
         form = Form()
+        participants = Participant.query.current_meeting().participants()
         return render_template('meetings/participant/participant/list.html',
-                               form=form)
+                               form=form,
+                               participants=participants)
 
 
 class MediaParticipants(PermissionRequiredMixin, MethodView):
@@ -97,7 +99,6 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
     def get_queryset(self, **opt):
         participants = Participant.query.current_meeting().participants()
-        total = participants.count()
 
         for item in opt['order']:
             participants = participants.order_by(
@@ -105,6 +106,8 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
         if opt['search']:
             participants = search_for_participant(opt['search'], participants)
+
+        total = participants.count()
         participants = participants.limit(opt['limit']).offset(opt['start'])
         return participants, total
 

@@ -30,6 +30,7 @@ class FilterView(object):
 
         rows, total = self.get_queryset(**options)
         data = []
+
         for row in rows:
             row_data = {}
             for column in columns:
