@@ -8,7 +8,7 @@ from .factories import UserFactory, StaffFactory, ParticipantUserFactory
 def test_admin_list(app, user):
     UserFactory.create_batch(30)
     ParticipantUserFactory.create_batch(30)
-    PER_PAGE = 50
+    TOTAL_USERS = 30 + 30 + 1
 
     client = app.test_client()
     with app.test_request_context():
@@ -17,12 +17,7 @@ def test_admin_list(app, user):
         resp = client.get(url_for('admin.users'))
         assert resp.status_code == 200
         users = PyQuery(resp.data)('#users tbody tr')
-        assert len(users) == PER_PAGE
-
-        resp = client.get(url_for('admin.users', page='2'))
-        assert resp.status_code == 200
-        users = PyQuery(resp.data)('#users tbody tr')
-        assert len(users) == 11
+        assert len(users) == TOTAL_USERS
 
 
 def test_admin_list_user_search(app, user):
