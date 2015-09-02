@@ -182,11 +182,21 @@ $(function () {
     // datatables default settings
     $.extend($.fn.dataTable.defaults, {
         'language': {
-            'processing': '<img src="/static/images/ajax.gif" width=16 height=16>'
+            'processing': '<img src="/static/images/ajax.gif" width=16 height=16>',
+            'search': '',
+            'searchPlaceholder': 'Search'
         }
     });
     $.extend($.fn.dataTable.ext.classes, {
         'sProcessing': 'dataTables_processing_mrt'
+    });
+
+    $.extend($.fn.dataTable.defaults, {
+        "initComplete": function(settings, json) {
+            var filter_box = $(".dataTables_filter label");
+            filter_box.prepend("<span class='glyphicon glyphicon-search'/>");
+            filter_box.addClass("form-search");
+        }
     });
 
     $.extend({
