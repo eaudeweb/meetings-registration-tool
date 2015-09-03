@@ -15,7 +15,7 @@
       <table id="{{ language|lower }}-container" class="table {{ table_class }}">
 
       <caption>
-        <span class="language-label">{{ language|upper }}</span>
+        <span class="language-label">{{ (language or "no language")|upper }}</span>
       </caption>
 
         {% if printout_type == 'distribution' %}
@@ -43,10 +43,12 @@
                 <td class="text-center quantity">
                   {{ persons|length }}
                   {% if printout_type == 'pigeon' %}
-                    {{ language.value[0] }}
+                    {{ language.value[0] if language else "N/A" }}
                   {% endif %}
                 </td>
-                <td id="representing-name" data-id="{{ representing|safe|slugify }}">{{ representing|safe }}</td>
+                <td id="representing-name" data-id="{{ representing|safe|slugify }}">
+                  {{ (representing or "Not specified") |safe }}
+                </td>
               </tr>
 
             {% endfor %}

@@ -389,11 +389,9 @@ class BaseDistribution(PermissionRequiredMixin, MethodView):
 
     def get(self):
         flag = request.args.get('flag')
-        page = request.args.get('page', 1, type=int)
         query = self._get_query(flag)
         count = query.count()
-        pagination = query.paginate(page, per_page=1000)
-        participants = groupby(pagination.items, key=attrgetter('language'))
+        participants = groupby(query, key=attrgetter('language'))
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
 
@@ -401,7 +399,6 @@ class BaseDistribution(PermissionRequiredMixin, MethodView):
             'meetings/printouts/distribution.html',
             printout_type=self.printout_type,
             participants=participants,
-            pagination=pagination,
             count=count,
             title=self.DOC_TITLE,
             table_class=self.table_class,
