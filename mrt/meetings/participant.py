@@ -6,8 +6,10 @@ from werkzeug.utils import HTMLBuilder
 
 from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash, Response
+from flask import current_app as app
 from flask.ext.login import current_user as user
 from flask.views import MethodView
+from flask_thumbnails import Thumbnail
 
 from mrt.forms.meetings import AcknowledgeEmailForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
@@ -58,10 +60,12 @@ class Participants(PermissionRequiredMixin, MethodView):
     form_class = ParticipantEditForm
 
     def get(self):
+        search = request.args.get('search') or ''
         Form = custom_form_factory(self.form_class)
         form = Form()
         participants = Participant.query.current_meeting().participants()
         return render_template('meetings/participant/participant/list.html',
+                               search=search,
                                form=form,
                                participants=participants)
 
@@ -157,9 +161,16 @@ class ParticipantSearch(PermissionRequiredMixin, MethodView):
         participants = search_for_participant(request.args['search'])
         results = []
         for p in participants:
+            image_url = ''
+            if p.photo:
+                image_url = app.config['PATH_CUSTOM_KEY'] + '/' + p.photo
+                image_url = Thumbnail(app).thumbnail(image_url, '50x50')
+
             results.append({
+                'image_url': image_url,
                 'value': p.name,
-                'url': url_for('.participant_detail', participant_id=p.id)
+                'url': url_for('.participant_detail', participant_id=p.id),
+                'country': p.country.name if p.country else ''
             })
         return json.dumps(results)
 
