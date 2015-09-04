@@ -6,26 +6,6 @@
 
 {% block title %} Default Custom Fields {% endblock %}
 
-
-{% block scripts %}
-
-  <script>
-    $(function () {
-      $('#pass').dataTable({
-        'order': [],
-        'columnDefs': [
-          { 'orderable': false, 'targets': 0 },
-          { 'orderable': false, 'targets': 2 },
-          { 'orderable': false, 'targets': 3 },
-          { 'orderable': false, 'targets': 6 }
-        ]
-      });
-    });
-  </script>
-
-{% endblock %}
-
-
 {% block breadcrumb %}
 
   {{ breadcrumb( [('', 'Default Custom Fields')] ) }}
