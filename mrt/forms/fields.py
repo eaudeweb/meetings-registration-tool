@@ -83,6 +83,20 @@ class DocumentWidget(widgets.FileInput):
         )
 
 
+class RegistrationDocumentWidget(widgets.FileInput):
+
+    def __call__(self, field, **kwargs):
+        default_widget = widgets.FileInput()
+        kwargs.pop('class_', None)
+        return HTMLString(render_template(
+            'meetings/registration/_document_widget.html',
+            field=field,
+            default_widget=default_widget,
+            participant=getattr(field, '_participant', None),
+            field_kwargs=kwargs)
+        )
+
+
 class ImageWidget(object):
 
     def __call__(self, field, **kwargs):
@@ -285,6 +299,11 @@ class _BaseFileFieldMixin(object):
 class RegistrationImageField(_BaseFileFieldMixin, _FileField):
 
     widget = ImageWidget()
+
+
+class RegistrationDocumentField(_BaseFileFieldMixin, _FileField):
+
+    widget = RegistrationDocumentWidget()
 
 
 class CustomImageField(_BaseFileFieldMixin, _FileField):
