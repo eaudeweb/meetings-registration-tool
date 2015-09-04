@@ -101,7 +101,7 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
     def get_queryset(self, **opt):
         participants = Participant.query.current_meeting().participants()
-
+        total = participants.count()
         for item in opt['order']:
             participants = participants.order_by(
                 '%s %s' % (item['column'], item['dir']))
@@ -109,9 +109,9 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
         if opt['search']:
             participants = search_for_participant(opt['search'], participants)
 
-        total = participants.count()
+        filtered_total = participants.count()
         participants = participants.limit(opt['limit']).offset(opt['start'])
-        return participants, total
+        return participants, total, filtered_total
 
 
 class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
@@ -145,9 +145,10 @@ class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
                 )
             )
 
+        filtered_total = participants.count()
         participants = (
             participants.limit(opt['limit']).offset(opt['start']))
-        return participants, total
+        return participants, total, filtered_total
 
 
 class ParticipantSearch(PermissionRequiredMixin, MethodView):

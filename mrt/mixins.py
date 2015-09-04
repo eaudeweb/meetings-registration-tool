@@ -28,7 +28,7 @@ class FilterView(object):
             })
         options['order'] = order
 
-        rows, total = self.get_queryset(**options)
+        rows, total, filtered_total = self.get_queryset(**options)
         data = []
 
         for row in rows:
@@ -41,7 +41,7 @@ class FilterView(object):
             data.append(row_data)
 
         return jsonify(recordsTotal=total,
-                       recordsFiltered=total,
+                       recordsFiltered=filtered_total,
                        data=data)
 
 
