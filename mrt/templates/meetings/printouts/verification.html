@@ -30,13 +30,10 @@
     <div class="panel panel-default">
       <div class="panel-heading"><b>{{ title }}</b></div>
       <div class="panel-body">
-        <h4> Flag </h4>
-        {{ flag_form.flag(
-            class_="form-control form-reset-control select") }}
-        <h4> Category tags </h4>
-        {{ category_tags_form.category_tags(
+        <h4> Categories </h4>
+        {{ categories_form.categories(
             class_="form-control form-reset-control select",
-            **{'data-placeholder': 'Select one or more category tags' }) }}
+            **{'data-placeholder': 'Select one or more categories' }) }}
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>
@@ -55,20 +52,22 @@
     </div>
 
     {% with title=title %}
-      {% include "meetings/printouts/_admission_table.html" %}
+      {% include "meetings/printouts/_verification_table.html" %}
     {% endwith %}
 
     <div class="printout-loading"></div>
 
     <ul class="pagination">
       {% if pagination.has_prev %}
-        {% set prev_url = url_for('.printouts_admission',
-                                  page=pagination.prev().page) %}
+        {% set prev_url = url_for('.printouts_verification',
+                                  page=pagination.prev().page,
+                                  categories=category_ids) %}
         <li><a href="{{ prev_url }}">Previous</a></li>
       {% endif %}
       {% if pagination.has_next %}
-        {% set next_url = url_for('.printouts_admission',
-                                  page=pagination.next().page) %}
+        {% set next_url = url_for('.printouts_verification',
+                                  page=pagination.next().page,
+                                  categories=category_ids) %}
         <li><a href="{{ next_url }}" class="next">Next</a></li>
       {% endif %}
     </ul>

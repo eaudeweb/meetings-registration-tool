@@ -58,17 +58,43 @@
               <a href="{{ url_for('.printouts_participant_events') }}">
                 Print list of events</a>
             </li>
+            {% if g.meeting.media_participant_enabled and has_perm('view_media_participant') %}
+            <li>
+              <a href="{{ url_for('.printouts_media') }}">
+                Print list of media participants</a>
+            </li>
+            {% endif %}
             <li>
               <a href="{{ url_for('.printouts_provisional_list') }}">
-                Print provisional list</a>
+                Print list of participants</a>
             </li>
             <li>
               <a href="{{ url_for('.printouts_document_distribution') }}">
                 Print distribution of documents</a>
             </li>
             <li>
+              <a href="{{ url_for('.printouts_credentials') }}">
+                Print list of credentials</a>
+            </li>
+            <li>
+              <a href="{{ url_for('.printouts_pigeon_holes') }}">
+                Print pigeon holes</a>
+            </li>
+            <li>
               <a href="{{ url_for('.printouts_admission') }}">
                 Print admission</a>
+            </li>
+            <li>
+              <a href="{{ url_for('.printouts_verification') }}">
+                Print list of participants for verification</a>
+            </li>
+            <li>
+              <a href="{{ url_for('.printouts_parties') }}">
+                Print list of announced parties</a>
+            </li>
+            <li>
+              <a href="{{ url_for('.printouts_observers') }}">
+                Print list of announced observers</a>
             </li>
 
             <li class="divider"></li>

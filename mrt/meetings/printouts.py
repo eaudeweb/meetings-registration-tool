@@ -16,7 +16,8 @@ from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
 from mrt.forms.meetings import BadgeCategories, EventsForm
-from mrt.forms.meetings import FlagForm, CategoryTagForm
+from mrt.forms.meetings import FlagForm, CategoryTagForm, MediaCategoriesForm
+from mrt.forms.meetings import ParticipantCategoriesForm
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
@@ -215,6 +216,11 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
 
     JOB_NAME = 'participant list'
     DOC_TITLE = 'Provisional list as entered by participant'
+    TITLE_MAP = {
+        'attended': 'Final list of participants',
+        'verified': 'List of acknowledged participants',
+        'credentials': 'List of participants with checked credentials',
+    }
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
@@ -227,7 +233,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
             .order_by(Category.sort, Category.id,
-                      Participant.represented_country.name,
+                      Participant.representing,
                       Participant.last_name, Participant.id)
         )
 
@@ -239,6 +245,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
 
     def get(self):
         flag = request.args.get('flag')
+        title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         page = request.args.get('page', 1, type=int)
         query = self._get_query(flag)
         count = query.count()
@@ -251,14 +258,15 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             participants=participants,
             pagination=pagination,
             count=count,
-            title=self.DOC_TITLE,
+            title=title,
             flag_form=flag_form,
             flag=flag)
 
     def post(self):
         flag = request.args.get('flag')
+        title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               self.DOC_TITLE, flag)
+                               title, flag)
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
@@ -358,10 +366,7 @@ class EventList(PermissionRequiredMixin, MethodView):
                                 events=event_ids))
 
 
-class DocumentDistribution(PermissionRequiredMixin, MethodView):
-
-    JOB_NAME = 'document distribution'
-    DOC_TITLE = 'Distribution of documents'
+class BaseDistribution(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
@@ -384,28 +389,49 @@ class DocumentDistribution(PermissionRequiredMixin, MethodView):
 
     def get(self):
         flag = request.args.get('flag')
-        page = request.args.get('page', 1, type=int)
         query = self._get_query(flag)
         count = query.count()
-        pagination = query.paginate(page, per_page=1000)
-        participants = groupby(pagination.items, key=attrgetter('language'))
+        participants = groupby(query, key=attrgetter('language'))
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
 
         return render_template(
-            'meetings/printouts/document_distribution.html',
+            'meetings/printouts/distribution.html',
+            printout_type=self.printout_type,
             participants=participants,
-            pagination=pagination,
             count=count,
             title=self.DOC_TITLE,
+            table_class=self.table_class,
             flag=flag,
             flag_form=flag_form)
 
     def post(self):
         flag = request.args.get('flag')
-        _add_to_printout_queue(_process_document_distribution, self.JOB_NAME,
-                               self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_document_distribution', flag=flag))
+        _add_to_printout_queue(_process_distribution, self.JOB_NAME,
+                               self.printout_type, self.DOC_TITLE, flag)
+        return redirect(url_for(self.view_name, flag=flag))
+
+
+class DocumentDistribution(BaseDistribution):
+
+    JOB_NAME = 'document distribution'
+    DOC_TITLE = 'Distribution of documents'
+
+    template = 'meetings/printouts/distribution.html'
+    view_name = '.printouts_document_distribution'
+    printout_type = 'distribution'
+    table_class = 'table-bordered table-condensed'
+
+
+class PigeonHoles(BaseDistribution):
+
+    JOB_NAME = 'pigeon holes'
+    DOC_TITLE = 'Pigeon holes'
+
+    template = 'meetings/printouts/distribution.html'
+    view_name = '.printouts_pigeon_holes'
+    printout_type = 'pigeon'
+    table_class = 'pigeon-holes'
 
 
 class Admission(PermissionRequiredMixin, MethodView):
@@ -431,7 +457,7 @@ class Admission(PermissionRequiredMixin, MethodView):
             category_ids += [category.id for category in
                 tag.categories.filter_by(meeting_id=g.meeting.id)]
 
-        if category_ids:
+        if category_tags:
             query = query.filter(Participant.category_id.in_(category_ids))
 
         if flag:
@@ -467,7 +493,6 @@ class Admission(PermissionRequiredMixin, MethodView):
             count=count,
             title=title,
             flag=flag,
-            category_tags=category_tags,
             flag_form=flag_form,
             category_tags_form=category_tags_form)
 
@@ -478,6 +503,348 @@ class Admission(PermissionRequiredMixin, MethodView):
                                 category_tags)
         return redirect(url_for('.printouts_admission', flag=flag,
                                 category_tags=category_tags))
+
+
+class Credentials(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'credentials'
+    DOC_TITLE = 'List of credentials'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(flag, category_tags):
+        query = (
+            Participant.query.current_meeting().participants()
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Category.sort)
+            .order_by(Category.id)
+            .order_by(Participant.representing)
+            .order_by(Participant.last_name)
+        )
+
+        category_ids = []
+        for tag in category_tags:
+            category_ids += [category.id for category in
+                tag.categories.filter_by(meeting_id=g.meeting.id)]
+
+        if category_tags:
+            query = query.filter(Participant.category_id.in_(category_ids))
+
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
+    def get(self):
+        flag_slug = request.args.get('flag')
+        category_tag_ids = request.args.getlist('category_tags')
+        category_tags = (CategoryTag.query
+                         .filter(CategoryTag.id.in_(category_tag_ids))
+                         .all())
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query(flag_slug, category_tags)
+        pagination = query.paginate(page, per_page=50)
+        participants = pagination.items
+        flag_form = FlagForm(request.args)
+        flag_form.flag.choices = [
+            choice for choice in flag_form.flag.choices if choice[0] != 'credentials']
+        category_tags_form = CategoryTagForm(request.args)
+        flag = g.meeting.custom_fields.filter_by(slug=flag_slug).first()
+
+        return render_template(
+            'meetings/printouts/credentials.html',
+            participants=participants,
+            pagination=pagination,
+            title=self.DOC_TITLE,
+            flag=flag,
+            flag_slug=flag_slug,
+            flag_form=flag_form,
+            category_tag_ids=category_tag_ids,
+            category_tags_form=category_tags_form)
+
+    def post(self):
+        flag = request.args.get('flag')
+        category_tags = request.args.getlist('category_tags')
+        _add_to_printout_queue(_process_credentials, self.JOB_NAME,
+                               self.DOC_TITLE, flag, category_tags)
+        return redirect(url_for('.printouts_credentials', flag=flag,
+                                category_tags=category_tags))
+
+
+class MediaList(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'media list'
+    DOC_TITLE = 'List of media participants'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(flag, category_ids):
+
+        query = (
+            Participant.query.current_meeting().media_participants()
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Category.sort)
+            .order_by(Category.id)
+            .order_by(Participant.last_name)
+        )
+
+        if category_ids:
+            query = query.filter(Participant.category_id.in_(category_ids))
+
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
+    def get(self):
+        flag_slug = request.args.get('flag')
+        category_ids = request.args.getlist('categories')
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query(flag_slug, category_ids)
+        pagination = query.paginate(page, per_page=50)
+        participants = pagination.items
+        flag_form = FlagForm(request.args)
+        flag_form.flag.choices = [
+            choice for choice in flag_form.flag.choices if choice[0] != 'credentials']
+        categories_form = MediaCategoriesForm(request.args)
+        flag = g.meeting.custom_fields.filter_by(slug=flag_slug).first()
+
+        return render_template(
+            'meetings/printouts/media.html',
+            participants=participants,
+            pagination=pagination,
+            title=self.DOC_TITLE,
+            flag=flag,
+            flag_slug=flag_slug,
+            flag_form=flag_form,
+            category_ids=category_ids,
+            categories_form=categories_form)
+
+    def post(self):
+        flag = request.args.get('flag')
+        category_ids = request.args.getlist('categories')
+        _add_to_printout_queue(_process_media, self.JOB_NAME,
+                               self.DOC_TITLE, flag, category_ids)
+        return redirect(url_for('.printouts_media', flag=flag,
+                                categories=category_ids))
+
+
+class VerificationList(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'verification list'
+    DOC_TITLE = 'List of participants for verification'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(category_ids):
+
+        query = (
+            Participant.query.current_meeting().participants()
+            .filter_by(attended=True)
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Category.sort)
+            .order_by(Category.id)
+            .order_by(Participant.representing)
+            .order_by(Participant.last_name)
+        )
+
+        if category_ids:
+            query = query.filter(Participant.category_id.in_(category_ids))
+
+        return query
+
+    def get(self):
+        category_ids = request.args.getlist('categories')
+        page = request.args.get('page', 1, type=int)
+        query = self._get_query(category_ids)
+        count = query.count()
+        pagination = query.paginate(page, per_page=50)
+        participants = pagination.items
+        categories_form = ParticipantCategoriesForm(request.args)
+
+        return render_template(
+            'meetings/printouts/verification.html',
+            participants=participants,
+            pagination=pagination,
+            title=self.DOC_TITLE,
+            count=count,
+            category_ids=category_ids,
+            categories_form=categories_form)
+
+    def post(self):
+        category_ids = request.args.getlist('categories')
+        _add_to_printout_queue(_process_verification, self.JOB_NAME,
+                               self.DOC_TITLE, category_ids)
+        return redirect(url_for('.printouts_verification',
+                                categories=category_ids))
+
+
+class PartiesList(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'announced parties'
+    DOC_TITLE = 'List of announced Parties (by country)'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(flag, category_tags, categories):
+        query = (
+            Participant.query.current_meeting().participants()
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Participant.represented_country)
+            .order_by(Participant.last_name)
+        )
+
+        if category_tags and not categories:
+            categories = (
+                g.meeting.categories
+                .filter(Category.tags.any(CategoryTag.id.in_(category_tags)))
+                .with_entities('id'))
+
+        if categories:
+            query = query.filter(Participant.category_id.in_(categories))
+
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
+    def get(self):
+        flag = request.args.get('flag')
+        category_tags = request.args.getlist('category_tags')
+        categories = request.args.getlist('categories')
+        page = request.args.get('page', 1, type=int)
+
+        events = g.meeting.custom_fields.filter_by(field_type=CustomField.EVENT)
+
+        query = self._get_query(flag, category_tags, categories)
+        count = query.count()
+        pagination = query.paginate(page, per_page=50)
+        participants = pagination.items
+
+        flag_form = FlagForm(request.args)
+        category_tags_form = CategoryTagForm(request.args)
+        categories_form = ParticipantCategoriesForm(request.args)
+
+        return render_template(
+            'meetings/printouts/parties.html',
+            participants=participants,
+            events=events,
+            pagination=pagination,
+            count=count,
+            title=self.DOC_TITLE,
+            flag=flag,
+            flag_form=flag_form,
+            category_tags=category_tags,
+            category_tags_form=category_tags_form,
+            categories=categories,
+            categories_form=categories_form,
+        )
+
+    def post(self):
+        flag = request.args.get('flag')
+        category_tags = request.args.getlist('category_tags')
+        categories = request.args.getlist('categories')
+        _add_to_printout_queue(_process_parties, self.JOB_NAME, self.DOC_TITLE,
+                               flag, category_tags, categories)
+        return redirect(url_for('.printouts_parties', flag=flag,
+                                category_tags=category_tags,
+                                categories=categories))
+
+
+class ObserversList(PermissionRequiredMixin, MethodView):
+
+    JOB_NAME = 'announced observers'
+    DOC_TITLE = 'List of announced observers (by organization)'
+
+    permission_required = ('manage_meeting', 'manage_participant',
+                           'view_participant')
+
+    @staticmethod
+    def _get_query(flag, category_tags, categories):
+        query = (
+            Participant.query.current_meeting().participants()
+            .join(Participant.category, Category.title)
+            .options(joinedload(Participant.category)
+                     .joinedload(Category.title))
+            .order_by(Category.sort)
+            .order_by(Participant.last_name)
+        )
+
+        if category_tags and not categories:
+            categories = (
+                g.meeting.categories
+                .filter(Category.tags.any(CategoryTag.id.in_(category_tags)))
+                .with_entities('id'))
+
+        if categories:
+            query = query.filter(Participant.category_id.in_(categories))
+
+        if flag:
+            attr = getattr(Participant, flag)
+            query = query.filter(attr == True)
+
+        return query
+
+    def get(self):
+        flag = request.args.get('flag')
+        category_tags = request.args.getlist('category_tags')
+        categories = request.args.getlist('categories')
+        page = request.args.get('page', 1, type=int)
+
+        events = g.meeting.custom_fields.filter_by(field_type=CustomField.EVENT)
+
+        query = self._get_query(flag, category_tags, categories)
+        count = query.count()
+        pagination = query.paginate(page, per_page=50)
+        participants = pagination.items
+
+        flag_form = FlagForm(request.args)
+        category_tags_form = CategoryTagForm(request.args)
+        categories_form = ParticipantCategoriesForm(request.args)
+
+        return render_template(
+            'meetings/printouts/observers.html',
+            participants=participants,
+            events=events,
+            pagination=pagination,
+            count=count,
+            title=self.DOC_TITLE,
+            flag=flag,
+            flag_form=flag_form,
+            category_tags=category_tags,
+            category_tags_form=category_tags_form,
+            categories=categories,
+            categories_form=categories_form,
+        )
+
+    def post(self):
+        flag = request.args.get('flag')
+        category_tags = request.args.getlist('category_tags')
+        categories = request.args.getlist('categories')
+        _add_to_printout_queue(_process_observers, self.JOB_NAME, self.DOC_TITLE,
+                               flag, category_tags, categories)
+        return redirect(url_for('.printouts_observers', flag=flag,
+                                category_tags=category_tags,
+                                categories=categories))
 
 
 class PrintoutFooter(MethodView):
@@ -558,21 +925,29 @@ def _process_event_list(meeting_id, title, event_ids):
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
 
-def _process_document_distribution(meeting_id, title, flag):
+
+def _process_distribution(meeting_id, printout_type, title, flag):
+    if printout_type == 'distribution':
+        view_class = DocumentDistribution
+    else:
+        view_class = PigeonHoles
     g.meeting = Meeting.query.get(meeting_id)
-    query = DocumentDistribution._get_query(flag)
+    query = view_class._get_query(flag)
     participants = groupby(query, key=attrgetter('language'))
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     context = {'participants': participants,
                'title': title,
+               'printout_type': view_class.printout_type,
+               'table_class': view_class.table_class,
                'flag': flag,
-               'template': 'meetings/printouts/_document_distribution_table.html'}
+               'template': 'meetings/printouts/_distribution_table.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
+
 
 def _process_admission(meeting_id, flag, category_tags):
     g.meeting = Meeting.query.get(meeting_id)
@@ -598,3 +973,112 @@ def _process_admission(meeting_id, flag, category_tags):
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
+
+
+def _process_credentials(meeting_id, title, flag, category_tags):
+    g.meeting = Meeting.query.get(meeting_id)
+    category_tags = (CategoryTag.query
+                     .filter(CategoryTag.id.in_(category_tags))
+                     .all())
+    query = Credentials._get_query(flag, category_tags)
+    participants = query.all()
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+    context = {'participants': participants,
+               'title': title,
+               'flag': flag,
+               'category_tags': category_tags,
+               'template': 'meetings/printouts/_credentials_table.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
+
+
+def _process_media(meeting_id, title, flag, category_ids):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = MediaList._get_query(flag, category_ids)
+    participants = query.all()
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+    context = {'participants': participants,
+               'title': title,
+               'flag': flag,
+               'category_ids': category_ids,
+               'template': 'meetings/printouts/_media_table.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
+
+
+def _process_verification(meeting_id, title, category_ids):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = VerificationList._get_query(category_ids)
+    count = query.count()
+    participants = query
+    context = {'participants': participants,
+               'count': count,
+               'title': title,
+               'category_ids': category_ids,
+               'template': 'meetings/printouts/_verification_table_pdf.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='portrait',
+                       context=context).as_rq()
+
+
+def _process_parties(meeting_id, title, flag, category_tags, categories):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = PartiesList._get_query(flag, category_tags, categories)
+    participants = query.all()
+    count = query.count()
+    events = g.meeting.custom_fields.filter_by(field_type=CustomField.EVENT)
+    context = {'participants': participants,
+               'count': count,
+               'events': events,
+               'title': title,
+               'template': 'meetings/printouts/_parties_pdf.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='portrait',
+                       context=context).as_rq()
+
+
+def _process_observers(meeting_id, title, flag, category_tags, categories):
+    g.meeting = Meeting.query.get(meeting_id)
+    query = ObserversList._get_query(flag, category_tags, categories)
+    participants = query.all()
+    count = query.count()
+    events = g.meeting.custom_fields.filter_by(field_type=CustomField.EVENT)
+    context = {'participants': participants,
+               'count': count,
+               'events': events,
+               'title': title,
+               'template': 'meetings/printouts/_observers_pdf.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='portrait',
+                       context=context).as_rq()
+
+
+class CategoriesForTags(MethodView):
+
+    decorators = (login_required,)
+
+    def get(self):
+        category_tags = request.args.getlist('category_tags')
+        categories = g.meeting.categories.order_by(Category.sort)
+        if category_tags:
+            categories = categories.filter(
+                Category.tags.any(CategoryTag.id.in_(category_tags)))
+        categories = [(c.id, c.title.english) for c in categories]
+        return jsonify(categories)

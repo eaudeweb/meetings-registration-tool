@@ -2,45 +2,28 @@
 {% set product_logo = get_logo('PRODUCT_LOGO') %}
 {% set product_side_logo = get_logo('PRODUCT_SIDE_LOGO') %}
 
-<table class="title">
-    <tr>
-        <td>
-          <img class="printout-logo" src="{{ product_logo.url }}">
-        </td>
-
-        <td>
-          <div class="printout-doc-title">
-            <h4>{{ meeting_title_all_languages() }}</h4>
-            <h2>{{ title }} - Total: {{ count }}</h2>
-          </div>
-        </td>
-
-        <td>
-          <img class="printout-logo" src="{{ product_side_logo.url }}">
-        </td>
-    </tr>
-</table>
+<div class="printout-doc-title">
+  <h2>{{ title }} - Total: {{ count }}</h2>
+</div>
 
 <div class="printout-item-container">
 
-  {% for group, list in participants|groupby('category') %}
-
-    {% for representing, participant_group in list|selectattr('representing')|groupby('representing') %}
+    {% for representing, participant_group in participants|selectattr('representing')|groupby('representing') %}
         {% set outer_loop = loop %}
         {% for participant in participant_group %}
-          <div style="page-break-inside: avoid;">
-            {% if outer_loop.first and loop.first %}
-            <h4 class="highlight text-center">
-              {{ group.title.english }} /
-              {{ group.title.french }} /
-              {{ group.title.spanish }}
-            </h4>
-            {% endif %}
+          <div style="page-break-inside: avoid; {% if loop.last and not outer_loop.last %} page-break-after: always; {% endif %}">
             {% if loop.first %}
-              <hr>
-              <h5><b>
+              <p class="group">
                 {{ representing|safe }}
-              </b></h5>
+              </p>
+              <div class="subheader">
+                  Please check and return to the {{ config.PRODUCT_TITLE }} Secretariat at the Registration desk
+                  as soon as possible. Thank you<br/><br/>
+                  Sírvase verificar y regresar a la Secretaría {{ config.PRODUCT_TITLE }} en el área de inscripción
+                  de participantes a la brevedad. Gracias<br/><br/>
+                  Veuillez vérifier et retourner au Secrétariat {{ config.PRODUCT_TITLE }} au bureau d'inscriptions
+                  des participants aussi rapidement que possible. Merci
+              </div>
             {% endif %}
             <dl>
               <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
@@ -61,18 +44,34 @@
               {% endif %}
               <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
             </dl>
+          <hr>
           </div>
         {% endfor %}
 
     {% endfor %}
 
-    {% for participant in list|selectattr('representing', 'none') %}
+    {% for participant in participants|rejectattr('representing') %}
+
+      {% if loop.first and participant.id != participants.first().id %}
+        <div style="page-break-before: always;">
+        </div>
+      {% endif %}
+
       <div style="page-break-inside: avoid;">
       {% if loop.first %}
-        <hr>
-        <h5><b>Not specified</b></h5>
+        <p class="group">
+          Not specified
+        </p>
+        <div class="subheader">
+            Please check and return to the {{ config.PRODUCT_TITLE }} Secretariat at the Registration desk
+            as soon as possible. Thank you<br/><br/>
+            Sírvase verificar y regresar a la Secretaría {{ config.PRODUCT_TITLE }} en el área de inscripción
+            de participantes a la brevedad. Gracias<br/><br/>
+            Veuillez vérifier et retourner au Secrétariat {{ config.PRODUCT_TITLE }} au bureau d'inscriptions
+            des participants aussi rapidement que possible. Merci
+        </div>
       {% endif %}
-        <dl style="page-break-inside: avoid;">
+        <dl>
           <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
           {% if participant.address_value %}
             <dd style="width:50%;">{{ participant.address_value }}</dd>
@@ -92,8 +91,7 @@
           <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
         </dl>
       </div>
+      <hr>
     {% endfor %}
-
-  {% endfor %}
 
 </div> {# printout-item-container #}

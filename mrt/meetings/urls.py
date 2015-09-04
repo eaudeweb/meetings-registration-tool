@@ -209,14 +209,35 @@ meetings.add_url_rule(
     '/<int:meeting_id>/printouts/participant/events',
     view_func=views.EventList.as_view('printouts_participant_events'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/participant/media',
+    view_func=views.MediaList.as_view('printouts_media'))
+meetings.add_url_rule(
     '/<int:meeting_id>/printouts/document_distribution',
     view_func=views.DocumentDistribution.as_view('printouts_document_distribution'))
 meetings.add_url_rule(
-    '/<int:meeting_id>/printouts/provisionallist',
+    '/<int:meeting_id>/printouts/credentials',
+    view_func=views.Credentials.as_view('printouts_credentials'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/pigeon_holes',
+    view_func=views.PigeonHoles.as_view('printouts_pigeon_holes'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/provisional_list',
     view_func=views.ProvisionalList.as_view('printouts_provisional_list'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/admission',
     view_func=views.Admission.as_view('printouts_admission'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/list_for_verification',
+    view_func=views.VerificationList.as_view('printouts_verification'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/parties',
+    view_func=views.PartiesList.as_view('printouts_parties'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/observers',
+    view_func=views.ObserversList.as_view('printouts_observers'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/categories_for_tags',
+    view_func=views.CategoriesForTags.as_view('categories_for_tags'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',
