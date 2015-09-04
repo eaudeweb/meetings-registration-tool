@@ -6,13 +6,13 @@ from flask import current_app as app
 from flask.ext.babel import gettext as _
 from flask.ext.babel import lazy_gettext as __
 from flask_wtf.file import FileAllowed
-from flask.ext.uploads import IMAGES
+from flask.ext.uploads import IMAGES, DOCUMENTS
 
 from wtforms import Form, StringField, PasswordField, validators
 from wtforms import HiddenField
 
 from mrt.forms.meetings import BaseParticipantForm
-from mrt.forms.fields import RegistrationImageField
+from mrt.forms.fields import RegistrationImageField, RegistrationDocumentField
 from mrt.models import db, User, CustomField
 from mrt import utils
 
@@ -28,6 +28,10 @@ class RegistrationForm(BaseParticipantForm):
         CustomField.IMAGE: {
             'field': RegistrationImageField,
             'validators': [FileAllowed(IMAGES)]
+        },
+        CustomField.DOCUMENT: {
+            'field': RegistrationDocumentField,
+            'validators': [FileAllowed(DOCUMENTS + ('pdf',))]
         },
     }
 
