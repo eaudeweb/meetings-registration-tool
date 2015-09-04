@@ -63,11 +63,9 @@ class Participants(PermissionRequiredMixin, MethodView):
         search = request.args.get('search') or ''
         Form = custom_form_factory(self.form_class)
         form = Form()
-        participants = Participant.query.current_meeting().participants()
         return render_template('meetings/participant/participant/list.html',
                                search=search,
-                               form=form,
-                               participants=participants)
+                               form=form)
 
 
 class MediaParticipants(PermissionRequiredMixin, MethodView):
