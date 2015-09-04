@@ -35,7 +35,7 @@
       $('[data-toggle=enable]').on('click', function () {
         var url = $(this).data('href');
         var row = $(this).parents('tr');
-        var icon = row.find('.glyphicon');
+        var icon = row.find('.user-active');
         var button = $(this);
           $.post(url, function (resp) {
             row.effect('highlight');
@@ -58,6 +58,15 @@
             window.location.replace(resp.url);
           });
         }
+      });
+
+
+      $('#users').dataTable({
+        'order': [],
+        'columnDefs': [
+          { 'orderable': false, 'targets': 2 },
+          { 'orderable': false, 'targets': 3 },
+        ]
       });
 
     });
@@ -84,15 +93,6 @@
     <b>List of users. On the actions column, you can reset the password and disable the account</b>
   </h5>
 
-  <form id="search" class="form-inline text-right">
-    <div class="form-group">
-      <label>{{ form.search.label.text }}:&nbsp;</label>
-        {{ form.search(class_='form-control',
-                       placeholder='Search users by email',
-                       autofocus='') }}
-    </div>
-  </form>
-
   <div class="table-responsive">
 
     <table id="users" class="table table-bordered table-condensed">
@@ -100,6 +100,7 @@
       <thead>
         <tr>
           <th class="col-sm-3">Email</th>
+          <th class="col-sm-3">Staff</th>
           <th class="col-sm-2 text-center">Active</th>
           <th class="col-sm-2 text-center">Actions</th>
         </tr>
@@ -107,23 +108,29 @@
 
       <tbody>
 
-        {% for user in users.items %}
+        {% for user in users %}
 
           <tr class="{{ 'current-user bg-info' if current_user == user }}">
 
             <td>
               {% set url = url_for('.user_detail', user_id=user.id) %}
-              <a href="{{ url }}">{{ user.email }}</a> <br>
+              <a href="{{ url }}">{{ user.email }}</a>
+            </td>
+
+            <td class="text-center">
               {% if user.staff %}
-                <small class="text-danger"><em>Staff</em></small> <br>
+              <span class="glyphicon glyphicon-ok"></span>
+              <span class="hidden"> staff </span>
+              {% else %}
+                <span class="glyphicon glyphicon-minus"></span>
               {% endif %}
             </td>
 
             <td class="text-center">
               {% if user.active %}
-              <span class="glyphicon glyphicon-ok"></span>
+              <span class="user-active glyphicon glyphicon-ok"></span>
               {% else %}
-                <span class="glyphicon glyphicon-minus"></span>
+                <span class="user-active glyphicon glyphicon-minus"></span>
               {% endif %}
             </td>
 
@@ -151,7 +158,5 @@
     </table>
 
   </div> {# table-responsive #}
-
-  {{ render_pagination(users, '.users') }}
 
 {% endblock %}
