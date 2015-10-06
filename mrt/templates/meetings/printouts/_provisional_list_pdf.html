@@ -23,9 +23,12 @@
 
 <div class="printout-item-container">
 
-  {% for group, list in participants|groupby('category') %}
+  {% for group, list in
+    participants|groupby('category')|sort(attribute="grouper.sort") %}
 
-    {% for representing, participant_group in list|selectattr('representing')|groupby('representing') %}
+    {% for representing, participant_group in
+      list|selectattr('representing', 'defined')|groupby('representing') %}
+
         {% set outer_loop = loop %}
         {% for participant in participant_group %}
           <div style="page-break-inside: avoid;">
@@ -39,7 +42,7 @@
             {% if loop.first %}
               <hr>
               <h5><b>
-                {{ representing|safe }}
+                {{ representing|safe or 'Not specified' }}
               </b></h5>
             {% endif %}
             <dl>
@@ -64,34 +67,6 @@
           </div>
         {% endfor %}
 
-    {% endfor %}
-
-    {% for participant in list|selectattr('representing', 'none') %}
-      <div style="page-break-inside: avoid;">
-      {% if loop.first %}
-        <hr>
-        <h5><b>Not specified</b></h5>
-      {% endif %}
-        <dl style="page-break-inside: avoid;">
-          <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
-          {% if participant.address_value %}
-            <dd style="width:50%;">{{ participant.address_value }}</dd>
-          {% endif %}
-          {% if participant.country and participant.country.name not in representing %}
-            <dd>{{ participant.country }}</dd>
-          {% endif %}
-          {% if participant.telephone_value %}
-            <dd style="padding-left:40px;">T: {{ participant.telephone_value }}</dd>
-          {% endif %}
-          {% if participant.hardcoded_mobile_value %}
-            <dd style="padding-left:40px;">M: {{ participant.hardcoded_mobile_value }}</dd>
-          {% endif %}
-          {% if participant.hardcoded_fax_value %}
-            <dd style="padding-left:40px;">F: {{ participant.hardcoded_fax_value }}</dd>
-          {% endif %}
-          <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
-        </dl>
-      </div>
     {% endfor %}
 
   {% endfor %}
