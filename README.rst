@@ -35,6 +35,10 @@ be run as an unprivileged user in the product directory::
 1. Clone the repository::
 
     git clone git@github.com:eaudeweb/meetings-registration-tool.git
+    
+This will work only if you have your public key stored in _SSH keys_ list of a user that has access rights on the repository. You can also create a read-only copy of the project, by using the HTTPS URL::
+    
+    git clone https://github.com/eaudeweb/meetings-registration-tool.git
 
 2. Create & activate a virtual environment::
 
@@ -46,7 +50,9 @@ be run as an unprivileged user in the product directory::
 
 3. Install dependencies::
 
-    pip install -r requirements-dev.txt
+    pip install -r requirements-dep.txt
+    
+\* Use `pip install -r requirements-dep.txt` in development.
 
 
 4. Create a configuration file::
@@ -77,7 +83,7 @@ want to enable the Google Analytics tracking.
 
 5. Set up the PostgreSQL database::
 
-    # Replace [your username] and [password] with your MySQL credentials:
+    # Replace <your username> and <password> with your PostgreSQL credentials:
     root # su - postgres
     postgres $ psql
     psql (9.1.2)
@@ -95,7 +101,7 @@ After that, run alembic upgrade to have the tables created::
 
     ./manage.py alembic upgrade head
 
-6. Start RQ workers by running (for printouts):
+6. Start RQ workers by running (for printouts)::
 
     ./manage.py rq workers printouts
 
