@@ -273,7 +273,7 @@ def get_custom_file_as_filestorage(filename):
     try:
         data = FileStorage(stream=file_path.open(),
                            filename=file_path.basename())
-    except IOError:
+    except (IOError, OSError):
         data = None
 
     return data
