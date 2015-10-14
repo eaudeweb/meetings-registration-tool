@@ -156,11 +156,43 @@ $(function () {
         '<small><em>No participants found</em></small>',
         '</div>'
     ].join('\n');
+
+    var search_participant_template = function(data) {
+        if(!data.image_url) {
+            data.image_url = '/static/images/no-avatar.jpg';
+        }
+        return [
+            '<div class="row">',
+                '<img class="pull-left image img-rounded" src="', data.image_url, '"/>',
+                data.value,
+                '<br>',
+                '<span class="description">',
+                    data.country,
+                '</span>',
+            '</div>'
+        ].join('\n');
+    };
+
+    var search_participant_footer = function(data) {
+        if(data.isEmpty || $(".tt-suggestion").length < 5) {
+            return '';
+        }
+        var participants_index = window.location.href.indexOf("participants");
+        var search_url = window.location.href.substring(0, participants_index);
+        search_url = search_url + "participants?search=" + data.query;
+        return [
+            '<div class="text-center results">',
+                '<a href="', search_url, '"> See all results » </a>',
+            '</div>'
+        ].join('\n');
+    };
+
     var searchSelected = function (e, suggestion, name) {
         if(suggestion && suggestion.url) {
             window.location.href = suggestion.url;
         }
-    }
+    };
+
     var search = new Bloodhound({
         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
         queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -169,24 +201,63 @@ $(function () {
     search.initialize();
     search_participant.find('input').typeahead(null, {
         name: 'search',
-        displayKey: 'value',
         source: search.ttAdapter(),
         templates: {
-            empty: search_participant_empty_template
-        }
+            empty: search_participant_empty_template,
+            suggestion: search_participant_template,
+            footer: search_participant_footer
+        },
     }).on('typeahead:selected', searchSelected);
-
 
     $('[data-toggle=tooltip]').tooltip();
 
     // datatables default settings
     $.extend($.fn.dataTable.defaults, {
         'language': {
-            'processing': '<img src="/static/images/ajax.gif" width=16 height=16>'
+            'processing': '<img src="/static/images/ajax.gif" width=16 height=16>',
+            'search': '',
+            'searchPlaceholder': 'Search'
         }
     });
     $.extend($.fn.dataTable.ext.classes, {
         'sProcessing': 'dataTables_processing_mrt'
+    });
+
+    $.extend($.fn.dataTable.defaults, {
+        "initComplete": function(settings, json) {
+            var filter_box = $(".dataTables_filter label");
+            filter_box.prepend("<span class='glyphicon glyphicon-search'/>");
+            filter_box.addClass("form-search");
+        }
+    });
+
+    $.extend({
+        debounce : function(fn, timeout, invokeAsap, ctx) {
+
+            if(arguments.length == 3 && typeof invokeAsap != 'boolean') {
+                ctx = invokeAsap;
+                invokeAsap = false;
+            }
+
+            var timer;
+
+            return function() {
+
+                var args = arguments;
+                ctx = ctx || this;
+
+                invokeAsap && !timer && fn.apply(ctx, args);
+
+                clearTimeout(timer);
+
+                timer = setTimeout(function() {
+                    !invokeAsap && fn.apply(ctx, args);
+                    timer = null;
+                }, timeout);
+
+            };
+
+        }
     });
 
     $(".picker").datetimepicker({pickTime: false});

@@ -1197,9 +1197,9 @@ def search_for_participant(search, queryset=None):
     search = '%%%s%%' % (search, )
     return queryset.filter(
         (cast(Participant.id, String) == search) |
+        Participant.representing.ilike(search) |
         Participant.first_name.ilike(search) |
         Participant.last_name.ilike(search) |
-        Participant.email.ilike(search) |
         Participant.category.has(
             Category.title.has(Translation.english.ilike(search))
         )
