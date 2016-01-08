@@ -28,7 +28,7 @@ class PdfRenderer(object):
         self.height = kwargs.get('height', None)
         self.margin = kwargs.get('margin', _PAGE_DEFAULT_MARGIN)
         self.orientation = kwargs.get('orientation', 'portrait')
-        self.footer = kwargs.get('footeer', True)
+        self.footer = kwargs.get('footer', True)
         self.context = kwargs.get('context', {})
 
         self.template_path = (app.config['UPLOADED_PRINTOUTS_DEST'] /

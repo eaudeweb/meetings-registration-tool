@@ -111,6 +111,7 @@ def _process_badges(meeting_id, flag, category_ids):
     return PdfRenderer('meetings/printouts/badges_pdf.html',
                        height='2.15in', width='3.4in',
                        orientation='portrait',
+                       footer=False,
                        context=context).as_rq()
 
 
