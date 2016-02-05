@@ -59,6 +59,11 @@ li.separator {
     position: relative;
     top: 5px;
 }
+
+.form-group input[type=checkbox].use-current-file {
+    top: 0px;
+}
+
 .form-group li label {
     font-weight: normal;
 }
