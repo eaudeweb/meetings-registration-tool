@@ -13,7 +13,12 @@
                                  participant_id=participant.id) %}
 
     <p class="current-file">
-      Current file:<br>
+      <label>
+      <input name="{{ field.name }}-use-current-file"
+             type="checkbox" checked="checked"
+             class="use-current-file"
+             value="{{ field.data.filename }}">
+      {{ gettext('Use the current file') }}:</label>
       <a href="{{ url }}" target="_blank">{{ field.data.filename }}</a>
       <small>
         <a data-href="{{ delete_url }}"
