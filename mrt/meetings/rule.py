@@ -85,7 +85,7 @@ class RulesData(PermissionRequiredMixin, MethodView):
             return jsonify(data=get_all_countries())
         if cf.field_type == CustomField.CHECKBOX:
             return jsonify(data=ConditionForm.CHECKBOX_VALUES)
-        if cf.field_type == CustomField.SELECT:
+        if cf.field_type in (CustomField.SELECT, CustomField.RADIO):
             query = cf.choices.all()
             return jsonify(data=[(unicode(i), unicode(i)) for i in query])
         return abort(400)

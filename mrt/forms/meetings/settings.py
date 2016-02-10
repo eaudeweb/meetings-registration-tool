@@ -259,7 +259,7 @@ class ConditionForm(BaseForm):
             CustomField.query.filter_by(meeting_id=g.meeting.id)
             .filter_by(custom_field_type=CustomField.PARTICIPANT)
             .filter(CustomField.field_type.in_(
-                [CustomField.CATEGORY, CustomField.COUNTRY,
+                [CustomField.CATEGORY, CustomField.COUNTRY, CustomField.RADIO,
                  CustomField.CHECKBOX, CustomField.SELECT]))
             .filter_by(visible_on_registration_form=True)
             .order_by(CustomField.sort))
@@ -277,6 +277,7 @@ class ConditionForm(BaseForm):
                 CustomField.COUNTRY: self._get_query_for_countries,
                 CustomField.CHECKBOX: self._get_query_for_checkbox,
                 CustomField.SELECT: self._get_query_for_select,
+                CustomField.RADIO: self._get_query_for_select,
             }
             self.values.choices = dispatch[self.cf.field_type.code]()
 
