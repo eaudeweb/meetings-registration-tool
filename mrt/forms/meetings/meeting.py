@@ -217,12 +217,13 @@ class MeetingCloneForm(MeetingEditForm):
 
     def _clone_categories(self, meeting, categories):
         for category in categories:
-            clone = copy_attributes(Category(), category)
-            clone.tags = category.tags
-            clone.title = copy_attributes(Translation(), category.title)
-            clone.meeting = meeting
-            db.session.add(clone)
-            db.session.flush()
+            with db.session.no_autoflush:
+                clone = copy_attributes(Category(), category)
+                clone.tags = category.tags
+                clone.title = copy_attributes(Translation(), category.title)
+                clone.meeting = meeting
+                db.session.add(clone)
+                db.session.flush()
 
     def _clone_rules(self, meeting, rules):
         for rule in rules:
