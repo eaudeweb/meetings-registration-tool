@@ -38,8 +38,9 @@ class _RulesMixin(object):
         for action in rule.actions.all():
             field = self._fields[action.field.slug]
             if action.is_required:
-                if not field.validate(self, [DataRequired()]):
-                    success = False
+                field.validators.insert(0, DataRequired())
+            if not field.validate(self, [DataRequired()]):
+                success = False
         return success
 
     def validate(self, **kwargs):
