@@ -1118,6 +1118,14 @@ class Job(db.Model):
 
 class Rule(db.Model):
 
+    PARTICIPANT = 'participant'
+    MEDIA = 'media'
+
+    RULE_TYPE_CHOICES = (
+        (PARTICIPANT, 'Participant'),
+        (MEDIA, 'Media'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False,
                      info={'label': 'Rule name'})
@@ -1125,14 +1133,23 @@ class Rule(db.Model):
     meeting = db.relationship(
         'Meeting',
         backref=db.backref('rules', cascade='delete'))
+    rule_type = db.Column(
+        ChoiceType(RULE_TYPE_CHOICES),
+        nullable=False, default=PARTICIPANT,
+        info={'label': _('Participant type')})
 
     @classmethod
     def get_rules_for_fields(cls, fields=[]):
         ids = [f.id for f in fields]
+        rule_type = getattr(g, 'rule_type', cls.PARTICIPANT)
         return (
-            cls.query.filter_by(meeting=g.meeting).filter(
-                or_(Action.field.has(CustomField.id.in_(ids)),
-                    Condition.field.has(CustomField.id.in_(ids))))
+            cls.query.filter_by(meeting=g.meeting, rule_type=rule_type)
+            .filter(
+                or_(
+                    Action.field.has(CustomField.id.in_(ids)),
+                    Condition.field.has(CustomField.id.in_(ids))
+                )
+            )
         )
 
 

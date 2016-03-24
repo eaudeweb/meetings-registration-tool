@@ -37,7 +37,7 @@
 
   {{ super() }}
 
-  <h3 class="page-title">{{ title }}</h3>
+  <h3 class="page-title">{{ title }} for {{ g.rule_type }}</h3>
 
   {% include "meetings/rule/_default_fields.html" %}
 
@@ -72,7 +72,7 @@
       <div class="col-sm-6 text-right">
         {% if rule %}
         <a class="delete" data-toggle="delete"
-           data-href="{{ url_for('.rule_edit', rule_id=rule.id) }}"
+           data-href="{{ url_for('.rule_edit', rule_type=g.rule_type, rule_id=rule.id) }}"
            data-message="Are you sure you want to delete this rule?">
             <span class="glyphicon glyphicon-remove"></span>
             Delete this rule</a>

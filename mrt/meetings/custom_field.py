@@ -124,8 +124,10 @@ class CustomFieldUpload(BaseCustomFieldFile):
 
         if participant.participant_type == Participant.PARTICIPANT:
             form_class = ParticipantEditForm
+            g.rule_type = Rule.PARTICIPANT
         else:
             form_class = MediaParticipantEditForm
+            g.rule_type = Rule.MEDIA
 
         field_types = [CustomField.IMAGE]
         Object = custom_object_factory(participant, field_types)

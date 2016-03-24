@@ -9,7 +9,7 @@ from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import RegistrationForm, RegistrationUserForm
 from mrt.forms.meetings import MediaRegistrationForm, ParticipantEditForm
 from mrt.forms.meetings import MediaParticipantEditForm
-from mrt.models import Participant, db, Phrase
+from mrt.models import Participant, db, Phrase, Rule
 
 from mrt.signals import activity_signal, notification_signal
 from mrt.signals import registration_signal
@@ -54,6 +54,7 @@ class BaseRegistration(MethodView):
             name=Phrase.USER_REGISTRATION).scalar()
 
     def dispatch_request(self, *args, **kwargs):
+        g.rule_type = self.rule_type
         lang = request.args.get('lang', 'en')
         if lang in ('en', 'fr', 'es'):
             set_language(lang)
@@ -118,6 +119,7 @@ class Registration(BaseRegistration):
 
     decorators = (_render_if_closed,)
     form_class = RegistrationForm
+    rule_type = Rule.PARTICIPANT
 
     def get_default_participant(self, user):
         return user.get_default(Participant.DEFAULT)
@@ -139,6 +141,7 @@ class MediaRegistration(BaseRegistration):
 
     decorators = (_render_if_closed, _render_if_media_disabled)
     form_class = MediaRegistrationForm
+    rule_type = Rule.MEDIA
 
     def get_default_participant(self, user):
         return user.get_default(Participant.DEFAULT_MEDIA)
@@ -215,12 +218,13 @@ class UserRegistrationSuccess(MethodView):
 
         if participant.participant_type == Participant.PARTICIPANT:
             class_form = ParticipantEditForm
+            g.rule_type = Rule.PARTICIPANT
         else:
             class_form = MediaParticipantEditForm
+            g.rule_type = Rule.MEDIA
         Form = custom_form_factory(class_form)
         Object = custom_object_factory(participant)
         form = Form(obj=Object())
-
         return render_template('meetings/registration/user_success.html',
                                form=form)
 

@@ -18,54 +18,27 @@
     <small>These rules apply to the Participant Registration Form. When given conditions are met on some form fields, actions (such as "make mandatory" or "display") are applied to other fields.</small>
   </h3>
 
-  <div class="table-responsive">
-    <table id="rules" class="table table-bordered table-hover table-condensed">
-      <thead>
-        <tr>
-          <th>Rule name</th>
-          <th>Fields in conditions</th>
-          <th>Fields in actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for rule in rules %}
-          <tr>
-            <td>
-              {% set url = url_for('.rule_edit', rule_id=rule.id) %}
-              <a href="{{ url }}">{{ rule.name }}</a>
-            </td>
-            <td>
-              <ul class="list-unstyled">
-              {% for condition in rule.conditions.all() %}
-                <li>- {{ condition.field }}</li>
-
-              {% endfor %}
-              </ul>
-            </td>
-            <td>
-              <ul class="list-unstyled">
-              {% for action in rule.actions.all() %}
-                <li>- {{ action.field }}</li>
-              {% endfor %}
-              </ul>
-            </td>
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="3">
-              There are no rules currently defined.
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="actions">
-    <a href="{{ url_for('.rule_edit') }}"
-       class="btn btn-primary btn-sm">
-      <span class="glyphicon glyphicon-plus"></span>
-      Add a new rule</a>
+  <div role="tabpanel">
+    <ul class="nav nav-tabs" id="nav_tabs">
+      <li class="active">
+        <a href="#participant" data-toggle="tab">Participant rules</a>
+      </li>
+      <li>
+        <a href="#media" data-toggle="tab">Media participant rules</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="participant">
+        {% with rules=participant_rules, rule_type='participant' %}
+          {% include "meetings/rule/_table.html" %}
+        {% endwith %}
+      </div>
+      <div role="tabpanel"  class="tab-pane" id="media">
+        {% with rules=media_rules, rule_type='media' %}
+          {% include "meetings/rule/_table.html" %}
+        {% endwith %}
+      </div>
+    </div>
   </div>
 
 {% endblock %}

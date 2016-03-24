@@ -20,6 +20,7 @@ from mrt.mixins import FilterView
 
 from mrt.mail import send_single_message
 from mrt.models import db, Participant, CustomField, Category, Phrase
+from mrt.models import Rule
 from mrt.models import search_for_participant, get_participants_full
 
 from mrt.definitions import BADGE_W, BADGE_H, LABEL_W, LABEL_H, ENVEL_W
@@ -58,6 +59,7 @@ class Participants(PermissionRequiredMixin, MethodView):
     form_class = ParticipantEditForm
 
     def get(self):
+        g.rule_type = Rule.PARTICIPANT
         search = request.args.get('search', '')
         Form = custom_form_factory(self.form_class)
         form = Form()
@@ -201,6 +203,7 @@ class DefaultParticipantSearch(BaseParticipantSearch):
     form_class = ParticipantEditForm
 
     def get_queryset(self):
+        g.rule_type = Rule.PARTICIPANT
         return Participant.query.default_participants()
 
     def serialize_participant(self, form):
@@ -218,6 +221,7 @@ class DefaultMediaParticipantSearch(BaseParticipantSearch):
     form_class = MediaParticipantEditForm
 
     def get_queryset(self):
+        g.rule_type = Rule.MEDIA
         return Participant.query.default_media_participants()
 
     def serialize_participant(self, form):
@@ -247,6 +251,7 @@ class ParticipantDetail(PermissionRequiredMixin, BaseParticipantDetail):
     template = 'meetings/participant/participant/detail.html'
 
     def _get_queryset(self, participant_id):
+        g.rule_type = Rule.PARTICIPANT
         return (Participant.query.current_meeting().participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
@@ -260,6 +265,7 @@ class MediaParticipantDetail(PermissionRequiredMixin, BaseParticipantDetail):
     template = 'meetings/participant/media/detail.html'
 
     def _get_queryset(self, participant_id):
+        g.rule_type = Rule.MEDIA
         return (Participant.query.current_meeting().media_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
@@ -271,6 +277,7 @@ class DefaultParticipantDetail(AdminPermRequiredMixin, BaseParticipantDetail):
     template = 'meetings/participant/default/participant_detail.html'
 
     def _get_queryset(self, participant_id):
+        g.rule_type = Rule.PARTICIPANT
         return (Participant.query.current_meeting().default_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
@@ -283,6 +290,7 @@ class DefaultMediaParticipantDetail(AdminPermRequiredMixin,
     template = 'meetings/participant/default/media_detail.html'
 
     def _get_queryset(self, participant_id):
+        g.rule_type = Rule.MEDIA
         return (Participant.query.current_meeting()
                 .default_media_participants()
                 .filter_by(id=participant_id)
@@ -352,6 +360,7 @@ class ParticipantEdit(PermissionRequiredMixin, BaseParticipantEdit):
     form_class = ParticipantEditForm
 
     def get_object(self, participant_id=None):
+        g.rule_type = Rule.PARTICIPANT
         return (Participant.query.current_meeting().participants()
                 .filter_by(id=participant_id)
                 .first_or_404() if participant_id else None)
@@ -373,6 +382,7 @@ class MediaParticipantEdit(ParticipantEdit):
     form_class = MediaParticipantEditForm
 
     def get_object(self, participant_id=None):
+        g.rule_type = Rule.MEDIA
         return (
             Participant.query.current_meeting().media_participants()
             .filter_by(id=participant_id)
@@ -399,6 +409,7 @@ class DefaultParticipantEdit(AdminPermRequiredMixin, BaseParticipantEdit):
                                                          CustomField.CATEGORY])
 
     def get_object(self, participant_id):
+        g.rule_type = Rule.PARTICIPANT
         return (Participant.query.current_meeting().default_participants()
                 .filter_by(id=participant_id)
                 .first_or_404())
@@ -414,6 +425,7 @@ class DefaultMediaParticipantEdit(DefaultParticipantEdit):
     form_class = MediaParticipantEditForm
 
     def get_object(self, participant_id):
+        g.rule_type = Rule.MEDIA
         return (Participant.query.current_meeting()
                 .default_media_participants()
                 .filter_by(id=participant_id)
