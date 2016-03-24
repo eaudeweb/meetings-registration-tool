@@ -9,7 +9,7 @@
   <div class="panel-body">
 
     <div id="conditions-container" class="rule-container"
-         data-url="{{ url_for('.rules_data') }}">
+         data-url="{{ url_for('.rules_data', rule_type=g.rule_type) }}">
       {% for condition in form.conditions %}
         {{ render_condition(condition, loop) }}
       {% endfor %}

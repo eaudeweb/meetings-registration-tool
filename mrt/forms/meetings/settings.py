@@ -100,8 +100,7 @@ class CustomFieldEditForm(BaseForm):
             self.required.data = False
 
         if (self.field_type.data in (CustomField.MULTI_CHECKBOX,
-                                     CustomField.RADIO)
-            and self.obj):
+                                     CustomField.RADIO) and self.obj):
             self.custom_field_choices.choices = (
                 CustomFieldChoice.query.filter_by(custom_field=self.obj)
                 .join(Translation)
@@ -121,8 +120,8 @@ class CustomFieldEditForm(BaseForm):
         cf.meeting = g.meeting
 
         is_choice_field_disabled = self.custom_field_choices.flags.disabled
-        if (cf.field_type in (CustomField.MULTI_CHECKBOX, CustomField.RADIO)
-            and not is_choice_field_disabled):
+        if (cf.field_type in (CustomField.MULTI_CHECKBOX,
+           CustomField.RADIO) and not is_choice_field_disabled):
             CustomFieldChoice.query.filter_by(custom_field_id=cf.id).delete()
             for choice in self.custom_field_choices.data:
                 cf_choice = CustomFieldChoice(custom_field=cf)
@@ -257,7 +256,7 @@ class ConditionForm(BaseForm):
         super(ConditionForm, self).__init__(*args, **kwargs)
         query = (
             CustomField.query.filter_by(meeting_id=g.meeting.id)
-            .filter_by(custom_field_type=CustomField.PARTICIPANT)
+            .filter_by(custom_field_type=g.rule_type)
             .filter(CustomField.field_type.in_(
                 [CustomField.CATEGORY, CustomField.COUNTRY, CustomField.RADIO,
                  CustomField.CHECKBOX, CustomField.SELECT]))
@@ -282,7 +281,7 @@ class ConditionForm(BaseForm):
             self.values.choices = dispatch[self.cf.field_type.code]()
 
     def _get_query_for_category(self):
-        query = Category.get_categories_for_meeting(Category.PARTICIPANT)
+        query = Category.get_categories_for_meeting(g.rule_type)
         return [(str(c.id), unicode(c)) for c in query]
 
     def _get_query_for_countries(self):
@@ -314,7 +313,7 @@ class ActionForm(BaseForm):
         super(ActionForm, self).__init__(*args, **kwargs)
         query = (
             CustomField.query.filter_by(meeting_id=g.meeting.id)
-            .filter_by(custom_field_type=CustomField.PARTICIPANT)
+            .filter_by(custom_field_type=g.rule_type)
             .for_registration()
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
@@ -351,7 +350,9 @@ class RuleForm(BaseForm):
         if self.rule and (field.data == self.rule.name):
             return
         try:
-            Rule.query.filter_by(name=field.data, meeting=g.meeting).one()
+            Rule.query.filter_by(name=field.data,
+                                 meeting=g.meeting,
+                                 rule_type=g.rule_type).one()
             raise ValidationError('Name must be unique')
         except NoResultFound:
             pass
@@ -368,6 +369,7 @@ class RuleForm(BaseForm):
     def save(self):
         rule = self.rule or Rule(meeting=g.meeting)
         rule.name = self.name.data
+        rule.rule_type = g.rule_type
         # if edit, delete all conditions and actions for this rule and their
         # corresponding values
         if rule.id:

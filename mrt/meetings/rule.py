@@ -20,8 +20,13 @@ class Rules(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting',)
 
     def get(self):
-        rules = Rule.query.filter_by(meeting=g.meeting)
-        return render_template('meetings/rule/list.html', rules=rules)
+        participant_rules = Rule.query.filter_by(meeting=g.meeting,
+                                                 rule_type=Rule.PARTICIPANT)
+        media_rules = Rule.query.filter_by(meeting=g.meeting,
+                                           rule_type=Rule.MEDIA)
+        return render_template('meetings/rule/list.html',
+                               participant_rules=participant_rules,
+                               media_rules=media_rules)
 
 
 class RuleEdit(PermissionRequiredMixin, MethodView):
@@ -30,8 +35,10 @@ class RuleEdit(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting',)
 
     def get_object(self, rule_id):
-        return (Rule.query.filter_by(id=rule_id, meeting=g.meeting)
-                .first_or_404() if rule_id else None)
+        return (
+            Rule.query.filter_by(id=rule_id, meeting=g.meeting)
+            .filter_by(rule_type=g.rule_type)
+            .first_or_404() if rule_id else None)
 
     def process_formdata(self, rule):
         Condition = namedtuple('Condition', ['field', 'values'])
@@ -45,14 +52,16 @@ class RuleEdit(PermissionRequiredMixin, MethodView):
                                   action.is_visible))
         return MultiDict({'conditions': conditions, 'actions': actions})
 
-    def get(self, rule_id=None):
+    def get(self, rule_type, rule_id=None):
+        g.rule_type = rule_type
         rule = self.get_object(rule_id)
         data = self.process_formdata(rule) if rule else None
         form = RuleForm(data=data, rule=rule)
         return render_template('meetings/rule/edit.html',
                                form=form, rule=rule)
 
-    def post(self, rule_id=None):
+    def post(self, rule_type, rule_id=None):
+        g.rule_type = rule_type
         rule = self.get_object(rule_id)
         data = self.process_formdata(rule) if rule else None
         form = RuleForm(request.form, data=data, rule=rule)
@@ -62,7 +71,8 @@ class RuleEdit(PermissionRequiredMixin, MethodView):
         return render_template('meetings/rule/edit.html',
                                form=form, rule=rule)
 
-    def delete(self, rule_id):
+    def delete(self, rule_type, rule_id):
+        g.rule_type = rule_type
         rule = self.get_object(rule_id)
         db.session.delete(rule)
         db.session.commit()
@@ -75,11 +85,11 @@ class RulesData(PermissionRequiredMixin, MethodView):
     decorators = (login_required,)
     permission_required = ('manage_meeting',)
 
-    def get(self):
+    def get(self, rule_type):
         custom_field_id = request.args['id']
         cf = CustomField.query.get_or_404(custom_field_id)
         if cf.field_type == CustomField.CATEGORY:
-            query = Category.get_categories_for_meeting(Category.PARTICIPANT)
+            query = Category.get_categories_for_meeting(rule_type)
             return jsonify(data=[(i.id, unicode(i)) for i in query])
         if cf.field_type == CustomField.COUNTRY:
             return jsonify(data=get_all_countries())

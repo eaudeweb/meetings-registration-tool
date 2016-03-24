@@ -62,6 +62,7 @@ class _RulesMeta(DefaultMeta):
                 and_(
                     Action.field.has(slug=field.name),
                     Action.rule.has(meeting=g.meeting),
+                    Action.rule.has(rule_type=g.rule_type),
                     Action.is_visible == True
                 )
             )
