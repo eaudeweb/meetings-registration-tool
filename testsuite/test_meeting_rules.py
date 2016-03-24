@@ -24,7 +24,7 @@ def test_meeting_rules_list(app, user):
                                   meeting_id=meeting.id))
         assert resp.status_code == 200
         rows = PyQuery(resp.data)('table tbody tr')
-        assert len(rows) == 5
+        assert len(rows) == 6
 
 
 def test_meeting_rule_add_success(app, user):
@@ -36,8 +36,9 @@ def test_meeting_rule_add_success(app, user):
             sess['user_id'] = user.id
         add_custom_fields_for_meeting(category.meeting)
         data = _create_simple_rule_data(category.meeting)
-        resp = client.post(url_for('meetings.rule_edit',
-                                   meeting_id=category.meeting.id), data=data)
+        url = url_for('meetings.rule_edit', meeting_id=category.meeting.id,
+                      rule_type='participant')
+        resp = client.post(url, data=data)
         assert resp.status_code == 302
         assert Rule.query.count() == 1
 
@@ -52,8 +53,9 @@ def test_meeting_rule_add_fail_action_field_is_cond_field(app, user):
         add_custom_fields_for_meeting(category.meeting)
         data = _create_simple_rule_data(category.meeting)
         data['conditions-0-field'] = data['actions-0-field']
-        resp = client.post(url_for('meetings.rule_edit',
-                                   meeting_id=category.meeting.id), data=data)
+        url = url_for('meetings.rule_edit', meeting_id=category.meeting.id,
+                      rule_type='participant')
+        resp = client.post(url, data=data)
         assert resp.status_code == 200
         assert Rule.query.count() == 0
         error = PyQuery(resp.data)('div.alert-danger')
@@ -70,8 +72,9 @@ def test_meeting_rule_add_fail_same_action_field_twice(app, user):
         add_custom_fields_for_meeting(category.meeting)
         data = _create_simple_rule_data(category.meeting)
         data['actions-1-field'] = data['actions-0-field']
-        resp = client.post(url_for('meetings.rule_edit',
-                                   meeting_id=category.meeting.id), data=data)
+        url = url_for('meetings.rule_edit', meeting_id=category.meeting.id,
+                      rule_type='participant')
+        resp = client.post(url, data=data)
         assert resp.status_code == 200
         assert Rule.query.count() == 0
         error = PyQuery(resp.data)('div.alert-danger')
@@ -87,16 +90,17 @@ def test_meeting_rule_edit(app, user):
             sess['user_id'] = user.id
         add_custom_fields_for_meeting(category.meeting)
         data = _create_simple_rule_data(category.meeting)
-        resp = client.post(url_for('meetings.rule_edit',
-                                   meeting_id=category.meeting.id), data=data)
+        url = url_for('meetings.rule_edit', meeting_id=category.meeting.id,
+                      rule_type='participant')
+        resp = client.post(url, data=data)
         assert resp.status_code == 302
         assert Rule.query.count() == 1
         rule = Rule.query.first()
 
         data['name'] = new_rule_name = 'Another rule'
-        resp = client.post(url_for('meetings.rule_edit',
-                                   meeting_id=category.meeting.id,
-                                   rule_id=rule.id), data=data)
+        url = url_for('meetings.rule_edit', meeting_id=category.meeting.id,
+                      rule_id=rule.id, rule_type='participant')
+        resp = client.post(url, data=data)
         assert resp.status_code == 302
         assert Rule.query.count() == 1
         assert rule.name == new_rule_name
@@ -111,8 +115,9 @@ def test_meeting_rule_delete(app, user):
     with app.test_request_context():
         with client.session_transaction() as sess:
             sess['user_id'] = user.id
-        resp = client.delete(url_for('meetings.rule_edit',
-                                     meeting_id=meeting.id, rule_id=rule.id))
+        url = url_for('meetings.rule_edit', meeting_id=meeting.id,
+                      rule_id=rule.id, rule_type='participant')
+        resp = client.delete(url)
         assert resp.status_code == 200
         assert Rule.query.count() == 0
         assert Condition.query.count() == 0
