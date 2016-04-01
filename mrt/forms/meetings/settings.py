@@ -147,7 +147,14 @@ class CustomFieldAuxiliaryEditForm(CustomFieldEditForm):
             count = Rule.get_rules_for_fields([self.obj]).count()
             if count:
                 raise ValidationError('Custom field type cannot be changed as '
-                                      'here are rules defined for this field')
+                                      'there are rules defined for this field')
+
+    def validate_required(self, field):
+        if self.obj and field.data:
+            count = Rule.get_rules_for_fields([self.obj]).count()
+            if count:
+                raise ValidationError('This custom field cannot be required '
+                                      'as there are rules defined for it.')
 
 
 class CustomFieldPrimaryEditForm(CustomFieldEditForm):
@@ -365,6 +372,13 @@ class RuleForm(BaseForm):
                                   'from condition fields')
         if len(action_fields) != len(self.actions.data):
             raise ValidationError('Actions fields should be different')
+        c_fields = CustomField.query.filter(CustomField.id.in_(action_fields))
+        required_fields = [f.label.english for f in c_fields if f.required]
+        if required_fields:
+            raise ValidationError('Required fields cannot be used as fields in '
+                                  'action. The following fields are required: '
+                                  '{}.'.format(', '.join(required_fields)))
+
 
     def save(self):
         rule = self.rule or Rule(meeting=g.meeting)
