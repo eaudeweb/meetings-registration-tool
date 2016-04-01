@@ -49,9 +49,6 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
                         registration_fields=False):
     fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
               .order_by(CustomField.sort))
-    form_attrs = {
-        '_custom_fields': OrderedMultiDict({c.slug: c for c in fields}),
-    }
 
     if field_types:
         fields = fields.filter(CustomField.field_type.in_(field_types))
@@ -68,6 +65,10 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
 
     if getattr(form, 'CUSTOM_FIELDS_TYPE', None):
         fields = fields.filter_by(custom_field_type=form.CUSTOM_FIELDS_TYPE)
+
+    form_attrs = {
+        '_custom_fields': OrderedMultiDict({c.slug: c for c in fields}),
+    }
 
     for f in fields:
         attrs = {'label': unicode(CustomFieldLabel(f.label)),
