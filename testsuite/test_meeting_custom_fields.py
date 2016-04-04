@@ -436,6 +436,7 @@ def test_meeting_custom_field_with_rule_unable_change_type(app, user):
     data['label-english'] = data['label'].english
     data['hint-english'] = data['hint'].english
     data['field_type'] = CustomField.TEXT
+    data.pop('required')
     client = app.test_client()
     with app.test_request_context():
         add_custom_fields_for_meeting(meeting)
@@ -456,3 +457,34 @@ def test_meeting_custom_field_with_rule_unable_change_type(app, user):
         assert resp.status_code == 200
         assert len(PyQuery(resp.data)('.text-danger small')) == 1
         assert rule_field.field_type == CustomField.CHECKBOX
+
+
+def test_meeting_custom_field_with_rule_change_required(app, user):
+    meeting = MeetingFactory()
+    rule_field = CustomFieldFactory(meeting=meeting, slug='image',
+                                    field_type=CustomField.IMAGE,
+                                    required=False)
+    data = CustomFieldFactory.attributes()
+    data['label-english'] = data['label'].english
+    data['hint-english'] = data['hint'].english
+    data['required'] = True
+    client = app.test_client()
+    with app.test_request_context():
+        add_custom_fields_for_meeting(meeting)
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        field = meeting.custom_fields.filter_by(is_primary=True).first()
+        cond_val = ConditionValueFactory(condition__rule__meeting=meeting,
+                                         condition__field=rule_field,
+                                         value='True')
+        ActionFactory(rule=cond_val.condition.rule,
+                      field=field,
+                      is_required=True)
+
+        resp = client.post(url_for('meetings.custom_field_edit',
+                           meeting_id=meeting.id,
+                           custom_field_id=rule_field.id), data=data)
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('.text-danger small')) == 1
+        assert rule_field.required is False
