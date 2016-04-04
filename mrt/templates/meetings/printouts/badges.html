@@ -47,9 +47,24 @@
       {% set url = url_for('.printouts_participant_badges', categories=category_ids,
                            flag=flag) %}
       <form method="POST" action="{{ url }}">
-        <button class="btn btn-danger btn-sm btn-download" type="submit">
-          <span class="glyphicon glyphicon-download"></span>
-          Download as pdf</button>
+        <div class="btn-group">
+          <button class="btn btn-danger btn-sm btn-download"
+                  type="submit">
+            <span class="glyphicon glyphicon-download"></span>
+            Download as PDF
+          </button>
+          <button class="btn btn-danger btn-sm dropdown-toggle"
+                  data-toggle="dropdown">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <button name="printout_size" class="btn btn-link"
+                      value="A4" type="submit">
+                -> in A4 format (8.3in x 11.7in)</button>
+            </li>
+          </ul>
+        </div> {# btn-group #}
       </form>
     </div>
   </div> {# row #}

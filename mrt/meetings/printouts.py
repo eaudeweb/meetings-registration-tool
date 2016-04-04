@@ -90,14 +90,15 @@ class Badges(PermissionRequiredMixin, MethodView):
 
     def post(self):
         category_ids = request.args.getlist('categories')
+        size = request.form.get('printout_size', 'default')
         flag = request.args.get('flag')
         _add_to_printout_queue(_process_badges, self.JOB_NAME,
-                               flag, *[category_ids])
+                               flag, size, category_ids)
         return redirect(url_for('.printouts_participant_badges',
                                 categories=category_ids, flag=flag))
 
 
-def _process_badges(meeting_id, flag, category_ids):
+def _process_badges(meeting_id, flag, size, category_ids):
     g.meeting = Meeting.query.get(meeting_id)
     participants = Participant.query.current_meeting().participants()
     if category_ids:
@@ -107,12 +108,11 @@ def _process_badges(meeting_id, flag, category_ids):
     if flag:
             attr = getattr(Participant, flag)
             participants = participants.filter(attr == True)
-    context = {'participants': participants}
+    context = {'participants': participants, 'printout_size': size}
+    w, h = ('8.3in', '11.7in') if size == 'A4' else ('3.4in', '2.15in')
     return PdfRenderer('meetings/printouts/badges_pdf.html',
-                       height='2.15in', width='3.4in',
-                       orientation='portrait',
-                       footer=False,
-                       context=context).as_rq()
+                       width=w, height=h, orientation='portrait',
+                       footer=False, context=context).as_rq()
 
 
 class JobStatus(MethodView):
