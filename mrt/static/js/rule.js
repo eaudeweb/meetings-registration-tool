@@ -42,6 +42,10 @@ $(function () {
     form.find('select').trigger('change');
   });
 
+  $('.rule-add-action').on('click', function () {
+    actions_container.find('[data-disable-form]').hide();
+  });
+
   container.on('click', '.rule-remove', function () {
     var $rule = $(this).parents('.rule'),
         $target = $rule.parents('.rule-container');
@@ -49,6 +53,9 @@ $(function () {
       $(this).remove();
       updatePrefix($target);
       updateRemove($target);
+      if(actions_container.find('.rule').length == 1) {
+        actions_container.find('[data-disable-form]').show();
+      }
     });
   });
 
@@ -77,9 +84,22 @@ $(function () {
   if(conditions_height > actions_height) {
     actions_container.parents('.panel').css('min-height', conditions_height);
     conditions_container.parents('.panel').css('min-height', conditions_height);
-
   } else {
     actions_container.parents('.panel').css('min-height', actions_height);
     conditions_container.parents('.panel').css('min-height', actions_height);
   }
+
+  actions_container.on('change', '[data-disable-form] input', function() {
+    if($(this).prop('checked')) {
+      $('.rule-add-action').hide();
+      actions_container.find('select').prop('disabled', true);
+      actions_container.find('[data-prop] input').prop('disabled', true);
+      console.log()
+    } else {
+      $('.rule-add-action').show();
+      actions_container.find('select').prop('disabled', false);
+      actions_container.find('[data-prop] input').prop('disabled', false);
+    }
+  });
+  actions_container.find('[data-disable-form] input').change();
 });
