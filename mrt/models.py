@@ -1218,6 +1218,7 @@ class Action(db.Model):
         backref=db.backref('actions', lazy='dynamic', cascade='delete'))
     is_visible = db.Column(db.Boolean, default=False)
     is_required = db.Column(db.Boolean, default=False)
+    disable_form = db.Column(db.Boolean, default=False)
     field_id = db.Column(db.Integer, db.ForeignKey('custom_field.id'))
     field = db.relationship(
         'CustomField',

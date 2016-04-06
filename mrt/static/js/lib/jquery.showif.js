@@ -1,12 +1,10 @@
 
 $(function () {
 
-    var handleChangeConditionField = function (rules) {
-
+    var handleChangeConditionField = function (rules, context) {
         for(var i=0; i<rules.length; i++) {
             var data = rules[i],
                 condition = true;
-
             $.each(data, function (k, v) {
                 var $item = $('[name=' + k + ']');
                 var val = $item.val();
@@ -24,11 +22,25 @@ $(function () {
                 }
             });
 
-            if(condition) {
-                $(this).parents('.form-group').first().show();
-                return;
-            } else {
-                $(this).parents('.form-group').first().hide();
+            if(context['mark_visible']) {
+                if(condition) {
+                    $(this).parents('.form-group').first().show();
+                    return;
+                } else {
+                    $(this).parents('.form-group').first().hide();
+                }
+            }
+            if(context['mark_disable_form']) {
+                var form = $(this).parents('form');
+                if(condition) {
+                    var msg = $('<div>')
+                        .attr({'class': 'alert alert-danger'})
+                        .text('Registration form is disabled for this options');
+                    form.before(msg);
+                    form.find('button[type=submit]').prop('disabled', true);
+                } else {
+                    form.find('button[type=submit]').prop('disabled', false);
+                }
             }
         }
 
@@ -49,12 +61,17 @@ $(function () {
             }
         }
 
-        for(var i=0; i<keys.length; i++){
-            $('#' + keys[i]).on('change', function () {
-                $.proxy(handleChangeConditionField, field)(rules);
-            }).change();
+        var context = {
+            mark_visible: $(field).data('visible'),
+            mark_disable_form: $(field).data('disable-form')
+        };
+        if(context['mark_visible'] || context['mark_disable_form']) {
+            for(var i=0; i < keys.length; i++){
+                $('#' + keys[i]).on('change', function () {
+                    $.proxy(handleChangeConditionField, field)(rules, context);
+                }).change();
+            }
         }
-
     });
 
 });

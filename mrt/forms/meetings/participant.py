@@ -7,7 +7,7 @@ from sqlalchemy import and_
 from sqlalchemy_utils import Country
 from wtforms import fields, compat
 from wtforms.meta import DefaultMeta
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
@@ -37,10 +37,13 @@ class _RulesMixin(object):
         success = True
         for action in rule.actions.all():
             field = self._fields[action.field.slug]
-            if action.is_required:
-                field.validators.insert(0, DataRequired())
             if not field.validate(self, [DataRequired()]):
                 success = False
+            if action.disable_form:
+                success = False
+                def _disable_form(form, field):
+                    raise ValidationError('Registration form is disabled')
+                field.validate(self, [_disable_form])
         return success
 
     def validate(self, **kwargs):
@@ -49,24 +52,29 @@ class _RulesMixin(object):
             return success
         for rule in self.rules:
             conditions_validated = self._validate_conditions(rule)
-            if conditions_validated:
-                success = self._validate_actions(rule)
+            if conditions_validated and not self._validate_actions(rule):
+                return False
         return success
 
 
 class _RulesMeta(DefaultMeta):
 
     def render_field(self, field, render_kw):
-        actions = (
+        actions = [a for a in
             Action.query.filter(
                 and_(
                     Action.field.has(slug=field.name),
                     Action.rule.has(meeting=g.meeting),
-                    Action.rule.has(rule_type=g.rule_type),
-                    Action.is_visible == True
-                )
+                    Action.rule.has(rule_type=g.rule_type)                )
             )
-        )
+        ]
+
+        context = {}
+        if any([a.is_visible for a in actions]):
+            context['data-visible'] = 'true'
+        if any([a.disable_form for a in actions]):
+            context['data-disable-form'] = 'true'
+
         rules = []
         for action in actions:
             conditions = Condition.query.filter_by(rule=action.rule).all()
@@ -76,7 +84,8 @@ class _RulesMeta(DefaultMeta):
                     data[c.field.slug] = [i.value for i in c.values.all()]
                 rules.append(data)
         if rules:
-            render_kw.update({'data-rules': json.dumps(rules)})
+            context['data-rules'] = json.dumps(rules)
+            render_kw.update(context)
         return field.widget(field, **render_kw)
 
 

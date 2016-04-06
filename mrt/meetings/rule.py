@@ -42,14 +42,19 @@ class RuleEdit(PermissionRequiredMixin, MethodView):
 
     def process_formdata(self, rule):
         Condition = namedtuple('Condition', ['field', 'values'])
-        Action = namedtuple('Action', ['field', 'is_required', 'is_visible'])
+        Action = namedtuple(
+            'Action',
+            ['field', 'is_required', 'is_visible', 'disable_form'])
         conditions, actions = [], []
-        for condition in rule.conditions.all():
-            values = [i.value for i in condition.values.all()]
-            conditions.append(Condition(condition.field.id, values))
-        for action in rule.actions.all():
-            actions.append(Action(action.field.id, action.is_required,
-                                  action.is_visible))
+        for rule_condition in rule.conditions.all():
+            values = [i.value for i in rule_condition.values.all()]
+            conditions.append(Condition(rule_condition.field.id, values))
+        for rule_action in rule.actions.all():
+            action = Action(rule_action.field.id,
+                            rule_action.is_required,
+                            rule_action.is_visible,
+                            rule_action.disable_form)
+            actions.append(action)
         return MultiDict({'conditions': conditions, 'actions': actions})
 
     def get(self, rule_type, rule_id=None):

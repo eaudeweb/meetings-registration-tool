@@ -208,6 +208,33 @@ def test_meeting_complex_rule_on_registration(app, user, default_meeting):
         assert meeting.participants.count() == 1
 
 
+def test_meeting_rule_disable_form_on_registration(app, user, default_meeting):
+    category = MeetingCategoryFactory(meeting__online_registration=True)
+    meeting = category.meeting
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        add_custom_fields_for_meeting(meeting)
+        fields = meeting.custom_fields
+        cond_field = fields.filter_by(slug='category_id').one()
+        action_field = fields.filter_by(slug='represented_organization').one()
+        cond_value = ConditionValueFactory(condition__rule__meeting=meeting,
+                                           condition__field=cond_field,
+                                           value=category.id)
+        ActionFactory(rule=cond_value.condition.rule, field=action_field,
+                      disable_form=True)
+
+        assert Rule.query.count() == 1
+        data = ParticipantFactory.attributes()
+        data['category_id'] = category.id
+        resp = register_participant_online(client, data, meeting)
+        errors = PyQuery(resp.data)('div.text-danger')
+        assert len(errors) == 1
+        assert meeting.participants.count() == 0
+
+
 def _create_new_rule(meeting, field_id=0):
     field = CustomFieldFactory(label__english='field' + str(field_id))
     condition_value = ConditionValueFactory(condition__rule__meeting=meeting,

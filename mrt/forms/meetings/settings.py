@@ -315,12 +315,14 @@ class ActionForm(BaseForm):
     field = fields.SelectField('Field', coerce=int)
     is_required = fields.BooleanField('Required')
     is_visible = fields.BooleanField('Visible')
+    disable_form = fields.BooleanField('Disable form')
 
     def __init__(self, *args, **kwargs):
         super(ActionForm, self).__init__(*args, **kwargs)
         query = (
             CustomField.query.filter_by(meeting_id=g.meeting.id)
             .filter_by(custom_field_type=g.rule_type)
+            .filter_by(required=False)
             .for_registration()
             .order_by(CustomField.sort))
         self.field.choices = [(c.id, c) for c in query]
@@ -335,6 +337,7 @@ class ActionForm(BaseForm):
         action = Action(rule=rule, field=self.cf)
         action.is_required = self.is_required.data
         action.is_visible = self.is_visible.data
+        action.disable_form = self.disable_form.data
         db.session.add(action)
 
 
@@ -372,13 +375,6 @@ class RuleForm(BaseForm):
                                   'from condition fields')
         if len(action_fields) != len(self.actions.data):
             raise ValidationError('Actions fields should be different')
-        c_fields = CustomField.query.filter(CustomField.id.in_(action_fields))
-        required_fields = [f.label.english for f in c_fields if f.required]
-        if required_fields:
-            raise ValidationError('Required fields cannot be used as fields in '
-                                  'action. The following fields are required: '
-                                  '{}.'.format(', '.join(required_fields)))
-
 
     def save(self):
         rule = self.rule or Rule(meeting=g.meeting)

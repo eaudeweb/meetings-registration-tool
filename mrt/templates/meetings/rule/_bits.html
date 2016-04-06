@@ -30,13 +30,19 @@
     <div class="form-group actions-options">
       <label class="col-sm-3 control-label"></label>
       <div class="col-sm-8">
-        <label for="{{ action.is_required.id }}">
+        <label data-prop>
           {{ action.is_required() }}
           {{ action.is_required.label.text }}
         </label>
-        <label for="{{ action.is_visible.id }}">
+        <label data-prop>
           {{ action.is_visible() }}
           {{ action.is_visible.label.text }}
+        </label>
+        <label data-disable-form>
+          {{ action.disable_form() }}
+          <span title="The registration form will be disabled if condition evaluates to true.">
+            {{ action.disable_form.label.text }}
+          </span>
         </label>
       </div>
     </div> {# form-group #}
