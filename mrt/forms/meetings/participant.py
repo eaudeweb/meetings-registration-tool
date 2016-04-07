@@ -37,8 +37,9 @@ class _RulesMixin(object):
         success = True
         for action in rule.actions.all():
             field = self._fields[action.field.slug]
-            if not field.validate(self, [DataRequired()]):
-                success = False
+            if action.is_required:
+                field.validators.insert(0, DataRequired())
+                success = field.validate(self, [DataRequired()])
             if action.disable_form:
                 success = False
                 def _disable_form(form, field):
