@@ -28,6 +28,27 @@ def test_send_email_in_english(app, user):
         assert len(outbox) == 5
 
 
+def test_send_email_to_all_participants(app, user):
+    cat = MeetingCategoryFactory()
+    ParticipantFactory.create_batch(5, meeting=cat.meeting)
+    ParticipantFactory.create_batch(5, meeting=cat.meeting, language='French')
+    data = {
+        'message': 'Test',
+        'subject': 'Test subject',
+        'language': 'all',
+        'participant_type': 'participant',
+    }
+
+    client = app.test_client()
+    with app.test_request_context(), mail.record_messages() as outbox:
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.bulkemail',
+                                   meeting_id=cat.meeting.id), data=data)
+        assert resp.status_code == 302
+        assert len(outbox) == 10
+
+
 def test_send_email_to_categories(app, user):
     cat_member = MeetingCategoryFactory()
     cat_press = MeetingCategoryFactory(meeting=cat_member.meeting)

@@ -7,16 +7,17 @@ from mrt.models import Participant, MailLog
 from mrt.meetings.mixins import PermissionRequiredMixin
 
 
-def get_recipients(language, categories=None, participant_type=None):
+def get_recipients(lang, categories=None, participant_type=None):
     """ Return a queryset of participants filtered by language and categories
     """
-    queryset = (Participant.query.current_meeting()
-                .filter_by(language=language))
+    qs = Participant.query.current_meeting()
+    if lang != 'all':
+        qs = qs.filter_by(language=lang)
     if categories:
-        queryset = queryset.filter(Participant.category_id.in_(categories))
+        qs = qs.filter(Participant.category_id.in_(categories))
     if participant_type:
-        queryset = queryset.filter_by(participant_type=participant_type)
-    return queryset
+        qs = qs.filter_by(participant_type=participant_type)
+    return qs
 
 
 class BulkEmail(PermissionRequiredMixin, MethodView):

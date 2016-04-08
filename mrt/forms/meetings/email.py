@@ -11,6 +11,7 @@ LANGUAGE_CHOICES = [
     (slug, 'All {0} Speakers'.format(name))
     for slug, name in Participant.LANGUAGE_CHOICES
 ]
+LANGUAGE_CHOICES.insert(0, ('all', 'All participants'))
 
 
 class BaseEmailForm(BaseForm):
