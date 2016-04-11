@@ -32,10 +32,12 @@ $(function () {
             }
             if(context['mark_disable_form']) {
                 var form = $(this).parents('form');
+                var container = $('.registration-disabled-msg');
+                container.remove();
                 if(condition) {
                     var msg = $('<div>')
-                        .attr({'class': 'alert alert-danger'})
-                        .text('Registration form is disabled for this options');
+                        .attr({'class': 'alert alert-danger registration-disabled-msg'})
+                        .text('Registration form is disabled for these options');
                     form.before(msg);
                     form.find('button[type=submit]').prop('disabled', true);
                 } else {
