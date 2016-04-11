@@ -92,12 +92,9 @@ $(function () {
   actions_container.on('change', '[data-disable-form] input', function() {
     if($(this).prop('checked')) {
       $('.rule-add-action').hide();
-      actions_container.find('select').prop('disabled', true);
       actions_container.find('[data-prop] input').prop('disabled', true);
-      console.log()
     } else {
       $('.rule-add-action').show();
-      actions_container.find('select').prop('disabled', false);
       actions_container.find('[data-prop] input').prop('disabled', false);
     }
   });
