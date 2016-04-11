@@ -61,14 +61,12 @@ class _RulesMixin(object):
 class _RulesMeta(DefaultMeta):
 
     def render_field(self, field, render_kw):
-        actions = [a for a in
-            Action.query.filter(
-                and_(
-                    Action.field.has(slug=field.name),
-                    Action.rule.has(meeting=g.meeting),
-                    Action.rule.has(rule_type=g.rule_type)                )
-            )
-        ]
+        actions = Action.query.filter(
+            and_(
+                Action.field.has(slug=field.name),
+                Action.rule.has(meeting=g.meeting),
+                Action.rule.has(rule_type=g.rule_type)
+            ))
 
         context = {}
         if any([a.is_visible for a in actions]):
