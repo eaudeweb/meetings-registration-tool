@@ -1,14 +1,31 @@
 
-.badges {
-    padding-top: 0.30in;
+body {
+    padding: 0;
     padding-left: 0.45in;
-    padding-right: -0.40in;
+    /*padding-right: 0.40in;*/
+}
+
+.badges {
+
 }
 
 .badge-container {
     float: left;
     height: 2.15in;
-    margin-bottom: 0.30in;
+    margin-top: 0.25in;
     margin-right: 0.40in;
     width: 3.4in;
+    page-break-inside: avoid!important;
+    page-break-after: auto!important;
+}
+
+.badge-container:nth-child(2n) {
+    margin-right: 0;
+}
+
+.stripe .logo {
+    top: 0.5in!important;
+}
+.stripe .side-logo {
+    top: 0.5in!important;
 }
