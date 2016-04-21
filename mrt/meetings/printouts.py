@@ -3,13 +3,13 @@ from itertools import groupby
 from operator import attrgetter
 
 from flask import current_app as app
-from flask import g, flash, url_for
+from flask import g, url_for
 from flask import request, render_template, jsonify, abort, redirect
 from flask import send_from_directory
-from flask.ext.login import login_required, current_user
+from flask.ext.login import login_required
 from flask.views import MethodView
 
-from rq import Queue, Connection
+from rq import Connection
 from rq.job import Job as JobRedis
 from rq.job import NoSuchJobError
 from sqlalchemy import desc
@@ -22,29 +22,8 @@ from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
 from mrt.meetings.mixins import PermissionRequiredMixin
-
-
-_PRINTOUT_MARGIN = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
-                    'right': '0.8in'}
-
-
-def _add_to_printout_queue(method, job_name, *args):
-    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store._redis_client,
-              default_timeout=1200)
-    job_redis = q.enqueue(method, g.meeting.id, *args)
-    job = Job(id=job_redis.id,
-              name=job_name,
-              user_id=current_user.id,
-              status=job_redis.get_status(),
-              date=job_redis.enqueued_at,
-              meeting_id=g.meeting.id,
-              queue=Job.PRINTOUTS_QUEUE)
-    db.session.add(job)
-    db.session.commit()
-    url = url_for('.processing_file_list')
-    flash('Started processing %s. You can see the progress in the '
-          '<a href="%s">processing file list section</a>.' %
-          (job_name, url), 'success')
+from mrt.meetings.printouts_common import _add_to_printout_queue
+from mrt.meetings.printouts_common import _PRINTOUT_MARGIN
 
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
@@ -457,8 +436,8 @@ class Admission(PermissionRequiredMixin, MethodView):
         if not category_tags:
             title = 'General admission'
         else:
-            title = (', '.join([tag.label for tag in category_tags])
-                + ' admission')
+            title = (', '.join([tag.label for tag in category_tags]) +
+                     ' admission')
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
 
         return render_template(
@@ -475,8 +454,8 @@ class Admission(PermissionRequiredMixin, MethodView):
     def post(self):
         flag = request.args.get('flag')
         category_tags = request.args.getlist('category_tags')
-        _add_to_printout_queue(_process_admission, self.JOB_NAME, flag,
-                                category_tags)
+        args = (flag, category_tags,)
+        _add_to_printout_queue(_process_admission, self.JOB_NAME, *args)
         return redirect(url_for('.printouts_admission', flag=flag,
                                 category_tags=category_tags))
 
@@ -559,21 +538,25 @@ def _process_event_list(meeting_id, title, event_ids):
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
 
+
 def _process_document_distribution(meeting_id, title, flag):
     g.meeting = Meeting.query.get(meeting_id)
     query = DocumentDistribution._get_query(flag)
     participants = groupby(query, key=attrgetter('language'))
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
-    context = {'participants': participants,
-               'title': title,
-               'flag': flag,
-               'template': 'meetings/printouts/_document_distribution_table.html'}
+    context = {
+        'participants': participants,
+        'title': title,
+        'flag': flag,
+        'template': 'meetings/printouts/_document_distribution_table.html'
+    }
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
+
 
 def _process_admission(meeting_id, flag, category_tags):
     g.meeting = Meeting.query.get(meeting_id)
@@ -586,8 +569,8 @@ def _process_admission(meeting_id, flag, category_tags):
     if not category_tags:
         title = 'General admission'
     else:
-        title = (', '.join([tag.label for tag in category_tags])
-            + ' admission')
+        title = (', '.join([tag.label for tag in category_tags]) +
+                 ' admission')
     context = {'participants': participants,
                'title': title,
                'flag': flag,

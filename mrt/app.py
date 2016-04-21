@@ -1,5 +1,6 @@
 import logging
 import sys
+import importlib
 
 from werkzeug import SharedDataMiddleware
 from flask import Flask, redirect, request, render_template, url_for, g
@@ -70,6 +71,10 @@ def create_app(config={}):
     app.register_blueprint(admin)
     app.register_blueprint(auth)
     app.register_blueprint(meetings)
+    blueprints = app.config.get('BLUEPRINTS', [])
+    for blueprint in blueprints:
+        module = importlib.import_module('contrib.{}.urls'.format(blueprint))
+        app.register_blueprint(module.blueprint)
 
     app.add_template_filter(activity_map)
     app.add_template_filter(countries)
