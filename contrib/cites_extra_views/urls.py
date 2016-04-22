@@ -4,7 +4,9 @@ from flask import Blueprint
 from mrt.common import add_meeting_id, add_meeting_global
 
 
-blueprint = Blueprint('cites_extra_views', __name__, url_prefix='/meetings')
+blueprint = Blueprint('cites_extra_views', __name__,
+                      template_folder='templates',
+                      url_prefix='/meetings')
 
 blueprint.add_url_rule(
     '/<int:meeting_id>/printouts/observers',

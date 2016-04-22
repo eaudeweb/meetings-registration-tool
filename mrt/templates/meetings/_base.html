@@ -24,14 +24,14 @@
 
     {% if has_perm('view_participant') %}
       <li class="{{ active('/participants') }}" id="participants_tab">
-        <a href="{{ url_for('.participants') }}">
+        <a href="{{ url_for('meetings.participants') }}">
           Participants</a>
       </li>
     {% endif %}
 
     {% if g.meeting.media_participant_enabled and has_perm('view_media_participant') %}
       <li class="{{ active('/media_participants') }}" id="media_participants_tab">
-        <a href="{{ url_for('.media_participants') }}">
+        <a href="{{ url_for('meetings.media_participants') }}">
           Media Participants</a>
       </li>
     {% endif %}
@@ -42,38 +42,38 @@
           Printouts <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             <li>
-              <a href="{{ url_for('.printouts_short_list') }}">
+              <a href="{{ url_for('meetings.printouts_short_list') }}">
                 Print short list</a>
             </li>
             <li>
-              <a href="{{ url_for('.printouts_delegation_list') }}">
+              <a href="{{ url_for('meetings.printouts_delegation_list') }}">
                 Print list of delegations</a>
             </li>
 
             <li>
-              <a href="{{ url_for('.printouts_participant_badges') }}">
+              <a href="{{ url_for('meetings.printouts_participant_badges') }}">
                 Print participant badges</a>
             </li>
             <li>
-              <a href="{{ url_for('.printouts_participant_events') }}">
+              <a href="{{ url_for('meetings.printouts_participant_events') }}">
                 Print list of events</a>
             </li>
             <li>
-              <a href="{{ url_for('.printouts_provisional_list') }}">
+              <a href="{{ url_for('meetings.printouts_provisional_list') }}">
                 Print provisional list</a>
             </li>
             <li>
-              <a href="{{ url_for('.printouts_document_distribution') }}">
+              <a href="{{ url_for('meetings.printouts_document_distribution') }}">
                 Print distribution of documents</a>
             </li>
             <li>
-              <a href="{{ url_for('.printouts_admission') }}">
+              <a href="{{ url_for('meetings.printouts_admission') }}">
                 Print admission</a>
             </li>
 
             <li class="divider"></li>
             <li>
-              <a href="{{ url_for('.processing_file_list') }}">
+              <a href="{{ url_for('meetings.processing_file_list') }}">
                 Processing file list</a>
             </li>
           </ul>
@@ -82,11 +82,11 @@
 
     {% if has_perm('manage_participant') %}
       <li class="{{ active('/email') }}" id="email_tab">
-        <a href="{{ url_for('.bulkemail') }}">Send bulk emails</a>
+        <a href="{{ url_for('meetings.bulkemail') }}">Send bulk emails</a>
       </li>
 
       <li class="{{ active('/duplicates') }}" id="duplicates_tab">
-        <a href="{{ url_for('.duplicates') }}">
+        <a href="{{ url_for('meetings.duplicates') }}">
           Manage duplicates</a>
       </li>
 
@@ -96,12 +96,12 @@
         <ul class="dropdown-menu" role="menu">
           {% if has_perm('manage_meeting') %}
             <li class="{{ active('/activity') }}">
-              <a href="{{ url_for('.activity') }}">
+              <a href="{{ url_for('meetings.activity') }}">
                 Database activity</a>
             </li>
           {% endif %}
           <li class="{{ active('/mails') }}">
-            <a href="{{ url_for('.mail_logs') }}">
+            <a href="{{ url_for('meetings.mail_logs') }}">
               Emails sent</a>
           </li>
         </ul>
@@ -115,46 +115,46 @@
           Settings <span class="caret"></span></a>
         <ul class="dropdown-menu" role="menu">
           <li class="{{ active('/categories') }}">
-            <a href="{{ url_for('.categories') }}">
+            <a href="{{ url_for('meetings.categories') }}">
               Categories</a>
           </li>
           <li class="{{ active('/roles') }}">
-            <a href="{{ url_for('.roles') }}">
+            <a href="{{ url_for('meetings.roles') }}">
               Roles</a>
           </li>
           <li class="{{ active('/notifications') }}">
-            <a href="{{ url_for('.notifications') }}">
+            <a href="{{ url_for('meetings.notifications') }}">
               Subscribers</a>
           </li>
           <li class="{{ active('/phrases') }}">
-            <a href="{{ url_for('.phrase_edit', meeting_type=g.meeting.meeting_type_slug) }}">
+            <a href="{{ url_for('meetings.phrase_edit', meeting_type=g.meeting.meeting_type_slug) }}">
               Phrases</a>
           </li>
           <li class="{{ active('/custom') }}">
-            <a href="{{ url_for('.custom_fields') }}">Fields</a>
+            <a href="{{ url_for('meetings.custom_fields') }}">Fields</a>
           </li>
           <li class="{{ active('/rules') }}">
-            <a href="{{ url_for('.rules') }}">Rules</a>
+            <a href="{{ url_for('meetings.rules') }}">Rules</a>
           </li>
           <li class="{{ active('/logos') }}">
-            <a href="{{ url_for('.logos') }}">Logos</a>
+            <a href="{{ url_for('meetings.logos') }}">Logos</a>
           </li>
           <li class="{{ active('/badge/templates') }}">
-            <a href="{{ url_for('.badge_templates') }}">
+            <a href="{{ url_for('meetings.badge_templates') }}">
               Badge templates</a>
           </li>
 
           <li class="divider"></li>
           <li>
-            <a href="{{ url_for('.edit') }}">
+            <a href="{{ url_for('meetings.edit') }}">
               Edit this meeting</a>
           </li>
           <li>
-            <a href="{{ url_for('.clone') }}">
+            <a href="{{ url_for('meetings.clone') }}">
               Clone this meeting</a>
           </li>
           <li class="{{ active('/statistics') }}">
-            <a href="{{ url_for('.statistics') }}">
+            <a href="{{ url_for('meetings.statistics') }}">
               Overview</a>
           </li>
         </ul>
@@ -162,10 +162,10 @@
     {% endif %}
 
     {% if has_perm('view_participant') %}
-      {% set status_url = url_for('.printouts_queue_status', queue='printouts') %}
+      {% set status_url = url_for('meetings.printouts_queue_status', queue='printouts') %}
       <li class="pull-right hide hiden-xs hidden-sm printout-count"
           data-url="{{ status_url }}">
-        <a href="{{ url_for('.processing_file_list') }}"
+        <a href="{{ url_for('meetings.processing_file_list') }}"
            data-toggle="tooltip" data-placement="bottom"
            data-container="body">
           <span class="badge"></span>

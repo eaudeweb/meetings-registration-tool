@@ -65,7 +65,7 @@ class ObserversList(PermissionRequiredMixin, MethodView):
         categories_form = ParticipantCategoriesForm(request.args)
 
         return render_template(
-            'meetings/printouts/observers.html',
+            'printouts/observers.html',
             participants=participants,
             events=events,
             pagination=pagination,
@@ -83,10 +83,8 @@ class ObserversList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         category_tags = request.args.getlist('category_tags')
         categories = request.args.getlist('categories')
-        args = (self.DOC_TITLE, flag, category_tags, categories,)
-        _add_to_printout_queue(method=_process_observers,
-                               job_name=self.JOB_NAME,
-                               *args)
+        args = (self.DOC_TITLE, flag, category_tags, categories)
+        _add_to_printout_queue(_process_observers, self.JOB_NAME, *args)
         return redirect(url_for('.printouts_observers', flag=flag,
                                 category_tags=category_tags,
                                 categories=categories))
@@ -102,7 +100,7 @@ def _process_observers(meeting_id, title, flag, category_tags, categories):
                'count': count,
                'events': events,
                'title': title,
-               'template': 'meetings/printouts/_observers_pdf.html'}
+               'template': 'printouts/_observers_pdf.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

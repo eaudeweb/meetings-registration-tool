@@ -216,6 +216,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/admission',
     view_func=views.Admission.as_view('printouts_admission'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/categories_for_tags',
+    view_func=views.CategoriesForTags.as_view('categories_for_tags'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',

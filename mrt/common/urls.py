@@ -1,10 +1,13 @@
 
+from flask import current_app as app
+from flask import g
+
 
 """
 Helpers for meeting urls
 """
 
-#@meetings.url_defaults
+
 def add_meeting_id(endpoint, values):
     meeting = getattr(g, 'meeting', None)
     if 'meeting_id' in values or not meeting:
@@ -15,7 +18,6 @@ def add_meeting_id(endpoint, values):
         values.setdefault('meeting_acronym', meeting.acronym)
 
 
-#@meetings.url_value_preprocessor
 def add_meeting_global(endpoint, values):
     from mrt.models import Meeting
 
@@ -28,4 +30,3 @@ def add_meeting_global(endpoint, values):
         acronym = values.pop('meeting_acronym', None)
         if acronym:
             g.meeting = Meeting.query.filter_by(acronym=acronym).first_or_404()
-

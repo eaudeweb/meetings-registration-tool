@@ -27,7 +27,7 @@ def _add_to_printout_queue(method, job_name, *args):
               queue=Job.PRINTOUTS_QUEUE)
     db.session.add(job)
     db.session.commit()
-    url = url_for('.processing_file_list')
+    url = url_for('meetings.processing_file_list')
     flash('Started processing %s. You can see the progress in the '
           '<a href="%s">processing file list section</a>.' %
           (job_name, url), 'success')

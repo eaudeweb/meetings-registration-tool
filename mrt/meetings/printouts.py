@@ -582,3 +582,17 @@ def _process_admission(meeting_id, flag, category_tags):
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
+
+
+class CategoriesForTags(MethodView):
+
+    decorators = (login_required,)
+
+    def get(self):
+        category_tags = request.args.getlist('category_tags')
+        categories = g.meeting.categories.order_by(Category.sort)
+        if category_tags:
+            categories = categories.filter(
+                Category.tags.any(CategoryTag.id.in_(category_tags)))
+        categories = [(c.id, c.title.english) for c in categories]
+        return jsonify(categories)

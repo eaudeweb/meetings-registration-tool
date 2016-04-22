@@ -41,7 +41,7 @@
         {{ categories_form.categories(
             class_="form-control form-reset-control select",
             **{'data-placeholder': 'Select one or more categories',
-               'data-href': url_for('.categories_for_tags') }) }}
+               'data-href': url_for('meetings.categories_for_tags') }) }}
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>
@@ -60,7 +60,7 @@
     </div>
 
     {% with title=title %}
-      {% include "meetings/printouts/_observers_table.html" %}
+      {% include "printouts/_observers_table.html" %}
     {% endwith %}
 
     <div class="printout-loading"></div>
