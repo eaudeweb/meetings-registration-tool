@@ -1,0 +1,64 @@
+{% from "_bits.html" import meeting_title_for_printouts %}
+
+
+<div class="printout-doc-title">
+  <h4>{{ meeting_title_for_printouts() }}</h4>
+  <h2>{{ title }}</h2>
+  {% if flag %}<h3>{{ flag|capitalize }}</h3>{% endif %}
+</div>
+
+
+<div class="printout-item-container">
+
+    {% for language, new_people in participants %}
+
+      <table id="{{ language|lower }}-container" class="table {{ table_class }}">
+
+      <caption>
+        <span class="language-label">{{ (language or "no language")|upper }}</span>
+      </caption>
+
+        {% if printout_type == 'distribution' %}
+        <thead>
+          <tr class="column-headers">
+            <th>Qty</th>
+            <th>Delegation</th>
+          </tr>
+        </thead>
+        {% endif %}
+
+        <tbody>
+
+          {% for category_title, list in new_people|groupby('category.title.english') %}
+
+            <tr class="highlight">
+              <th colspan="2" id="category-name" class = "category" data-id="{{ category_title|slugify }}">
+                {{ category_title }} - Total: {{ list|length }}
+              </th>
+            </tr>
+
+            {% for representing, persons in list|groupby('representing') %}
+
+              <tr>
+                <td class="text-center quantity">
+                  {{ persons|length }}
+                  {% if printout_type == 'pigeon' %}
+                    {{ language.value[0] if language else "N/A" }}
+                  {% endif %}
+                </td>
+                <td id="representing-name" data-id="{{ representing|safe|slugify }}">
+                  {{ (representing or "Not specified") |safe }}
+                </td>
+              </tr>
+
+            {% endfor %}
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    {% endfor %}
+
+</div> {# printout-item-container #}

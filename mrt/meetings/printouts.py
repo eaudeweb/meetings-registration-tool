@@ -22,8 +22,8 @@ from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
 from mrt.meetings.mixins import PermissionRequiredMixin
-from mrt.meetings.printouts_common import _add_to_printout_queue
-from mrt.meetings.printouts_common import _PRINTOUT_MARGIN
+from mrt.common.printouts import _add_to_printout_queue
+from mrt.common.printouts import _PRINTOUT_MARGIN
 
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
@@ -338,10 +338,7 @@ class EventList(PermissionRequiredMixin, MethodView):
                                 events=event_ids))
 
 
-class DocumentDistribution(PermissionRequiredMixin, MethodView):
-
-    JOB_NAME = 'document distribution'
-    DOC_TITLE = 'Distribution of documents'
+class BaseDistribution(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
@@ -364,28 +361,49 @@ class DocumentDistribution(PermissionRequiredMixin, MethodView):
 
     def get(self):
         flag = request.args.get('flag')
-        page = request.args.get('page', 1, type=int)
         query = self._get_query(flag)
         count = query.count()
-        pagination = query.paginate(page, per_page=1000)
-        participants = groupby(pagination.items, key=attrgetter('language'))
+        participants = groupby(query, key=attrgetter('language'))
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
 
         return render_template(
-            'meetings/printouts/document_distribution.html',
+            'printouts/distribution.html',
+            printout_type=self.printout_type,
             participants=participants,
-            pagination=pagination,
             count=count,
             title=self.DOC_TITLE,
+            table_class=self.table_class,
             flag=flag,
             flag_form=flag_form)
 
     def post(self):
         flag = request.args.get('flag')
-        _add_to_printout_queue(_process_document_distribution, self.JOB_NAME,
-                               self.DOC_TITLE, flag)
-        return redirect(url_for('.printouts_document_distribution', flag=flag))
+        _add_to_printout_queue(_process_distribution, self.JOB_NAME,
+                               self.printout_type, self.DOC_TITLE, flag)
+        return redirect(url_for(self.view_name, flag=flag))
+
+
+class DocumentDistribution(BaseDistribution):
+
+    JOB_NAME = 'document distribution'
+    DOC_TITLE = 'Distribution of documents'
+
+    template = 'printouts/distribution.html'
+    view_name = '.printouts_document_distribution'
+    printout_type = 'distribution'
+    table_class = 'table-bordered table-condensed'
+
+
+class PigeonHoles(BaseDistribution):
+
+    JOB_NAME = 'pigeon holes'
+    DOC_TITLE = 'Pigeon holes'
+
+    template = 'printouts/distribution.html'
+    view_name = '.printouts_pigeon_holes'
+    printout_type = 'pigeon'
+    table_class = 'pigeon-holes'
 
 
 class Admission(PermissionRequiredMixin, MethodView):
@@ -576,6 +594,29 @@ def _process_admission(meeting_id, flag, category_tags):
                'flag': flag,
                'category_tags': category_tags,
                'template': 'meetings/printouts/_admission_table.html'}
+
+    return PdfRenderer('meetings/printouts/printout.html',
+                       title=title,
+                       height='11.693in', width='8.268in',
+                       margin=_PRINTOUT_MARGIN, orientation='landscape',
+                       context=context).as_rq()
+
+
+def _process_distribution(meeting_id, printout_type, title, flag):
+    if printout_type == 'distribution':
+        view_class = DocumentDistribution
+    else:
+        view_class = PigeonHoles
+    g.meeting = Meeting.query.get(meeting_id)
+    query = view_class._get_query(flag)
+    participants = groupby(query, key=attrgetter('language'))
+    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+    context = {'participants': participants,
+               'title': title,
+               'printout_type': view_class.printout_type,
+               'table_class': view_class.table_class,
+               'flag': flag,
+               'template': 'printouts/_distribution_table.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

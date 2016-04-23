@@ -1,0 +1,51 @@
+{% from "_bits.html" import meeting_title_for_printouts %}
+
+
+<div class="printout-doc-title">
+  <h4>{{ meeting_title_for_printouts() }}</h4>
+  <h2>{{ title }} - Total: {{ count }}</h2>
+</div>
+
+
+<div class="printout-item-container">
+
+  <table class="table table-bordered table-condensed">
+
+      <thead>
+        <tr class="column-headers">
+          <th>Name</th>
+          <th>Category</th>
+          <th>Representing</th>
+          <th>Country</th>
+          {% if g.meeting.address_field_id %}
+          <th>Address</th>
+          {% endif %}
+          <th>Email</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for participant in participants %}
+        <tr>
+          <td id="participant-name" data-id="{{ participant.id }}">
+            {{ participant.last_name|upper }}
+            {{ participant.first_name }}
+          </td>
+          <td>{{ participant.category }}</td>
+          <td style="width: 20%;">
+            {{ participant.representing|safe }}
+          </td>
+          <td>{{ participant.country }}</td>
+          {% if g.meeting.address_field_id %}
+          <td>{{ participant.address_value or '' }}</td>
+          {% endif %}
+          <td>{{ participant.email }}</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+
+  </table>
+
+</div> {# printout-item-container #}
