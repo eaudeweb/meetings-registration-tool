@@ -195,6 +195,11 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
 
     JOB_NAME = 'participant list'
     DOC_TITLE = 'Provisional list as entered by participant'
+    TITLE_MAP = {
+        'attended': 'Final list of participants',
+        'verified': 'List of acknowledged participants',
+        'credentials': 'List of participants with checked credentials',
+    }
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
@@ -207,7 +212,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
             .order_by(Category.sort, Category.id,
-                      Participant.represented_country.name,
+                      Participant.representing,
                       Participant.last_name, Participant.id)
         )
 
@@ -219,6 +224,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
 
     def get(self):
         flag = request.args.get('flag')
+        title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         page = request.args.get('page', 1, type=int)
         query = self._get_query(flag)
         count = query.count()
@@ -231,14 +237,15 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             participants=participants,
             pagination=pagination,
             count=count,
-            title=self.DOC_TITLE,
+            title=title,
             flag_form=flag_form,
             flag=flag)
 
     def post(self):
         flag = request.args.get('flag')
+        title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               self.DOC_TITLE, flag)
+                               title, flag)
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
