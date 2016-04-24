@@ -36,11 +36,11 @@
               {% if participant.telephone_value %}
                 <dd style="padding-left:40px;">T: {{ participant.telephone_value }}</dd>
               {% endif %}
-              {% if participant.hardcoded_mobile_value %}
-                <dd style="padding-left:40px;">M: {{ participant.hardcoded_mobile_value }}</dd>
+              {% if participant.hardcoded_field_value('mobile') %}
+                <dd style="padding-left:40px;">M: {{ participant.hardcoded_field_value('mobile') }}</dd>
               {% endif %}
-              {% if participant.hardcoded_fax_value %}
-                <dd style="padding-left:40px;">F: {{ participant.hardcoded_fax_value }}</dd>
+              {% if participant.hardcoded_field_value('fax') %}
+                <dd style="padding-left:40px;">F: {{ participant.hardcoded_field_value('fax') }}</dd>
               {% endif %}
               <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
             </dl>
@@ -82,11 +82,11 @@
           {% if participant.telephone_value %}
             <dd style="padding-left:40px;">T: {{ participant.telephone_value }}</dd>
           {% endif %}
-          {% if participant.hardcoded_mobile_value %}
-            <dd style="padding-left:40px;">M: {{ participant.hardcoded_mobile_value }}</dd>
+          {% if participant.hardcoded_field_value('mobile') %}
+            <dd style="padding-left:40px;">M: {{ participant.hardcoded_field_value('mobile') }}</dd>
           {% endif %}
-          {% if participant.hardcoded_fax_value %}
-            <dd style="padding-left:40px;">F: {{ participant.hardcoded_fax_value }}</dd>
+          {% if participant.hardcoded_field_value('fax') %}
+            <dd style="padding-left:40px;">F: {{ participant.hardcoded_field_value('fax') }}</dd>
           {% endif %}
           <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
         </dl>

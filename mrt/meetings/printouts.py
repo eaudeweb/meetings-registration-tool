@@ -564,25 +564,6 @@ def _process_event_list(meeting_id, title, event_ids):
                        context=context).as_rq()
 
 
-def _process_document_distribution(meeting_id, title, flag):
-    g.meeting = Meeting.query.get(meeting_id)
-    query = DocumentDistribution._get_query(flag)
-    participants = groupby(query, key=attrgetter('language'))
-    flag = g.meeting.custom_fields.filter_by(slug=flag).first()
-    context = {
-        'participants': participants,
-        'title': title,
-        'flag': flag,
-        'template': 'meetings/printouts/_document_distribution_table.html'
-    }
-
-    return PdfRenderer('meetings/printouts/printout.html',
-                       title=title,
-                       height='11.693in', width='8.268in',
-                       margin=_PRINTOUT_MARGIN, orientation='landscape',
-                       context=context).as_rq()
-
-
 def _process_admission(meeting_id, flag, category_tags):
     g.meeting = Meeting.query.get(meeting_id)
     category_tags = (CategoryTag.query

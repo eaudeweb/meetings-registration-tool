@@ -384,8 +384,9 @@ class Participant(db.Model):
         self.representing = ''
         if not self.category or not self.category.representing:
             return
-        template_name = str(app.config['REPRESENTING_TEMPLATES']
-                            / self.category.representing.code)
+        template_name = str(
+            app.config['REPRESENTING_TEMPLATES'] /
+            self.category.representing.code)
         try:
             template = app.jinja_env.get_template(template_name)
         except TemplateNotFound:
@@ -495,6 +496,20 @@ class Participant(db.Model):
             db.session.flush()
             self._clone_custom_field_value(participant, cf_clone, cfv)
         return participant
+
+    def attended_event(self, event_field_id):
+        cvalue = (self.custom_field_values
+                  .filter(CustomFieldValue.custom_field_id == event_field_id)
+                  .first())
+        return cvalue.value == 'true' if cvalue else False
+
+    def hardcoded_field_value(self, field_name):
+        field = self.meeting.custom_fields.filter_by(slug=field_name).first()
+        if not field:
+            return None
+        custom_value = (field.custom_field_values
+                        .filter_by(participant_id=self.id).first())
+        return custom_value.value if custom_value else None
 
 
 class CustomField(db.Model):
