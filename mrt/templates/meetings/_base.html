@@ -71,7 +71,17 @@
                 Print admission</a>
             </li>
 
+            {% if EXTRA_PRINTOUTS_MENU %}
+              <li class="divider"></li>
+                {% for label, endpoint in EXTRA_PRINTOUTS_MENU %}
+                  <li>
+                    <a href="{{ url_for(endpoint) }}">{{ label }}</a>
+                  </li>
+                {% endfor %}
+            {% endif %}
+
             <li class="divider"></li>
+
             <li>
               <a href="{{ url_for('meetings.processing_file_list') }}">
                 Processing file list</a>
