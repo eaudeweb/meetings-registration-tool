@@ -261,16 +261,17 @@ class VerificationList(PermissionRequiredMixin, MethodView):
                                 categories=category_ids))
 
 
-def _process_verification(meeting_id, title, category_ids):
+def _process_verification(meeting_id, title, category_ids, template_name=None):
     g.meeting = Meeting.query.get(meeting_id)
     query = VerificationList._get_query(category_ids)
     count = query.count()
     participants = query
+    template_name = template_name or 'printouts/_verification_table_pdf.html'
     context = {'participants': participants,
                'count': count,
                'title': title,
                'category_ids': category_ids,
-               'template': 'printouts/_verification_table_pdf.html'}
+               'template': template_name}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

@@ -11,6 +11,7 @@ from flask.ext.uploads import configure_uploads, patch_request_class
 
 from path import path
 
+from mrt.definitions import LANGUAGES_MAP
 from mrt.admin.urls import admin
 from mrt.assets import assets_env
 from mrt.auth.urls import auth
@@ -23,13 +24,13 @@ from mrt.mail import mail
 from mrt.meetings.urls import meetings
 from mrt.models import db, redis_store, User, CustomField, Participant
 
+from mrt.template import convert_to_dict, has_perm, url_external
 from mrt.template import country_in, region_in
+from mrt.template import inject_badge_context
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 from mrt.template import pluralize, clean_html
-from mrt.template import inject_badge_context
 from mrt.template import sort_by_tuple_element
-from mrt.template import convert_to_dict, has_perm, url_external
 from mrt.utils import slugify, Logo, sentry
 
 
@@ -68,13 +69,14 @@ def create_app(config={}):
     assets_env.init_app(app)
     db.init_app(app)
 
-    app.register_blueprint(admin)
-    app.register_blueprint(auth)
-    app.register_blueprint(meetings)
     blueprints = app.config.get('BLUEPRINTS', [])
     for blueprint in blueprints:
         module = importlib.import_module('contrib.{}.urls'.format(blueprint))
         app.register_blueprint(module.blueprint)
+
+    app.register_blueprint(admin)
+    app.register_blueprint(auth)
+    app.register_blueprint(meetings)
 
     app.add_template_filter(activity_map)
     app.add_template_filter(countries)
@@ -116,6 +118,7 @@ def create_app(config={}):
                 'DEFAULT': Participant.DEFAULT,
                 'DEFAULT_MEDIA': Participant.DEFAULT_MEDIA,
             },
+            'LANGUAGES_MAP': 'LANGUAGES_MAP',
         }
 
     login_manager = LoginManager()

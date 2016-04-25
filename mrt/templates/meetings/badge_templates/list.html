@@ -91,6 +91,21 @@
       </div> {# col-sm-8 #}
     </div>
 
+    <div class="row">
+      <div class="col-sm-8">
+        <a class="thumbnail {% if tpl == 'shifted_front_and_back' %}active{% endif %}"
+           href="{{ url_for('.badge_templates',
+                            badge_template='shifted_front_and_back') }}">
+          <img src="{{ url_for(
+              'static',
+              filename='images/badges/shifted_front_and_back.png') }}"
+              alt="Default badge">
+        </a>
+        <div class="text-center">
+          <h4>Shifted double sided badge</h4></div>
+      </div> {# col-sm-8 #}
+    </div>
+
   </div> {# badge-templates-container #}
 
 {% endblock %}

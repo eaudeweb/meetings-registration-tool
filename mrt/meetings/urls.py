@@ -298,7 +298,7 @@ meetings.add_url_rule(
     view_func=badge_template)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/badge/templates/'
-    '<any(default, default_shifted, standard, optimized, default_front_and_back):badge_template>',
+    '<any(default, default_shifted, standard, optimized, default_front_and_back, shifted_front_and_back):badge_template>',
     view_func=badge_template)
 
 # manage duplicates

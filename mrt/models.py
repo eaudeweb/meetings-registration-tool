@@ -23,7 +23,7 @@ from wtforms.fields import DateField
 
 from mrt.definitions import (
     PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
-    CATEGORY_REPRESENTING)
+    CATEGORY_REPRESENTING, LANGUAGES_ISO_MAP)
 from mrt.utils import slugify, copy_attributes, duplicate_uploaded_file
 from mrt.utils import unlink_participant_custom_file
 
@@ -870,8 +870,7 @@ class CategoryMixin(object):
 
     def __repr__(self):
         locale = get_locale() or Locale('en')
-        lang = {'en': 'english', 'fr': 'french', 'es': 'spanish'}.get(
-            locale.language, 'english')
+        lang = LANGUAGES_ISO_MAP.get(locale.language, 'english')
         return getattr(self.title, lang, '') or ''
 
 

@@ -1,0 +1,9 @@
+{% include "meetings/participant/badges/default_shifted.html" %}
+
+
+{% if badge_context['badge_back_logo'].path.exists() %}
+  <div class="badge-container back-container"
+       style="background: url('{{ badge_context['badge_back_logo'].url }}')
+       center center no-repeat; background-size: contain;">
+  </div> {# back cover #}
+{% endif %}

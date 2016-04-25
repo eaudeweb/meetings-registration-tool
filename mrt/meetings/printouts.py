@@ -511,17 +511,19 @@ def _process_short_list(meeting_id, title, flag):
                        context=context).as_rq()
 
 
-def _process_provisional_list(meeting_id, title, flag):
+def _process_provisional_list(meeting_id, title, flag, template_name=None):
     g.meeting = Meeting.query.get(meeting_id)
     query = ProvisionalList._get_query(flag)
     count = query.count()
     participants = query
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+    template_name = (template_name or
+                     'meetings/printouts/_provisional_list_pdf.html')
     context = {'participants': participants,
                'count': count,
                'title': title,
                'flag': flag,
-               'template': 'meetings/printouts/_provisional_list_pdf.html'}
+               'template': template_name}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,

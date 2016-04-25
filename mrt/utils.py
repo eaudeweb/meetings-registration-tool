@@ -20,6 +20,7 @@ from werkzeug import FileStorage
 
 from babel import support, Locale
 from path import path
+from mrt.definitions import LANGUAGES_MAP, LANGUAGES_ISO_MAP
 
 
 logos_upload = UploadSet('logos', IMAGES)
@@ -234,11 +235,11 @@ def translate(text, lang_code='en'):
 
 def set_language(lang='english'):
     if lang in ('english', 'french', 'spanish'):
-        iso = _LANGUAGES_MAP.get(lang, 'en')
+        iso = LANGUAGES_MAP.get(lang, 'en')
         g.language_verbose = lang
     if lang in ('en', 'fr', 'es'):
         iso = lang
-        g.language_verbose = _LANGUAGES_ISO_MAP.get(lang, 'english')
+        g.language_verbose = LANGUAGES_ISO_MAP.get(lang, 'english')
     g.language = iso
     refresh()
 
