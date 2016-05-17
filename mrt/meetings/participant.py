@@ -13,6 +13,8 @@ from flask_thumbnails import Thumbnail
 from mrt.forms.meetings import AcknowledgeEmailForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
 from mrt.forms.meetings import MediaParticipantEditForm, ParticipantEditForm
+from mrt.forms.meetings import ParticipantEditFormWithoutRules
+from mrt.forms.meetings import MediaParticipantEditFormWithoutRules
 
 from mrt.admin.mixins import PermissionRequiredMixin as AdminPermRequiredMixin
 from mrt.meetings.mixins import PermissionRequiredMixin
@@ -357,7 +359,7 @@ class ParticipantEdit(PermissionRequiredMixin, BaseParticipantEdit):
     permission_required = ('manage_meeting', 'manage_participant')
     decorators = (_participant_category_required,)
     template = 'meetings/participant/participant/edit.html'
-    form_class = ParticipantEditForm
+    form_class = ParticipantEditFormWithoutRules
 
     def get_object(self, participant_id=None):
         g.rule_type = Rule.PARTICIPANT
@@ -379,7 +381,7 @@ class MediaParticipantEdit(ParticipantEdit):
     permission_required = ('manage_meeting', 'manage_media_participant')
     decorators = (_media_participant_category_required,)
     template = 'meetings/participant/media/edit.html'
-    form_class = MediaParticipantEditForm
+    form_class = MediaParticipantEditFormWithoutRules
 
     def get_object(self, participant_id=None):
         g.rule_type = Rule.MEDIA
