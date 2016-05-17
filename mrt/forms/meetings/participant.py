@@ -42,8 +42,10 @@ class _RulesMixin(object):
                 success = field.validate(self, [DataRequired()])
             if action.disable_form:
                 success = False
+
                 def _disable_form(form, field):
                     raise ValidationError('Registration form is disabled')
+
                 field.validate(self, [_disable_form])
         return success
 
@@ -88,9 +90,7 @@ class _RulesMeta(DefaultMeta):
         return field.widget(field, **render_kw)
 
 
-class BaseParticipantForm(_RulesMixin, BaseForm):
-
-    Meta = _RulesMeta
+class BaseParticipantForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         obj = kwargs.get('obj', None)
@@ -151,12 +151,28 @@ class BaseParticipantForm(_RulesMixin, BaseForm):
         return participant
 
 
-class ParticipantEditForm(BaseParticipantForm):
+class ParticipantEditForm(_RulesMixin, BaseParticipantForm):
+
+    Meta = _RulesMeta
 
     CUSTOM_FIELDS_TYPE = 'participant'
 
 
-class MediaParticipantEditForm(BaseParticipantForm):
+class MediaParticipantEditForm(_RulesMixin, BaseParticipantForm):
+
+    Meta = _RulesMeta
+
+    CUSTOM_FIELDS_TYPE = 'media'
+
+
+class ParticipantEditFormWithoutRules(BaseParticipantForm):
+
+    CUSTOM_FIELDS_TYPE = 'participant'
+
+
+class MediaParticipantEditFormWithoutRules(_RulesMixin, BaseParticipantForm):
+
+    Meta = _RulesMeta
 
     CUSTOM_FIELDS_TYPE = 'media'
 
