@@ -12,12 +12,15 @@ from wtforms import Form, StringField, PasswordField, validators
 from wtforms import HiddenField
 
 from mrt.forms.meetings import BaseParticipantForm
+from mrt.forms.meetings.participant import _RulesMixin, _RulesMeta
 from mrt.forms.fields import RegistrationImageField, RegistrationDocumentField
 from mrt.models import db, User, CustomField
 from mrt import utils
 
 
-class RegistrationForm(BaseParticipantForm):
+class RegistrationForm(_RulesMixin, BaseParticipantForm):
+
+    Meta = _RulesMeta
 
     # prevent robots from abusing
     TIME_LIMIT = 2  # seconds
