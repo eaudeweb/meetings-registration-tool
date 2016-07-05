@@ -14,14 +14,17 @@ from rq.job import Job as JobRedis
 from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
+from sqlalchemy_utils.types.country import Country
 
 from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
+from mrt.models import get_participants_full
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize
 from mrt.meetings.mixins import PermissionRequiredMixin
+from mrt.utils import generate_excel
 
 
 _PRINTOUT_MARGIN = {'top': '0.5in', 'bottom': '0.5in', 'left': '0.8in',
@@ -559,6 +562,7 @@ def _process_event_list(meeting_id, title, event_ids):
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
 
+
 def _process_document_distribution(meeting_id, title, flag):
     g.meeting = Meeting.query.get(meeting_id)
     query = DocumentDistribution._get_query(flag)
@@ -575,6 +579,7 @@ def _process_document_distribution(meeting_id, title, flag):
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
 
+
 def _process_admission(meeting_id, flag, category_tags):
     g.meeting = Meeting.query.get(meeting_id)
     category_tags = (CategoryTag.query
@@ -587,7 +592,7 @@ def _process_admission(meeting_id, flag, category_tags):
         title = 'General admission'
     else:
         title = (', '.join([tag.label for tag in category_tags])
-            + ' admission')
+                 + ' admission')
     context = {'participants': participants,
                'title': title,
                'flag': flag,
@@ -599,3 +604,78 @@ def _process_admission(meeting_id, flag, category_tags):
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='landscape',
                        context=context).as_rq()
+
+
+class ParticipantsExport(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
+
+    JOB_NAME = 'participants excel'
+
+    def post(self):
+        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME)
+        return redirect(url_for('meetings.participants'))
+
+
+def _process_participants_excel(meeting_id):
+    g.meeting = Meeting.query.get(meeting_id)
+    participants = get_participants_full(g.meeting.id)
+
+    custom_fields = (
+        g.meeting.custom_fields
+        .filter_by(custom_field_type=CustomField.PARTICIPANT)
+        .filter(CustomField.field_type.notin_((unicode(CustomField.IMAGE),
+                                               unicode(CustomField.DOCUMENT))))
+        .order_by(CustomField.sort))
+
+    columns = [cf.slug for cf in custom_fields]
+    header = [cf.label.english for cf in custom_fields]
+
+    added_custom_fields = custom_fields.filter_by(is_primary=False)
+
+    rows = []
+
+    for p in participants:
+        data = {}
+        data['title'] = p.title.value
+        data['first_name'] = p.first_name
+        data['last_name'] = p.last_name
+        data['badge_name'] = p.name_on_badge
+        data['country'] = p.country.name if p.country else None
+        data['email'] = p.email
+        data['language'] = getattr(p.language, 'value', '-')
+        data['category_id'] = p.category.title
+        data['represented_country'] = (
+            p.represented_country.name if p.represented_country else None)
+        data['represented_region'] = (
+            p.represented_region.value if p.represented_region else None)
+        data['represented_organization'] = p.represented_organization
+        data['attended'] = 'Yes' if p.attended else None
+        data['verified'] = 'Yes' if p.verified else None
+        data['credentials'] = 'Yes' if p.credentials else None
+
+        for custom_field in added_custom_fields:
+            if custom_field .field_type == CustomField.MULTI_CHECKBOX:
+                custom_value = custom_field.custom_field_values.filter_by(participant=p).all()
+            else:
+                custom_value = custom_field.custom_field_values.filter_by(participant=p).first()
+
+            if not custom_value:
+                continue
+
+            if custom_field.field_type == CustomField.COUNTRY:
+                custom_value = Country(custom_value.value).name
+            elif custom_field.field_type == CustomField.MULTI_CHECKBOX:
+                custom_value = ', '.join([unicode(v.choice) for v in custom_value])
+            else:
+                custom_value = custom_value.value
+
+            data[custom_field.slug] = custom_value
+
+        rows.append([data.get(k) or '' for k in columns])
+
+    filename = 'participants_{}.xls'.format(g.meeting.acronym)
+    file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / filename
+    generate_excel(header, rows, str(file_path))
+    return url_for('meetings.printouts_download', filename=filename)

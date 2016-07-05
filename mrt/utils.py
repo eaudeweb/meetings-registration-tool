@@ -6,7 +6,6 @@ import xlwt
 from datetime import date
 from json import JSONEncoder as _JSONEncoder
 from PIL import Image
-from StringIO import StringIO
 from unicodedata import normalize
 from uuid import uuid4
 
@@ -185,7 +184,7 @@ def read_file(f):
     f.close()
 
 
-def generate_excel(header, rows):
+def generate_excel(header, rows, filename):
     style = xlwt.XFStyle()
     normalfont = xlwt.Font()
     headerfont = xlwt.Font()
@@ -206,10 +205,7 @@ def generate_excel(header, rows):
         for col in range(len(item)):
             ws.row(row).set_cell_text(col, unicode(item[col]), style)
 
-    output = StringIO()
-    wb.save(output)
-
-    return output.getvalue()
+    wb.save(filename)
 
 
 def get_translation(locale):

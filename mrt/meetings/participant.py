@@ -1,10 +1,9 @@
 from functools import wraps
-from sqlalchemy_utils.types.country import Country
 from werkzeug.utils import HTMLBuilder
 from path import path
 
 from flask import g, request, redirect, url_for, jsonify, json
-from flask import render_template, flash, Response
+from flask import render_template, flash
 from flask import current_app as app
 from flask.ext.login import current_user as user
 from flask.views import MethodView
@@ -21,16 +20,14 @@ from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.mixins import FilterView
 
 from mrt.mail import send_single_message
-from mrt.models import db, Participant, CustomField, Category, Phrase
-from mrt.models import Rule
-from mrt.models import search_for_participant, get_participants_full
+from mrt.models import db, Participant, CustomField, Category, Phrase, Rule
+from mrt.models import search_for_participant
 
 from mrt.definitions import BADGE_W, BADGE_H, LABEL_W, LABEL_H, ENVEL_W
 from mrt.definitions import ENVEL_H, ACK_W, ACK_H
 from mrt.pdf import PdfRenderer
 from mrt.signals import activity_signal
-from mrt.utils import generate_excel, set_language
-from mrt.utils import JSONEncoder
+from mrt.utils import set_language, JSONEncoder
 
 
 def _check_category(category_type):
@@ -604,71 +601,3 @@ class ParticipantAcknowledgePDF(PermissionRequiredMixin, MethodView):
                            width=ACK_W, height=ACK_H,
                            orientation='portrait', footer=False,
                            context=context).as_response()
-
-
-class ParticipantsExport(PermissionRequiredMixin, MethodView):
-
-    permission_required = ('manage_meeting', 'view_participant',
-                           'manage_participant')
-
-    def get(self):
-        participants = get_participants_full(g.meeting.id)
-
-        custom_fields = (
-            g.meeting.custom_fields
-            .filter_by(custom_field_type=CustomField.PARTICIPANT)
-            .filter(CustomField.field_type.notin_((unicode(CustomField.IMAGE),
-                                                   unicode(CustomField.DOCUMENT))))
-            .order_by(CustomField.sort))
-
-        columns = [cf.slug for cf in custom_fields]
-        header = [cf.label.english for cf in custom_fields]
-
-        added_custom_fields = custom_fields.filter_by(is_primary=False)
-
-        rows = []
-
-        for p in participants:
-            data = {}
-            data['title'] = p.title.value
-            data['first_name'] = p.first_name
-            data['last_name'] = p.last_name
-            data['badge_name'] = p.name_on_badge
-            data['country'] = p.country.name if p.country else None
-            data['email'] = p.email
-            data['language'] = getattr(p.language, 'value', '-')
-            data['category_id'] = p.category.title
-            data['represented_country'] = (
-                p.represented_country.name if p.represented_country else None)
-            data['represented_region'] = (
-                p.represented_region.value if p.represented_region else None)
-            data['represented_organization'] = p.represented_organization
-            data['attended'] = 'Yes' if p.attended else None
-            data['verified'] = 'Yes' if p.verified else None
-            data['credentials'] = 'Yes' if p.credentials else None
-
-            for custom_field in added_custom_fields:
-                if custom_field .field_type == CustomField.MULTI_CHECKBOX:
-                    custom_value = custom_field.custom_field_values.filter_by(participant=p).all()
-                else:
-                    custom_value = custom_field.custom_field_values.filter_by(participant=p).first()
-
-                if not custom_value:
-                    continue
-
-                if custom_field.field_type == CustomField.COUNTRY:
-                    custom_value = Country(custom_value.value).name
-                elif custom_field.field_type == CustomField.MULTI_CHECKBOX:
-                    custom_value = ', '.join([unicode(v.choice) for v in custom_value])
-                else:
-                    custom_value = custom_value.value
-
-                data[custom_field.slug] = custom_value
-
-            rows.append([data.get(k) or '' for k in columns])
-
-        return Response(
-            generate_excel(header, rows),
-            mimetype='application/vnd.ms-excel',
-            headers={'Content-Disposition': 'attachment; filename=%s.xls'
-                     % 'registration'})
