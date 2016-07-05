@@ -73,17 +73,18 @@
   </div> {# table-responsive #}
 
   <div class="actions">
-    {% if has_perm('manage_participant') %}
-      <a href="{{ url_for('.participant_edit') }}" class="btn btn-primary btn-sm"
-         id="participant_add">
-        <span class="glyphicon glyphicon-plus"></span>
-        Add a new participant
-      </a>
-    {% endif %}
+    <form method="POST" action="{{ url_for('.participants_export') }}">
+      {% if has_perm('manage_participant') %}
+        <a href="{{ url_for('.participant_edit') }}"
+           class="btn btn-primary btn-sm"
+           id="participant_add">
+          <span class="glyphicon glyphicon-plus"></span>
+          Add a new participant
+        </a>
+      {% endif %}
 
-    <a href="{{ url_for('.participants_export') }}" class="btn btn-default btn-sm">
-      Export to excel
-    </a>
+      <button class="btn btn-sm btn-default" type="submit">Export to excel</button>
+    </form>
   </div>
 
   <div class="hidden">
