@@ -1,7 +1,8 @@
+from flask import request, redirect, url_for
 
 from contrib.cites_extra_views.printouts import _process_verification
 from contrib.cites_extra_views.printouts import VerificationList as _VerificationList
-from flask import request, redirect, url_for
+
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.meetings.printouts import _process_provisional_list
 from mrt.meetings.printouts import ProvisionalList as _ProvisionalList

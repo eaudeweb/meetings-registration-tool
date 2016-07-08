@@ -118,7 +118,7 @@ def create_app(config={}):
                 'DEFAULT': Participant.DEFAULT,
                 'DEFAULT_MEDIA': Participant.DEFAULT_MEDIA,
             },
-            'LANGUAGES_MAP': 'LANGUAGES_MAP',
+            'LANGUAGES_MAP': LANGUAGES_MAP,
         }
 
     login_manager = LoginManager()
