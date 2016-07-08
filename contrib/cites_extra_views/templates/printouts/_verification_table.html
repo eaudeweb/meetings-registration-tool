@@ -20,9 +20,6 @@
           {% if g.meeting.address_field_id %}
           <th>Address</th>
           {% endif %}
-          {% if g.meeting.telephone_field_id %}
-          <th>Telephone</th>
-          {% endif %}
           <th>Email</th>
         </tr>
       </thead>
@@ -42,9 +39,6 @@
           <td>{{ participant.country }}</td>
           {% if g.meeting.address_field_id %}
           <td>{{ participant.address_value or '' }}</td>
-          {% endif %}
-          {% if g.meeting.telephone_field_id %}
-          <td>{{ participant.telephone_value or '' }}</td>
           {% endif %}
           <td>{{ participant.email }}</td>
         </tr>

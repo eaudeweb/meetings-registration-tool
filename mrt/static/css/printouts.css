@@ -37,3 +37,78 @@ table tr.highlight th {
 tr {
     page-break-inside: avoid;
 }
+
+
+.printout-item-container .pigeon-holes td,
+.printout-item-container .pigeon-holes th {
+    font-weight: bold;
+    font-size: 1.4em;
+    border-top: 1px solid #000;
+    padding: 10px;
+}
+
+.printout-item-container .language-category {
+    border: medium none !important;
+    font-size: 14px !important;
+    padding-left: 0px !important;
+}
+
+.printout-item-container .language-label {
+    background: #000 none repeat scroll 0% 0%;
+    font-size: 14px !important;
+    padding: 0.2em 0.5em;
+    color: #FFF;
+}
+
+.printout-item-container caption {
+    text-align: left;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.printout-item-container .quantity {
+    width: 10%;
+}
+
+.printout-item-container .category {
+    background: #F9F9F9 none repeat scroll 0% 0%;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.printout-item-container .printout-representing {
+    width: 36%;
+}
+
+.printout-meeting-title {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.printout-logo {
+    width: 0.6097in;
+}
+
+.printout-item-container .subheader {
+    margin: 15px;
+    background: #CCC;
+    border: 1px solid black;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.printout-item-container .group {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.title {
+    margin-left: auto;
+    margin-right: auto;
+}
+.title img {
+    margin: 20px;
+}

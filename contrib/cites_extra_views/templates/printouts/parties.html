@@ -8,7 +8,7 @@
 {% block breadcrumb %}
 
   {{ breadcrumb( [
-      ('', 'Provisional list'),
+      ('', title),
   ] ) }}
 
 {% endblock %}
@@ -29,9 +29,19 @@
   <form method="GET">
     <div class="panel panel-default">
       <div class="panel-heading"><b>{{ title }}</b></div>
-      <div class="panel-body">
+      <div class="panel-body" id="filter-form">
+        <h4> Flag </h4>
         {{ flag_form.flag(
             class_="form-control form-reset-control select") }}
+        <h4> Category tags </h4>
+        {{ category_tags_form.category_tags(
+            class_="form-control form-reset-control select",
+            **{'data-placeholder': 'Select one or more category tags' }) }}
+        <h4> Categories </h4>
+        {{ categories_form.categories(
+            class_="form-control form-reset-control select",
+            **{'data-placeholder': 'Select one or more categories',
+               'data-href': url_for('meetings.categories_for_tags') }) }}
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>
@@ -50,21 +60,25 @@
     </div>
 
     {% with title=title %}
-      {% include "meetings/printouts/_provisional_list_table.html" %}
+      {% include "printouts/_parties_table.html" %}
     {% endwith %}
 
     <div class="printout-loading"></div>
 
     <ul class="pagination">
       {% if pagination.has_prev %}
-        {% set prev_url = url_for('.printouts_provisional_list',
+        {% set prev_url = url_for('.printouts_parties',
                                   page=pagination.prev().page,
+                                  category_tags=category_tags,
+                                  categories=categories,
                                   flag=flag.slug) %}
         <li><a href="{{ prev_url }}">Previous</a></li>
       {% endif %}
       {% if pagination.has_next %}
-        {% set next_url = url_for('.printouts_provisional_list',
+        {% set next_url = url_for('.printouts_parties',
                                   page=pagination.next().page,
+                                  category_tags=category_tags,
+                                  categories=categories,
                                   flag=flag.slug) %}
         <li><a href="{{ next_url }}" class="next">Next</a></li>
       {% endif %}

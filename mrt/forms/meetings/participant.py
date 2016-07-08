@@ -231,3 +231,29 @@ class CategoryTagForm(BaseForm):
         category_tags_query = CategoryTag.query.order_by(CategoryTag.label)
         self.category_tags.choices = [
             (tag.id, tag.label) for tag in category_tags_query]
+
+
+class ParticipantCategoriesForm(BaseForm):
+
+    categories = fields.SelectMultipleField()
+    flag = fields.SelectField()
+
+    def __init__(self, *args, **kwargs):
+        super(ParticipantCategoriesForm, self).__init__(*args, **kwargs)
+        categories = (Category.query.filter_by(
+                      meeting=g.meeting, category_type=Category.PARTICIPANT)
+                      .order_by(Category.sort))
+        self.categories.choices = [(c.id, c.title) for c in categories]
+
+
+class MediaCategoriesForm(BaseForm):
+
+    categories = fields.SelectMultipleField()
+    flag = fields.SelectField()
+
+    def __init__(self, *args, **kwargs):
+        super(MediaCategoriesForm, self).__init__(*args, **kwargs)
+        categories = Category.query.filter_by(
+            meeting=g.meeting,
+            category_type=Category.MEDIA)
+        self.categories.choices = [(c.id, c.title) for c in categories]

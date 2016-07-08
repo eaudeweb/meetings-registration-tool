@@ -44,6 +44,7 @@ def app(request, tmpdir):
         'TEMPLATES_PATH': templates_path,
         'MAIL_SUPPRESS_SEND': True,
         'TRANSLATIONS': _TRANSLATIONS,
+        'BLUEPRINTS': ('aewa_extra_views', 'cites_extra_views',)
     }
 
     app = create_app(test_config)

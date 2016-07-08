@@ -259,4 +259,12 @@ $(function () {
 
     $(".picker").datetimepicker({pickTime: false});
 
+    if($('#filter-form').length == 1) {
+        var categories = $('#categories');
+        categories.remoteChained({
+          parents: '#category_tags',
+          url: categories.data('href')
+        });
+    }
+
 });

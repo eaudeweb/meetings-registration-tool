@@ -1,8 +1,7 @@
-from flask import Blueprint, g
-from flask import current_app as app
+from flask import Blueprint
 
-from mrt.models import Meeting
 from mrt.meetings import views
+from mrt.common import add_meeting_id, add_meeting_global
 
 
 meetings = Blueprint('meetings', __name__, url_prefix='/meetings')
@@ -212,11 +211,17 @@ meetings.add_url_rule(
     '/<int:meeting_id>/printouts/document_distribution',
     view_func=views.DocumentDistribution.as_view('printouts_document_distribution'))
 meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/pigeon_holes',
+    view_func=views.PigeonHoles.as_view('printouts_pigeon_holes'))
+meetings.add_url_rule(
     '/<int:meeting_id>/printouts/provisionallist',
     view_func=views.ProvisionalList.as_view('printouts_provisional_list'))
 meetings.add_url_rule(
     '/<int:meeting_id>/printouts/admission',
     view_func=views.Admission.as_view('printouts_admission'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/printouts/categories_for_tags',
+    view_func=views.CategoriesForTags.as_view('categories_for_tags'))
 
 # roles
 meetings.add_url_rule('/<int:meeting_id>/settings/roles',
@@ -293,7 +298,7 @@ meetings.add_url_rule(
     view_func=badge_template)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/badge/templates/'
-    '<any(default, default_shifted, standard, optimized, default_front_and_back):badge_template>',
+    '<any(default, default_shifted, standard, optimized, default_front_and_back, shifted_front_and_back):badge_template>',
     view_func=badge_template)
 
 # manage duplicates
@@ -302,25 +307,5 @@ meetings.add_url_rule(
     view_func=views.ManageDuplicates.as_view('duplicates'))
 
 
-@meetings.url_defaults
-def add_meeting_id(endpoint, values):
-    meeting = getattr(g, 'meeting', None)
-    if 'meeting_id' in values or not meeting:
-        return
-    if app.url_map.is_endpoint_expecting(endpoint, 'meeting_id'):
-        values.setdefault('meeting_id', meeting.id)
-    if app.url_map.is_endpoint_expecting(endpoint, 'meeting_acronym'):
-        values.setdefault('meeting_acronym', meeting.acronym)
-
-
-@meetings.url_value_preprocessor
-def add_meeting_global(endpoint, values):
-    g.meeting = None
-    if app.url_map.is_endpoint_expecting(endpoint, 'meeting_id'):
-        meeting_id = values.pop('meeting_id', None)
-        if meeting_id:
-            g.meeting = Meeting.query.get_or_404(meeting_id)
-    if app.url_map.is_endpoint_expecting(endpoint, 'meeting_acronym'):
-        acronym = values.pop('meeting_acronym', None)
-        if acronym:
-            g.meeting = Meeting.query.filter_by(acronym=acronym).first_or_404()
+meetings.url_defaults(add_meeting_id)
+meetings.url_value_preprocessor(add_meeting_global)

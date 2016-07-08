@@ -12,23 +12,27 @@
 
     {% for language, new_people in participants %}
 
-      <h3> {{ language|upper }} </h3>
+      <table id="{{ language|lower }}-container" class="table {{ table_class }}">
 
-      <table id="{{ language|lower }}-container" class="table table-bordered table-condensed">
+      <caption>
+        <span class="language-label">{{ (language or "no language")|upper }}</span>
+      </caption>
 
+        {% if printout_type == 'distribution' %}
         <thead>
           <tr class="column-headers">
-          <th>Qty</th>
-          <th>Delegation</th>
+            <th>Qty</th>
+            <th>Delegation</th>
           </tr>
         </thead>
+        {% endif %}
 
         <tbody>
 
           {% for category_title, list in new_people|groupby('category.title.english') %}
 
             <tr class="highlight">
-              <th colspan="4" id="category-name" class = "text-center" data-id="{{ category_title|slugify }}">
+              <th colspan="2" id="category-name" class = "category" data-id="{{ category_title|slugify }}">
                 {{ category_title }} - Total: {{ list|length }}
               </th>
             </tr>
@@ -36,8 +40,15 @@
             {% for representing, persons in list|groupby('representing') %}
 
               <tr>
-                <td class="text-center">{{ persons|length }}</td>
-                <td id="representing-name" data-id="{{ representing|safe|slugify }}">{{ representing|safe }}</td>
+                <td class="text-center quantity">
+                  {{ persons|length }}
+                  {% if printout_type == 'pigeon' %}
+                    {{ language.value[0] if language else "N/A" }}
+                  {% endif %}
+                </td>
+                <td id="representing-name" data-id="{{ representing|safe|slugify }}">
+                  {{ (representing or "Not specified") |safe }}
+                </td>
               </tr>
 
             {% endfor %}

@@ -1,4 +1,4 @@
-{% from "_bits.html" import meeting_title_all_languages %}
+{% from "_bits.html" import meeting_title_all_languages with context %}
 {% set product_logo = get_logo('PRODUCT_LOGO') %}
 {% set product_side_logo = get_logo('PRODUCT_SIDE_LOGO') %}
 
@@ -11,7 +11,7 @@
         <td>
           <div class="printout-doc-title">
             <h4>{{ meeting_title_all_languages() }}</h4>
-            <h2>{{ title }} - Total: {{ count }}</h2>
+            <h4>{{ title }} - Total: {{ count }}</h4>
           </div>
         </td>
 
@@ -33,11 +33,12 @@
         {% for participant in participant_group %}
           <div style="page-break-inside: avoid;">
             {% if outer_loop.first and loop.first %}
-            <h4 class="highlight text-center">
-              {{ group.title.english }} /
-              {{ group.title.french }} /
-              {{ group.title.spanish }}
-            </h4>
+            <h5 class="highlight text-center">
+              {% for lang in config.TRANSLATIONS %}
+                {{ group.title[lang] }}
+                {% if not loop.last %}/{% endif %}
+              {% endfor %}
+            </h5>
             {% endif %}
             {% if loop.first %}
               <hr>
@@ -46,23 +47,33 @@
               </b></h5>
             {% endif %}
             <dl>
-              <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
-              {% if participant.address_value %}
-                <dd style="width:50%;">{{ participant.address_value }}</dd>
-              {% endif %}
-              {% if participant.country and participant.country.name not in representing %}
-                <dd>{{ participant.country }}</dd>
-              {% endif %}
+              <dd style="margin-bottom: 5px;">
+                {{ participant.title }}
+                {{ participant.first_name }}
+                {{ participant.last_name }}
+              </dd>
+              <dd>{{ participant.functional_title_value }}</dd>
+              <dd>{{ participant.department_value }}</dd>
+              <dd>{{ participant.organization_value }}</dd>
+              <dd>{{ participant.address_value }}</dd>
+              <dd>
+                {{ participant.post_code_value}}
+                {{ participant.city_value}}
+              </dd>
+              <dd style="margin-bottom: 5px;">
+                {% for lang in config.TRANSLATIONS %}
+                  {{ participant.country|country_in(LANGUAGES_MAP[lang]) }}
+                  {% if not loop.last %}/{% endif %}
+                {% endfor %}
+              </dd>
               {% if participant.telephone_value %}
-                <dd style="padding-left:40px;">T: {{ participant.telephone_value }}</dd>
-              {% endif %}
-              {% if participant.hardcoded_field_value('mobile') %}
-                <dd style="padding-left:40px;">M: {{ participant.hardcoded_field_value('mobile') }}</dd>
+                <dd>Tel: {{ participant.telephone_value }}</dd>
               {% endif %}
               {% if participant.hardcoded_field_value('fax') %}
-                <dd style="padding-left:40px;">F: {{ participant.hardcoded_field_value('fax') }}</dd>
+                <dd>Fax:
+                    {{ participant.hardcoded_field_value('fax') }}</dd>
               {% endif %}
-              <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
+              <dd>E-mail: {{ participant.email }}</dd>
             </dl>
           </div>
         {% endfor %}

@@ -1,0 +1,97 @@
+{% from "_bits.html" import meeting_title_all_languages with context %}
+{% set product_logo = get_logo('PRODUCT_LOGO') %}
+{% set product_side_logo = get_logo('PRODUCT_SIDE_LOGO') %}
+
+<div class="printout-doc-title">
+  <h2>{{ title }} - Total: {{ count }}</h2>
+</div>
+
+<div class="printout-item-container">
+
+    {% for representing, participant_group in participants|selectattr('representing')|groupby('representing') %}
+        {% set outer_loop = loop %}
+        {% for participant in participant_group %}
+          <div style="page-break-inside: avoid; {% if loop.last and not outer_loop.last %} page-break-after: always; {% endif %}">
+            {% if loop.first %}
+              <p class="group">
+                {{ representing|safe }}
+              </p>
+              <div class="subheader">
+                  Please check and return to the {{ config.PRODUCT_TITLE }} Secretariat at the Registration desk
+                  as soon as possible. Thank you<br/><br/>
+                  Sírvase verificar y regresar a la Secretaría {{ config.PRODUCT_TITLE }} en el área de inscripción
+                  de participantes a la brevedad. Gracias<br/><br/>
+                  Veuillez vérifier et retourner au Secrétariat {{ config.PRODUCT_TITLE }} au bureau d'inscriptions
+                  des participants aussi rapidement que possible. Merci
+              </div>
+            {% endif %}
+            <dl>
+              <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
+              {% if participant.address_value %}
+                <dd style="width:50%;">{{ participant.address_value }}</dd>
+              {% endif %}
+              {% if participant.country and participant.country.name not in representing %}
+                <dd>{{ participant.country }}</dd>
+              {% endif %}
+              {% if participant.hardcoded_field_value('telephone') %}
+                <dd style="padding-left:40px;">T: {{ participant.hardcoded_field_value('telephone') }}</dd>
+              {% endif %}
+              {% if participant.hardcoded_field_value('mobile') %}
+                <dd style="padding-left:40px;">M: {{ participant.hardcoded_field_value('mobile') }}</dd>
+              {% endif %}
+              {% if participant.hardcoded_field_value('fax') %}
+                <dd style="padding-left:40px;">F: {{ participant.hardcoded_field_value('fax') }}</dd>
+              {% endif %}
+              <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
+            </dl>
+          <hr>
+          </div>
+        {% endfor %}
+
+    {% endfor %}
+
+    {% for participant in participants|rejectattr('representing') %}
+
+      {% if loop.first and participant.id != participants.first().id %}
+        <div style="page-break-before: always;">
+        </div>
+      {% endif %}
+
+      <div style="page-break-inside: avoid;">
+      {% if loop.first %}
+        <p class="group">
+          Not specified
+        </p>
+        <div class="subheader">
+            Please check and return to the {{ config.PRODUCT_TITLE }} Secretariat at the Registration desk
+            as soon as possible. Thank you<br/><br/>
+            Sírvase verificar y regresar a la Secretaría {{ config.PRODUCT_TITLE }} en el área de inscripción
+            de participantes a la brevedad. Gracias<br/><br/>
+            Veuillez vérifier et retourner au Secrétariat {{ config.PRODUCT_TITLE }} au bureau d'inscriptions
+            des participants aussi rapidement que possible. Merci
+        </div>
+      {% endif %}
+        <dl>
+          <dd style="margin-bottom: 5px;">{{ participant.last_name|upper }} {{ participant.first_name }}</dd>
+          {% if participant.address_value %}
+            <dd style="width:50%;">{{ participant.address_value }}</dd>
+          {% endif %}
+          {% if participant.country and participant.country.name not in representing %}
+            <dd>{{ participant.country }}</dd>
+          {% endif %}
+          {% if participant.telephone_value %}
+            <dd style="padding-left:40px;">T: {{ participant.telephone_value }}</dd>
+          {% endif %}
+          {% if participant.hardcoded_field_value('mobile') %}
+            <dd style="padding-left:40px;">M: {{ participant.hardcoded_field_value('mobile') }}</dd>
+          {% endif %}
+          {% if participant.hardcoded_field_value('fax') %}
+            <dd style="padding-left:40px;">F: {{ participant.hardcoded_field_value('fax') }}</dd>
+          {% endif %}
+          <dd style="padding-left:40px;">E: {{ participant.email }}</dd>
+        </dl>
+      </div>
+      <hr>
+    {% endfor %}
+
+</div> {# printout-item-container #}

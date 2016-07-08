@@ -101,3 +101,7 @@ ENVEL_W = '9.0in'
 ENVEL_H = '6.4in'
 ACK_W = '8.26in'
 ACK_H = '11.7in'
+
+
+LANGUAGES_MAP = {'english': 'en', 'french': 'fr', 'spanish': 'es'}
+LANGUAGES_ISO_MAP = {v: k for k, v in LANGUAGES_MAP.items()}
