@@ -23,7 +23,7 @@ Debian based systems
 Install these before setting up an environment::
 
     apt-get install -y python-setuptools python-dev python-virtualenv git \
-    postgresql postgresql-contrib postgresql-server-dev \
+    postgresql postgresql-contrib postgresql-server-dev-all \
     libxml2-dev libxslt1-dev redis-server libjpeg-dev
 
 
@@ -57,12 +57,12 @@ This will work only if you have your public key stored in _SSH keys_ list of a u
 
 4. Create a configuration file::
 
-To set up a configuration file run the following commands and look in
-settings.example for an settings example file::
+To set up a configuration file run the following commands and customize
+the settings file::
 
     mkdir -p instance
     echo '*' >> instance/.gitignore
-    touch instance/settings.py
+    cp settings.example instance/settings.py
 
 Complete the PRODUCT_NAME and PRODUCT_TITLE settings.
 
@@ -281,5 +281,4 @@ Contacts
 People involved in this project are:
 
 * Cornel Nitu (cornel.nitu at eaudeweb.ro)
-* Alex Eftimie (alex.eftimie at eaudeweb.ro)
-* Dragos Catarahia (dragos.catarahia at eaudeweb.ro)
+* Iulia Chiriac (iulia.chiriac at eaudeweb.ro)
