@@ -54,19 +54,19 @@
 
   </div> {# table-responsive #}
 
-  <div class="actions">
-    <form method="POST" action="{{ url_for('.media_participants_export') }}">
-      {% if has_perm('manage_media_participant') %}
+  {% if has_perm('manage_media_participant') %}
+    <div class="actions">
+      <form method="POST" action="{{ url_for('.media_participants_export') }}">
         <a href="{{ url_for('.media_participant_edit') }}"
            class="btn btn-primary btn-sm"
            id="media_participant_add">
           <span class="glyphicon glyphicon-plus"></span>
           Add a new media participant
         </a>
-      {% endif %}
 
-      <button class="btn btn-sm btn-default" type="submit">Export to excel</button>
-    </form>
-  </div>
+        <button class="btn btn-sm btn-default" type="submit">Export to excel</button>
+      </form>
+    </div>
+  {% endif %}
 
 {% endblock %}
