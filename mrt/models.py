@@ -1238,14 +1238,14 @@ def search_for_participant(search, queryset=None):
     )
 
 
-def get_participants_full(meeting_id):
+def get_participants_full(meeting_id, participant_type):
     qs = (
         Participant.query
         .outerjoin(Participant.custom_field_values,
                    CustomFieldValue.custom_field)
+        .filter(Participant.participant_type == participant_type)
         .with_entities(Participant, CustomField.slug, CustomFieldValue.value)
         .current_meeting()
-        .participants()
         .order_by(Participant.id.desc())
     )
 

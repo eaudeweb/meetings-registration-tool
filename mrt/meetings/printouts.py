@@ -640,17 +640,31 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants excel'
 
     def post(self):
-        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME)
+        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME,
+                               Participant.PARTICIPANT)
         return redirect(url_for('meetings.participants'))
 
 
-def _process_participants_excel(meeting_id):
+class MediaParticipantsExport(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_media_participant',
+                           'manage_media_participant')
+
+    JOB_NAME = 'media participants excel'
+
+    def post(self):
+        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME,
+                               Participant.MEDIA)
+        return redirect(url_for('meetings.media_participants'))
+
+
+def _process_participants_excel(meeting_id, participant_type):
     g.meeting = Meeting.query.get(meeting_id)
-    participants = get_participants_full(g.meeting.id)
+    participants = get_participants_full(g.meeting.id, participant_type)
 
     custom_fields = (
         g.meeting.custom_fields
-        .filter_by(custom_field_type=CustomField.PARTICIPANT)
+        .filter_by(custom_field_type=participant_type)
         .filter(CustomField.field_type.notin_((unicode(CustomField.IMAGE),
                                                unicode(CustomField.DOCUMENT))))
         .order_by(CustomField.sort))
@@ -682,7 +696,7 @@ def _process_participants_excel(meeting_id):
         data['credentials'] = 'Yes' if p.credentials else None
 
         for custom_field in added_custom_fields:
-            if custom_field .field_type == CustomField.MULTI_CHECKBOX:
+            if custom_field.field_type == CustomField.MULTI_CHECKBOX:
                 custom_value = custom_field.custom_field_values.filter_by(participant=p).all()
             else:
                 custom_value = custom_field.custom_field_values.filter_by(participant=p).first()

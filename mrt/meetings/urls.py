@@ -125,7 +125,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/media_participants/<int:participant_id>/detail',
     view_func=views.MediaParticipantDetail.as_view('media_participant_detail'))
-
+meetings.add_url_rule(
+    '/<int:meeting_id>/media_participants/export',
+    view_func=views.MediaParticipantsExport.as_view('media_participants_export'))
 
 # categories
 meetings.add_url_rule('/<int:meeting_id>/settings/categories',
@@ -284,7 +286,7 @@ meetings.add_url_rule('/<int:meeting_id>/settings/rules/'
                       '<any(participant, media):rule_type>/add',
                       view_func=rule_edit_func)
 meetings.add_url_rule('/<int:meeting_id>/settings/rules/'
-                     '<any(participant, media):rule_type>/<int:rule_id>/edit',
+                      '<any(participant, media):rule_type>/<int:rule_id>/edit',
                       view_func=rule_edit_func)
 meetings.add_url_rule(
     '/<int:meeting_id>/settings/rules/<any(participant, media):rule_type>/data',
