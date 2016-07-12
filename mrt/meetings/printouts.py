@@ -715,7 +715,7 @@ def _process_participants_excel(meeting_id, participant_type):
 
         rows.append([data.get(k) or '' for k in columns])
 
-    filename = 'participants_{}.xls'.format(g.meeting.acronym)
+    filename = '{}_list_{}.xls'.format(participant_type, g.meeting.acronym)
     file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / filename
     generate_excel(header, rows, str(file_path))
     return url_for('meetings.printouts_download', filename=filename)
