@@ -11,15 +11,16 @@ from mrt.models import Meeting
 from .factories import MeetingTypeFactory, MeetingFactory, normalize_data
 
 
-def add_participant_custom_fields(meeting):
+def add_participant_custom_fields(meeting, form_class=ParticipantDummyForm):
     """Adds participants fields as CustomFields to meeting."""
-    for i, field in enumerate(ParticipantDummyForm()):
+    for i, field in enumerate(form_class()):
         custom_field = CustomField()
         custom_field.meeting = meeting
         custom_field.slug = field.name
         custom_field.label = Translation(english=unicode(field.label.text))
         custom_field.required = field.flags.required
         custom_field.field_type = _CUSTOM_FIELD_MAPPER[field.type]
+        custom_field.custom_field_type = form_class.CUSTOM_FIELD_TYPE
         custom_field.is_primary = True
         custom_field.sort = i + 1
         custom_field.visible_on_registration_form = True

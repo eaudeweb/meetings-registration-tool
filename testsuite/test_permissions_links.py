@@ -5,6 +5,7 @@ from testsuite.factories import RoleUserMeetingFactory, ParticipantFactory
 from testsuite.factories import MediaParticipantFactory, StaffFactory
 from testsuite.factories import MeetingFactory
 from testsuite.utils import add_participant_custom_fields
+from mrt.forms.meetings.meeting import MediaParticipantDummyForm
 
 from mrt.models import Category
 
@@ -83,6 +84,7 @@ def test_meeting_tab_menu(app, url_name, perms, element_id, status):
     client = app.test_client()
     with app.test_request_context():
         add_participant_custom_fields(role.meeting)
+        add_participant_custom_fields(role.meeting, MediaParticipantDummyForm)
         _login_user(client, role.user)
         _test(client, url_for(url_name, meeting_id=role.meeting_id),
               element_id, status)

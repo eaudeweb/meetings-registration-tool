@@ -355,11 +355,11 @@ class MediaParticipantDummyForm(OrderedFieldsForm):
 
     class Meta:
         model = Participant
-        only = ('title', 'first_name', 'last_name', 'email', 'category_id')
+        only = ('title', 'first_name', 'last_name', 'email', 'category_id', 'verified')
         visible_on_registration_form = (
             'title', 'first_name', 'last_name', 'email', 'category_id')
         field_order = ('title', 'first_name', 'last_name', 'email',
-                       'category_id')
+                       'category_id', 'verified')
         protected_fields = ('title', 'email', 'category_id', 'country')
 
 
@@ -371,7 +371,7 @@ class DefaultMediaParticipantDummyForm(BaseForm):
 
     class Meta:
         model = Participant
-        only = ('title', 'first_name', 'last_name', 'email')
+        only = ('title', 'first_name', 'last_name', 'email', 'verified')
         visible_on_registration_form = []
         protected_fields = []
 
