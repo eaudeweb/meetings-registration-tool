@@ -260,7 +260,7 @@ class Participant(db.Model):
         ('French', lazy_gettext('French')),
     )
     PARTICIPANT = u'participant'
-    MEDIA = 'media'
+    MEDIA = u'media'
     DEFAULT = 'default'
     DEFAULT_MEDIA = 'default_media'
     PARTICIPANT_TYPE_CHOICES = (
@@ -547,7 +547,7 @@ class CustomField(db.Model):
     )
 
     PARTICIPANT = u'participant'
-    MEDIA = 'media'
+    MEDIA = u'media'
     CUSTOM_FIELD_TYPE_CHOICES = (
         (PARTICIPANT, 'Participant'),
         (MEDIA, 'Media'),
@@ -1133,7 +1133,7 @@ class Job(db.Model):
 class Rule(db.Model):
 
     PARTICIPANT = u'participant'
-    MEDIA = 'media'
+    MEDIA = u'media'
 
     RULE_TYPE_CHOICES = (
         (PARTICIPANT, 'Participant'),

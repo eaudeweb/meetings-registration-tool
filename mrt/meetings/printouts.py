@@ -87,8 +87,8 @@ def _process_badges(meeting_id, flag, size, category_ids):
             Participant.category.has(Category.id.in_(category_ids))
         )
     if flag:
-            attr = getattr(Participant, flag)
-            participants = participants.filter(attr == True)
+        attr = getattr(Participant, flag)
+        participants = participants.filter(attr == True)
     context = {'participants': participants, 'printout_size': size}
     w, h = ('8.3in', '11.7in') if size == 'A4' else ('3.4in', '2.15in')
     return PdfRenderer('meetings/printouts/badges_pdf.html',
@@ -437,7 +437,7 @@ class Admission(PermissionRequiredMixin, MethodView):
         category_ids = []
         for tag in category_tags:
             category_ids += [category.id for category in
-                tag.categories.filter_by(meeting_id=g.meeting.id)]
+                             tag.categories.filter_by(meeting_id=g.meeting.id)]
 
         if category_ids:
             query = query.filter(Participant.category_id.in_(category_ids))
@@ -697,9 +697,11 @@ def _process_participants_excel(meeting_id, participant_type):
 
         for custom_field in added_custom_fields:
             if custom_field.field_type == CustomField.MULTI_CHECKBOX:
-                custom_value = custom_field.custom_field_values.filter_by(participant=p).all()
+                custom_value = custom_field.custom_field_values.filter_by(
+                    participant=p).all()
             else:
-                custom_value = custom_field.custom_field_values.filter_by(participant=p).first()
+                custom_value = custom_field.custom_field_values.filter_by(
+                    participant=p).first()
 
             if not custom_value:
                 continue
@@ -707,7 +709,8 @@ def _process_participants_excel(meeting_id, participant_type):
             if custom_field.field_type == CustomField.COUNTRY:
                 custom_value = Country(custom_value.value).name
             elif custom_field.field_type == CustomField.MULTI_CHECKBOX:
-                custom_value = ', '.join([unicode(v.choice) for v in custom_value])
+                custom_value = ', '.join([unicode(v.choice)
+                                          for v in custom_value])
             else:
                 custom_value = custom_value.value
 

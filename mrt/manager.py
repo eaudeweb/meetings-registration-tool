@@ -221,8 +221,8 @@ def add_verified_flag_mp(ctx):
         for meeting in Meeting.query.all():
             if meeting.settings.get('media_participant_enabled', False):
                 if meeting.custom_fields.filter_by(
-                        custom_field_type=unicode(CustomField.MEDIA),
-                        slug='verified').count() != 0:
+                        custom_field_type=CustomField.MEDIA,
+                        slug='verified').count():
                     continue
                 cf = CustomField(slug='verified',
                                  meeting_id=meeting.id,
