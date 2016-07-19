@@ -9,10 +9,12 @@ from rq import Queue, Connection, Worker
 from rq import get_failed_queue
 
 from mrt.models import redis_store, db
-from mrt.models import User, Staff, Job, CustomField, Translation, Participant, Meeting
+from mrt.models import User, Staff, Job
+from mrt.models import CustomField, Translation, Participant, Meeting
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
+
 
 @click.group()
 def cli():
@@ -210,6 +212,7 @@ def remove_missing_countries(ctx):
 
         db.session.commit()
 
+
 @cli.command()
 @click.pass_context
 def add_verified_flag_mp(ctx):
@@ -218,17 +221,16 @@ def add_verified_flag_mp(ctx):
         for meeting in Meeting.query.all():
             if meeting.settings.get('media_participant_enabled', False):
                 if meeting.custom_fields.filter_by(
-                            custom_field_type = unicode(CustomField.MEDIA),
-                            slug = 'verified').all() != []:
+                        custom_field_type=unicode(CustomField.MEDIA),
+                        slug='verified').count() != 0:
                     continue
-                cf = CustomField(slug = 'verified',
-                                meeting_id = meeting.id,
-                                field_type = CustomField.CHECKBOX,
-                                is_primary = True,
-                                custom_field_type = CustomField.MEDIA)
-                t = Translation(english='Acknowledged')
-                cf.label = t
+                cf = CustomField(slug='verified',
+                                 meeting_id=meeting.id,
+                                 field_type=CustomField.CHECKBOX,
+                                 is_primary=True,
+                                 custom_field_type=CustomField.MEDIA)
+                cf.label = Translation(english='Acknowledged')
                 cf.sort = meeting.custom_fields.filter_by(
-                        custom_field_type = CustomField.MEDIA).count() + 1
+                    custom_field_type=CustomField.MEDIA).count() + 1
                 db.session.add(cf)
         db.session.commit()

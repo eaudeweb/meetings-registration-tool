@@ -78,7 +78,7 @@ class MediaParticipants(PermissionRequiredMixin, MethodView):
         Form = custom_form_factory(self.form_class)
         form = Form()
         return render_template('meetings/participant/media/list.html',
-                                form=form)
+                               form=form)
 
 
 class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):

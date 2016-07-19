@@ -83,11 +83,12 @@ class MeetingEditForm(BaseForm):
             self.media_photo_field_id.choices += image_fields
 
             text_query = (self.obj.custom_fields
-                .filter_by(is_primary=False, is_protected=False)
-                .filter(
-                    CustomField.field_type.in_([CustomField.TEXT, CustomField.TEXT_AREA])
-                )
-            )
+                          .filter_by(is_primary=False, is_protected=False)
+                          .filter(
+                              CustomField.field_type.in_(
+                                  [CustomField.TEXT, CustomField.TEXT_AREA])
+                          )
+                          )
             text_fields = [(x.id, x.label) for x in text_query]
             self.address_field_id.choices += text_fields
             self.telephone_field_id.choices += text_fields
@@ -203,14 +204,14 @@ class MeetingCloneForm(MeetingEditForm):
             clone = copy_attributes(custom_field.__class__(), custom_field)
             for attr in translation_attrs:
                 setattr(clone, attr, copy_attributes(Translation(),
-                        getattr(custom_field, attr)))
+                                                     getattr(custom_field, attr)))
             clone.meeting = meeting
             db.session.add(clone)
 
             for choice in custom_field.choices:
                 choice_clone = CustomFieldChoice(custom_field=clone)
                 setattr(choice_clone, 'value', copy_attributes(Translation(),
-                        getattr(choice, 'value')))
+                                                               getattr(choice, 'value')))
                 db.session.add(choice_clone)
 
             db.session.flush()
@@ -356,7 +357,7 @@ class MediaParticipantDummyForm(OrderedFieldsForm):
     class Meta:
         model = Participant
         only = ('title', 'first_name', 'last_name', 'email', 'category_id',
-            'verified')
+                'verified')
         visible_on_registration_form = (
             'title', 'first_name', 'last_name', 'email', 'category_id')
         field_order = ('title', 'first_name', 'last_name', 'email',
