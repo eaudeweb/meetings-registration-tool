@@ -1132,7 +1132,7 @@ class Job(db.Model):
 
 class Rule(db.Model):
 
-    PARTICIPANT = 'participant'
+    PARTICIPANT = u'participant'
     MEDIA = 'media'
 
     RULE_TYPE_CHOICES = (

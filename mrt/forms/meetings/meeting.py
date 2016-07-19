@@ -355,7 +355,8 @@ class MediaParticipantDummyForm(OrderedFieldsForm):
 
     class Meta:
         model = Participant
-        only = ('title', 'first_name', 'last_name', 'email', 'category_id', 'verified')
+        only = ('title', 'first_name', 'last_name', 'email', 'category_id',
+            'verified')
         visible_on_registration_form = (
             'title', 'first_name', 'last_name', 'email', 'category_id')
         field_order = ('title', 'first_name', 'last_name', 'email',
