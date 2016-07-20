@@ -9,7 +9,8 @@ from rq import Queue, Connection, Worker
 from rq import get_failed_queue
 
 from mrt.models import redis_store, db
-from mrt.models import User, Staff, Job, CustomField, Translation, Participant
+from mrt.models import User, Staff, Job
+from mrt.models import CustomField, Translation, Participant, Meeting
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
@@ -209,4 +210,27 @@ def remove_missing_countries(ctx):
                            participant.represented_country.code)
                 participant.represented_country = None
 
+        db.session.commit()
+
+
+@cli.command()
+@click.pass_context
+def add_verified_flag_mp(ctx):
+    app = ctx.obj['app']
+    with app.test_request_context():
+        for meeting in Meeting.query.all():
+            if meeting.settings.get('media_participant_enabled', False):
+                if meeting.custom_fields.filter_by(
+                        custom_field_type=CustomField.MEDIA,
+                        slug='verified').count():
+                    continue
+                cf = CustomField(slug='verified',
+                                 meeting_id=meeting.id,
+                                 field_type=CustomField.CHECKBOX,
+                                 is_primary=True,
+                                 custom_field_type=CustomField.MEDIA)
+                cf.label = Translation(english='Acknowledged')
+                cf.sort = meeting.custom_fields.filter_by(
+                    custom_field_type=CustomField.MEDIA).count() + 1
+                db.session.add(cf)
         db.session.commit()

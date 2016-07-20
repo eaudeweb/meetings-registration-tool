@@ -25,7 +25,7 @@
         "ajax": participants.data("ajax"),
         "columns": [
             { "data": "last_name" },
-            { "data": "category_id" }
+            { "data": "verified", "className": "text-center" }
         ]
       });
     });
@@ -46,7 +46,7 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th>Category</th>
+          <th>{{ form.verified.label.text }}</th>
         </tr>
       </thead>
       <tbody></tbody>

@@ -72,8 +72,13 @@ class MediaParticipants(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', 'view_media_participant',
                            'manage_media_participant')
 
+    form_class = MediaParticipantEditForm
+
     def get(self):
-        return render_template('meetings/participant/media/list.html')
+        Form = custom_form_factory(self.form_class)
+        form = Form()
+        return render_template('meetings/participant/media/list.html',
+                               form=form)
 
 
 class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
@@ -126,6 +131,9 @@ class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
     def process_category_id(self, participant, val):
         return str(participant.category)
+
+    def process_verified(self, participant, val):
+        return '<span class="glyphicon glyphicon-ok"></span>' if val else ''
 
     def get_queryset(self, **opt):
         participants = Participant.query.current_meeting().media_participants()

@@ -7,7 +7,7 @@ from testsuite.factories import PhraseMeetingFactory, StaffFactory
 from testsuite.utils import add_participant_custom_fields
 
 from mrt.models import Category
-
+from mrt.forms.meetings.meeting import MediaParticipantDummyForm
 
 STATUS_OK = 200
 STATUS_DENIED = 403
@@ -93,6 +93,7 @@ def test_permissions_media_participant(app, url_name, perms, status,
                                     category__category_type=Category.MEDIA)
     client = app.test_client()
     with app.test_request_context():
+        add_participant_custom_fields(role.meeting, MediaParticipantDummyForm)
         _login_user(client, role.user)
         _test(client, url_for(url_name,
                               participant_id=media.id,
