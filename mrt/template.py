@@ -184,8 +184,8 @@ def clean_html(text, **kwargs):
     return Markup(clean(unicode(text).encode('utf-8'), **kwargs))
 
 
-def url_external(view_name, filename=None):
+def url_external(view_name, **kwargs):
     if app.config.get('DOMAIN_NAME', None):
         return app.config['DOMAIN_NAME'] + url_for(view_name,
-                                                   filename=filename)
-    return url_for(view_name, filename=filename, _external=True)
+                                                   filename=kwargs['filename'])
+    return url_for(view_name, filename=kwargs['filename'], _external=True)
