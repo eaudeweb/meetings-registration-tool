@@ -105,7 +105,7 @@ def inject_badge_context(participant):
     product_side_logo = Logo('product_side_logo')
     badge_back_logo = Logo('badge_back_logo')
 
-    participant_photo, background,  = None, None
+    participant_photo, background, = None, None
     if participant.photo:
         crop_photo = crop(path(app.config['PATH_CUSTOM_KEY']) /
                           participant.photo)
@@ -184,7 +184,8 @@ def clean_html(text, **kwargs):
     return Markup(clean(unicode(text).encode('utf-8'), **kwargs))
 
 
-def url_external(view_name):
+def url_external(view_name, **kwargs):
     if app.config.get('DOMAIN_NAME', None):
-        return app.config['DOMAIN_NAME'] + url_for(view_name)
-    return url_for(view_name, _external=True)
+        return app.config['DOMAIN_NAME'] + url_for(view_name,
+                                                   filename=kwargs['filename'])
+    return url_for(view_name, filename=kwargs['filename'], _external=True)

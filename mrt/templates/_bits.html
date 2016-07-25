@@ -273,6 +273,23 @@
 
 {% endmacro %}
 
+{% macro registration_date_view(participant) %}
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-condensed table-striped"
+             id="{{ title }}">
+        <tbody>
+            <tr>
+              <td>
+                {{ participant.registration_date.strftime('%a, %d %b %Y %H:%M:%S') }}
+              </td>
+            </tr>
+        </tbody>
+      </table>
+    </div> {# table-responsive #}
+
+
+{% endmacro %}
 
 {% macro event_fields_box_view(form, field_type, title) %}
 
