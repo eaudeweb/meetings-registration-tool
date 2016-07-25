@@ -186,6 +186,5 @@ def clean_html(text, **kwargs):
 
 def url_external(view_name, **kwargs):
     if app.config.get('DOMAIN_NAME', None):
-        return app.config['DOMAIN_NAME'] + url_for(view_name,
-                                                   filename=kwargs['filename'])
-    return url_for(view_name, filename=kwargs['filename'], _external=True)
+        return app.config['DOMAIN_NAME'] + url_for(view_name, **kwargs)
+    return url_for(view_name, _external=True, **kwargs)
