@@ -315,8 +315,8 @@ class ParticipantDummyForm(OrderedFieldsForm):
         field_order = ('title', 'first_name', 'last_name', 'badge_name',
                        'language', 'country', 'email', 'category_id',
                        'represented_organization', 'represented_country',
-                       'represented_region', 'attended', 'verified',
-                       'credentials')
+                       'represented_region', 'registration_date', 'attended',
+                       'verified', 'credentials')
         visible_on_registration_form = (
             'title', 'first_name', 'last_name', 'email', 'category_id',
             'language', 'country', 'represented_country',
@@ -357,11 +357,11 @@ class MediaParticipantDummyForm(OrderedFieldsForm):
     class Meta:
         model = Participant
         only = ('title', 'first_name', 'last_name', 'email', 'category_id',
-                'verified')
+                'registration_date', 'verified')
         visible_on_registration_form = (
             'title', 'first_name', 'last_name', 'email', 'category_id')
         field_order = ('title', 'first_name', 'last_name', 'email',
-                       'category_id', 'verified')
+                       'category_id', 'registration_date', 'verified')
         protected_fields = ('title', 'email', 'category_id', 'country')
 
 
@@ -373,7 +373,8 @@ class DefaultMediaParticipantDummyForm(BaseForm):
 
     class Meta:
         model = Participant
-        only = ('title', 'first_name', 'last_name', 'email', 'verified')
+        only = ('title', 'first_name', 'last_name',
+                'email', 'registration_date', 'verified')
         visible_on_registration_form = []
         protected_fields = []
 
