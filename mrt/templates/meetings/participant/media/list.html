@@ -25,6 +25,15 @@
         "ajax": participants.data("ajax"),
         "columns": [
             { "data": "last_name" },
+            { "data": "registration_date",
+              "render": function(data) {
+                if (data != null){
+                  var date = new Date(data);
+                  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                  return date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear();
+                } else {
+                  return '';
+              } },
             { "data": "verified", "className": "text-center" }
         ]
       });
@@ -46,6 +55,7 @@
       <thead>
         <tr>
           <th>Name</th>
+          <th>Date of registration</th>
           <th>{{ form.verified.label.text }}</th>
         </tr>
       </thead>
