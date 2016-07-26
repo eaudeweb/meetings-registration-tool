@@ -697,7 +697,7 @@ def _process_participants_excel(meeting_id, participant_type):
         data['verified'] = 'Yes' if p.verified else None
         data['credentials'] = 'Yes' if p.credentials else None
         data['registration_date'] = (
-            p.registration_date.strftime('%d/%m/%y')
+            p.registration_date.strftime('%Y-%m-%d')
             if p.registration_date else None)
 
         for custom_field in added_custom_fields:

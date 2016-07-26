@@ -276,12 +276,13 @@
 {% macro registration_date_view(participant) %}
 
     <div class="table-responsive">
-      <table class="table table-bordered table-condensed table-striped"
-             id="{{ title }}">
+      <table class="table table-bordered table-condensed table-striped">
         <tbody>
             <tr>
-              <td>
-                {{ participant.registration_date.strftime('%a, %d %b %Y %H:%M:%S') }}
+              <td class="text-center">
+                {% if participant.registration_date %}
+                  {{ participant.registration_date.strftime('%a, %d %b %Y, %H:%M') }}
+                {% endif %}
               </td>
             </tr>
         </tbody>
