@@ -1,6 +1,7 @@
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
+from path import path
 
 from flask import current_app as app
 from flask import g, url_for
@@ -22,7 +23,7 @@ from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.models import get_participants_full
 from mrt.pdf import PdfRenderer
-from mrt.template import pluralize
+from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
@@ -665,8 +666,6 @@ def _process_participants_excel(meeting_id, participant_type):
     custom_fields = (
         g.meeting.custom_fields
         .filter_by(custom_field_type=participant_type)
-        .filter(CustomField.field_type.notin_((unicode(CustomField.IMAGE),
-                                               unicode(CustomField.DOCUMENT))))
         .order_by(CustomField.sort))
 
     columns = [cf.slug for cf in custom_fields]
@@ -696,6 +695,7 @@ def _process_participants_excel(meeting_id, participant_type):
         data['credentials'] = 'Yes' if p.credentials else None
 
         for custom_field in added_custom_fields:
+
             if custom_field.field_type == CustomField.MULTI_CHECKBOX:
                 custom_value = custom_field.custom_field_values.filter_by(
                     participant=p).all()
@@ -713,6 +713,12 @@ def _process_participants_excel(meeting_id, participant_type):
                                           for v in custom_value])
             else:
                 custom_value = custom_value.value
+
+            if custom_field.field_type in (CustomField.IMAGE,
+                                           CustomField.DOCUMENT):
+                file_path = path(app.config['PATH_CUSTOM_KEY']) / custom_value
+                file_url = url_external('static', filename=file_path)
+                custom_value = file_url
 
             data[custom_field.slug] = custom_value
 

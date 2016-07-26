@@ -204,14 +204,14 @@ class MeetingCloneForm(MeetingEditForm):
             clone = copy_attributes(custom_field.__class__(), custom_field)
             for attr in translation_attrs:
                 setattr(clone, attr, copy_attributes(Translation(),
-                                                     getattr(custom_field, attr)))
+                        getattr(custom_field, attr)))
             clone.meeting = meeting
             db.session.add(clone)
 
             for choice in custom_field.choices:
                 choice_clone = CustomFieldChoice(custom_field=clone)
                 setattr(choice_clone, 'value', copy_attributes(Translation(),
-                                                               getattr(choice, 'value')))
+                        getattr(choice, 'value')))
                 db.session.add(choice_clone)
 
             db.session.flush()
