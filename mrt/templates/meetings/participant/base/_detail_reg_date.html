@@ -1,4 +1,15 @@
-{% from "_bits.html" import registration_date_view %}
+{% if participant.registration_date %}
+  <h5>Date of registration</h5>
 
-<h5>Date of registration</h5>
-{{ registration_date_view(participant)}}
+  <div class="table-responsive">
+    <table class="table table-bordered table-condensed table-striped">
+      <tbody>
+        <tr>
+          <td class="text-center">
+            {{ participant.registration_date.strftime('%a, %d %b %Y, %H:%M') }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div> {# table-responsive #}
+{% endif %}

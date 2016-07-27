@@ -273,25 +273,6 @@
 
 {% endmacro %}
 
-{% macro registration_date_view(participant) %}
-
-    <div class="table-responsive">
-      <table class="table table-bordered table-condensed table-striped">
-        <tbody>
-            <tr>
-              <td class="text-center">
-                {% if participant.registration_date %}
-                  {{ participant.registration_date.strftime('%a, %d %b %Y, %H:%M') }}
-                {% endif %}
-              </td>
-            </tr>
-        </tbody>
-      </table>
-    </div> {# table-responsive #}
-
-
-{% endmacro %}
-
 {% macro event_fields_box_view(form, field_type, title) %}
 
   {% if form.has(field_type) %}
