@@ -343,6 +343,10 @@ class Participant(db.Model):
         nullable=False, default=PARTICIPANT,
         info={'label': _('Participant type')})
 
+    registration_date = db.Column(
+        db.DateTime, default=datetime.now(),
+        info={'label': _('Date of registration')})
+
     def __repr__(self):
         return self.name
 

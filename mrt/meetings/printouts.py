@@ -669,7 +669,9 @@ def _process_participants_excel(meeting_id, participant_type):
         .order_by(CustomField.sort))
 
     columns = [cf.slug for cf in custom_fields]
+    columns.append('registration_date')
     header = [cf.label.english for cf in custom_fields]
+    header.append('Date of Registration')
 
     added_custom_fields = custom_fields.filter_by(is_primary=False)
 
@@ -693,6 +695,9 @@ def _process_participants_excel(meeting_id, participant_type):
         data['attended'] = 'Yes' if p.attended else None
         data['verified'] = 'Yes' if p.verified else None
         data['credentials'] = 'Yes' if p.credentials else None
+        data['registration_date'] = (
+            p.registration_date.strftime('%Y-%m-%d')
+            if p.registration_date else None)
 
         for custom_field in added_custom_fields:
 

@@ -28,6 +28,18 @@
             { "data": "last_name" },
             { "data": "category_id" },
             { "data": "representing" },
+            { "data": "registration_date",
+              "render": function(data) {
+                if (data != null){
+                  var date = new Date(data);
+                  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+                  return date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear();
+                } else {
+                  return '';
+                }
+              },
+              "className": "text-center"
+            },
             { "data": "attended", "className": "text-center" },
             { "data": "verified", "className": "text-center" },
             { "data": "credentials", "className": "text-center" }
@@ -62,6 +74,7 @@
           <th>Name</th>
           <th>Category</th>
           <th>Representing</th>
+          <th>Date of registration</th>
           <th>{{ form.attended.label.text }}</th>
           <th>{{ form.verified.label.text }}</th>
           <th>{{ form.credentials.label.text }}</th>
