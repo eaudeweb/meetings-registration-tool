@@ -25,7 +25,7 @@ MEETING_SETTINGS = (
 PERMISSIONS = (
     ('manage_participant', 'Manage Participant'),
     ('view_participant', 'View Participant'),
-    ('manage_media_participant', 'Manage Media Partipant'),
+    ('manage_media_participant', 'Manage Media Participant'),
     ('view_media_participant', 'View Media Participant'),
     ('manage_meeting', 'Manage Meeting'),
 )

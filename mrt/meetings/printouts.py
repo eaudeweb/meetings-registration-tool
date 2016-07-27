@@ -722,7 +722,7 @@ def _process_participants_excel(meeting_id, participant_type):
             if custom_field.field_type in (CustomField.IMAGE,
                                            CustomField.DOCUMENT):
                 file_path = path(app.config['PATH_CUSTOM_KEY']) / custom_value
-                file_url = url_external('static', filename=file_path)
+                file_url = url_external('files', filename=file_path)
                 custom_value = file_url
 
             data[custom_field.slug] = custom_value
