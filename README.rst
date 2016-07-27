@@ -30,13 +30,16 @@ Install these before setting up an environment::
 Install dependencies
 --------------------
 We should use Virtualenv for isolated environments. The following commands will
-be run as an unprivileged user in the product directory::
+be run as an unprivileged user in the product directory. 
 
 1. Clone the repository::
 
     git clone git@github.com:eaudeweb/meetings-registration-tool.git
     
-This will work only if you have your public key stored in _SSH keys_ list of a user that has access rights on the repository. You can also create a read-only copy of the project, by using the HTTPS URL::
+    
+This will work only if you have your public key stored in the *SSH keys* list of 
+a user that has access rights on the repository. You can also create a read-only 
+copy of the project, by using the HTTPS URL::
     
     git clone https://github.com/eaudeweb/meetings-registration-tool.git
 
@@ -52,10 +55,10 @@ This will work only if you have your public key stored in _SSH keys_ list of a u
 
     pip install -r requirements-dep.txt
     
-\* Use `pip install -r requirements-dep.txt` in development.
+\* Use `pip install -r requirements-dev.txt` in development.
 
 
-4. Create a configuration file::
+4. Create a configuration file:
 
 To set up a configuration file run the following commands and customize
 the settings file::
@@ -64,20 +67,22 @@ the settings file::
     echo '*' >> instance/.gitignore
     cp settings.example instance/settings.py
 
-Complete the PRODUCT_NAME and PRODUCT_TITLE settings.
+Fill in the *PRODUCT_NAME* and *PRODUCT_TITLE* settings.
 
-Create a directory named 'logos' inside instance directory which is the
-location for product logo images. Add to settings.py PRODUCT_LOGO and
-PRODUCT_SIDE_LOGO filenames.
+Create a directory named ``files`` inside instance directory which is the
+location for all files pertaining to an application instance. Inside this
+directory ``instace/files/`` create the ``logos`` directory which will keep
+the product logo images. Add to ``settings.py`` *PRODUCT_LOGO* and
+*PRODUCT_SIDE_LOGO* filenames - path relative to ``instance`` directory.
 
-Set the ADMINISTRATOR_EMAIL in instance/settings.py representing the
+Set the *ADMINISTRATOR_EMAIL* in ``instance/settings.py`` representing the
 administator email.
 
-Set the DEFAULT_MAIL_SENDER variable in instance/settings.py.
+Set the *DEFAULT_MAIL_SENDER* variable in ``instance/settings.py``.
 Notifications, reset password tokens, activation emails will not be sent
 unless this variable is set.
 
-Set the GOOGLE_ANALYTICS_KEY in instance/settings.py example if you
+Set the *GOOGLE_ANALYTICS_KEY* in ``instance/settings.py`` example if you
 want to enable the Google Analytics tracking.
 
 
@@ -97,11 +102,11 @@ want to enable the Google Analytics tracking.
     GRANT
     postgres=# \q
 
-After that, run alembic upgrade to have the tables created::
+After that, run the following command to have the tables created::
 
     ./manage.py alembic upgrade head
 
-6. Start RQ workers by running (for printouts)::
+6. Start RQ workers (for printouts) by running::
 
     ./manage.py rq workers printouts
 
@@ -109,38 +114,38 @@ After that, run alembic upgrade to have the tables created::
 Configure wkhtmltopdf in virtualenv
 -----------------------------------
 
-Printouts work using `wkhtmltopdf 0.12.1`. Using another version may cause
+Printouts work using ``wkhtmltopdf 0.12.1``. Using another version may cause
 problems in rendering pdfs.
 
 If you don't have this version installed, add it to your virtualenv.
 
 1. Go to http://download.gna.org/wkhtmltopdf/0.12/0.12.1/ and select the build
-   corresponding with your system. Copy the direct link into your clipboard
+   corresponding with your system. Copy the direct link into your clipboard.
 
-2. Install it locally in your virtualenv
+2. Install it locally in your virtualenv:
 
-    * For RedHat-based systems in production::
+* For RedHat-based systems in production::
 
-         wget $PASTE_URL_COPIED_AT_STEP_1
-         # $PACKAGE is the file downloaded with wget
-         sudo rpm -i --prefix=/var/local/wkhtmltox-0.12.1 $PACKAGE.rpm
-         # If the command fails because the file is already installed
-         # copy `wkhtmltopdf` from the installation directory and skip
-         # the next command
-         cp /var/local/wkhtmltox-0.12.1/bin/wkhmtltopdf sandbox/bin/
+     wget $PASTE_URL_COPIED_AT_STEP_1
+     # $PACKAGE is the file downloaded with wget
+     sudo rpm -i --prefix=/var/local/wkhtmltox-0.12.1 $PACKAGE.rpm
+     # If the command fails because the file is already installed
+     # copy `wkhtmltopdf` from the installation directory and skip
+     # the next command
+     cp /var/local/wkhtmltox-0.12.1/bin/wkhmtltopdf sandbox/bin/
 
-    * For RedHat-based development systems::
+* For RedHat-based development systems::
 
-         # If you don't work on projects that require other versions
-         # Install this version globally
-         wget $PASTE_URL_COPIED_AT_STEP_1
-         sudo rpm -i $PACKAGE.rpm
+     # If you don't work on projects that require other versions
+     # Install this version globally
+     wget $PASTE_URL_COPIED_AT_STEP_1
+     sudo rpm -i $PACKAGE.rpm
 
-    * For Debian based systems::
+* For Debian based systems::
 
-         wget $PASTE_URL_COPIED_AT_STEP_1
-         dpkg-deb -x wkhtmltox-0.12.1_<your_distro>.deb sandbox
-         cp sandbox/usr/local/bin/wkhtmltopdf sandbox/bin
+     wget $PASTE_URL_COPIED_AT_STEP_1
+     dpkg-deb -x wkhtmltox-0.12.1_<your_distro>.deb sandbox
+     cp sandbox/usr/local/bin/wkhtmltopdf sandbox/bin
 
 
 Set up a cron job for deletion of old printout files
@@ -148,16 +153,16 @@ Set up a cron job for deletion of old printout files
 
 Printout files older than one month are deleted by using a managing command::
 
-        ./manage.py rq cleanup
+    ./manage.py rq cleanup
 
 In order for this command to work properly, the ``redis`` system package (not
 the python package) version must be above ``2.8``, otherwise the command will
 fail due to ``redis`` lacking ``EVALSHA``.
 
 Printout files deletion should be set up as a cron job. Here is an example of
-such a job set to run daily:
+such a job set to run daily::
 
-        0 0 * * * /path/to/virtualenv/python /path/to/package/manage.py rq cleanup &>/dev/null
+    0 0 * * * /path/to/virtualenv/python /path/to/package/manage.py rq cleanup &>/dev/null
 
 
 Use the UN official list of countries
@@ -187,7 +192,7 @@ Development hints
 Requirements
 ------------
 
-User ``requirements-dev.txt``::
+Use ``requirements-dev.txt``::
 
     pip install -r requirements-dev.txt
 
@@ -195,16 +200,16 @@ User ``requirements-dev.txt``::
 Configure deploy
 ----------------
 
-- copy ``fabfile/env.ini.example`` to ``fabfile/env.ini``
-- configure staging and production settings
-- run ``fab staging deploy`` or ``fab production deploy``
+* copy ``fabfile/env.ini.example`` to ``fabfile/env.ini``
+* configure staging and production settings
+* run ``fab staging deploy`` or ``fab production deploy``
 
 To clean printout jobs older than one month and delete the files,
 run this command::
 
     ./manage.py rq cleanup --hook clean_printouts
 
-To keep the printout files remove the `--hook` parameter
+To keep the printout files remove the ``--hook`` parameter
 
 
 Running unit tests
@@ -271,7 +276,8 @@ Simply run the next commands::
 
     ./manage.py import <database> <meeting_id>
 
-In order to get the participants photos you must complete the PHOTOS_BASE_URL in settings and run:
+In order to get the participants photos you must complete the PHOTOS_BASE_URL in settings and run::
+
     ./manage.py import <database> <meeting_id> --with-photos
 
 
