@@ -61,7 +61,8 @@ class ObserversList(PermissionRequiredMixin, MethodView):
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
 
-        flag_form = FlagForm(request.args)
+        flag_form = FlagForm(
+            request.args, custom_field_type=Participant.PARTICIPANT)
         category_tags_form = CategoryTagForm(request.args)
         categories_form = ParticipantCategoriesForm(request.args)
 
@@ -158,7 +159,8 @@ class PartiesList(PermissionRequiredMixin, MethodView):
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
 
-        flag_form = FlagForm(request.args)
+        flag_form = FlagForm(
+            request.args, custom_field_type=Participant.PARTICIPANT)
         category_tags_form = CategoryTagForm(request.args)
         categories_form = ParticipantCategoriesForm(request.args)
 
@@ -304,7 +306,7 @@ class Credentials(PermissionRequiredMixin, MethodView):
         category_ids = []
         for tag in category_tags:
             category_ids += [category.id for category in
-                tag.categories.filter_by(meeting_id=g.meeting.id)]
+                             tag.categories.filter_by(meeting_id=g.meeting.id)]
 
         if category_tags:
             query = query.filter(Participant.category_id.in_(category_ids))
@@ -325,7 +327,8 @@ class Credentials(PermissionRequiredMixin, MethodView):
         query = self._get_query(flag_slug, category_tags)
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
-        flag_form = FlagForm(request.args)
+        flag_form = FlagForm(
+            request.args, custom_field_type=Participant.PARTICIPANT)
         flag_form.flag.choices = [
             choice for choice in flag_form.flag.choices
             if choice[0] != 'credentials']
@@ -410,7 +413,8 @@ class MediaList(PermissionRequiredMixin, MethodView):
         query = self._get_query(flag_slug, category_ids)
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
-        flag_form = FlagForm(request.args)
+        flag_form = FlagForm(
+            request.args, custom_field_type=Participant.MEDIA)
         flag_form.flag.choices = [
             choice for choice in flag_form.flag.choices
             if choice[0] != 'credentials']

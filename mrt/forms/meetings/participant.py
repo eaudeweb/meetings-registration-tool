@@ -207,7 +207,8 @@ class FlagForm(BaseForm):
         super(FlagForm, self).__init__(*args, **kwargs)
         flags = g.meeting.custom_fields.filter_by(
             field_type=CustomField.CHECKBOX,
-            is_primary=True)
+            is_primary=True,
+            custom_field_type=kwargs['custom_field_type'])
         self.flag.choices = [('', '---')] + [(f.slug, f.label) for f in flags]
 
 

@@ -234,7 +234,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         count = query.count()
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
-        flag_form = FlagForm(request.args)
+        flag_form = FlagForm(
+            request.args, custom_field_type=Participant.PARTICIPANT)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
         return render_template(
             'meetings/printouts/provisional_list.html',
