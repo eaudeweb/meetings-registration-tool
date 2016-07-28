@@ -1,6 +1,7 @@
 from flask import url_for
 from pyquery import PyQuery
 from mrt.utils import slugify
+from .utils import add_new_meeting
 
 from .factories import ParticipantFactory, MeetingCategoryFactory
 from .factories import EventFactory, EventValueFactory
@@ -58,6 +59,29 @@ def test_shortlist_printout(app, user):
                                   meeting_id=cat.meeting.id,
                                   page=3))
         assert resp.status_code == 404
+
+
+def test_printout_flags(app, user):
+    meeting = add_new_meeting(app, user)
+
+    client = app.test_client()
+    with app.test_request_context():
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+
+        # TEST PARTICIPANTS FLAGS
+        resp = client.get(url_for('meetings.printouts_short_list',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        assert html('#flag option').length == 4
+
+        # TEST MEDIA PARTICIPANTS FLAGS
+        resp = client.get(url_for('cites_extra_views.printouts_media',
+                                  meeting_id=meeting.id))
+        assert resp.status_code == 200
+        html = PyQuery(resp.data)
+        assert html('#flag option').length == 2
 
 
 def test_event_list_printout(app, user):
@@ -157,7 +181,8 @@ def test_distribution_of_documents_printout(app, user):
 
             category_ids = [x.attrib['data-id'] for x in html(
                 '#%s-container tbody tr th#category-name' % lang)]
-            # Test that categories order on the page respects categories alphabetical order
+            # Test that categories order on the page respects categories
+            # alphabetical order
             assert slugify(categories[0].title.english) == category_ids[0] and \
                 slugify(categories[1].title.english) == category_ids[1] and \
                 slugify(categories[2].title.english) == category_ids[2]

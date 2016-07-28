@@ -284,7 +284,8 @@ class DelegationsList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         query = self._get_query(flag)
         participants = groupby(query, key=attrgetter('category'))
-        flag_form = FlagForm(request.args)
+        flag_form = FlagForm(
+            request.args, custom_field_type=Participant.PARTICIPANT)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
         return render_template(
             'meetings/printouts/delegation_list.html',
@@ -463,7 +464,8 @@ class Admission(PermissionRequiredMixin, MethodView):
         count = query.count()
         pagination = query.paginate(page, per_page=1000)
         participants = pagination.items
-        flag_form = FlagForm(request.args)
+        flag_form = FlagForm(
+            request.args, custom_field_type=Participant.PARTICIPANT)
         category_tags_form = CategoryTagForm(request.args)
         if not category_tags:
             title = 'General admission'
