@@ -61,8 +61,7 @@ class ObserversList(PermissionRequiredMixin, MethodView):
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
 
-        flag_form = FlagForm(
-            request.args, custom_field_type=Participant.PARTICIPANT)
+        flag_form = FlagForm(request.args)
         category_tags_form = CategoryTagForm(request.args)
         categories_form = ParticipantCategoriesForm(request.args)
 
@@ -159,8 +158,7 @@ class PartiesList(PermissionRequiredMixin, MethodView):
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
 
-        flag_form = FlagForm(
-            request.args, custom_field_type=Participant.PARTICIPANT)
+        flag_form = FlagForm(request.args)
         category_tags_form = CategoryTagForm(request.args)
         categories_form = ParticipantCategoriesForm(request.args)
 
@@ -327,8 +325,7 @@ class Credentials(PermissionRequiredMixin, MethodView):
         query = self._get_query(flag_slug, category_tags)
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
-        flag_form = FlagForm(
-            request.args, custom_field_type=Participant.PARTICIPANT)
+        flag_form = FlagForm(request.args)
         flag_form.flag.choices = [
             choice for choice in flag_form.flag.choices
             if choice[0] != 'credentials']
