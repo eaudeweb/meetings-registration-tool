@@ -7,7 +7,7 @@ from flask import current_app as app
 from flask import g, url_for
 from flask import request, render_template, jsonify, abort, redirect
 from flask import send_from_directory
-from flask.ext.login import login_required
+from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
 from rq import Connection
@@ -22,6 +22,7 @@ from mrt.forms.meetings import FlagForm, CategoryTagForm
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.models import get_participants_full
+from mrt.models import User, Role, RoleUser
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
@@ -37,7 +38,23 @@ class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
     def get(self):
         page = request.args.get('page', 1, type=int)
-        jobs = Job.query.filter_by(meeting=g.meeting).order_by(desc(Job.date))
+        user = User.query.get(current_user.get_id())
+        if current_user.is_authenticated:
+            user_id = user.id
+        else:
+            user_id = 0
+        jobs = Job.query.filter_by(
+            meeting=g.meeting, user_id=user_id).order_by(desc(Job.date))
+        all_printouts = False
+        perms = Role.query.get(RoleUser.query.filter_by(
+            user_id=user_id).first().role_id).permissions
+        if 'manage_meeting' in perms:
+            all_printouts = True
+        if current_user.is_superuser:
+            all_printouts = True
+        if all_printouts:
+            jobs = Job.query.filter_by(
+                meeting=g.meeting).order_by(desc(Job.date))
         jobs = jobs.paginate(page, per_page=50)
         return render_template('meetings/printouts/processing_file_list.html',
                                jobs=jobs)
