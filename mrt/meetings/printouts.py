@@ -39,7 +39,7 @@ class ProcessingFileList(PermissionRequiredMixin, MethodView):
     def get(self):
         page = request.args.get('page', 1, type=int)
         jobs = Job.query.filter_by(meeting=g.meeting).order_by(desc(Job.date))
-        if not (current_user.has_perms(set(['manage_meeting']),
+        if not (current_user.has_perms(['manage_meeting'],
                 g.meeting.id) or current_user.is_superuser):
             jobs = jobs.filter_by(user_id=current_user.get_id())
         jobs = jobs.paginate(page, per_page=50)
