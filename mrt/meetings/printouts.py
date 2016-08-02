@@ -22,7 +22,6 @@ from mrt.forms.meetings import FlagForm, CategoryTagForm
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.models import get_participants_full
-from mrt.models import User, Role, RoleUser
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
@@ -38,21 +37,14 @@ class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
     def get(self):
         page = request.args.get('page', 1, type=int)
-        user = User.query.get(current_user.get_id())
-        if current_user.is_authenticated:
-            user_id = user.id
+        if current_user.is_authenticated():
+            user_id = current_user.get_id()
         else:
             user_id = 0
         jobs = Job.query.filter_by(
             meeting=g.meeting, user_id=user_id).order_by(desc(Job.date))
-        all_printouts = False
-        perms = Role.query.get(RoleUser.query.filter_by(
-            user_id=user_id).first().role_id).permissions
-        if 'manage_meeting' in perms:
-            all_printouts = True
-        if current_user.is_superuser:
-            all_printouts = True
-        if all_printouts:
+        if (current_user.has_perms(set(['manage_meeting']), g.meeting.id) or
+                current_user.is_superuser):
             jobs = Job.query.filter_by(
                 meeting=g.meeting).order_by(desc(Job.date))
         jobs = jobs.paginate(page, per_page=50)
