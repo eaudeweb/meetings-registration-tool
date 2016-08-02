@@ -118,7 +118,7 @@ class BaseParticipantForm(BaseForm):
 
     def has(self, field_type):
         return bool([f for f in self._fields if f in self._custom_fields and
-                    self._custom_fields[f].field_type == field_type])
+                     self._custom_fields[f].field_type == field_type])
 
     def save(self, participant=None, commit=True):
         participant = participant or Participant()
@@ -204,10 +204,13 @@ class FlagForm(BaseForm):
     flag = fields.SelectField()
 
     def __init__(self, *args, **kwargs):
+        custom_field_type = kwargs.pop(
+            'custom_field_type', Participant.PARTICIPANT)
         super(FlagForm, self).__init__(*args, **kwargs)
         flags = g.meeting.custom_fields.filter_by(
             field_type=CustomField.CHECKBOX,
-            is_primary=True)
+            is_primary=True,
+            custom_field_type=custom_field_type)
         self.flag.choices = [('', '---')] + [(f.slug, f.label) for f in flags]
 
 
