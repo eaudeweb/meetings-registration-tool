@@ -110,6 +110,37 @@ class RoleFactory(SQLAlchemyModelFactory):
                    'manage_media_participant', 'view_participant')
 
 
+class RoleUserMeetingFactory(SQLAlchemyModelFactory):
+
+    class Meta:
+        model = models.RoleUser
+        sqlalchemy_session = models.db.session
+
+    role = SubFactory(RoleFactory)
+    user = SubFactory(UserFactory)
+    meeting = SubFactory(MeetingFactory)
+
+    @post_generation
+    def staff(self, create, extracted, **kwargs):
+        if not create:
+            return
+        staff = extracted or StaffFactory(user=self.user)
+        return staff
+
+
+class JobsFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Job
+        sqlalchemy_session = models.db.session
+
+    name = 'short list'
+    user_id = SubFactory(UserFactory)
+    status = 'finished'
+    date = date.today()
+    meeting_id = SubFactory(MeetingFactory)
+    queue = models.Job.PRINTOUTS_QUEUE
+
+
 class StaffFactory(SQLAlchemyModelFactory):
 
     class Meta:
@@ -181,24 +212,6 @@ class PhraseMeetingFactory(SQLAlchemyModelFactory):
     group = 'Acknowledge details'
     description = SubFactory(PhraseDescriptionFactory)
     meeting = SubFactory(MeetingFactory)
-
-
-class RoleUserMeetingFactory(SQLAlchemyModelFactory):
-
-    class Meta:
-        model = models.RoleUser
-        sqlalchemy_session = models.db.session
-
-    role = SubFactory(RoleFactory)
-    user = SubFactory(UserFactory)
-    meeting = SubFactory(MeetingFactory)
-
-    @post_generation
-    def staff(self, create, extracted, **kwargs):
-        if not create:
-            return
-        staff = extracted or StaffFactory(user=self.user)
-        return staff
 
 
 class ParticipantFactory(SQLAlchemyModelFactory):
