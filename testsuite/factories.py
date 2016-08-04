@@ -128,16 +128,17 @@ class RoleUserMeetingFactory(SQLAlchemyModelFactory):
         return staff
 
 
-class JobsFactory(SQLAlchemyModelFactory):
+class JobFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Job
         sqlalchemy_session = models.db.session
 
+    id = Sequence(lambda n: n)
     name = 'short list'
-    user_id = SubFactory(UserFactory)
+    user_id = Sequence(lambda n: n)
     status = 'finished'
     date = date.today()
-    meeting_id = SubFactory(MeetingFactory)
+    meeting_id = Sequence(lambda n: n)
     queue = models.Job.PRINTOUTS_QUEUE
 
 

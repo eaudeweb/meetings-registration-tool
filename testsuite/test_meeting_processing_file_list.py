@@ -1,33 +1,27 @@
 from flask import url_for
 from pyquery import PyQuery
-from rq import Queue
-from mrt.models import redis_store, Job, db
-from mrt.meetings.printouts import _process_short_list
+
+from mrt.models import db
+
 from .factories import RoleUserMeetingFactory
-from .factories import RoleFactory, JobsFactory
+from .factories import RoleFactory, JobFactory, MeetingFactory
 
 
 def test_meeting_manager(app):
+    meeting = MeetingFactory()
+
     first_role = RoleFactory(permissions=('manage_meeting',))
     second_role = RoleFactory(permissions=('view_participant',))
-    first_role_user = RoleUserMeetingFactory(role=first_role)
-    second_role_user = RoleUserMeetingFactory(role=second_role,
-                                              meeting=first_role_user.meeting)
 
-    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store._redis_client,
-              default_timeout=1200)
-    first_job_redis = q.enqueue(_process_short_list,
-                                first_role_user.meeting.id,
-                                'List of participants', 'verified')
-    second_job_redis = q.enqueue(_process_short_list,
-                                 first_role_user.meeting.id,
-                                 'List of participants', 'verified')
-    first_job = JobsFactory(id=first_job_redis.id,
-                            user_id=first_role_user.user.id,
+    first_role_user = RoleUserMeetingFactory(role=first_role,
+                                             meeting=meeting)
+    second_role_user = RoleUserMeetingFactory(role=second_role,
+                                              meeting=meeting)
+
+    first_job = JobFactory(user_id=first_role_user.user.id,
+                           meeting_id=first_role_user.meeting.id)
+    second_job = JobFactory(user_id=second_role_user.user.id,
                             meeting_id=first_role_user.meeting.id)
-    second_job = JobsFactory(id=second_job_redis.id,
-                             user_id=second_role_user.user.id,
-                             meeting_id=first_role_user.meeting.id)
 
     db.session.add(first_job)
     db.session.add(second_job)
@@ -39,34 +33,29 @@ def test_meeting_manager(app):
             sess['user_id'] = first_role_user.user.id
 
         resp = client.get(url_for('meetings.processing_file_list',
-                                  meeting_id=1))
+                                  meeting_id=meeting.id))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
-        assert html('#job-list tr').length == 3
+        assert html('#job-list tbody tr').length == 2
 
 
 def test_superuser(app):
-    first_role = RoleFactory(permissions=('view_participant',))
+    meeting = MeetingFactory()
+
+    first_role = RoleFactory(permissions=('',))
     second_role = RoleFactory(permissions=('view_participant',))
-    first_role_user = RoleUserMeetingFactory(role=first_role)
+
+    first_role_user = RoleUserMeetingFactory(role=first_role,
+                                             meeting=meeting)
     second_role_user = RoleUserMeetingFactory(role=second_role,
-                                              meeting=first_role_user.meeting)
+                                              meeting=meeting)
+
     first_role_user.user.is_superuser = True
 
-    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store._redis_client,
-              default_timeout=1200)
-    first_job_redis = q.enqueue(_process_short_list,
-                                first_role_user.meeting.id,
-                                'List of participants', 'verified')
-    second_job_redis = q.enqueue(_process_short_list,
-                                 first_role_user.meeting.id,
-                                 'List of participants', 'verified')
-    first_job = JobsFactory(id=first_job_redis.id,
-                            user_id=first_role_user.user.id,
+    first_job = JobFactory(user_id=first_role_user.user.id,
+                           meeting_id=first_role_user.meeting.id)
+    second_job = JobFactory(user_id=second_role_user.user.id,
                             meeting_id=first_role_user.meeting.id)
-    second_job = JobsFactory(id=second_job_redis.id,
-                             user_id=second_role_user.user.id,
-                             meeting_id=first_role_user.meeting.id)
 
     db.session.add(first_job)
     db.session.add(second_job)
@@ -78,33 +67,27 @@ def test_superuser(app):
             sess['user_id'] = first_role_user.user.id
 
         resp = client.get(url_for('meetings.processing_file_list',
-                                  meeting_id=1))
+                                  meeting_id=meeting.id))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
-        assert html('#job-list tr').length == 3
+        assert html('#job-list tbody tr').length == 2
 
 
-def test_authenticated_user(app):
+def test_view_participant_user(app):
+    meeting = MeetingFactory()
+
     first_role = RoleFactory(permissions=('view_participant',))
     second_role = RoleFactory(permissions=('view_participant',))
-    first_role_user = RoleUserMeetingFactory(role=first_role)
-    second_role_user = RoleUserMeetingFactory(role=second_role,
-                                              meeting=first_role_user.meeting)
 
-    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store._redis_client,
-              default_timeout=1200)
-    first_job_redis = q.enqueue(_process_short_list,
-                                first_role_user.meeting.id,
-                                'List of participants', 'verified')
-    second_job_redis = q.enqueue(_process_short_list,
-                                 first_role_user.meeting.id,
-                                 'List of participants', 'verified')
-    first_job = JobsFactory(id=first_job_redis.id,
-                            user_id=first_role_user.user.id,
+    first_role_user = RoleUserMeetingFactory(role=first_role,
+                                             meeting=meeting)
+    second_role_user = RoleUserMeetingFactory(role=second_role,
+                                              meeting=meeting)
+
+    first_job = JobFactory(user_id=first_role_user.user.id,
+                           meeting_id=first_role_user.meeting.id)
+    second_job = JobFactory(user_id=second_role_user.user.id,
                             meeting_id=first_role_user.meeting.id)
-    second_job = JobsFactory(id=second_job_redis.id,
-                             user_id=second_role_user.user.id,
-                             meeting_id=first_role_user.meeting.id)
 
     db.session.add(first_job)
     db.session.add(second_job)
@@ -116,23 +99,21 @@ def test_authenticated_user(app):
             sess['user_id'] = first_role_user.user.id
 
         resp = client.get(url_for('meetings.processing_file_list',
-                                  meeting_id=1))
+                                  meeting_id=meeting.id))
         assert resp.status_code == 200
         html = PyQuery(resp.data)
-        assert html('#job-list tr').length == 2
+        assert html('#job-list tbody tr').length == 1
 
 
-def test_anonymous_user(app, user):
+def test_user_without_permissions(app, user):
     role = RoleFactory(permissions=('',))
     role_user = RoleUserMeetingFactory(role=role)
 
-    q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store._redis_client,
-              default_timeout=1200)
-    job_redis = q.enqueue(_process_short_list, role_user.meeting.id,
-                          'List of participants', 'verified')
-    job = JobsFactory(id=job_redis.id, user_id=role_user.user.id,
-                      meeting_id=role_user.meeting.id)
+    job = JobFactory(user_id=role_user.user.id,
+                     meeting_id=role_user.meeting.id)
+
     role_user.user.active = False
+
     db.session.add(job)
     db.session.commit()
 
@@ -142,5 +123,5 @@ def test_anonymous_user(app, user):
             sess['user_id'] = role_user.user.id
 
         resp = client.get(url_for('meetings.processing_file_list',
-                                  meeting_id=1))
+                                  meeting_id=role_user.meeting.id))
         assert resp.status_code == 403
