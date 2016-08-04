@@ -130,7 +130,8 @@ class QueueStatus(MethodView):
     decorators = (login_required,)
 
     def get(self, queue):
-        jobs = Job.query.filter_by(queue=queue, status=Job.QUEUED)
+        jobs = Job.query.filter_by(
+            queue=queue, status=Job.QUEUED, meeting_id=g.meeting.id)
         count = jobs.count()
         title = '%d processing job%s' % (count, pluralize(count))
         return jsonify(count=count, title=title)
