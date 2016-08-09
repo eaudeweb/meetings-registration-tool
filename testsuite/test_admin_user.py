@@ -7,8 +7,10 @@ from .factories import UserFactory, StaffFactory, ParticipantUserFactory
 
 def test_admin_list(app, user):
     UserFactory.create_batch(30)
+    # ParticipantUserFactory will create 2 users at the same time:
+    # one for Participant User and one for Meeting Owner
     ParticipantUserFactory.create_batch(30)
-    TOTAL_USERS = 30 + 30 + 1
+    TOTAL_USERS = 30 + 2 * 30 + 1
 
     client = app.test_client()
     with app.test_request_context():

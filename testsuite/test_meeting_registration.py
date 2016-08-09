@@ -239,8 +239,8 @@ def test_meeting_registration_and_user_creation(app, user, default_meeting):
         participant = Participant.query.filter_by(meeting=meeting).first()
         resp = create_user_after_registration(client, participant, meeting)
         assert resp.status_code == 302
-        assert User.query.count() == 2
-        assert participant.user is User.query.get(2)
+        assert User.query.count() == 3
+        assert participant.user is User.query.get(3)
 
 
 def test_meeting_registration_user_success_details(app, user, default_meeting):
@@ -315,7 +315,7 @@ def test_meeting_registration_with_multiple_emails(app, user, default_meeting):
         participant = Participant.query.filter_by(meeting=meeting).first()
         resp = create_user_after_registration(client, participant, meeting)
         assert resp.status_code == 200
-        assert User.query.count() == 1
+        assert User.query.count() == 2
         html = PyQuery(resp.data)
         assert html('.text-danger small').length == 1
 
@@ -611,8 +611,8 @@ def test_meeting_registration_participant_and_media_on_same_user(
         participant = meeting.participants.first()
         resp = create_user_after_registration(client, participant, meeting)
         assert resp.status_code == 302
-        assert User.query.count() == 2
-        user = User.query.get(2)
+        assert User.query.count() == 3
+        user = User.query.get(3)
 
     # REGISTER AS MEDIA PARTICIPANT ON SAME USER
         data = MediaParticipantFactory.attributes()
