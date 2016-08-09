@@ -83,6 +83,17 @@ class MeetingTypeFactory(SQLAlchemyModelFactory):
         return MEETING_TYPES[n - 1][0] if n <= len(MEETING_TYPES) else str(n)
 
 
+class StaffFactory(SQLAlchemyModelFactory):
+
+    class Meta:
+        model = models.Staff
+        sqlalchemy_session = models.db.session
+
+    title = 'Head of department'
+    full_name = 'John Doe'
+    user = SubFactory(UserFactory)
+
+
 class MeetingFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Meeting
@@ -98,6 +109,7 @@ class MeetingFactory(SQLAlchemyModelFactory):
     venue_city = SubFactory(MeetingVenueCityFactory)
     venue_country = 'RO'
     online_registration = False
+    owner = SubFactory(StaffFactory)
 
 
 class RoleFactory(SQLAlchemyModelFactory):
@@ -135,22 +147,11 @@ class JobFactory(SQLAlchemyModelFactory):
 
     id = Sequence(lambda n: n)
     name = 'short list'
-    user_id = Sequence(lambda n: n)
+    user = SubFactory(UserFactory)
     status = 'finished'
     date = date.today()
-    meeting_id = Sequence(lambda n: n)
+    meeting = SubFactory(MeetingFactory)
     queue = models.Job.PRINTOUTS_QUEUE
-
-
-class StaffFactory(SQLAlchemyModelFactory):
-
-    class Meta:
-        model = models.Staff
-        sqlalchemy_session = models.db.session
-
-    title = 'Head of department'
-    full_name = 'John Doe'
-    user = SubFactory(UserFactory)
 
 
 class CategoryDefaultNameFactory(SQLAlchemyModelFactory):
