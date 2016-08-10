@@ -1,0 +1,20 @@
+mrt:
+  build: .
+  ports:
+  - "5000:5000"
+  links:
+  - postgres:postgres
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+
+postgres:
+  image: eeacms/postgres:9.5s
+  environment:
+  - POSTGRES_USER=postgres
+  - POSTGRES_PASSWORD=postgres
+  - POSTGRES_DBNAME=meetings
+  - POSTGRES_DBUSER=edw
+  - POSTGRES_DBPASS=edw
+  volumes:
+  - /etc/localtime:/etc/localtime:ro
+  - mrt-postgres-data:/var/lib/postgresql/data

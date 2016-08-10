@@ -1,0 +1,8 @@
+.git*
+.travis*
+fabfile
+Vagrantfile
+Dockerfile
+docker-compose.yml
+salt
+supervisord.example

@@ -1,18 +1,18 @@
-SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
+SQLALCHEMY_DATABASE_URI = 'postgresql://edw:edw@postgres/meetings'
 SECRET_KEY = 'secret'
 
 UPLOAD_SIZE = 1 * 1024 * 1024
 
 #Name and title of the product
-PRODUCT_TITLE = ''
+PRODUCT_TITLE = 'Meetings'
 
 # Administator's email
 ADMINISTRATOR_EMAIL = ''
 
 # Mail used for sending reset tokens
-DEFAULT_MAIL_SENDER = ''
+DEFAULT_MAIL_SENDER = 'no-reply@eaudeweb.ro'
 # Supress sendding mails on localhost
-MAIL_SUPPRESS_SEND = True
+MAIL_SUPPRESS_SEND = False
 # Disable assets compilation
 ASSETS_DEBUG = True
 
