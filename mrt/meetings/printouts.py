@@ -7,7 +7,7 @@ from flask import current_app as app
 from flask import g, url_for
 from flask import request, render_template, jsonify, abort, redirect
 from flask import send_from_directory
-from flask.ext.login import login_required
+from flask.ext.login import login_required, current_user
 from flask.views import MethodView
 
 from rq import Connection
@@ -33,11 +33,15 @@ from mrt.utils import generate_excel
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', 'manage_participant',
-                           'view_participant')
+                           'view_participant', 'manage_media_participant',
+                           'view_media_participant')
 
     def get(self):
         page = request.args.get('page', 1, type=int)
         jobs = Job.query.filter_by(meeting=g.meeting).order_by(desc(Job.date))
+        if not (current_user.has_perms(['manage_meeting'], g.meeting.id) or
+                current_user.is_superuser):
+            jobs = jobs.filter_by(user_id=current_user.id)
         jobs = jobs.paginate(page, per_page=50)
         return render_template('meetings/printouts/processing_file_list.html',
                                jobs=jobs)

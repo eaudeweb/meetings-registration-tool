@@ -83,6 +83,17 @@ class MeetingTypeFactory(SQLAlchemyModelFactory):
         return MEETING_TYPES[n - 1][0] if n <= len(MEETING_TYPES) else str(n)
 
 
+class StaffFactory(SQLAlchemyModelFactory):
+
+    class Meta:
+        model = models.Staff
+        sqlalchemy_session = models.db.session
+
+    title = 'Head of department'
+    full_name = 'John Doe'
+    user = SubFactory(UserFactory)
+
+
 class MeetingFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.Meeting
@@ -98,6 +109,7 @@ class MeetingFactory(SQLAlchemyModelFactory):
     venue_city = SubFactory(MeetingVenueCityFactory)
     venue_country = 'RO'
     online_registration = False
+    owner = SubFactory(StaffFactory)
 
 
 class RoleFactory(SQLAlchemyModelFactory):
@@ -110,15 +122,36 @@ class RoleFactory(SQLAlchemyModelFactory):
                    'manage_media_participant', 'view_participant')
 
 
-class StaffFactory(SQLAlchemyModelFactory):
+class RoleUserMeetingFactory(SQLAlchemyModelFactory):
 
     class Meta:
-        model = models.Staff
+        model = models.RoleUser
         sqlalchemy_session = models.db.session
 
-    title = 'Head of department'
-    full_name = 'John Doe'
+    role = SubFactory(RoleFactory)
     user = SubFactory(UserFactory)
+    meeting = SubFactory(MeetingFactory)
+
+    @post_generation
+    def staff(self, create, extracted, **kwargs):
+        if not create:
+            return
+        staff = extracted or StaffFactory(user=self.user)
+        return staff
+
+
+class JobFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = models.Job
+        sqlalchemy_session = models.db.session
+
+    id = Sequence(lambda n: n)
+    name = 'short list'
+    user = SubFactory(UserFactory)
+    status = 'finished'
+    date = date.today()
+    meeting = SubFactory(MeetingFactory)
+    queue = models.Job.PRINTOUTS_QUEUE
 
 
 class CategoryDefaultNameFactory(SQLAlchemyModelFactory):
@@ -181,24 +214,6 @@ class PhraseMeetingFactory(SQLAlchemyModelFactory):
     group = 'Acknowledge details'
     description = SubFactory(PhraseDescriptionFactory)
     meeting = SubFactory(MeetingFactory)
-
-
-class RoleUserMeetingFactory(SQLAlchemyModelFactory):
-
-    class Meta:
-        model = models.RoleUser
-        sqlalchemy_session = models.db.session
-
-    role = SubFactory(RoleFactory)
-    user = SubFactory(UserFactory)
-    meeting = SubFactory(MeetingFactory)
-
-    @post_generation
-    def staff(self, create, extracted, **kwargs):
-        if not create:
-            return
-        staff = extracted or StaffFactory(user=self.user)
-        return staff
 
 
 class ParticipantFactory(SQLAlchemyModelFactory):
