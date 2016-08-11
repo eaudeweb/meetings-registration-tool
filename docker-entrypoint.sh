@@ -12,8 +12,8 @@ while ! nc -z $POSTGRES_ADDR 5432; do
   sleep 3s
 done
 
-if [ ! -f .initdb ]; then
-  touch .initdb
+if [ ! -e .skip-db-init ]; then
+  touch .skip-db-init
   echo "Running DB CMD: ./manage.py alembic upgrade head"
   python manage.py alembic upgrade head
 fi

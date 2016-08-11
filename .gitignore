@@ -60,3 +60,4 @@ mrt/static/gen/
 
 # Vagrant
 .vagrant/
+settings.py

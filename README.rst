@@ -17,6 +17,11 @@ Usage
     $ git clone git@github.com:eaudeweb/meetings-registration-tool.git
     $ cd meetings-registration-tool
 
+2. Customize deployment via setup.py::
+
+   $ cp settings.example settings.py
+   $ vim settings.py
+
 2. Start application stack::
 
     $ docker-compose up -d
@@ -28,7 +33,7 @@ Usage
 
 4. See it in action:
 
-    http://localhost:5000
+    http://localhost
 
 
 Contacts

@@ -9,7 +9,7 @@ mrt:
   - mrt-files-logos:/var/local/meetings/instance/files/logos
   - mrt-files-printouts:/var/local/meetings/instance/files/printouts
   - /etc/localtime:/etc/localtime:ro
-  - ./settings.example:/var/local/meetings/instance/settings.py:ro
+  - ./settings.py:/var/local/meetings/instance/settings.py:ro
 
 async:
   image: eaudeweb/mrt
@@ -17,10 +17,11 @@ async:
   - redis:redis
   - postgres:postgres
   volumes:
+  - /var/local/meetings/.skip-db-init
   - mrt-files-logos:/var/local/meetings/instance/files/logos
   - mrt-files-printouts:/var/local/meetings/instance/files/printouts
   - /etc/localtime:/etc/localtime:ro
-  - ./settings.example:/var/local/meetings/instance/settings.py:ro
+  - ./settings.py:/var/local/meetings/instance/settings.py:ro
   command: ["rq", "workers", "printouts"]
 
 redis:
