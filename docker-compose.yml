@@ -1,11 +1,30 @@
 mrt:
-  build: .
+  image: eaudeweb/mrt
   ports:
-  - "5000:5000"
+  - "80:5000"
   links:
   - postgres:postgres
+  - redis:redis
   volumes:
+  - mrt-files-logos:/var/local/meetings/instance/files/logos
+  - mrt-files-printouts:/var/local/meetings/instance/files/printouts
   - /etc/localtime:/etc/localtime:ro
+  - ./settings.example:/var/local/meetings/instance/settings.py:ro
+
+async:
+  image: eaudeweb/mrt
+  links:
+  - redis:redis
+  - postgres:postgres
+  volumes:
+  - mrt-files-logos:/var/local/meetings/instance/files/logos
+  - mrt-files-printouts:/var/local/meetings/instance/files/printouts
+  - /etc/localtime:/etc/localtime:ro
+  - ./settings.example:/var/local/meetings/instance/settings.py:ro
+  command: ["rq", "workers", "printouts"]
+
+redis:
+  image: redis
 
 postgres:
   image: eeacms/postgres:9.5s

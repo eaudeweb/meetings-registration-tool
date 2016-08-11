@@ -12,7 +12,7 @@ ADMINISTRATOR_EMAIL = ''
 # Mail used for sending reset tokens
 DEFAULT_MAIL_SENDER = 'no-reply@eaudeweb.ro'
 # Supress sendding mails on localhost
-MAIL_SUPPRESS_SEND = False
+MAIL_SUPPRESS_SEND = True
 # Disable assets compilation
 ASSETS_DEBUG = True
 
@@ -20,8 +20,8 @@ ASSETS_DEBUG = True
 GOOGLE_ANALYTICS_KEY = ''
 
 # Logos filenames; files should be located at project_dir/instance/files/logos/
-PRODUCT_LOGO = ''
-PRODUCT_SIDE_LOGO = ''
+PRODUCT_LOGO = 'badge_left_logo.png'
+PRODUCT_SIDE_LOGO = 'badge_right_logo.png'
 BADGE_BACK_LOGO = ''
 
 # Domain name for correctly displaying registration URLs
@@ -32,3 +32,13 @@ DOMAIN_NAME = ''
 
 # URL used by importer for participants photos
 # PHOTOS_BASE_URL = ''
+
+REDIS_URL="redis://redis:6379/1"
+
+MEETING_TYPES = (
+    ('cop', 'Conference of the Parties'),
+    ('ac', 'Animals Committee'),
+    ('scc', 'Scientific Council'),
+    ('sc', 'Standing Committee'),
+    ('pc', 'Plants Committee'),
+)
