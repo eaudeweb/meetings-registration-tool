@@ -36,6 +36,31 @@ Usage
     http://localhost
 
 
+Upgrade
+-------
+
+1. Get the latest source code::
+
+    $ cd meetings-registration-tool
+    $ git pull
+
+2. Get the latest docker images::
+
+    $ docker-compose pull
+
+3. Restart application stack::
+
+    $ docker-compose up -d
+
+4. Check that everything is up-and-running::
+
+   $ docker-compose ps
+
+5. See the logs::
+
+   $ docker-compose logs
+
+
 Contacts
 ========
 
