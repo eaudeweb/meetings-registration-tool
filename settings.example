@@ -3,7 +3,7 @@ SECRET_KEY = 'secret'
 
 UPLOAD_SIZE = 1 * 1024 * 1024
 
-#Name and title of the product
+# Name and title of the product
 PRODUCT_TITLE = 'Meetings'
 
 # Administator's email
@@ -22,7 +22,7 @@ GOOGLE_ANALYTICS_KEY = ''
 # Logos filenames; files should be located at project_dir/instance/files/logos/
 PRODUCT_LOGO = 'badge_left_logo.png'
 PRODUCT_SIDE_LOGO = 'badge_right_logo.png'
-BADGE_BACK_LOGO = ''
+BADGE_BACK_LOGO = 'badge_back_logo.png'
 
 # Domain name for correctly displaying registration URLs
 DOMAIN_NAME = ''
@@ -33,7 +33,7 @@ DOMAIN_NAME = ''
 # URL used by importer for participants photos
 # PHOTOS_BASE_URL = ''
 
-REDIS_URL="redis://redis:6379/1"
+REDIS_URL = "redis://redis:6379/1"
 
 MEETING_TYPES = (
     ('cop', 'Conference of the Parties'),
