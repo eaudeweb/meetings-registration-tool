@@ -17,7 +17,7 @@ Usage
     $ git clone git@github.com:eaudeweb/meetings-registration-tool.git
     $ cd meetings-registration-tool
 
-2. Customize deployment via setup.py::
+2. Customize deployment via settings.py::
 
    $ cp settings.example settings.py
    $ vim settings.py
@@ -26,12 +26,17 @@ Usage
 
     $ docker-compose up -d
     $ docker-compose logs
+    
+\* If your ``postgres`` container throws this error ``FATAL:  could not map anonymous shared memory: Cannot allocate memory``, add the following lines to ``docker-compose.yml`` > ``postgres`` > ``environment``::
+
+    - POSTGRES_CONFIG_max_connections=10
+    - POSTGRES_CONFIG_shared_buffers=512MB
 
 3. Create super-user to login with::
 
     $ docker-compose run mrt create_superuser
 
-4. See it in action:
+4. See it in action::
 
     http://localhost
 
