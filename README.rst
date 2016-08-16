@@ -16,13 +16,16 @@ Usage
 
     $ git clone git@github.com:eaudeweb/meetings-registration-tool.git
     $ cd meetings-registration-tool
+    $ git checkout docker
 
 2. Customize deployment via settings.py::
 
    $ cp settings.example settings.py
    $ vim settings.py
 
-2. Start application stack::
+   Edit `DOMAIN_NAME` to include you domain name. E.g. https://meetings.cites.org
+   
+3. Start application stack::
 
     $ docker-compose up -d
     $ docker-compose logs
