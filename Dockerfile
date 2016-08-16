@@ -16,6 +16,7 @@ COPY . $MRT_SRC/
 WORKDIR $MRT_SRC
 
 RUN pip install -r requirements-dep.txt \
+ && pybabel compile -d mrt/translations \
  && mkdir -p $MRT_SRC/instance/files \
  && mv settings.example instance/settings.py \
  && mv docker-entrypoint.sh /bin/
