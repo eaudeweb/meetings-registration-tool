@@ -2,6 +2,8 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import click
 import code
+import os
+import subprocess
 
 from flask import g
 from alembic.config import CommandLine
@@ -234,3 +236,10 @@ def add_verified_flag_mp(ctx):
                     custom_field_type=CustomField.MEDIA).count() + 1
                 db.session.add(cf)
         db.session.commit()
+
+
+@cli.command()
+def compile_translations():
+    command = ['pybabel', 'compile', '-d', 'mrt/translations']
+    FNULL = open(os.devnull, 'w')
+    subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)

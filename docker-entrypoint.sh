@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-COMMANDS="add_verified_flag_mp alembic countries_un create_superuser create_user import meetings migrate_hint remove_missing_countries rq runserver shell update_representing"
+COMMANDS="add_verified_flag_mp alembic countries_un create_superuser create_user import meetings migrate_hint remove_missing_countries rq runserver shell update_representing compile_translations"
 
 if [ -z "$POSTGRES_ADDR" ]; then
     POSTGRES_ADDR="postgres"
