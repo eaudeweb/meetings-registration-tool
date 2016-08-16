@@ -1,7 +1,7 @@
 mrt:
   image: eaudeweb/mrt
   ports:
-  - "80:5000"
+  - "5000:5000"
   links:
   - postgres:postgres
   - redis:redis
