@@ -41,7 +41,7 @@ Usage
 
 4. See it in action::
 
-    http://localhost
+    http://localhost:5000
 
 
 Upgrade
