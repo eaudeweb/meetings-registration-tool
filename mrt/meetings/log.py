@@ -22,12 +22,13 @@ def activity_listener(sender, participant, action, staff=None):
 class Statistics(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', )
+    template_name = 'meetings/overview/statistics.html'
 
     def get(self):
         participant_categories = (
             Category.get_categories_for_meeting(Category.PARTICIPANT))
         media_categories = Category.get_categories_for_meeting(Category.MEDIA)
-        return render_template('meetings/overview/statistics.html',
+        return render_template(self.template_name,
                                participant_categories=participant_categories,
                                media_categories=media_categories)
 

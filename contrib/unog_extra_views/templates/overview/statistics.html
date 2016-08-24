@@ -1,0 +1,12 @@
+{% extends "meetings/overview/statistics.html" %}
+
+
+{% block registration_url %}
+  {% set url = url_external('unog_extra_views.registration') %}
+  <h4><a href="{{ url }}">{{ url }}</a></h4>
+{% endblock %}
+
+{% block media_registration_url %}
+  {% set url = url_external('unog_extra_views.media_registration') %}
+  <h4><a href="{{ url }}">{{ url }}</a></h4>
+{% endblock %}

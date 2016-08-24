@@ -35,6 +35,7 @@ def _render_if_media_disabled(func):
 
 
 class BaseRegistration(MethodView):
+    template_name = 'meetings/registration/form.html'
 
     def get_default_participant(self, user):
         raise NotImplementedError
@@ -69,7 +70,7 @@ class BaseRegistration(MethodView):
             participant = self.get_default_participant(current_user)
             Object = custom_object_factory(participant)
             form = Form(obj=Object())
-        return render_template('meetings/registration/form.html',
+        return render_template(self.template_name,
                                form=form,
                                header_phrase=header_phrase,
                                footer_phrase=footer_phrase)
@@ -109,7 +110,7 @@ class BaseRegistration(MethodView):
                                    participant=participant,
                                    form=user_form,
                                    phrases=phrases)
-        return render_template('meetings/registration/form.html',
+        return render_template(self.template_name,
                                form=form,
                                header_phrase=header_phrase,
                                footer_phrase=footer_phrase)
