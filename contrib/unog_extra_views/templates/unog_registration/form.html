@@ -4,59 +4,57 @@
   {{ super() }}
   <style type="text/css">
     .form-control {
-      border-radius: 0;
-      box-shadow: none;
-      height: 25px;
-      padding: 5px 5px;
+        border-radius: 0;
+        box-shadow: none;
+        height: 25px;
+        padding: 5px 5px;
     }
 
     form {
-      background:#f7f7f7;
-      padding: 10px;
-      border-radius:5px;
-      width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+        background:#f7f7f7;
+        padding: 10px;
+        border-radius:5px;
+        width: 800px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     form .btn-primary {
-      background-image: none;
-      background-color: gray;
-      border-color: #357ebd;
-      border: none;
+        background-image: none;
+        background-color: gray;
+        border-color: #357ebd;
+        border: none;
     }
 
     .text-danger {
-      color: gray;
+        color: gray;
     }
 
     .col-sm-10 {
-      width: 55%;
-      float: left;
-      padding-left: 2rem;
+        width: 55%;
+        float: left;
+        padding-left: 2rem;
     }
 
-    @media (min-width: 768px) {
-      .col-sm-2 {
-        width: 25%;
-      }
+    @media (min-width: 768px){
+        .col-sm-2 {
+         width: 25%;
+        }
 
-      .col-sm-2.control-label{
-        width: 40%;
-      }
+        .col-sm-2.control-label{
+         width: 40%;
+
+        }
     }
+
 
     .row .col-sm-10 {
-      width: 80%;
+        width: 80%;
     }
 
-    .title {
-      margin: 0;
+    label.control-label {
+        float:left;
+        width: 200px!important;
     }
-
-    .product-logo,
-    .product-side-logo {
-      display: none;
-    }
-  </style>
+    </style>
 {% endblock %}
