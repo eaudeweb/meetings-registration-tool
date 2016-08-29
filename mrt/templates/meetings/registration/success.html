@@ -9,7 +9,7 @@
     <h4>{{ phrases['success_phrase'].description[g.language_verbose] }}</h4>
   </div>
 
-  {% if not current_user.is_authenticated() %}
+  {% if not current_user.is_authenticated() and g.meeting.login_button_visible %}
     <form method="post" class="form-horizontal" style="margin-top: 45px;"
           action="{{ url_for('meetings.registration_user') }}">
 

@@ -143,6 +143,7 @@ class BaseParticipantForm(BaseForm):
             cf = self._custom_fields[field.name]
             field.save(cf, participant)
 
+        db.session.flush()
         participant.set_representing()
 
         if commit:
