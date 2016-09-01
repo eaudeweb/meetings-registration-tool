@@ -30,5 +30,11 @@ DOMAIN_NAME = ''
 # Choose a subset of the available languages: ['english', 'french', 'spanish']
 # TRANSLATIONS = []
 
+# Choose a subset of the available title choices if you don't need all of them:
+# ['Mr', 'Ms', 'Dr', 'Prof']
+# TITLE_CHOICES = []
+
 # URL used by importer for participants photos
 # PHOTOS_BASE_URL = ''
+
+REDIS_URL = "redis://redis:6379/1"

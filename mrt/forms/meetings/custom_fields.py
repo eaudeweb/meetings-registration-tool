@@ -98,6 +98,9 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
                                 for c in query]
             if not f.required:
                 attrs['choices'] = [('', '---')] + attrs['choices']
+            if f.slug == 'title':
+                attrs['choices'] = [choice for choice in attrs['choices']
+                                    if choice[0] in app.config['TITLE_CHOICES']]
             attrs['coerce'] = unicode
 
         if f.field_type.code == CustomField.LANGUAGE:
@@ -116,7 +119,7 @@ def custom_form_factory(form, field_types=[], field_slugs=[],
             attrs['choices'] = [(c.id, c) for c in query]
             attrs['coerce'] = int
 
-        if f.field_type.code in (CustomField.MULTI_CHECKBOX,CustomField.RADIO):
+        if f.field_type.code in (CustomField.MULTI_CHECKBOX, CustomField.RADIO):
             query = CustomFieldChoice.query.filter_by(custom_field=f)
             attrs['choices'] = [(unicode(c.value), c.value) for c in query]
             attrs['coerce'] = unicode
