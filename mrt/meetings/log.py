@@ -61,7 +61,7 @@ class ActivityLogs(PermissionRequiredMixin, MethodView):
     def get(self):
         activities = g.meeting.activities.order_by(ActivityLog.date.desc())
         staff_members = [activity.staff for activity in
-                         g.meeting.activities.group_by('id', 'staff_id').all()]
+                         g.meeting.activities.distinct(ActivityLog.staff_id)]
 
         staff_id = request.args.get('staff_id', None, type=int)
         seconds = request.args.get('time', None, type=int)
