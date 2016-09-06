@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import wraps
 from werkzeug.utils import HTMLBuilder
 from path import path
@@ -8,6 +9,9 @@ from flask import current_app as app
 from flask.ext.login import current_user as user
 from flask.views import MethodView
 from flask_thumbnails import Thumbnail
+
+from sqlalchemy.sql.functions import coalesce
+from sqlalchemy.sql.expression import asc, desc
 
 from mrt.forms.meetings import AcknowledgeEmailForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory
@@ -103,12 +107,23 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
     def process_credentials(self, participant, val):
         return '<span class="glyphicon glyphicon-ok"></span>' if val else ''
 
+    def process_registration_date(self, participant, val):
+        if participant.registration_date:
+            return participant.registration_date.strftime('%-d %b %Y')
+
     def get_queryset(self, **opt):
         participants = Participant.query.current_meeting().participants()
         total = participants.count()
         for item in opt['order']:
-            participants = participants.order_by(
-                '%s %s' % (item['column'], item['dir']))
+            # Special case for registration_date -> NULL values are turned into
+            # datetime.min
+            if item['column'] == 'registration_date':
+                direction = {'asc': asc, 'desc': desc}.get(item['dir'])
+                participants = participants.order_by(direction(coalesce(
+                    Participant.registration_date, datetime.min)))
+            else:
+                participants = participants.order_by(
+                    '{column} {dir}'.format(**item))
 
         if opt['search']:
             participants = search_for_participant(opt['search'], participants)
@@ -135,11 +150,21 @@ class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
     def process_verified(self, participant, val):
         return '<span class="glyphicon glyphicon-ok"></span>' if val else ''
 
+    def process_registration_date(self, participant, val):
+        if participant.registration_date:
+            return participant.registration_date.strftime('%-d %b %Y')
+
     def get_queryset(self, **opt):
         participants = Participant.query.current_meeting().media_participants()
         total = participants.count()
 
         for item in opt['order']:
+            # Special case for registration_date -> NULL values are turned into
+            # datetime.min
+            if item['column'] == 'registration_date':
+                direction = {'asc': asc, 'desc': desc}.get(item['dir'])
+                participants = participants.order_by(direction(coalesce(
+                    Participant.registration_date, datetime.min)))
             participants = participants.order_by(
                 '%s %s' % (item['column'], item['dir']))
 
