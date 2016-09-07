@@ -52,13 +52,13 @@
                 {{ participant.first_name }}
                 {{ participant.last_name }}
               </dd>
-              <dd>{{ participant.functional_title_value }}</dd>
-              <dd>{{ participant.department_value }}</dd>
-              <dd>{{ participant.organization_value }}</dd>
+              <dd>{{ participant.hardcoded_field_value('functional-title') }}</dd>
+              <dd>{{ participant.hardcoded_field_value('department-unit') }}</dd>
+              <dd>{{ participant.hardcoded_field_value('organization') }}</dd>
               <dd>{{ participant.address_value }}</dd>
               <dd>
-                {{ participant.post_code_value}}
-                {{ participant.city_value}}
+                {{ participant.hardcoded_field_value('post-code') }}
+                {{ participant.hardcoded_field_value('city') }}
               </dd>
               <dd style="margin-bottom: 5px;">
                 {% for lang in config.TRANSLATIONS %}
