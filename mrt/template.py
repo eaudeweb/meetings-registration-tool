@@ -55,20 +55,20 @@ def date_processor(date_start, date_end, in_format='%Y-%m-%d',
     else:
         if date_start.year != date_end.year:
             # full dates for different years
-            return '%s-%s' % (
+            return '%s - %s' % (
                 format_date(date_start, out_format, locale=locale),
                 format_date(date_end, out_format, locale=locale))
         else:
             if date_start.month != date_end.month:
                 # same years, different months
-                return '%s-%s' % (
+                return '%s - %s' % (
                     format_date(date_start, out_format.replace(' yyyy', ''),
                                 locale=locale),
                     format_date(date_end, out_format, locale=locale))
             else:
                 if date_start.day != date_end.day:
                     # same year, same month, different days
-                    return '%s-%s' % (
+                    return '%s - %s' % (
                         format_date(date_start, 'd', locale=locale),
                         format_date(date_end, out_format, locale=locale))
                 else:

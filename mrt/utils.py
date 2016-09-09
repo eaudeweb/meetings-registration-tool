@@ -23,12 +23,6 @@ from mrt.definitions import LANGUAGES_MAP, LANGUAGES_ISO_MAP
 
 
 logos_upload = UploadSet('logos', IMAGES)
-
-
-_LANGUAGES_MAP = {'english': 'en', 'french': 'fr', 'spanish': 'es'}
-_LANGUAGES_ISO_MAP = {v: k for k, v in _LANGUAGES_MAP.items()}
-
-
 sentry = Sentry()
 
 
