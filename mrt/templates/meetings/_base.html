@@ -36,51 +36,53 @@
       </li>
     {% endif %}
 
-    {% if has_perm('view_participant') %}
+    {% if has_perm('view_participant') or has_perm('view_media_participant') %}
       <li class="dropdown {{ active('/printouts') }}" id="printouts_tab">
         <a class="dropdown-toggle" data-toggle="dropdown">
           Printouts <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li>
-              <a href="{{ url_for('meetings.printouts_short_list') }}">
-                Print short list</a>
-            </li>
-            <li>
-              <a href="{{ url_for('meetings.printouts_delegation_list') }}">
-                Print list of delegations</a>
-            </li>
+            {% if has_perm('view_participant') %}
+              <li>
+                <a href="{{ url_for('meetings.printouts_short_list') }}">
+                  Print short list</a>
+              </li>
+              <li>
+                <a href="{{ url_for('meetings.printouts_delegation_list') }}">
+                  Print list of delegations</a>
+              </li>
 
-            <li>
-              <a href="{{ url_for('meetings.printouts_participant_badges') }}">
-                Print participant badges</a>
-            </li>
-            <li>
-              <a href="{{ url_for('meetings.printouts_participant_events') }}">
-                Print list of events</a>
-            </li>
-            <li>
-              <a href="{{ url_for('meetings.printouts_provisional_list') }}">
-                Print list of participants</a>
-            </li>
-            <li>
-              <a href="{{ url_for('meetings.printouts_document_distribution') }}">
-                Print distribution of documents</a>
-            </li>
-            <li>
-              <a href="{{ url_for('meetings.printouts_admission') }}">
-                Print admission</a>
-            </li>
+              <li>
+                <a href="{{ url_for('meetings.printouts_participant_badges') }}">
+                  Print participant badges</a>
+              </li>
+              <li>
+                <a href="{{ url_for('meetings.printouts_participant_events') }}">
+                  Print list of events</a>
+              </li>
+              <li>
+                <a href="{{ url_for('meetings.printouts_provisional_list') }}">
+                  Print list of participants</a>
+              </li>
+              <li>
+                <a href="{{ url_for('meetings.printouts_document_distribution') }}">
+                  Print distribution of documents</a>
+              </li>
+              <li>
+                <a href="{{ url_for('meetings.printouts_admission') }}">
+                  Print admission</a>
+              </li>
 
-            {% if EXTRA_PRINTOUTS_MENU %}
+              {% if EXTRA_PRINTOUTS_MENU %}
+                <li class="divider"></li>
+                  {% for label, endpoint in EXTRA_PRINTOUTS_MENU %}
+                    <li>
+                      <a href="{{ url_for(endpoint) }}">{{ label }}</a>
+                    </li>
+                  {% endfor %}
+              {% endif %}
+
               <li class="divider"></li>
-                {% for label, endpoint in EXTRA_PRINTOUTS_MENU %}
-                  <li>
-                    <a href="{{ url_for(endpoint) }}">{{ label }}</a>
-                  </li>
-                {% endfor %}
             {% endif %}
-
-            <li class="divider"></li>
 
             <li>
               <a href="{{ url_for('meetings.processing_file_list') }}">
