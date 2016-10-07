@@ -1,15 +1,21 @@
 $(function () {
 
-  // image upload validation
-  var allowedExtensions = ['jpg', 'jpe', 'jpeg', 'png', 'gif', 'svg', 'bmp'];
+  // file upload validation
+  var allAllowedExtensions = {
+      'image': ['jpg', 'jpe', 'jpeg', 'png', 'gif', 'svg', 'bmp'],
+      'document': ['rtf', 'odf', 'ods', 'gnumeric', 'abw', 'doc', 'docx', 'xls', 'xlsx', 'pdf']
+  };
   var maxUploadSize = $('#max-upload-size').data('bytes');
   var maxUploadSizeMB = Math.floor(maxUploadSize / (1024 * 1024));
-  var fileInputs = $('[data-type=image]').find('input');
+  var maxFileSize = $('#max-file-size').data('bytes');
+  var maxFileSizeMB = Math.floor(maxFileSize / (1024 * 1024));
+
+  var fileInputs = $('input[type=file]');
 
   // initialize array for storing file size for each input[type=file]
   // on page (initially 0)
   var fileSizes = [];
-  for(var i=0; i<fileInputs.length; i++) {
+  for (var i=0; i<fileInputs.length; i++) {
     fileSizes.push(0);
   }
 
@@ -35,6 +41,9 @@ $(function () {
       var fileExtension = file.name.split('.').pop();
       var message;
 
+      var fileType = $(this).parent().attr('data-type');
+      var allowedExtensions = allAllowedExtensions[fileType];
+
       // index of current file input
       var inputIdx = fileInputs.index($(this));
 
@@ -47,8 +56,8 @@ $(function () {
       if (allowedExtensions.indexOf(fileExtension.toLowerCase()) == -1) {
         message = file.name + ' is not in the allowed extensions: ' + allowedExtensions.join(', ');
       }
-      else if (file.size >= 1024 * 1024) {
-        message = file.name + ' exceeds the maximum upload size (' + maxUploadSizeMB + 'MB)';
+      else if (file.size >= maxFileSize) {
+        message = file.name + ' exceeds the maximum file size (' + maxFileSizeMB + 'MB)';
       }
       else if (totalUploadSize >= maxUploadSize) {
         message = 'Maximum upload size (' + maxUploadSizeMB + 'MB) has been exceeded';

@@ -1,5 +1,4 @@
-{% macro form_group(field, label_size="2", input_size="8",
-                    class_="", options={}) %}
+{% macro form_group(field, label_size="2", input_size="8", class_="", options={}) %}
 
   {% if field.type == 'HiddenField' %}
 
@@ -333,23 +332,13 @@
 
 
 {% macro meeting_title_all_languages() %}
+  {% for language in config.TRANSLATIONS %}
   <div class="row printout-meeting-title">
     {{ g.meeting.title|clean_html(tags='sup') }} <br>
-    {{ g.meeting.venue_city.english }}
+    {{ g.meeting.venue_city[language] }}
     ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
-    {{ date_processor(g.meeting.date_start, g.meeting.date_end) }}
+    {{ date_processor(g.meeting.date_start, g.meeting.date_end, locale=LANGUAGES_MAP[language]) }}
   </div>
-  <div class="row printout-meeting-title">
-    {{ g.meeting.title.spanish|clean_html(tags='sup') }} <br>
-    {{ g.meeting.venue_city.spanish }}
-    ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
-    {{ date_processor(g.meeting.date_start, g.meeting.date_end, locale='es') }}
-  </div>
-  <div class="row printout-meeting-title">
-    {{ g.meeting.title.french|clean_html(tags='sup') }} <br>
-    {{ g.meeting.venue_city.french }}
-    ({{ g.meeting.venue_country }}) {{ g.meeting.venue_state }},
-    {{ date_processor(g.meeting.date_start, g.meeting.date_end, locale='fr') }}
-  </div>
+  {% endfor %}
 {% endmacro %}
 

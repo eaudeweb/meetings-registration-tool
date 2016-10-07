@@ -69,7 +69,7 @@ _BUNDLE_REGISTRATION_CSS = (
 _BUNDLE_REGISTRATION_JS = (
     'js/lib/jquery.min.js',
     'js/lib/jquery.showif.js',
-    'js/image_validation.js',
+    'js/file_validation.js',
     'js/lib/moment.js',
     'js/lib/bootstrap-datetimepicker.min.js',
 )

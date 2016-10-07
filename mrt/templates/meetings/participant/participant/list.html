@@ -14,8 +14,8 @@
 {% endblock %}
 
 {% block scripts %}
-
   <script>
+
     $(function () {
       var participants =  $("#participants");
       var pTable = participants.dataTable({
@@ -28,18 +28,7 @@
             { "data": "last_name" },
             { "data": "category_id" },
             { "data": "representing" },
-            { "data": "registration_date",
-              "render": function(data) {
-                if (data != null){
-                  var date = new Date(data);
-                  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-                  return date.getDate() + " " + monthNames[date.getMonth()] + " " + date.getFullYear();
-                } else {
-                  return '';
-                }
-              },
-              "className": "text-center"
-            },
+            { "data": "registration_date", "className": "text-center" },
             { "data": "attended", "className": "text-center" },
             { "data": "verified", "className": "text-center" },
             { "data": "credentials", "className": "text-center" }

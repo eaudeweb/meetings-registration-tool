@@ -75,7 +75,7 @@ class DateWidget(widgets.TextInput):
 class DocumentWidget(widgets.FileInput):
 
     def __call__(self, field, **kwargs):
-        kwargs['data-type'] = getattr(field, 'file_type', None)
+        kwargs.pop('class_', None)
         return HTMLString(render_template(
             'meetings/custom_field/_document_widget.html',
             field=field,
@@ -87,7 +87,7 @@ class RegistrationDocumentWidget(widgets.FileInput):
 
     def __call__(self, field, **kwargs):
         default_widget = widgets.FileInput()
-        kwargs['data-type'] = getattr(field, 'file_type', None)
+        kwargs.pop('class_', None)
         return HTMLString(render_template(
             'meetings/registration/_document_widget.html',
             field=field,
