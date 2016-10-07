@@ -156,7 +156,7 @@ def create_app(config={}):
     @app.errorhandler(413)
     def file_too_large(error):
         mb = 1024 * 1024
-        max_size = app.config.get('UPLOAD_SIZE', mb) / mb
+        max_size = app.config.get('MAX_UPLOAD_SIZE', mb) / mb
         return render_template('_file_too_large.html',
                                max_size=max_size,
                                url=request.url), 413
@@ -202,7 +202,7 @@ def _configure_uploads(app):
     })
 
     # limit upload size to 1MB
-    patch_request_class(app, app.config.get('UPLOAD_SIZE', 1 * 1024 * 1024))
+    patch_request_class(app, app.config.get('MAX_UPLOAD_SIZE', 1 * 1024 * 1024))
     configure_uploads(app, (backgrounds, custom_upload, logos_upload))
     Thumbnail(app)
 

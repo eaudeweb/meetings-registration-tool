@@ -1,7 +1,12 @@
 SQLALCHEMY_DATABASE_URI = 'postgresql://taygun:taygun@localhost/meetings'
 SECRET_KEY = 'secret'
 
-UPLOAD_SIZE = 1 * 1024 * 1024
+
+# Total upload size limit - if total size of all files used in registration
+# exceeds this value the server returns a 413 Request Entity Too Large response
+MAX_UPLOAD_SIZE = 10 * 1024 * 1024
+# Single file size limit - used only in Javascript validation
+MAX_FILE_SIZE = 1 * 1024 * 1024
 
 #Name and title of the product
 PRODUCT_TITLE = ''
