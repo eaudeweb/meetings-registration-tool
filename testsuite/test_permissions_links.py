@@ -20,7 +20,7 @@ def _test(client, url, element_id, status):
     assert resp.status_code == 200
     element = PyQuery(resp.data)(element_id)
     assert len(element) == status
-    #PYQUERY CHECKS HERE!!
+    # PYQUERY CHECKS HERE!!
 
 
 def _login_user(client, user, password='eaudeweb'):
@@ -53,7 +53,7 @@ def _login_user(client, user, password='eaudeweb'):
     ('meetings.participants', ('view_participant',),
         '#printouts_tab', DISPLAYED),
     ('meetings.media_participants', ('view_media_participant',),
-        '#printouts_tab', HIDDEN),
+        '#printouts_tab', DISPLAYED),  # Excel download works as a printout now
     ('meetings.participants', ('manage_meeting',),
         '#email_tab', DISPLAYED),
     ('meetings.participants', ('manage_participant',),
