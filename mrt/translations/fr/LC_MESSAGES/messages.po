@@ -156,8 +156,8 @@ msgid "Submit"
 msgstr "Soumettre"
 
 #: mrt/templates/meetings/registration/success.html:8
-msgid "Successfully registered for"
-msgstr "Vous vous êtes enregistré avec succès pour"
+msgid "Thank you for submitting your registration information."
+msgstr "Nous vous remercions de soumettre vos informations d'enregistrement"
 
 #: mrt/templates/meetings/registration/success.html:34
 msgid "Create account"
