@@ -1,6 +1,6 @@
 from flask import g
 from wtforms import fields
-from wtforms.validators import DataRequired, Optional, Email
+from wtforms.validators import DataRequired, Optional, Email, Length
 from wtforms.widgets import TextArea
 
 from mrt.models import Participant, Category
@@ -16,7 +16,7 @@ LANGUAGE_CHOICES.insert(0, ('all', 'All participants'))
 
 class BaseEmailForm(BaseForm):
 
-    subject = fields.StringField(validators=[DataRequired()])
+    subject = fields.StringField(validators=[DataRequired(), Length(max=128)])
     message = fields.StringField(validators=[DataRequired()],
                                  widget=TextArea())
 
