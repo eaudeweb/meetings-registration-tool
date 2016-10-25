@@ -155,3 +155,28 @@ def test_resend_email(app, user):
         assert resp.status_code == 302
         assert len(outbox) == 1
         assert MailLog.query.count() == 2
+
+
+def test_ack_email(app, user):
+    cat = MeetingCategoryFactory()
+    participant = ParticipantFactory(meeting=cat.meeting)
+    client = app.test_client()
+    data = {
+        'message': 'Test',
+        'subject': 'Very long subject '*8,
+        'language': 'English',
+        'to': participant.email,
+    }
+    with app.test_request_context(), mail.record_messages() as outbox:
+        with client.session_transaction() as sess:
+            sess['user_id'] = user.id
+        resp = client.post(url_for('meetings.participant_acknowledge',
+                                   meeting_id=cat.meeting.id,
+                                   participant_id=participant.id),
+                           data=data)
+        assert resp.status_code == 200
+        assert len(PyQuery(resp.data)('div.text-danger')) == 1
+        assert PyQuery(resp.data)('div.text-danger')[0].text_content() == \
+            'Field cannot be longer than 128 characters.'
+        assert len(outbox) == 0
+        assert MailLog.query.count() == 0
