@@ -384,7 +384,7 @@ class BaseDistribution(PermissionRequiredMixin, MethodView):
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
 
         return render_template(
-            'printouts/distribution.html',
+            'meetings/printouts/distribution.html',
             printout_type=self.printout_type,
             participants=participants,
             count=count,
@@ -405,7 +405,7 @@ class DocumentDistribution(BaseDistribution):
     JOB_NAME = 'document distribution'
     DOC_TITLE = 'Distribution of documents'
 
-    template = 'printouts/distribution.html'
+    template = 'meetings/printouts/distribution.html'
     view_name = '.printouts_document_distribution'
     printout_type = 'distribution'
     table_class = 'table-bordered table-condensed'
@@ -416,7 +416,7 @@ class PigeonHoles(BaseDistribution):
     JOB_NAME = 'pigeon holes'
     DOC_TITLE = 'Pigeon holes'
 
-    template = 'printouts/distribution.html'
+    template = 'meetings/printouts/distribution.html'
     view_name = '.printouts_pigeon_holes'
     printout_type = 'pigeon'
     table_class = 'pigeon-holes'
@@ -615,7 +615,7 @@ def _process_distribution(meeting_id, printout_type, title, flag):
                'printout_type': view_class.printout_type,
                'table_class': view_class.table_class,
                'flag': flag,
-               'template': 'printouts/_distribution_table.html'}
+               'template': 'meetings/printouts/_distribution_table.html'}
 
     return PdfRenderer('meetings/printouts/printout.html',
                        title=title,
