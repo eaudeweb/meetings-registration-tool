@@ -28,15 +28,17 @@ class _RulesMixin(object):
     def _validate_conditions(self, rule):
         for condition in rule.conditions.all():
             values = [unicode(i.value) for i in condition.values.all()]
-            field = self._fields[condition.field.slug]
-            if self._normalize_data(field.data) not in values:
+            field = self._fields.get(condition.field.slug)
+            if field and self._normalize_data(field.data) not in values:
                 return False
         return True
 
     def _validate_actions(self, rule):
         success = True
         for action in rule.actions.all():
-            field = self._fields[action.field.slug]
+            field = self._fields.get(action.field.slug)
+            if not field:
+                return success
             if action.is_required:
                 field.validators.insert(0, DataRequired())
                 success = field.validate(self, [DataRequired()])
