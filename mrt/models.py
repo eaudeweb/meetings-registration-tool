@@ -1161,12 +1161,14 @@ class Rule(db.Model):
         ids = [f.id for f in fields]
         rule_type = getattr(g, 'rule_type', cls.PARTICIPANT)
         return (
-            cls.query.filter_by(meeting=g.meeting, rule_type=rule_type)
+            cls.query
+            .join(Rule.actions)
+            .join(Rule.conditions)
             .filter(
-                or_(
-                    Action.field.has(CustomField.id.in_(ids)),
-                    Condition.field.has(CustomField.id.in_(ids))
-                )
+                Rule.meeting == g.meeting,
+                Rule.rule_type == rule_type,
+                or_(Action.field.has(CustomField.id.in_(ids)),
+                    Condition.field.has(CustomField.id.in_(ids)))
             )
         )
 
