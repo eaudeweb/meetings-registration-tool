@@ -3,7 +3,7 @@ import sys
 import importlib
 
 from werkzeug import SharedDataMiddleware
-from flask import Flask, redirect, request, render_template, url_for, g
+from flask import Flask, redirect, render_template, url_for, g
 from flask.ext.babel import Babel
 from flask.ext.login import LoginManager
 from flask.ext.thumbnails import Thumbnail
@@ -157,9 +157,7 @@ def create_app(config={}):
     def file_too_large(error):
         mb = 1024 * 1024
         max_size = app.config.get('MAX_UPLOAD_SIZE', mb) / mb
-        return render_template('_file_too_large.html',
-                               max_size=max_size,
-                               url=request.url), 413
+        return render_template('_file_too_large.html', max_size=max_size), 413
 
     return app
 
