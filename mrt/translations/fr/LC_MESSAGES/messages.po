@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-05-12 15:04+0300\n"
-"PO-Revision-Date: 2015-05-11 15:19+0300\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Report-Msgid-Bugs-To: purepython@eaudeweb.ro\n"
+"POT-Creation-Date: 2016-12-05 16:48+0200\n"
+"PO-Revision-Date: 2016-12-05 15:51+0300\n"
+"Last-Translator: Iulia Chiriac <iulia.chiriac@eaudeweb.ro>\n"
 "Language-Team: fr <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
@@ -91,10 +91,12 @@ msgid "Country"
 msgstr "Pays"
 
 #: mrt/models.py:318
+#: mrt/templates/meetings/printouts/acknowledge_detail.html:65
 msgid "Country represented"
 msgstr "Pays représentés"
 
 #: mrt/models.py:322
+#: mrt/templates/meetings/printouts/acknowledge_detail.html:77
 msgid "Representing region"
 msgstr "Région représentant"
 
@@ -102,29 +104,43 @@ msgstr "Région représentant"
 msgid "Organization represented"
 msgstr "Organisation représentée"
 
-#: mrt/models.py:329
+#: mrt/models.py:328
+#, fuzzy
+msgid "Representing"
+msgstr "Région représentant"
+
+#: mrt/models.py:331
 msgid "Attended"
 msgstr "Participation"
 
-#: mrt/models.py:332
+#: mrt/models.py:334
 msgid "Verified"
 msgstr "Vérifié"
 
-#: mrt/models.py:335
+#: mrt/models.py:337
 msgid "Credentials"
 msgstr "Lettres de créance"
 
-#: mrt/models.py:342
+#: mrt/models.py:344 mrt/models.py:1157
 msgid "Participant type"
 msgstr "Type de participant"
 
-#: mrt/forms/meetings/registration.py:76
+#: mrt/models.py:348
+#, fuzzy
+msgid "Date of registration"
+msgstr "Détails de l'inscription"
+
+#: mrt/forms/meetings/registration.py:83
 msgid "Invalid email. Enter another email."
 msgstr "Email invalide. Entrer un autre courriel."
 
-#: mrt/forms/meetings/registration.py:80
+#: mrt/forms/meetings/registration.py:87
 msgid "Another participant is already registered with this email address."
 msgstr "Un autre participant est déjà enregistré avec cette adresse email."
+
+#: mrt/templates/meetings/custom_field/_document_widget.html:21
+msgid "Use the current file"
+msgstr "Utiliser le fichier courant"
 
 #: mrt/templates/meetings/participant/acknowledge.html:74
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:24
@@ -139,19 +155,28 @@ msgstr "Catégorie"
 msgid "Representative of"
 msgstr "Représentant de"
 
+#: mrt/templates/meetings/registration/_document_widget.html:15
+#, fuzzy
+msgid "Use this document for registration"
+msgstr "Utiliser cette photo pour l'inscription."
+
 #: mrt/templates/meetings/registration/_image_widget.html:15
 msgid "Use this photo for registration"
 msgstr "Utiliser cette photo pour l'inscription."
 
-#: mrt/templates/meetings/registration/form.html:48
+#: mrt/templates/meetings/registration/form.html:49
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: mrt/templates/meetings/registration/form.html:52
+#: mrt/templates/meetings/registration/form.html:53
 msgid "Login and pre-fill the registration form"
 msgstr "Identifiez et pré-remplissez le formulaire d'inscription"
 
-#: mrt/templates/meetings/registration/form.html:102
+#: mrt/templates/meetings/registration/form.html:87
+msgid "I would also like to attend"
+msgstr "Je voudrais aussi participer"
+
+#: mrt/templates/meetings/registration/form.html:113
 msgid "Submit"
 msgstr "Soumettre"
 
@@ -173,9 +198,9 @@ msgstr ""
 msgid "Your participant details"
 msgstr "Vos détails"
 
-msgid "Password"
-msgstr "Mot de passe"
+#~ msgid "Password"
+#~ msgstr "Mot de passe"
 
-msgid "Confirm Password"
-msgstr "Confirmez le mot de passe"
+#~ msgid "Confirm Password"
+#~ msgstr "Confirmez le mot de passe"
 
