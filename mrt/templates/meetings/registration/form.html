@@ -84,7 +84,7 @@
     {% if form.has(CustomField.EVENT) %}
       {% set events = form.filter([CustomField.EVENT]) %}
       <div class="form-group">
-        <label class="col-sm-2">I would also like to attend</label>
+          <label class="col-sm-2">{{ gettext("I would also like to attend") }}</label>
         <div class="col-sm-10">
           {% for field in events %}
             {{ field() }}
