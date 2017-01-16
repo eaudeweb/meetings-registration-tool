@@ -508,7 +508,12 @@ class Participant(db.Model):
         return cvalue.value == 'true' if cvalue else False
 
     def hardcoded_field_value(self, field_name):
-        field = self.meeting.custom_fields.filter_by(slug=field_name).first()
+        field = (
+            self.meeting.custom_fields
+            .filter_by(slug=field_name,
+                       custom_field_type=self.participant_type)
+            .first()
+        )
         if not field:
             return None
         custom_value = (field.custom_field_values
