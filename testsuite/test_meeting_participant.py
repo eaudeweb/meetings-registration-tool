@@ -13,7 +13,7 @@ import xlrd
 
 from .factories import ParticipantFactory, MeetingCategoryFactory
 from .factories import CustomFieldFactory, MediaParticipantFactory
-from .factories import DocumentFieldFactory
+from .factories import DocumentFieldFactory, CustomFieldValueFactory
 
 from mrt.forms.fields import EmailRequired
 from mrt.forms.meetings import (add_custom_fields_for_meeting,
@@ -874,3 +874,18 @@ def test_meeting_participant_detail_document_field(app, user):
         assert len(doc_detail_value) == 1
         assert (doc_field_value.value ==
                 doc_detail_value[0].find('td').text_content())
+
+
+def test_participant_hardcoded_field_value(app, user):
+    category = MeetingCategoryFactory()
+    meeting = category.meeting
+    CustomFieldFactory(field_type='text', meeting=meeting,
+                       custom_field_type=CustomField.MEDIA,
+                       required=False, label__english='City')
+    cf = CustomFieldFactory(field_type='text', meeting=meeting,
+                            custom_field_type=CustomField.PARTICIPANT,
+                            required=False, label__english='City')
+    participant = ParticipantFactory(meeting=meeting)
+    CustomFieldValueFactory(participant=participant, custom_field=cf,
+                            value='Madrid')
+    assert participant.hardcoded_field_value('city') == 'Madrid'
