@@ -298,14 +298,34 @@ class CustomFieldFactory(SQLAlchemyModelFactory):
     custom_field_type = models.CustomField.PARTICIPANT
 
 
-class ProfilePictureFactory(SQLAlchemyModelFactory):
+class EventFactory(CustomFieldFactory):
+    field_type = models.CustomField.EVENT
+    required = False
+    visible_on_registration_form = False
+
+
+class DocumentFieldFactory(CustomFieldFactory):
+    field_type = models.CustomField.DOCUMENT
+
+
+class CustomFieldValueFactory(SQLAlchemyModelFactory):
     class Meta:
         model = models.CustomFieldValue
         sqlalchemy_session = models.db.session
+
     participant = SubFactory(ParticipantFactory)
     custom_field = SubFactory(CustomFieldFactory,
                               meeting=SelfAttribute('..participant.meeting'))
+    value = 'some random text'
+
+
+class ProfilePictureFactory(CustomFieldValueFactory):
     value = 'image.png'
+
+
+class EventValueFactory(CustomFieldValueFactory):
+    custom_field = SubFactory(EventFactory)
+    value = 'true'
 
 
 class UserNotificationFactory(SQLAlchemyModelFactory):
@@ -358,42 +378,6 @@ class ActionFactory(SQLAlchemyModelFactory):
                        field_type='country')
     is_visible = False
     is_required = False
-
-
-class EventFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = models.CustomField
-        sqlalchemy_session = models.db.session
-
-    label = SubFactory(CustomFieldLabelFactory)
-    meeting = SubFactory(MeetingFactory)
-    field_type = models.CustomField.EVENT
-    required = False
-    visible_on_registration_form = False
-    custom_field_type = models.CustomField.PARTICIPANT
-
-
-class DocumentFieldFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = models.CustomField
-        sqlalchemy_session = models.db.session
-
-    label = SubFactory(CustomFieldLabelFactory)
-    meeting = SubFactory(MeetingFactory)
-    field_type = models.CustomField.DOCUMENT
-    required = True
-    visible_on_registration_form = True
-    custom_field_type = models.CustomField.PARTICIPANT
-
-
-class EventValueFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = models.CustomFieldValue
-        sqlalchemy_session = models.db.session
-
-    custom_field = SubFactory(EventFactory)
-    participant = SubFactory(ParticipantFactory)
-    value = 'true'
 
 
 def normalize_data(data):
