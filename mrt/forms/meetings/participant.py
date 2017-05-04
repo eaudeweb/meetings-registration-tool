@@ -41,7 +41,8 @@ class _RulesMixin(object):
                 return success
             if action.is_required:
                 field.validators.insert(0, DataRequired())
-                success = field.validate(self, [DataRequired()])
+                success = field.validate(self, [DataRequired()]) and success
+
             if action.disable_form:
                 success = False
 

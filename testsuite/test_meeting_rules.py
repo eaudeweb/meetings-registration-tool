@@ -200,8 +200,15 @@ def test_meeting_complex_rule_on_registration(app, user, default_meeting):
         assert len(errors) == 2
         assert meeting.participants.count() == 0
 
-        data[passport_field.slug] = (StringIO('Test'), 'test.png')
+        # test that errors show for invalid fields even if some
+        # fields pass validations
         data[info_field.slug] = 'Extra info about participant'
+        resp = register_participant_online(client, data, meeting)
+        errors = PyQuery(resp.data)('div.text-danger')
+        assert len(errors) == 1
+        assert meeting.participants.count() == 0
+
+        data[passport_field.slug] = (StringIO('Test'), 'test.png')
         resp = register_participant_online(client, data, meeting)
         errors = PyQuery(resp.data)('div.text-danger')
         assert len(errors) == 0
