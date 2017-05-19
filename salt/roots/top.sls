@@ -1,6 +1,0 @@
-base:
-    '*':
-        - python
-        - postgresql
-        - webserver
-
