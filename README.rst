@@ -5,6 +5,7 @@ Meetings Registration Tool
 
 Installation
 ------------
+In order to do a step-by-step installation (without docker) check this `README </docs/OLDREADME.rst>`_ .
 
 * Install `Docker <https://docker.com>`_
 * Install `Docker Compose <https://docs.docker.com/compose>`_
