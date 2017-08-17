@@ -19,6 +19,6 @@ RUN pip install -r requirements-dep.txt \
  && pybabel compile -d mrt/translations \
  && mkdir -p $MRT_SRC/instance/files \
  && mv settings.example instance/settings.py \
- && mv docker-entrypoint.sh /bin/
+ && mv ./docker/docker-entrypoint.sh /bin/
 
 ENTRYPOINT ["docker-entrypoint.sh"]
