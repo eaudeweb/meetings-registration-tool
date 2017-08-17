@@ -54,11 +54,5 @@ docs/_build/
 *env.ini
 
 # Others
-instance/
-mrt/static/.webassets-cache/
-mrt/static/gen/
-
-# Vagrant
-.vagrant/
 settings.py
 postgres.env
