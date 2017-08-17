@@ -61,3 +61,4 @@ mrt/static/gen/
 # Vagrant
 .vagrant/
 settings.py
+postgres.env
