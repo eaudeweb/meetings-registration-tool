@@ -18,6 +18,11 @@ WORKDIR $MRT_SRC
 RUN pip install -r requirements-dep.txt \
  && pybabel compile -d mrt/translations \
  && mkdir -p $MRT_SRC/instance/files \
+ && mkdir -p $MRT_SRC/instance/photos \
+ && mkdir -p $MRT_SRC/instance/printouts \
+ && mkdir -p $MRT_SRC/instance/badges \
+ && mkdir -p $MRT_SRC/instance/user_index \
+ && mkdir -p $MRT_SRC/instance/backgrounds \
  && mv settings.example instance/settings.py \
  && mv ./docker/docker-entrypoint.sh /bin/
 
