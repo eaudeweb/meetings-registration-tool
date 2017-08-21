@@ -24,8 +24,12 @@ Usage
    $ vim settings.py
 
    Edit `DOMAIN_NAME` to include you domain name. E.g. https://meetings.cites.org
-   
-3. Start application stack::
+3. Customize postgres env file::
+
+    $ cp docker/postgres.env.example docker/postgres.env
+    $ vim docker/postgres.env
+
+4. Start application stack::
 
     $ docker-compose up -d
     $ docker-compose logs
@@ -35,11 +39,11 @@ Usage
     - POSTGRES_CONFIG_max_connections=10
     - POSTGRES_CONFIG_shared_buffers=512MB
 
-3. Create super-user to login with::
+5. Create super-user to login with::
 
     $ docker-compose run mrt create_superuser
 
-4. See it in action::
+6. See it in action::
 
     http://localhost:5000
 
