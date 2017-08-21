@@ -1,40 +1,45 @@
-mrt:
-  image: eaudeweb/mrt
-  ports:
-  - "5000:5000"
-  links:
-  - postgres:postgres
-  - redis:redis
-  volumes:
-  - mrt-files-logos:/var/local/meetings/instance/files/logos
-  - mrt-files-printouts:/var/local/meetings/instance/files/printouts
-  - /etc/localtime:/etc/localtime:ro
-  - ./settings.py:/var/local/meetings/instance/settings.py:ro
+version: '2'
 
-async:
-  image: eaudeweb/mrt
-  links:
-  - redis:redis
-  - postgres:postgres
-  volumes:
-  - /var/local/meetings/.skip-db-init
-  - mrt-files-logos:/var/local/meetings/instance/files/logos
-  - mrt-files-printouts:/var/local/meetings/instance/files/printouts
-  - /etc/localtime:/etc/localtime:ro
-  - ./settings.py:/var/local/meetings/instance/settings.py:ro
-  command: ["rq", "workers", "printouts"]
+services:
 
-redis:
-  image: redis
+  mrt:
+    image: eaudeweb/mrt:latest
+    container_name: mrt.app
+    ports:
+    - "5000:5000"
+    links:
+    - postgres:postgres
+    - redis:redis
+    volumes:
+    - ./settings.py:/var/local/meetings/instance/settings.py:ro
+    - mrt-files:/var/local/meetings/instance/files
 
-postgres:
-  image: eeacms/postgres:9.5s
-  environment:
-  - POSTGRES_USER=postgres
-  - POSTGRES_PASSWORD=postgres
-  - POSTGRES_DBNAME=meetings
-  - POSTGRES_DBUSER=edw
-  - POSTGRES_DBPASS=edw
-  volumes:
-  - /etc/localtime:/etc/localtime:ro
-  - mrt-postgres-data:/var/lib/postgresql/data
+  async:
+    image: eaudeweb/mrt:latest
+    container_name: mrt.rq
+    links:
+    - redis:redis
+    - postgres:postgres
+    volumes:
+    - /var/local/meetings/.skip-db-init
+    - ./settings.py:/var/local/meetings/instance/settings.py:ro
+    - mrt-files:/var/local/meetings/instance/files/
+    command: ["rq", "workers", "printouts"]
+
+  redis:
+    image: redis:3.2.10-alpine
+    container_name: mrt.redis
+
+  postgres:
+    image: eeacms/postgres:9.6-3.0
+    container_name: mrt.db
+    env_file:
+    - docker/postgres.env
+    volumes:
+    - mrt-data:/var/lib/postgresql/data
+
+volumes:
+  mrt-files:
+    driver: local
+  mrt-data:
+    driver: local
