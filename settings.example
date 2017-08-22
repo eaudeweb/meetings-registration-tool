@@ -47,10 +47,9 @@ REDIS_URL = "redis://redis:6379/1"
 # Custom names for countries not yet updated by Unicode Common Locale Repository
 
 CUSTOMIZED_COUNTRIES = {
-    'KP':
-        {
-            'en': u'Democratic People\u2019s Republic of Korea',
-            'es': u'Rep\u00FAblica Popular Democr\u00E1tica de Corea',
-            'fr': u' R\u00E9publique populaire d\u00E9mocratique de Cor\u00E9e'
-        }
+    'KP': {
+        'en': u'Democratic People\u2019s Republic of Korea',
+        'es': u'Rep\u00FAblica Popular Democr\u00E1tica de Corea',
+        'fr': u' R\u00E9publique populaire d\u00E9mocratique de Cor\u00E9e'
+    }
 }
