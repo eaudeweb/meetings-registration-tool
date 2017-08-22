@@ -10,12 +10,12 @@ from flask_wtf.file import FileField as _FileField
 from jinja2 import Markup
 
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils import Country, i18n
 
 from wtforms import widgets, fields, validators
 from wtforms.widgets.core import html_params, HTMLString
-from wtforms_alchemy import CountryField as _CountryField
 
+from mrt.custom_country import Country
+from mrt.custom_country import CountryField as _CountryField
 from mrt.models import db, CustomFieldChoice, CustomFieldValue
 from mrt.models import MeetingType, Translation
 from mrt.utils import validate_email, unlink_participant_custom_file
@@ -362,7 +362,7 @@ class CustomCountryField(CustomBaseFieldMixin, CountryField):
     def render_data(self):
         # check if it is a country code
         if isinstance(self.data, unicode):
-            return i18n.get_locale().territories.get(self.data, self.data)
+            return Country(self.data).name
         # check if it is a Country instance
         if isinstance(self.data, Country):
             return self.data.name

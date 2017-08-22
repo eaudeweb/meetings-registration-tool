@@ -7,7 +7,6 @@ from flask import current_app as app
 from flask import request, g
 from flask.ext.login import current_user
 
-from babel import Locale
 from babel.dates import format_date
 from jinja2 import evalcontextfilter, Markup
 from path import path
@@ -121,12 +120,6 @@ def inject_badge_context(participant):
         'participant_photo': participant_photo,
         'background': background,
     }
-
-
-def country_in(country, lang_code='en'):
-    if not country:
-        return ''
-    return Locale(lang_code).territories.get(country.code)
 
 
 def region_in(region, lang_code='en'):

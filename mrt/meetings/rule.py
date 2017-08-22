@@ -11,7 +11,7 @@ from mrt.forms.meetings import RuleForm, ConditionForm
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.models import Category, CustomField, Rule
 from mrt.models import db
-from mrt.utils import get_all_countries
+from mrt.custom_country import get_all_countries
 
 
 class Rules(PermissionRequiredMixin, MethodView):

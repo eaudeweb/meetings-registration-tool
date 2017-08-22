@@ -15,8 +15,8 @@ from rq.job import Job as JobRedis
 from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
-from sqlalchemy_utils.types.country import Country
 
+from mrt.custom_country import Country
 from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job

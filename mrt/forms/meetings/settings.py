@@ -16,7 +16,7 @@ from mrt.models import Rule, Condition, ConditionValue, Action
 
 from mrt.definitions import NOTIFICATION_TYPES, NOTIFY_PARTICIPANT
 from mrt.utils import copy_attributes, duplicate_uploaded_file
-from mrt.utils import get_all_countries
+from mrt.custom_country import get_all_countries
 
 from mrt.forms.base import BaseForm, CustomFieldLabelInputForm
 from mrt.forms.base import TranslationInputForm
