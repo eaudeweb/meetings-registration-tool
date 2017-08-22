@@ -9,8 +9,6 @@ from flask.ext.login import LoginManager
 from flask.ext.thumbnails import Thumbnail
 from flask.ext.uploads import configure_uploads, patch_request_class
 
-from flask_papertrail import PaperTrail
-
 from path import path
 
 from mrt.definitions import LANGUAGES_MAP
@@ -138,6 +136,7 @@ def create_app(config={}):
         sentry.init_app(app)
 
     if app.config.get('PAPERTRAIL_HOST'):
+        from flask_papertrail import PaperTrail
         p = PaperTrail()
         p.init_app(app)
 
