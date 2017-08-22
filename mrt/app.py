@@ -25,7 +25,8 @@ from mrt.meetings.urls import meetings
 from mrt.models import db, redis_store, User, CustomField, Participant
 
 from mrt.template import convert_to_dict, has_perm, url_external
-from mrt.template import country_in, region_in
+from mrt.template import region_in
+from mrt.custom_country import country_in
 from mrt.template import inject_badge_context
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file

@@ -4,11 +4,11 @@ from collections import OrderedDict
 from flask import g
 
 from sqlalchemy import and_
-from sqlalchemy_utils import Country
 from wtforms import fields, compat
 from wtforms.meta import DefaultMeta
 from wtforms.validators import DataRequired, ValidationError
 
+from mrt.custom_country import Country
 from mrt.definitions import PRINTOUT_TYPES
 from mrt.forms.base import BaseForm
 from mrt.models import db, Participant, Action, Condition

@@ -5,14 +5,20 @@ from werkzeug import MultiDict
 
 from wtforms import ValidationError
 from wtforms.widgets import TextInput, TextArea
+from wtforms_alchemy import ClassMap
 from wtforms_alchemy import ModelForm
 
+from mrt.custom_country import CountryType
+from mrt.forms.fields import CustomCountryField
 from mrt.models import db
 from mrt.models import Translation, Category, CategoryDefault, CustomField
 from mrt.utils import slugify
 
 
 class BaseForm(ModelForm):
+
+    class Meta:
+        type_map = ClassMap({CountryType: CustomCountryField})
 
     @classmethod
     def get_session(cls):

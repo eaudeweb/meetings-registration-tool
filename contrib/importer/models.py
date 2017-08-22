@@ -5,9 +5,9 @@ from flask import current_app as app
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils import Country
 
 from mrt import models
+from mrt.custom_country import Country
 from mrt.models import db
 from mrt.forms.meetings import add_custom_fields_for_meeting
 from mrt.utils import copy_attributes

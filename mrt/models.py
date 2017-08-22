@@ -16,11 +16,12 @@ from jinja2.exceptions import TemplateNotFound
 from sqlalchemy import cast, or_
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
-from sqlalchemy_utils import ChoiceType, CountryType, EmailType
+from sqlalchemy_utils import ChoiceType, EmailType
 from sqlalchemy_utils import generates
 from sqlalchemy_utils import Choice
 from wtforms.fields import DateField
 
+from mrt.custom_country import CountryType
 from mrt.definitions import (
     PERMISSIONS, NOTIFICATION_TYPES, REPRESENTING_REGIONS,
     CATEGORY_REPRESENTING, LANGUAGES_ISO_MAP)
