@@ -2,6 +2,8 @@ import operator
 
 import six
 from babel import Locale
+from flask import current_app as app
+
 from sqlalchemy import types
 
 from sqlalchemy_utils import i18n
@@ -9,32 +11,35 @@ from sqlalchemy_utils.types.scalar_coercible import ScalarCoercible
 from wtforms_components import SelectField
 
 
-_KOREAN_OFFICIAL_NAMES = {
-    'en': u'Democratic People\u2019s Republic of Korea',
-    'es': u'Rep\u00FAblica Popular Democr\u00E1tica de Corea',
-    'fr': u' R\u00E9publique populaire d\u00E9mocratique de Cor\u00E9e'
-}
-
-
 def get_all_countries():
+    if app.config.get('CUSTOMIZED_COUNTRIES'):
+        custom_countries = app.config.get('CUSTOMIZED_COUNTRIES')
+        custom_codes = tuple(custom_countries.keys())
+    else:
+        custom_countries = dict()
+        custom_codes = ()
     territories = [
         (code, name)
         for code, name in six.iteritems(i18n.get_locale().territories)
-        if len(code) == 2 and code not in ('QO', 'QU', 'ZZ', 'KP')
-    ]
-    territories.append(
-        (
-            'KP', _KOREAN_OFFICIAL_NAMES[i18n.get_locale().language]
+        if len(code) == 2 and code not in ('QO', 'QU', 'ZZ') + custom_codes
+        ]
+    for custom_code in custom_countries.keys():
+        territories.append(
+            (
+                custom_code,
+                custom_countries[custom_code][i18n.get_locale().language]
+            )
         )
-    )
     return sorted(territories, key=operator.itemgetter(1))
 
 
 def country_in(country, lang_code='en'):
     if not country:
         return ''
-    if country.code == 'KP':
-        return _KOREAN_OFFICIAL_NAMES[lang_code]
+    if app.config.get('CUSTOMIZED_COUNTRIES'):
+        custom_countries = app.config.get('CUSTOMIZED_COUNTRIES')
+        if country.code in custom_countries.keys():
+            return custom_countries[country.code][lang_code]
     return Locale(lang_code).territories.get(country.code)
 
 
