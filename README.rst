@@ -24,10 +24,12 @@ Usage
    $ vim settings.py
 
    Edit `DOMAIN_NAME` to include you domain name. E.g. https://meetings.cites.org
-3. Customize postgres env file::
+3. Customize env files::
 
     $ cp docker/postgres.env.example docker/postgres.env
     $ vim docker/postgres.env
+    $ cp docker/log.env.example docker/log.env
+    $ vim docker/log.env
 
 4. Start application stack::
 
@@ -72,6 +74,18 @@ Upgrade
 
    $ docker-compose logs
 
+
+Logging
+-------
+
+For production logging:
+
+1. Update log.env with your Papertrail credentials::
+
+    $ vim docker/log.env
+
+2. For accurate remote addr values, please insert the correct header in VHOST file.
+See https://stackoverflow.com/questions/45260132/docker-get-users-real-ip for example.
 
 Contacts
 ========
