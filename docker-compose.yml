@@ -38,6 +38,15 @@ services:
     volumes:
     - mrt-data:/var/lib/postgresql/data
 
+  logspout:
+    image: gliderlabs/logspout:v3.2.2
+    container_name: mrt.logs
+    command: 'syslog://$${HOST}:$${PORT}?filter.name=mrt.*'
+    env_file:
+    - docker/log.env
+    volumes:
+    - '/var/run/docker.sock:/tmp/docker.sock'
+
 volumes:
   mrt-files:
     driver: local

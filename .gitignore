@@ -56,4 +56,7 @@ docs/_build/
 # Others
 settings.py
 postgres.env
+log.env
 .idea/
+sandbox/
+.skip-db-init

@@ -1,7 +1,10 @@
 import logging
 import sys
 import importlib
+import traceback
+from time import strftime
 
+from flask import request
 from werkzeug import SharedDataMiddleware
 from flask import Flask, redirect, render_template, url_for, g
 from flask.ext.babel import Babel
@@ -132,16 +135,11 @@ def create_app(config={}):
     mail.init_app(app)
     redis_store.init_app(app, strict=True)
 
-    if app.config.get('SENTRY_DSN'):
-        sentry.init_app(app)
-
-    if app.config.get('PAPERTRAIL_HOST'):
-        from flask_papertrail import PaperTrail
-        p = PaperTrail()
-        p.init_app(app)
-
     _configure_uploads(app)
     _configure_logging(app)
+
+    if app.config.get('SENTRY_DSN'):
+        sentry.init_app(app)
 
     app.config['REPRESENTING_TEMPLATES'] = (
         path('meetings/participant/representing'))
@@ -212,6 +210,35 @@ def _configure_uploads(app):
 
 
 def _configure_logging(app):
-    stream_handler = logging.StreamHandler(stream=sys.stdout)
-    stream_handler.setLevel(logging.INFO)
-    app.logger.addHandler(stream_handler)
+    logger = logging.getLogger('mrt')
+    logger.setLevel(logging.INFO)
+
+    @app.after_request
+    def after_request(response):
+        # This IF avoids the duplication of registry in the log,
+        # since that 500 is already logged via @app.errorhandler.
+        if response.status_code != 500:
+            ts = strftime('[%Y-%b-%d %H:%M]')
+            logger.info('%s %s %s %s %s %s %s',
+                        ts,
+                        request.referrer,
+                        request.remote_addr,
+                        request.method,
+                        request.scheme,
+                        request.path,
+                        response.status)
+        return response
+
+    @app.errorhandler(Exception)
+    def exceptions(e):
+        ts = strftime('[%Y-%b-%d %H:%M]')
+        tb = traceback.format_exc()
+        logger.error('%s %s %s %s %s %s 5xx INTERNAL SERVER ERROR\n%s',
+                     ts,
+                     request.referrer,
+                     request.remote_addr,
+                     request.method,
+                     request.scheme,
+                     request.path,
+                     tb)
+        return "Internal Server Error", 500
