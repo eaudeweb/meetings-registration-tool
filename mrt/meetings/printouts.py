@@ -7,7 +7,7 @@ from flask import current_app as app
 from flask import g, url_for
 from flask import request, render_template, jsonify, abort, redirect
 from flask import send_from_directory
-from flask.ext.login import login_required, current_user
+from flask_login import login_required, current_user
 from flask.views import MethodView
 
 from rq import Connection

@@ -4,7 +4,7 @@ from werkzeug.datastructures import MultiDict
 
 from flask import g, render_template, jsonify, abort, request
 from flask import redirect, url_for, flash
-from flask.ext.login import login_required
+from flask_login import login_required
 from flask.views import MethodView
 
 from mrt.forms.meetings import RuleForm, ConditionForm

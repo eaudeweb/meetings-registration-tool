@@ -1,7 +1,7 @@
 from flask import g
 from flask import current_app as app
-from flask.ext.babel import lazy_gettext as __
-from flask.ext.uploads import IMAGES
+from flask_babel import lazy_gettext as __
+from flask_uploads import IMAGES
 from flask_wtf.file import FileAllowed
 
 from sqlalchemy_utils import Choice

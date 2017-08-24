@@ -1,8 +1,8 @@
 from datetime import datetime
 from uuid import uuid4
 
-from flask.ext.login import current_user
-from flask.ext.uploads import UploadSet, IMAGES
+from flask_login import current_user
+from flask_uploads import UploadSet, IMAGES
 from flask_wtf.file import FileAllowed
 
 from sqlalchemy import desc

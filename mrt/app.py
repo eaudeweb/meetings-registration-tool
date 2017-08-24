@@ -7,10 +7,10 @@ from time import strftime
 from flask import request
 from werkzeug import SharedDataMiddleware
 from flask import Flask, redirect, render_template, url_for, g
-from flask.ext.babel import Babel
-from flask.ext.login import LoginManager
-from flask.ext.thumbnails import Thumbnail
-from flask.ext.uploads import configure_uploads, patch_request_class
+from flask_babel import Babel
+from flask_login import LoginManager
+from flask_thumbnails import Thumbnail
+from flask_uploads import configure_uploads, patch_request_class
 
 from path import Path
 
@@ -133,7 +133,7 @@ def create_app(config={}):
     login_manager.login_message_category = 'warning'
 
     mail.init_app(app)
-    redis_store.init_app(app, strict=True)
+    redis_store.init_app(app)
 
     _configure_uploads(app)
     _configure_logging(app)

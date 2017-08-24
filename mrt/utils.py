@@ -9,8 +9,8 @@ from unicodedata import normalize
 from uuid import uuid4
 
 from flask import _request_ctx_stack, current_app as app, g, url_for
-from flask.ext.babel import refresh
-from flask.ext.uploads import IMAGES, UploadSet
+from flask_babel import refresh
+from flask_uploads import IMAGES, UploadSet
 
 from raven.contrib.flask import Sentry
 from werkzeug import FileStorage

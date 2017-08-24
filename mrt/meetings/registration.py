@@ -2,7 +2,7 @@ from functools import wraps
 from flask.views import MethodView
 from flask import g, render_template, request, session, abort
 from flask import redirect, url_for
-from flask.ext.login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user
 
 from mrt.forms.auth import LoginForm
 from mrt.forms.meetings import custom_form_factory, custom_object_factory

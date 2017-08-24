@@ -6,11 +6,11 @@ import string
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask import g, render_template, current_app as app, url_for
-from flask.ext.babel import get_locale, Locale
-from flask.ext.babel import gettext as _
-from flask.ext.babel import lazy_gettext
-from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
-from flask.ext.redis import FlaskRedis
+from flask_babel import get_locale, Locale
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext
+from flask_sqlalchemy import SQLAlchemy, BaseQuery
+from flask_redis import FlaskRedis
 from jinja2.exceptions import TemplateNotFound
 
 from sqlalchemy import cast, or_

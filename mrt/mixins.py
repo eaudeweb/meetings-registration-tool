@@ -1,7 +1,7 @@
 
 from flask import request, jsonify, abort
 from flask import current_app as app
-from flask.ext.login import current_user as user
+from flask_login import current_user as user
 from querystring_parser import parser
 
 

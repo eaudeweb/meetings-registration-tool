@@ -1,7 +1,7 @@
 from flask import g
 from flask import render_template, flash
 from flask import request, redirect, url_for, jsonify
-from flask.ext.login import login_required
+from flask_login import login_required
 from flask.views import MethodView
 
 from mrt.forms.meetings import MeetingCategoryAddForm

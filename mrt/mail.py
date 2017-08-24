@@ -1,5 +1,5 @@
 from flask import current_app as app, request, flash, g, url_for
-from flask.ext.mail import Mail, Message
+from flask_mail import Mail, Message
 
 from datetime import datetime
 from blinker import ANY

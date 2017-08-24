@@ -5,7 +5,7 @@ from bleach import clean
 from flask import url_for
 from flask import current_app as app
 from flask import request, g
-from flask.ext.login import current_user
+from flask_login import current_user
 
 from babel.dates import format_date
 from jinja2 import evalcontextfilter, Markup

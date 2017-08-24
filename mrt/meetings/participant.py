@@ -6,7 +6,7 @@ from path import Path
 from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash
 from flask import current_app as app
-from flask.ext.login import current_user as user
+from flask_login import current_user as user
 from flask.views import MethodView
 from flask_thumbnails import Thumbnail
 

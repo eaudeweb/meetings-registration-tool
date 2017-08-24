@@ -1,4 +1,4 @@
-from flask.ext.login import current_user as user
+from flask_login import current_user as user
 from mrt.mixins import PermissionRequiredMixin as _PermissionRequiredMixin
 
 

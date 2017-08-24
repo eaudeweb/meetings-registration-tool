@@ -1,6 +1,6 @@
 
 from flask import g, url_for, flash
-from flask.ext.login import current_user
+from flask_login import current_user
 from mrt.models import Job
 from mrt.models import redis_store, db
 from rq import Queue

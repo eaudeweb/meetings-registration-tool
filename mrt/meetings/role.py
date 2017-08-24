@@ -1,6 +1,6 @@
 from flask import g, request, redirect, jsonify
 from flask import render_template, url_for, flash
-from flask.ext.login import login_required
+from flask_login import login_required
 from flask.views import MethodView
 
 from mrt.models import db, RoleUser
