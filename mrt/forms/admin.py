@@ -3,11 +3,11 @@ from uuid import uuid4
 
 from flask.ext.login import current_user
 from flask.ext.uploads import UploadSet, IMAGES
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileAllowed
 
 from sqlalchemy import desc
 from sqlalchemy.orm.exc import NoResultFound
-from wtforms import ValidationError, BooleanField, fields
+from wtforms import ValidationError, BooleanField, fields, FileField
 from wtforms.validators import DataRequired
 from wtforms_alchemy import ModelFormField
 

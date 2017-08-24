@@ -6,7 +6,7 @@ from flask import current_app as app
 from flask import render_template, request, url_for
 from flask.ext.uploads import DOCUMENTS as _DOCUMENTS
 from flask.ext.uploads import UploadSet, IMAGES
-from flask_wtf.file import FileField as _FileField
+from wtforms import FileField as _FileField
 from jinja2 import Markup
 
 from sqlalchemy.orm.exc import NoResultFound
