@@ -14,10 +14,11 @@ from flask.ext.redis import FlaskRedis
 from jinja2.exceptions import TemplateNotFound
 
 from sqlalchemy import cast, or_
+from sqlalchemy import event
+
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.types import TypeDecorator, String
 from sqlalchemy_utils import ChoiceType, EmailType
-from sqlalchemy_utils import generates
 from sqlalchemy_utils import Choice
 from wtforms.fields import DateField
 
@@ -619,23 +620,24 @@ class CustomField(db.Model):
     def __repr__(self):
         return self.label.english
 
-    @generates('slug')
-    def _create_slug(self):
-        if self.slug:
-            return self.slug
-        slug = slugify(self.label.english)
-        if slug in dir(Participant):
-            rand = ''.join(random.choice(string.ascii_letters)
-                           for i in range(4))
-            slug += '_%s' % rand
-        return slug
-
     def get_or_create_value(self, participant):
         value = (self.custom_field_values
                  .filter_by(participant=participant)
                  .first()) if participant.id else None
         return value or CustomFieldValue(custom_field=self,
                                          participant=participant)
+
+
+@event.listens_for(CustomField, 'before_insert')
+def generate_slug(mapper, connection, target):
+    if target.slug:
+        return
+    slug = slugify(target.label.english)
+    if slug in dir(Participant):
+        rand = ''.join(random.choice(string.ascii_letters)
+                       for i in range(4))
+        slug += '_%s' % rand
+    target.slug = slug
 
 
 class CustomFieldValue(db.Model):

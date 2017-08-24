@@ -66,7 +66,7 @@ class BaseRegistration(MethodView):
         form = Form()
         header_phrase = self.get_header_phrase()
         footer_phrase = self.get_footer_phrase()
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             participant = self.get_default_participant(current_user)
             Object = custom_object_factory(participant)
             form = Form(obj=Object())
@@ -83,7 +83,7 @@ class BaseRegistration(MethodView):
 
         if form.validate():
             participant = form.save()
-            if current_user.is_authenticated():
+            if current_user.is_authenticated:
                 participant.user = current_user
                 default_participant = self.get_default_participant(
                     current_user)
@@ -163,7 +163,7 @@ class MediaRegistration(BaseRegistration):
 class UserRegistration(MethodView):
 
     def post(self):
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             abort(404)
         registration_token = session.get('registration_token', None)
         if not registration_token:

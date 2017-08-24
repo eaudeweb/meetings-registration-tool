@@ -58,7 +58,7 @@ class PermissionRequiredMixin(object):
         raise NotImplementedError
 
     def dispatch_request(self, *args, **kwargs):
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return app.login_manager.unauthorized()
         if not self.check_permissions():
             abort(403)
