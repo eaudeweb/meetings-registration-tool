@@ -97,7 +97,7 @@ Data migration
 
 1. Database
 
-Copy the Postgres SQL dump file inside the postgres container, drop the current database and use psql to import the backup (you will find the POSTGRES_DBUSER and the POSTGRES_PASSWORD in the system environment variables).
+Copy the Postgres SQL dump file inside the postgres container, drop the current database and use psql to import the backup (you will find the POSTGRES_DBUSER and the POSTGRES_PASSWORD in the system environment variables):
 
     $ docker cp backup.sql mrt.db:/tmp/backup.sql
     $ docker exec -it mrt.db bash
@@ -107,7 +107,7 @@ Copy the Postgres SQL dump file inside the postgres container, drop the current 
 
 2. Files
 
-Copy the _files_ directory to the _mrt.app_ container, under the _instance_ directory.
+Copy the _files_ directory to the _mrt.app_ container, under the _instance_ directory:
 
     docker cp ./files mrt.app:/var/local/meetings/instance/
 
