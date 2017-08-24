@@ -14,7 +14,7 @@ Usage
 
 1. Clone the repository::
 
-    $ git clone git@github.com:eaudeweb/meetings-registration-tool.git
+    $ git clone https://github.com/eaudeweb/meetings-registration-tool.git
     $ cd meetings-registration-tool
 
 2. Customize deployment via settings.py::
@@ -34,7 +34,7 @@ Usage
 
     $ docker-compose up -d
     $ docker-compose logs
-    
+
 \* If your ``postgres`` container throws this error ``FATAL:  could not map anonymous shared memory: Cannot allocate memory``, add the following lines to ``docker-compose.yml`` > ``postgres`` > ``environment``::
 
     - POSTGRES_CONFIG_max_connections=10
@@ -79,12 +79,38 @@ Logging
 
 For production logging:
 
-1. Update log.env with your Papertrail credentials::
+1. Update log.env with your Papertrail host and port destination values (https://papertrailapp.com/account/destinations)::
 
     $ vim docker/log.env
 
-2. For accurate remote addr values, please insert the correct header in VHOST file.
-See https://stackoverflow.com/questions/45260132/docker-get-users-real-ip for example.
+For accurate _remote_addr_ values, please insert the correct header in VHOST file. See https://stackoverflow.com/questions/45260132/docker-get-users-real-ip for example.
+
+2. Error logging is made with Sentry.io. Get client key from https://sentry.io/[organisation]/[project]/settings/keys/ and inserted into settings.py file.
+
+    SENTRY_DSN='https://xxx@sentry.io/232313'
+
+Restart the application and run http://localhost:5000/crashme to test the integration.
+
+
+Data migration
+--------------
+
+1. Database
+
+Copy the Postgres SQL dump file inside the postgres container, drop the current database and use psql to import the backup (you will find the POSTGRES_DBUSER and the POSTGRES_PASSWORD in the system environment variables).
+
+    $ docker cp backup.sql mrt.db:/tmp/backup.sql
+    $ docker exec -it mrt.db bash
+    /# dropdb cms_meetings;
+    /# createdb cms_meetings;
+    /# psql -U mrt_cms -W $POSTGRES_DBUSER < /tmp/backup.sql
+
+2. Files
+
+Copy the _files_ directory to the _mrt.app_ container, under the _instance_ directory.
+
+    docker cp ./files mrt.app:/var/local/meetings/instance/
+
 
 Contacts
 ========

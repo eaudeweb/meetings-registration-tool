@@ -157,6 +157,10 @@ def create_app(config={}):
     def index():
         return redirect(url_for('meetings.home'))
 
+    @app.route('/_crashme')
+    def crashme():
+        raise RuntimeError("Crashing, as requested.")
+
     @app.errorhandler(413)
     def file_too_large(error):
         mb = 1024 * 1024
