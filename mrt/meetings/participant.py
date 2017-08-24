@@ -1,7 +1,7 @@
 from datetime import datetime
 from functools import wraps
 from werkzeug.utils import HTMLBuilder
-from path import path
+from path import Path
 
 from flask import g, request, redirect, url_for, jsonify, json
 from flask import render_template, flash
@@ -193,7 +193,7 @@ class ParticipantSearch(PermissionRequiredMixin, MethodView):
         results = []
         for p in participants:
             if p.photo:
-                image_url = path(app.config['PATH_CUSTOM_KEY']) / p.photo
+                image_url = Path(app.config['PATH_CUSTOM_KEY']) / p.photo
                 image_url = Thumbnail(app).thumbnail(image_url, '50x50')
             else:
                 image_url = url_for('static', filename='images/no-avatar.jpg')

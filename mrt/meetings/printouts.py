@@ -1,7 +1,7 @@
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
-from path import path
+from path import Path
 
 from flask import current_app as app
 from flask import g, url_for
@@ -726,7 +726,7 @@ def _process_participants_excel(meeting_id, participant_type):
 
             if custom_field.field_type in (CustomField.IMAGE,
                                            CustomField.DOCUMENT):
-                file_path = path(app.config['PATH_CUSTOM_KEY']) / custom_value
+                file_path = Path(app.config['PATH_CUSTOM_KEY']) / custom_value
                 file_url = url_external('files', filename=file_path)
                 custom_value = file_url
 

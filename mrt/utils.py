@@ -16,7 +16,7 @@ from raven.contrib.flask import Sentry
 from werkzeug import FileStorage
 
 from babel import support, Locale
-from path import path
+from path import Path
 from mrt.definitions import LANGUAGES_MAP, LANGUAGES_ISO_MAP
 
 
@@ -84,7 +84,7 @@ def unlink_uploaded_file(filename, config_key, dir_name=None):
 
 def unlink_thumbnail_file(filename, dir_name=None):
     if filename:
-        name, ext = path(filename).splitext()
+        name, ext = Path(filename).splitext()
         thumb_path = app.config['UPLOADED_THUMBNAIL_DEST']
         if dir_name:
             thumb_path = thumb_path / dir_name
@@ -141,7 +141,7 @@ def rotate_file(filename, config_key):
     """
     newfilename = str(uuid4()) + ".png"
 
-    path_from_config = path(
+    path_from_config = Path(
         app.config['UPLOADED_%s_DEST' % config_key.upper()]
     )
 
@@ -157,7 +157,7 @@ def rotate_file(filename, config_key):
 
 
 def crop_file(filename, config_key, data):
-    path_from_config = path(
+    path_from_config = Path(
         app.config['UPLOADED_%s_DEST' % config_key.upper()])
     img = Image.open(path_from_config / filename)
     img = img.crop(data)

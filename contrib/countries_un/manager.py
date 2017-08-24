@@ -3,8 +3,7 @@ import click
 import cPickle
 import xlrd
 import babel
-from path import path
-from flask import current_app as app
+from path import Path
 
 
 @click.group()
@@ -15,7 +14,7 @@ def cli():
 @click.pass_context
 def update_countries_(ctx):
     app = ctx.obj['app']
-    base_path = path(app.instance_path).parent
+    base_path = Path(app.instance_path).parent
     relative_path = 'mrt/static/localedata/countries_un.xlsx'
     workbook = xlrd.open_workbook("%s/%s" % (base_path, relative_path))
     sheet = workbook.sheet_by_index(0)

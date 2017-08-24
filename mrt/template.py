@@ -9,7 +9,7 @@ from flask.ext.login import current_user
 
 from babel.dates import format_date
 from jinja2 import evalcontextfilter, Markup
-from path import path
+from path import Path
 
 from mrt.definitions import ACTIVITY_ACTIONS, PERMISSIONS_HIERARCHY
 from mrt.utils import translate, Logo
@@ -76,9 +76,9 @@ def date_processor(date_start, date_end, in_format='%Y-%m-%d',
 
 
 def crop(filename):
-    file_path = path(app.config['UPLOADED_CROP_DEST']) / filename
+    file_path = Path(app.config['UPLOADED_CROP_DEST']) / filename
     if file_path.exists() and file_path.isfile():
-        return path(app.config['PATH_CROP_KEY']) / filename
+        return Path(app.config['PATH_CROP_KEY']) / filename
     return filename
 
 
@@ -94,7 +94,7 @@ def activity_map(action):
 
 def inject_static_file(filepath):
     data = None
-    with open(path(app.static_folder) / filepath, 'r') as f:
+    with open(Path(app.static_folder) / filepath, 'r') as f:
         data = f.read()
     return Markup(data)
 
@@ -106,7 +106,7 @@ def inject_badge_context(participant):
 
     participant_photo, background, = None, None
     if participant.photo:
-        crop_photo = crop(path(app.config['PATH_CUSTOM_KEY']) /
+        crop_photo = crop(Path(app.config['PATH_CUSTOM_KEY']) /
                           participant.photo)
         participant_photo = app.config['FILES_PATH'] / crop_photo
 
