@@ -16,7 +16,6 @@ Usage
 
     $ git clone git@github.com:eaudeweb/meetings-registration-tool.git
     $ cd meetings-registration-tool
-    $ git checkout docker
 
 2. Customize deployment via settings.py::
 
