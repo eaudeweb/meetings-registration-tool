@@ -1,5 +1,5 @@
 alembic==0.9.5
-bleach==1.4.1
+bleach==2.0.0
 click==6.7
 cssmin==0.2.0
 Flask-Assets==0.12
@@ -9,12 +9,12 @@ Flask-SQLAlchemy==2.2
 Flask-thumbnails==0.2.2
 Flask-Uploads==0.2.1
 Flask==0.12.2
-html5lib==0.999
-itsdangerous
+html5lib==0.99999999
+itsdangerous==0.24
 Jinja2==2.9.6
-jsmin==2.1.1
-Mako==1.0.1
-MarkupSafe==0.23
+jsmin==2.2.2
+Mako==1.0.7
+MarkupSafe==1.0
 path.py==10.3.1
 Pillow==2.8.1
 psycopg2==2.6
@@ -23,7 +23,7 @@ querystring-parser==1.2.0
 redis==2.10.3
 rq==0.5.2
 SQLAlchemy==1.1.13
-webassets==0.10.1
+webassets==0.12.1
 Werkzeug==0.12.2
 xlwt==0.7.5
 xlrd==0.9.4
