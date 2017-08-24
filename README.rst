@@ -85,7 +85,7 @@ For production logging:
 
 For accurate _remote_addr_ values, please insert the correct header in VHOST file. See https://stackoverflow.com/questions/45260132/docker-get-users-real-ip for example.
 
-2. Error logging is made with Sentry.io. Get client key from https://sentry.io/[organisation]/[project]/settings/keys/ and set the value of SENTRY_DSN from settings.py file.
+2. Error logging is made with Sentry.io. Get client key from https://sentry.io/[organisation]/[project]/settings/keys/ and set the value of SENTRY_DSN from settings.py file::
 
     SENTRY_DSN='https://xxx@sentry.io/232313'
 
@@ -97,7 +97,7 @@ Data migration
 
 1. Database
 
-Copy the Postgres SQL dump file inside the postgres container, drop the current database and use psql to import the backup (you will find the POSTGRES_DBUSER and the POSTGRES_PASSWORD in the system environment variables):
+Copy the Postgres SQL dump file inside the postgres container, drop the current database and use psql to import the backup (you will find the POSTGRES_DBUSER and the POSTGRES_PASSWORD in the system environment variables)::
 
     $ docker cp backup.sql mrt.db:/tmp/backup.sql
     $ docker exec -it mrt.db bash
@@ -107,7 +107,7 @@ Copy the Postgres SQL dump file inside the postgres container, drop the current 
 
 2. Files
 
-Copy the _files_ directory to the _mrt.app_ container, under the _instance_ directory:
+Copy the _files_ directory to the _mrt.app_ container, under the _instance_ directory::
 
     docker cp ./files mrt.app:/var/local/meetings/instance/
 
