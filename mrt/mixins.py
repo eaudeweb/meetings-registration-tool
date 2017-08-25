@@ -1,7 +1,7 @@
 
 from flask import request, jsonify, abort
 from flask import current_app as app
-from flask.ext.login import current_user as user
+from flask_login import current_user as user
 from querystring_parser import parser
 
 
@@ -58,7 +58,7 @@ class PermissionRequiredMixin(object):
         raise NotImplementedError
 
     def dispatch_request(self, *args, **kwargs):
-        if not user.is_authenticated():
+        if not user.is_authenticated:
             return app.login_manager.unauthorized()
         if not self.check_permissions():
             abort(403)

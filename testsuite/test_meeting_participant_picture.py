@@ -1,7 +1,7 @@
 import os
 from StringIO import StringIO
 from flask import url_for
-from flask.ext.thumbnails import Thumbnail
+from flask_thumbnails import Thumbnail
 from py.path import local
 from PIL import Image
 

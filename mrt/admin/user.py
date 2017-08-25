@@ -1,6 +1,6 @@
 from flask import render_template, jsonify, flash, abort, url_for
 from flask import request
-from flask.ext.login import current_user
+from flask_login import current_user
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin

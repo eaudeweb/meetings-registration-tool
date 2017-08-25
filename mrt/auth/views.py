@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash
 from flask.views import MethodView
-from flask.ext.login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required
 
 from mrt.forms import auth
 from mrt.models import db, User

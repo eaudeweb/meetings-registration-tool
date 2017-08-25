@@ -7,12 +7,12 @@ from time import strftime
 from flask import request
 from werkzeug import SharedDataMiddleware
 from flask import Flask, redirect, render_template, url_for, g
-from flask.ext.babel import Babel
-from flask.ext.login import LoginManager
-from flask.ext.thumbnails import Thumbnail
-from flask.ext.uploads import configure_uploads, patch_request_class
+from flask_babel import Babel
+from flask_login import LoginManager
+from flask_thumbnails import Thumbnail
+from flask_uploads import configure_uploads, patch_request_class
 
-from path import path
+from path import Path
 
 from mrt.definitions import LANGUAGES_MAP
 from mrt.admin.urls import admin
@@ -52,7 +52,7 @@ DEFAULT_CONFIG = {
     'PRODUCT_LOGO': '',
     'PRODUCT_SIDE_LOGO': '',
     'DEFAULT_PHRASES_PATH': (
-        path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
+        Path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
     'DEFAULT_MAIL_SENDER': '',
     'DEFAULT_LANG': _DEFAULT_LANG,
     'TRANSLATIONS': _TRANSLATIONS,
@@ -133,7 +133,7 @@ def create_app(config={}):
     login_manager.login_message_category = 'warning'
 
     mail.init_app(app)
-    redis_store.init_app(app, strict=True)
+    redis_store.init_app(app)
 
     _configure_uploads(app)
     _configure_logging(app)
@@ -142,7 +142,7 @@ def create_app(config={}):
         sentry.init_app(app)
 
     app.config['REPRESENTING_TEMPLATES'] = (
-        path('meetings/participant/representing'))
+        Path('meetings/participant/representing'))
 
     _translations = app.config['TRANSLATIONS']
     if _DEFAULT_LANG not in _translations:
@@ -171,7 +171,7 @@ def create_app(config={}):
 
 
 def _configure_uploads(app):
-    app.config['FILES_PATH'] = files_path = path(app.instance_path) / 'files'
+    app.config['FILES_PATH'] = files_path = Path(app.instance_path) / 'files'
     app.config['PATH_BACKGROUNDS_KEY'] = path_backgrounds_key = 'backgrounds'
     app.config['PATH_CROP_KEY'] = path_crop_key = 'crops'
     app.config['PATH_CUSTOM_KEY'] = path_custom_key = 'custom_uploads'

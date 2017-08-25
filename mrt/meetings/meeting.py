@@ -3,7 +3,7 @@ from functools import wraps
 from flask import request, redirect, render_template, jsonify
 from flask import g, url_for, flash, make_response
 from flask.views import MethodView
-from flask.ext.login import login_required, current_user as user
+from flask_login import login_required, current_user as user
 
 from sqlalchemy import desc
 

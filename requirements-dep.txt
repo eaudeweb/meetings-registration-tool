@@ -1,4 +1,4 @@
 -r requirements.txt
 
-waitress==0.8.9
-raven==5.1.1
+waitress==1.0.2
+raven==6.1.0

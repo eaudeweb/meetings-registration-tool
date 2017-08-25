@@ -3,7 +3,7 @@ import jinja2
 import shutil
 
 from pytest import fixture
-from path import path
+from path import Path
 
 from mrt.app import create_app
 from mrt.models import db
@@ -19,12 +19,12 @@ _TRANSLATIONS = [_DEFAULT_LANG, 'french']
 @fixture
 def app(request, tmpdir):
     templates_path = tmpdir.ensure_dir('templates')
-    backgrounds_path = path(tmpdir.ensure_dir('backgrounds'))
-    custom_uploads_path = path(tmpdir.ensure_dir('custom_uploads'))
-    thumb_path = path(tmpdir.ensure_dir('thumbnails'))
-    crop_path = path(tmpdir.ensure_dir('crops'))
-    printouts_path = path(tmpdir.ensure_dir('printouts'))
-    logos_path = path(tmpdir.ensure_dir('logos'))
+    backgrounds_path = Path(tmpdir.ensure_dir('backgrounds'))
+    custom_uploads_path = Path(tmpdir.ensure_dir('custom_uploads'))
+    thumb_path = Path(tmpdir.ensure_dir('thumbnails'))
+    crop_path = Path(tmpdir.ensure_dir('crops'))
+    printouts_path = Path(tmpdir.ensure_dir('printouts'))
+    logos_path = Path(tmpdir.ensure_dir('logos'))
 
     test_config = {
         'SECRET_KEY': 'test',
@@ -38,7 +38,7 @@ def app(request, tmpdir):
         'UPLOADED_CROP_DEST': crop_path,
         'MEDIA_THUMBNAIL_FOLDER': thumb_path,
         'UPLOADED_LOGOS_DEST': logos_path,
-        'MEDIA_FOLDER': path(tmpdir),
+        'MEDIA_FOLDER': Path(tmpdir),
         'HOSTNAME': 'http://meetings.edw.ro/',
         'DEFAULT_MAIL_SENDER': 'noreply',
         'TEMPLATES_PATH': templates_path,
@@ -90,9 +90,9 @@ def default_meeting():
 
 @fixture
 def pdf_renderer(app):
-    path = app.config['TEMPLATES_PATH'] / 'template.html'
+    Path = app.config['TEMPLATES_PATH'] / 'template.html'
     output = 'Lorem ipsum dolor sit amet'
-    with path.open('w+') as f:
+    with Path.open('w+') as f:
         f.write(output)
 
     # Mock _generate_pdf to not use external commands
@@ -114,5 +114,5 @@ def brand_dir(app, tmpdir):
     brand_path.ensure(product_logo)
     brand_path.ensure(side_logo)
     brand_path.ensure(badge_logo)
-    app.config['BRAND_PATH'] = path(brand_path)
+    app.config['BRAND_PATH'] = Path(brand_path)
     return app.config['BRAND_PATH']

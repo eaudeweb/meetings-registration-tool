@@ -1,6 +1,6 @@
-from flask.ext.login import current_user
-from flask_wtf.file import FileField, FileAllowed
-from wtforms import fields, widgets, Form
+from flask_login import current_user
+from flask_wtf.file import FileAllowed
+from wtforms import fields, widgets, Form, FileField
 from wtforms.validators import ValidationError, InputRequired, Length
 from wtforms_alchemy import ModelFormField
 from sqlalchemy import desc

@@ -1,7 +1,7 @@
 from uuid import uuid4
 from datetime import datetime
 
-from flask.ext.login import current_user
+from flask_login import current_user
 
 from wtforms import Form
 from wtforms import StringField, PasswordField, validators

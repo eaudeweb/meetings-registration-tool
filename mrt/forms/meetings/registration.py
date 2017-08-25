@@ -3,10 +3,10 @@ from base64 import b64encode, b64decode
 from uuid import uuid4
 
 from flask import current_app as app
-from flask.ext.babel import gettext as _
-from flask.ext.babel import lazy_gettext as __
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as __
 from flask_wtf.file import FileAllowed
-from flask.ext.uploads import IMAGES, DOCUMENTS
+from flask_uploads import IMAGES, DOCUMENTS
 
 from wtforms import Form, StringField, PasswordField, validators
 from wtforms import HiddenField
