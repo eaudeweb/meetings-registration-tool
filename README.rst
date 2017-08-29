@@ -23,10 +23,13 @@ Usage
    $ vim settings.py
 
    Edit `DOMAIN_NAME` to include you domain name. E.g. https://meetings.cites.org
+
 3. Customize env files::
 
     $ cp docker/postgres.env.example docker/postgres.env
     $ vim docker/postgres.env
+    $ cp docker/init.sql.example docker/init.sql
+    $ vim docker/init.sql
     $ cp docker/log.env.example docker/log.env
     $ vim docker/log.env
 
