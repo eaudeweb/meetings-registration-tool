@@ -72,13 +72,18 @@ def create_user(ctx):
 
 @cli.command()
 @click.pass_context
-def create_superuser(ctx):
-    email = click.prompt('Enter email', type=str)
+@click.option('--email', type=str, default='')
+@click.option('--password', type=str, default='')
+def create_superuser(ctx, email, password):
+    if not email:
+        email = click.prompt('Enter email', type=str)
     while not validate_email(email):
         email = click.prompt('Invalid email. Enter another email', type=str)
-    password = click.prompt('Enter password', type=str, hide_input=True)
-    confirm = click.prompt('Enter password again', type=str, hide_input=True)
-
+    if not password:
+        password = click.prompt('Enter password', type=str, hide_input=True)
+        confirm = click.prompt('Enter password again', type=str, hide_input=True)
+    else:
+        confirm = password
     if password == confirm:
         app = ctx.obj['app']
         with app.app_context():

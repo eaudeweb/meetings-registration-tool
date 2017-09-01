@@ -16,6 +16,8 @@ if [ ! -e .skip-db-init ]; then
   touch .skip-db-init
   echo "Running DB CMD: ./manage.py alembic upgrade head"
   python manage.py alembic upgrade head
+  echo "Creating superuser $SUPERUSER_EMAIL"
+  python manage.py create_superuser --email="$SUPERUSER_EMAIL" --password="$SUPERUSER_PASSWORD"
 fi
 
 if [ -z "$1" ]; then

@@ -61,3 +61,4 @@ log.env
 .idea/
 sandbox/
 .skip-db-init
+app.env

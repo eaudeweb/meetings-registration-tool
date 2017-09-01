@@ -3,8 +3,10 @@ version: '2'
 services:
 
   mrt:
-    image: eaudeweb/mrt:2.0
+    image: eaudeweb/mrt:2.2
     container_name: mrt.app
+    env_file:
+    - docker/app.env
     ports:
     - "5000:5000"
     links:
@@ -15,7 +17,7 @@ services:
     - mrt-files:/var/local/meetings/instance/files
 
   async:
-    image: eaudeweb/mrt:2.0
+    image: eaudeweb/mrt:2.2
     container_name: mrt.rq
     links:
     - redis:redis
