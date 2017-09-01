@@ -32,6 +32,8 @@ Usage
     $ vim docker/init.sql
     $ cp docker/log.env.example docker/log.env
     $ vim docker/log.env
+    $ cp docker/app.env.example docker/app.env
+    $ vim docker/app.env
 
 4. Start application stack::
 
