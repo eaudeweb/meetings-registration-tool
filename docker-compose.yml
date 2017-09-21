@@ -1,5 +1,5 @@
 version: '2'
-
+# For automated deployment, always ensure container_name is explicitly defined
 services:
 
   mrt:
