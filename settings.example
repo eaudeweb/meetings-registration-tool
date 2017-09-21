@@ -1,5 +1,9 @@
-SQLALCHEMY_DATABASE_URI = 'postgresql://demo:demo@postgres/meetings'
-SECRET_KEY = 'secret'
+import os
+
+# 'postgresql://demo:demo@postgres/meetings'
+SQLALCHEMY_DATABASE_URI = os.environ['MRT_SQLALCHEMY_DATABASE_URI']
+# '1234567890abcdefghiklmnopqrst'
+SECRET_KEY = os.environ['MRT_SECRET_KEY']
 
 
 # Total upload size limit - if total size of all files used in registration
@@ -8,21 +12,22 @@ MAX_UPLOAD_SIZE = 10 * 1024 * 1024
 # Single file size limit - used only in Javascript validation
 MAX_FILE_SIZE = 1 * 1024 * 1024
 
-# Name and title of the product
-PRODUCT_TITLE = 'Meetings'
+# Name and title of the product i.e. 'Meetings'
+PRODUCT_TITLE = os.environ['MRT_PRODUCT_TITLE']
 
 # Administator's email
-ADMINISTRATOR_EMAIL = ''
+ADMINISTRATOR_EMAIL = os.environ['MRT_ADMINISTRATOR_EMAIL']
 
 # Mail used for sending reset tokens
-DEFAULT_MAIL_SENDER = 'no-reply@eaudeweb.ro'
+# 'no-reply@eaudeweb.ro'
+DEFAULT_MAIL_SENDER = os.environ['MRT_DEFAULT_MAIL_SENDER']
 # Supress sendding mails on localhost
 MAIL_SUPPRESS_SEND = True
 # Disable assets compilation
 ASSETS_DEBUG = True
 
 # Enable GOOGLE ANALYTICS
-GOOGLE_ANALYTICS_KEY = ''
+GOOGLE_ANALYTICS_KEY = os.environ['MRT_GOOGLE_ANALYTICS_KEY']
 
 # Logos filenames; files should be located at project_dir/instance/files/logos/
 PRODUCT_LOGO = 'badge_left_logo.png'
@@ -30,7 +35,7 @@ PRODUCT_SIDE_LOGO = 'badge_right_logo.png'
 BADGE_BACK_LOGO = 'badge_back_logo.png'
 
 # Domain name for correctly displaying registration URLs
-DOMAIN_NAME = ''
+DOMAIN_NAME = os.environ['MRT_DOMAIN_NAME']
 
 # Choose a subset of the available languages: ['english', 'french', 'spanish']
 # TRANSLATIONS = []
