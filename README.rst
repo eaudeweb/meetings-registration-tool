@@ -112,10 +112,12 @@ Copy the Postgres SQL dump file inside the postgres container, drop the current 
 
 2. Files
 
-Copy the _files_ directory to the _mrt.app_ container, under the _instance_ directory::
+Copy the _files_ directory to the _mrt.app_ container, under the _instance_ directory:
 
-    docker cp ./files mrt.app:/var/local/meetings/instance/
-
+    $ sudo docker cp ./files mrt.app:/var/local/meetings/instance/
+    $ sudo docker exec -ti mrt.app bash
+    # chown root:root /var/local/meetings/instance/files
+    
 
 Contacts
 ========
