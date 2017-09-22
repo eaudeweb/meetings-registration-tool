@@ -108,7 +108,7 @@ Copy the Postgres SQL dump file inside the postgres container, drop the current 
     $ docker exec -it mrt.db bash
     /# dropdb cms_meetings;
     /# createdb cms_meetings;
-    /# psql -U mrt_cms -W $POSTGRES_DBUSER < /tmp/backup.sql
+    /# psql < /tmp/backup.sql
 
 2. Files
 
