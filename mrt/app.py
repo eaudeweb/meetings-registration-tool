@@ -59,13 +59,8 @@ DEFAULT_CONFIG = {
     'TITLE_CHOICES': _TITLE_CHOICES,
 }
 
-def register_monitoring_views(app):
-    from gioland import warehouse
 
-    @app.route('/ping')
-    def ping():
-        warehouse.get_warehouse()
-        return 'gioland is ok'
+def register_monitoring_views(app):
 
     @app.route('/crash')
     def crash():
