@@ -59,6 +59,18 @@ DEFAULT_CONFIG = {
     'TITLE_CHOICES': _TITLE_CHOICES,
 }
 
+def register_monitoring_views(app):
+    from gioland import warehouse
+
+    @app.route('/ping')
+    def ping():
+        warehouse.get_warehouse()
+        return 'gioland is ok'
+
+    @app.route('/crash')
+    def crash():
+        raise ValueError("Crashing as requested")
+
 
 def create_app(config={}):
     app = Flask(__name__, instance_relative_config=True)
@@ -83,6 +95,7 @@ def create_app(config={}):
     app.register_blueprint(admin)
     app.register_blueprint(auth)
     app.register_blueprint(meetings)
+    register_monitoring_views(app)
 
     app.add_template_filter(activity_map)
     app.add_template_filter(countries)
