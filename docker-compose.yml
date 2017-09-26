@@ -34,7 +34,7 @@ services:
     env_file:
     - docker/app.env
     ports:
-    - "5000:5000"
+    - "127.0.0.1:5000:5000"
     links:
     - postgres:postgres
     - redis:redis

@@ -12,12 +12,15 @@ RUN runDeps="curl vim build-essential netcat libpq-dev libxml2-dev libxslt1-dev 
  && rm -vrf /var/lib/apt/lists/* \
  && rm -vrf /tmp/*
 
-COPY . $MRT_SRC/
+COPY requirements-dep.txt $MRT_SRC/
 WORKDIR $MRT_SRC
 
 RUN pip install -r requirements-dep.txt \
- && pybabel compile -d mrt/translations \
- && mkdir -p $MRT_SRC/instance/files \
+    && mkdir -p $MRT_SRC/instance/files
+
+COPY . $MRT_SRC/
+
+RUN pybabel compile -d mrt/translations \
  && mv settings.example instance/settings.py \
  && mv ./docker/docker-entrypoint.sh /bin/
 
