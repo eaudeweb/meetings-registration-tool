@@ -146,7 +146,7 @@ def create_app(config={}):
     _configure_uploads(app)
     _configure_logging(app)
 
-    if not DEBUG and app.config.get('SENTRY_DSN'):
+    if not app.config.get('DEBUG') and app.config.get('SENTRY_DSN'):
         sentry.init_app(app)
 
     app.config['REPRESENTING_TEMPLATES'] = (
