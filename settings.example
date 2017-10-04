@@ -14,10 +14,20 @@ PRODUCT_TITLE = 'Meetings'
 # Administator's email
 ADMINISTRATOR_EMAIL = ''
 
-# Mail used for sending reset tokens
-DEFAULT_MAIL_SENDER = 'no-reply@eaudeweb.ro'
 # Supress sendding mails on localhost
 MAIL_SUPPRESS_SEND = True
+
+# Mail settings
+MAIL_SERVER = 'localhost'
+MAIL_PORT = 25
+MAIL_USE_TLS = False
+MAIL_USE_SSL = False
+MAIL_USERNAME = None
+MAIL_PASSWORD = None
+
+# Mail used for sending reset tokens
+MAIL_DEFAULT_SENDER = 'no-reply@eaudeweb.ro'
+
 # Disable assets compilation
 ASSETS_DEBUG = True
 DEBUG = True

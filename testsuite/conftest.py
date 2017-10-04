@@ -40,7 +40,7 @@ def app(request, tmpdir):
         'UPLOADED_LOGOS_DEST': logos_path,
         'MEDIA_FOLDER': Path(tmpdir),
         'HOSTNAME': 'http://meetings.edw.ro/',
-        'DEFAULT_MAIL_SENDER': 'noreply',
+        'MAIL_DEFAULT_SENDER': 'noreply',
         'TEMPLATES_PATH': templates_path,
         'MAIL_SUPPRESS_SEND': True,
         'TRANSLATIONS': _TRANSLATIONS,

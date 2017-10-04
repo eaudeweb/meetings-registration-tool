@@ -14,7 +14,7 @@ mail = Mail()
 
 
 def get_default_sender():
-    return app.config['DEFAULT_MAIL_SENDER']
+    return app.config['MAIL_DEFAULT_SENDER']
 
 
 def get_meeting_sender():

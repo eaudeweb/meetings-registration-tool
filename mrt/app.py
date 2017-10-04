@@ -53,7 +53,7 @@ DEFAULT_CONFIG = {
     'PRODUCT_SIDE_LOGO': '',
     'DEFAULT_PHRASES_PATH': (
         Path(__file__).abspath().parent / 'fixtures' / 'default_phrases.json'),
-    'DEFAULT_MAIL_SENDER': '',
+    'MAIL_DEFAULT_SENDER': '',
     'DEFAULT_LANG': _DEFAULT_LANG,
     'TRANSLATIONS': _TRANSLATIONS,
     'TITLE_CHOICES': _TITLE_CHOICES,
