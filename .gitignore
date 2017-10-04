@@ -62,3 +62,6 @@ log.env
 sandbox/
 .skip-db-init
 app.env
+
+# Docker
+docker-compose.override.yml
