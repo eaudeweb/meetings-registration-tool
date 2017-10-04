@@ -12,7 +12,7 @@ RUN runDeps="curl vim build-essential netcat libpq-dev libxml2-dev libxslt1-dev 
  && rm -vrf /var/lib/apt/lists/* \
  && rm -vrf /tmp/*
 
-COPY requirements-dep.txt $MRT_SRC/
+COPY requirements-dep.txt requirements.txt $MRT_SRC/
 WORKDIR $MRT_SRC
 
 RUN pip install -r requirements-dep.txt \
