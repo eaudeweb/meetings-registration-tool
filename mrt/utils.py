@@ -251,7 +251,7 @@ def clean_email(emails):
 def get_custom_file_as_filestorage(filename):
     file_path = app.config['UPLOADED_CUSTOM_DEST'] / filename
     try:
-        data = FileStorage(stream=file_path.open(),
+        data = FileStorage(stream=open(file_path, 'rb'),
                            filename=file_path.basename())
     except (IOError, OSError):
         data = None
