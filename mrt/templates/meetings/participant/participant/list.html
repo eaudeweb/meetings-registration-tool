@@ -25,6 +25,7 @@
         "bFilter": true,
         "sDom": '<"row"<"col-xs-6"l><"#custom-search.col-xs-6">>t<"row"<"col-xs-6"i><"col-xs-6"p>>',
         "columns": [
+            {"data": "order"},
             { "data": "last_name" },
             { "data": "category_id" },
             { "data": "representing" },
@@ -60,6 +61,7 @@
            data-ajax="{{ url_for('.participants_filter') }}">
       <thead>
         <tr>
+          <th></th>
           <th>Name</th>
           <th>Category</th>
           <th>Representing</th>

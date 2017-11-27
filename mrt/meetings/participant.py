@@ -113,11 +113,24 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
 
     def get_queryset(self, **opt):
         participants = Participant.query.current_meeting().participants()
+
+        ordering = {
+            key[0]: order
+            for key, order in zip(
+                participants.order_by('registration_date asc').values(Participant.id),
+                range(1, participants.count() + 1))
+        }
+
         total = participants.count()
         for item in opt['order']:
+            # Special case for column order - sorting by order is identical to sorting
+            #  by registration_date
+            if item['column'] == 'order':
+                participants= participants.order_by('registration_date {dir}'.format(
+                    **item))
             # Special case for registration_date -> NULL values are turned into
             # datetime.min
-            if item['column'] == 'registration_date':
+            elif item['column'] == 'registration_date':
                 direction = {'asc': asc, 'desc': desc}.get(item['dir'])
                 participants = participants.order_by(direction(coalesce(
                     Participant.registration_date, datetime.min)))
@@ -129,7 +142,11 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
             participants = search_for_participant(opt['search'], participants)
 
         filtered_total = participants.count()
-        participants = participants.limit(opt['limit']).offset(opt['start'])
+        participants = list(participants.limit(opt['limit']).offset(opt['start']))
+
+        for i in range(len(participants)):
+            participants[i].order = ordering[participants[i].id]
+
         return participants, total, filtered_total
 
 
