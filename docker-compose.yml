@@ -29,7 +29,7 @@ services:
     command: /bin/sh -c 'echo "$$NGINX_CONF" > /etc/nginx/conf.d/default.conf && exec nginx -g "daemon off;"'
 
   mrt:
-    image: eaudeweb/mrt:2.4
+    image: eaudeweb/mrt:2.6
     container_name: mrt.app
     env_file:
     - docker/app.env
@@ -43,7 +43,7 @@ services:
     - mrt-files:/var/local/meetings/instance/files
 
   async:
-    image: eaudeweb/mrt:2.4
+    image: eaudeweb/mrt:2.6
     container_name: mrt.rq
     links:
     - redis:redis
