@@ -4,6 +4,7 @@ services:
 
   nginx:
     image: nginx:1.14-alpine
+    restart: always
     environment:
       NGINX_CONF: |-
         server {
@@ -28,6 +29,7 @@ services:
 
   mrt:
     image: eaudeweb/mrt:2.6
+    restart: always
     container_name: mrt.app
     env_file:
     - docker/app.env
@@ -40,6 +42,7 @@ services:
 
   async:
     image: eaudeweb/mrt:2.6
+    restart: always
     container_name: mrt.rq
     links:
     - redis:redis
@@ -52,10 +55,12 @@ services:
 
   redis:
     image: redis:3.2.11-alpine
+    restart: always
     container_name: mrt.redis
 
   postgres:
     image: postgres:9-alpine
+    restart: always
     container_name: mrt.db
     env_file:
     - docker/postgres.env
@@ -65,6 +70,7 @@ services:
 
   logspout:
     image: gliderlabs/logspout:v3.2.4
+    restart: always
     container_name: mrt.logs
     command: 'syslog://$${HOST}:$${PORT}?filter.name=mrt.*'
     env_file:
