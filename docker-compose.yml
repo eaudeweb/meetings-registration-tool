@@ -3,7 +3,7 @@ version: '2'
 services:
 
   nginx:
-    image: nginx:1.13-alpine
+    image: nginx:1.14-alpine
     environment:
       NGINX_CONF: |-
         server {
@@ -51,11 +51,11 @@ services:
     command: ["rq", "workers", "printouts"]
 
   redis:
-    image: redis:3.2.10-alpine
+    image: redis:3.2.11-alpine
     container_name: mrt.redis
 
   postgres:
-    image: postgres:9
+    image: postgres:9-alpine
     container_name: mrt.db
     env_file:
     - docker/postgres.env
@@ -64,7 +64,7 @@ services:
     - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   logspout:
-    image: gliderlabs/logspout:v3.2.2
+    image: gliderlabs/logspout:v3.2.4
     container_name: mrt.logs
     command: 'syslog://$${HOST}:$${PORT}?filter.name=mrt.*'
     env_file:
