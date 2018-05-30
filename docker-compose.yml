@@ -4,8 +4,6 @@ services:
 
   nginx:
     image: nginx:1.13-alpine
-    ports:
-    - "127.0.0.1:5050:80"
     environment:
       NGINX_CONF: |-
         server {
@@ -33,8 +31,6 @@ services:
     container_name: mrt.app
     env_file:
     - docker/app.env
-    ports:
-    - "127.0.0.1:5000:5000"
     links:
     - postgres:postgres
     - redis:redis
