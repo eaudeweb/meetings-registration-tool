@@ -4,7 +4,6 @@ services:
 
   nginx:
     image: nginx:1.14-alpine
-    restart: always
     environment:
       NGINX_CONF: |-
         server {
@@ -22,61 +21,56 @@ services:
           }
         }
     depends_on:
-    - mrt
+      - mrt
     volumes:
-    - mrt-files:/var/local/meetings/instance/files:ro
+      - mrt-files:/var/local/meetings/instance/files:ro
     command: /bin/sh -c 'echo "$$NGINX_CONF" > /etc/nginx/conf.d/default.conf && exec nginx -g "daemon off;"'
 
   mrt:
     image: eaudeweb/mrt:2.6
-    restart: always
     container_name: mrt.app
     env_file:
-    - docker/app.env
-    links:
-    - postgres:postgres
-    - redis:redis
+      - docker/app.env
+    depends_on:
+      - postgres
+      - redis
     volumes:
-    - ./settings.py:/var/local/meetings/instance/settings.py:ro
-    - mrt-files:/var/local/meetings/instance/files
+      - ./settings.py:/var/local/meetings/instance/settings.py:ro
+      - mrt-files:/var/local/meetings/instance/files
 
   async:
     image: eaudeweb/mrt:2.6
-    restart: always
     container_name: mrt.rq
-    links:
-    - redis:redis
-    - postgres:postgres
+    depends_on:
+      - postgres
+      - redis
     volumes:
-    - /var/local/meetings/.skip-db-init
-    - ./settings.py:/var/local/meetings/instance/settings.py:ro
-    - mrt-files:/var/local/meetings/instance/files/
+      - /var/local/meetings/.skip-db-init
+      - ./settings.py:/var/local/meetings/instance/settings.py:ro
+      - mrt-files:/var/local/meetings/instance/files/
     command: ["rq", "workers", "printouts"]
 
   redis:
     image: redis:3.2.11-alpine
-    restart: always
     container_name: mrt.redis
 
   postgres:
     image: postgres:9-alpine
-    restart: always
     container_name: mrt.db
     env_file:
-    - docker/postgres.env
+      - docker/postgres.env
     volumes:
-    - mrt-data:/var/lib/postgresql/data
-    - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mrt-data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   logspout:
     image: gliderlabs/logspout:v3.2.4
-    restart: always
     container_name: mrt.logs
     command: 'syslog://$${HOST}:$${PORT}?filter.name=mrt.*'
     env_file:
-    - docker/log.env
+      - docker/log.env
     volumes:
-    - '/var/run/docker.sock:/tmp/docker.sock'
+      - '/var/run/docker.sock:/tmp/docker.sock'
 
 volumes:
   mrt-files:
