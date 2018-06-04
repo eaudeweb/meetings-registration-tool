@@ -629,6 +629,7 @@ class CustomField(db.Model):
 
 
 @event.listens_for(CustomField, 'before_insert')
+@event.listens_for(CustomField, 'before_update')
 def generate_slug(mapper, connection, target):
     if target.slug:
         return
