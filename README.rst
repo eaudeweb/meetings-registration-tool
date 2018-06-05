@@ -103,7 +103,7 @@ Backup
 To backup the application run the following commands:
 
     $ docker exec mrt.db pg_dump -Upostgres <db_name> -Cc | gzip  > db.sql.gz
-    $ docker exec mrt.app tar cvf - /var/local/meetings/instance/files/ | gzip --rsyncable > files.gz
+    $ docker exec mrt.app tar cvf - /var/local/meetings/instance/files/ | gzip > files.gz
 
 -Cc is equivalent to --create --clean.
 
