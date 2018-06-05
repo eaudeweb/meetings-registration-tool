@@ -61,15 +61,19 @@
       <td>{{ participant.country }}</td>
     </tr>
 
-    <tr>
-      <th>{{ participant.label('represented_country') }}</th>
-      <td>{{ participant.represented_country }}</td>
-    </tr>
+    {% if participant.represented_country %}
+      <tr>
+        <th>{{ participant.label('represented_country') }}</th>
+        <td>{{ participant.represented_country }}</td>
+      </tr>
+    {% endif %}
 
-    <tr>
-      <th>{{ participant.label('represented_organization') }}</th>
-      <td>{{ participant.represented_organization }}</td>
-    </tr>
+    {% if participant.represented_organization %}
+      <tr>
+        <th>{{ participant.label('represented_organization') }}</th>
+        <td>{{ participant.represented_organization }}</td>
+      </tr>
+    {% endif %}
 
   </tbody>
 </table>
