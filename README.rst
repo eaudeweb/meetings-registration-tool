@@ -97,6 +97,21 @@ For accurate _remote_addr_ values, please insert the correct header in VHOST fil
 Restart the application and run http://localhost:5000/crashme to test the integration.
 
 
+Backup
+------
+
+To backup the application run the following commands:
+
+    $ docker exec mrt.db pg_dump -Upostgres <db_name> -Cc | gzip  > db.sql.gz
+    $ docker exec mrt.app tar cvf - /var/local/meetings/instance/files/ | gzip --rsyncable > files.gz
+
+-Cc is equivalent to --create --clean.
+
+    --create tells pg_dump to include tables, views, and functions in the backup, not just the data contained in the tables.
+    --clean tells pg_dump to start the SQL script by dropping the data that is currently in the database. This makes it easier to restore in one step.
+
+If you are using rsync.net or other incremental backup system, don't forget to add `--rsyncable` to gzip command.
+
 Data migration
 --------------
 
@@ -117,7 +132,7 @@ Copy the _files_ directory to the _mrt.app_ container, under the _instance_ dire
     $ sudo docker cp ./files mrt.app:/var/local/meetings/instance/
     $ sudo docker exec -ti mrt.app bash
     # chown root:root /var/local/meetings/instance/files
-    
+
 
 Contacts
 ========

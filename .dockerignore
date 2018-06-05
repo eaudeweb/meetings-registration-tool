@@ -1,5 +1,7 @@
 .git*
 .travis*
 Dockerfile
-docker-compose.yml
-docker-compose.override.yml
+docker-compose*
+docker/
+!docker/docker-entrypoint.sh
+backups/
