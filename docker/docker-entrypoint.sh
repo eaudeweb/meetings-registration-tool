@@ -1,31 +1,36 @@
-#!/bin/bash
-set -e
+#!/bin/sh
 
-COMMANDS="add_verified_flag_mp alembic countries_un create_superuser create_user import meetings migrate_hint remove_missing_countries rq runserver shell update_representing compile_translations"
+COMMANDS="alembic create_superuser rq runserver shell compile_translations"
 
-if [ -z "$POSTGRES_ADDR" ]; then
-    POSTGRES_ADDR="postgres"
+if [ -z "$POSTGRES_HOST" ]; then
+  export POSTGRES_HOST="postgres"
 fi
 
-while ! nc -z $POSTGRES_ADDR 5432; do
-  echo "Waiting for PostgreSQL server at '$POSTGRES_ADDR' to accept connections..."
-  sleep 3s
+while ! nc -z ${POSTGRES_HOST} 5432; do
+  echo "Waiting for Postgres server at '$POSTGRES_HOST' to accept connections on port 5432..."
+  sleep 1s
 done
 
-if [ ! -e .skip-db-init ]; then
-  touch .skip-db-init
-  echo "Running DB CMD: ./manage.py alembic upgrade head"
-  python manage.py alembic upgrade head
-  echo "Creating superuser $SUPERUSER_EMAIL"
+if [ -z "$REDIS_HOST" ]; then
+  export REDIS_HOST="redis"
+fi
+
+while ! nc -z ${REDIS_HOST} 6379; do
+  echo "Waiting for Redis server at '$REDIS_HOST' to accept connections on port 6379..."
+  sleep 1s
+done
+
+
+if [ "x$FLASK_MIGRATE" = 'xyes' ]; then
+    python manage.py alembic upgrade head
+fi
+
+if [ "x$FLASK_CREATE_SUPERUSER" = "xyes" ]; then
   python manage.py create_superuser --email="$SUPERUSER_EMAIL" --password="$SUPERUSER_PASSWORD"
 fi
 
 if [ -z "$1" ]; then
-  exec waitress-serve --port 5000 manage:app
-fi
-
-if [[ "$1" == "--"* ]]; then
-  exec waitress-serve "$@" manage:app
+  uwsgi uwsgi.ini
 fi
 
 if [[ $COMMANDS == *"$1"* ]]; then

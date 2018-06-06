@@ -65,3 +65,4 @@ app.env
 
 # Docker
 docker-compose.override.yml
+backups/
