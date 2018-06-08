@@ -10,8 +10,8 @@ services:
     container_name: mrt.app
     restart: on-failure
     environment:
-     - FLASK_MIGRATE=off
-     - FLASK_CREATE_SUPERUSER=off
+     - FLASK_MIGRATE=no
+     - FLASK_CREATE_SUPERUSER=no
     healthcheck:
       test: "curl -f --max-time 1 http://localhost:5000 || exit 1"
       interval: 10s
@@ -35,7 +35,8 @@ services:
     container_name: mrt.logs
     restart: on-failure
     environment:
-     - TZ=Europe/Copenhagen
+     - SYSLOG_HOSTNAME=${HOSTNAME}_{{ index .Container.Config.Labels "com.docker.compose.project"}}
+     - LOGSPOUT=ignore
     env_file:
       - docker/log.env
     volumes:
