@@ -54,14 +54,12 @@ docs/_build/
 *env.ini
 
 # Others
-settings.py
-postgres.env
 init.sql
+settings.py
+db.env
 log.env
-.idea/
-sandbox/
-.skip-db-init
 app.env
+.idea/
 
 # Docker
 docker-compose.override.yml
