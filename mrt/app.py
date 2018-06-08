@@ -219,6 +219,7 @@ def _configure_uploads(app):
 
 
 def _configure_logging(app):
+    logging.basicConfig()
     logger = logging.getLogger('mrt')
     logger.setLevel(logging.INFO)
 
