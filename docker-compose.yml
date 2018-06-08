@@ -1,10 +1,9 @@
-version: '2'
+version: '2.1'
 
 services:
 
-  nginx:
-    image: nginx:1.14-alpine
-    container_name: mrt.nginx
+  mediaserver:
+    image: nginx:1.15-alpine
     environment:
       NGINX_CONF: |-
         server {
@@ -22,59 +21,45 @@ services:
           }
         }
     depends_on:
-      - mrt
+      - app
     volumes:
-      - mrt-files:/var/local/meetings/instance/files:ro
+      - app-files:/var/local/meetings/instance/files/:ro
     command: /bin/sh -c 'echo "$$NGINX_CONF" > /etc/nginx/conf.d/default.conf && exec nginx -g "daemon off;"'
 
-  mrt:
-    image: eaudeweb/mrt:latest
-    container_name: mrt.app
+  app:
+    image: eaudeweb/mrt:2.8
     env_file:
       - docker/app.env
     depends_on:
-      - postgres
+      - db
       - redis
     volumes:
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
-      - mrt-files:/var/local/meetings/instance/files
+      - app-files:/var/local/meetings/instance/files
 
   async:
-    image: eaudeweb/mrt:latest
-    container_name: mrt.rq
+    image: eaudeweb/mrt:2.8
     depends_on:
-      - postgres
+      - db
       - redis
     volumes:
-      - /var/local/meetings/.skip-db-init
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
-      - mrt-files:/var/local/meetings/instance/files/
+      - app-files:/var/local/meetings/instance/files
     command: ["rq", "workers", "printouts"]
 
   redis:
     image: redis:3.2.11-alpine
-    container_name: mrt.redis
 
-  postgres:
-    image: postgres:9-alpine
-    container_name: mrt.db
+  db:
+    image: postgres:10-alpine
     env_file:
-      - docker/postgres.env
+      - docker/db.env
     volumes:
-      - mrt-data:/var/lib/postgresql/data
+      - app-data:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  logspout:
-    image: gliderlabs/logspout:v3.2.4
-    container_name: mrt.logs
-    command: 'syslog://$${HOST}:$${PORT}?filter.name=mrt.*'
-    env_file:
-      - docker/log.env
-    volumes:
-      - '/var/run/docker.sock:/tmp/docker.sock'
-
 volumes:
-  mrt-files:
+  app-files:
     driver: local
-  mrt-data:
+  app-data:
     driver: local

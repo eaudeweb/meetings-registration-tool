@@ -1,9 +1,7 @@
 #!/bin/sh
 
-COMMANDS="alembic create_superuser rq runserver shell compile_translations"
-
 if [ -z "$POSTGRES_HOST" ]; then
-  export POSTGRES_HOST="postgres"
+  export POSTGRES_HOST="db"
 fi
 
 while ! nc -z ${POSTGRES_HOST} 5432; do
@@ -33,8 +31,4 @@ if [ -z "$1" ]; then
   uwsgi uwsgi.ini
 fi
 
-if [[ $COMMANDS == *"$1"* ]]; then
-  exec python manage.py "$@"
-fi
-
-exec "$@"
+exec python manage.py $@

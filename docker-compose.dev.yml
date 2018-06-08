@@ -1,0 +1,30 @@
+version: '2.1'
+
+services:
+
+  app:
+    image: eaudeweb/mrt:latest
+    command: ["runserver", "-h", "0.0.0.0", "-p", "80"]
+    environment:
+     - FLASK_MIGRATE=on
+     - FLASK_CREATE_SUPERUSER=on
+    volumes:
+      - .:/var/local/meetings/
+
+  async:
+    image: eaudeweb/mrt:latest
+
+  apache:
+    image: eeacms/apache:alpine
+    ports:
+      - "8080:80"
+    environment:
+      APACHE_CONFIG: |
+        <VirtualHost *:80>
+          ServerName localhost
+
+          ProxyPreserveHost On
+          ProxyPass /static/files http://nginx:5050/static/files retry=2
+          ProxyPass / http://mrt:5000/ retry=2
+          ProxyPassReverse / http://mrt:5000/
+        </VirtualHost>

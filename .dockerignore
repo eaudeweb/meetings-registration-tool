@@ -5,3 +5,4 @@ docker-compose*
 docker/
 !docker/docker-entrypoint.sh
 backups/
+docs/

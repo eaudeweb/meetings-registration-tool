@@ -1,0 +1,58 @@
+version: '2.1'
+
+services:
+
+  nginx:
+    container_name: mrt.nginx
+    restart: on-failure
+    environment:
+     - TZ=Europe/Copenhagen
+
+  app:
+    container_name: mrt.app
+    restart: on-failure
+    environment:
+     - TZ=Europe/Copenhagen
+     - FLASK_MIGRATE=off
+     - FLASK_CREATE_SUPERUSER=off
+    healthcheck:
+      test: "curl -f --max-time 1 http://localhost:5000 || exit 1"
+      interval: 10s
+      timeout: 2s
+      retries: 3
+
+  async:
+    container_name: mrt.rq
+    restart: on-failure
+    environment:
+     - TZ=Europe/Copenhagen
+
+  redis:
+    container_name: mrt.redis
+    restart: on-failure
+    environment:
+     - TZ=Europe/Copenhagen
+
+  db:
+    container_name: mrt.db
+    restart: on-failure
+    environment:
+     - TZ=Europe/Copenhagen
+
+  logspout:
+    image: gliderlabs/logspout:v3.2.5
+    container_name: mrt.logs
+    restart: on-failure
+    environment:
+     - TZ=Europe/Copenhagen
+    env_file:
+      - docker/log.env
+    volumes:
+      - '/var/run/docker.sock:/tmp/docker.sock'
+    command: 'syslog://$${HOST}:$${PORT}?filter.name=$${FILTER}'
+
+volumes:
+  app-files:
+    driver: local
+  app-data:
+    driver: local
