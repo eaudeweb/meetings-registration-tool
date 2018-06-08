@@ -31,8 +31,10 @@ services:
     env_file:
       - docker/app.env
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
       - app-files:/var/local/meetings/instance/files
@@ -40,8 +42,10 @@ services:
   async:
     image: eaudeweb/mrt:2.9.2
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
       - app-files:/var/local/meetings/instance/files
@@ -49,6 +53,11 @@ services:
 
   redis:
     image: redis:3.2.11-alpine
+    healthcheck:
+      test: "redis-cli -h 127.0.0.1 ping"
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   db:
     image: postgres:10-alpine
@@ -57,6 +66,11 @@ services:
     volumes:
       - app-data:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: "pg_isready -U postgres"
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
 volumes:
   app-files:
