@@ -27,7 +27,7 @@ services:
     command: /bin/sh -c 'echo "$$NGINX_CONF" > /etc/nginx/conf.d/default.conf && exec nginx -g "daemon off;"'
 
   app:
-    image: eaudeweb/mrt:2.9.4
+    image: eaudeweb/mrt:2.9.5
     env_file:
       - docker/app.env
     depends_on:
@@ -40,7 +40,7 @@ services:
       - app-files:/var/local/meetings/instance/files
 
   async:
-    image: eaudeweb/mrt:2.9.4
+    image: eaudeweb/mrt:2.9.5
     depends_on:
       db:
         condition: service_healthy

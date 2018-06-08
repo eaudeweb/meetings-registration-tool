@@ -6,4 +6,3 @@ docker/
 !docker/docker-entrypoint.sh
 backups/
 docs/
-settings.example
