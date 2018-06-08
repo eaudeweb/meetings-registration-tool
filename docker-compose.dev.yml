@@ -13,6 +13,8 @@ services:
 
   async:
     image: eaudeweb/mrt:latest
+    volumes:
+      - .:/var/local/meetings/
 
   apache:
     image: eeacms/apache:alpine
@@ -24,7 +26,7 @@ services:
           ServerName localhost
 
           ProxyPreserveHost On
-          ProxyPass /static/files http://nginx:5050/static/files retry=2
-          ProxyPass / http://mrt:5000/ retry=2
-          ProxyPassReverse / http://mrt:5000/
+          ProxyPass /static/files http://mediaserver/static/files retry=2
+          ProxyPass / http://app/ retry=2
+          ProxyPassReverse / http://app/
         </VirtualHost>

@@ -71,8 +71,6 @@ class PdfRenderer(object):
             self.template_path.unlink_p()
 
     def as_rq(self):
-        import pdb
-        pdb.set_trace()
         self._generate()
         return url_for('meetings.printouts_download',
                        filename=str(self.pdf_path.name))

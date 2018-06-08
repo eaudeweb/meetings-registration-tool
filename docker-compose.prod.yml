@@ -36,8 +36,6 @@ services:
   db:
     container_name: mrt.db
     restart: on-failure
-    environment:
-     - TZ=Europe/Copenhagen
 
   logspout:
     image: gliderlabs/logspout:v3.2.5
