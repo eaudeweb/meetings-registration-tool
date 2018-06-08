@@ -2,17 +2,19 @@ version: '2.1'
 
 services:
 
-  nginx:
+  mediaserver:
     container_name: mrt.nginx
     restart: on-failure
-    environment:
-     - TZ=Europe/Copenhagen
 
   app:
     container_name: mrt.app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: on-failure
     environment:
-     - TZ=Europe/Copenhagen
      - FLASK_MIGRATE=off
      - FLASK_CREATE_SUPERUSER=off
     healthcheck:
@@ -24,20 +26,26 @@ services:
   async:
     container_name: mrt.rq
     restart: on-failure
-    environment:
-     - TZ=Europe/Copenhagen
 
   redis:
     container_name: mrt.redis
     restart: on-failure
-    environment:
-     - TZ=Europe/Copenhagen
+    healthcheck:
+      test: "redis-cli -h 127.0.0.1 ping"
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   db:
     container_name: mrt.db
     restart: on-failure
+    healthcheck:
+      test: "pg_isready -U postgres"
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
-  logspout:
+  log:
     image: gliderlabs/logspout:v3.2.5
     container_name: mrt.logs
     restart: on-failure
