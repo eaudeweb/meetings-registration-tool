@@ -235,5 +235,6 @@ def _configure_logging(app):
                      request.method,
                      request.scheme,
                      request.path,
-                     tb)
-        return "Something went wrong. The webmaster has been notified about this error and our team will fix it asap.", 500
+                     tb, extra={'request': request, 'stack': True})
+        return "Something went wrong. The webmaster has been notified about \
+            this error and our team will fix it asap.", 500
