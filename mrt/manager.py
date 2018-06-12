@@ -107,7 +107,8 @@ def create_superuser(ctx, email, password):
         email = click.prompt('Invalid email. Enter another email', type=str)
     if not password:
         password = click.prompt('Enter password', type=str, hide_input=True)
-        confirm = click.prompt('Enter password again', type=str, hide_input=True)
+        confirm = click.prompt('Enter password again',
+                               type=str, hide_input=True)
     else:
         confirm = password
     if password == confirm:

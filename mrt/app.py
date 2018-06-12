@@ -1,11 +1,11 @@
 import logging
-import sys
+import logging.config
 import importlib
 import traceback
-from time import strftime
 
 from flask import request
 from werkzeug import SharedDataMiddleware
+from werkzeug.contrib.fixers import ProxyFix
 from flask import Flask, redirect, render_template, url_for, g
 from flask_babel import Babel
 from flask_login import LoginManager
@@ -26,6 +26,7 @@ from mrt.forms.fields import custom_upload
 from mrt.mail import mail
 from mrt.meetings.urls import meetings
 from mrt.models import db, redis_store, User, CustomField, Participant
+
 
 from mrt.template import convert_to_dict, has_perm, url_external
 from mrt.template import region_in
@@ -146,8 +147,10 @@ def create_app(config={}):
     _configure_uploads(app)
     _configure_logging(app)
 
-    if not app.config.get('DEBUG') and app.config.get('SENTRY_DSN'):
-        sentry.init_app(app)
+    if not app.config.get('DEBUG'):
+        if app.config.get('SENTRY_DSN'):
+            app.wsgi_app = ProxyFix(app.wsgi_app)
+            sentry.init_app(app)
 
     app.config['REPRESENTING_TEMPLATES'] = (
         Path('meetings/participant/representing'))
@@ -219,36 +222,18 @@ def _configure_uploads(app):
 
 
 def _configure_logging(app):
-    logging.basicConfig()
-    logger = logging.getLogger('mrt')
-    logger.setLevel(logging.INFO)
-
-    @app.after_request
-    def after_request(response):
-        # This IF avoids the duplication of registry in the log,
-        # since that 500 is already logged via @app.errorhandler.
-        if response.status_code != 500:
-            ts = strftime('[%Y-%b-%d %H:%M]')
-            logger.info('%s %s %s %s %s %s %s',
-                        ts,
-                        request.referrer,
-                        request.remote_addr,
-                        request.method,
-                        request.scheme,
-                        request.path,
-                        response.status)
-        return response
+    logging.config.dictConfig(app.config['LOGGING'])
+    logger = logging.getLogger("mrt")
 
     @app.errorhandler(Exception)
     def exceptions(e):
-        ts = strftime('[%Y-%b-%d %H:%M]')
         tb = traceback.format_exc()
-        logger.error('%s %s %s %s %s %s 5xx INTERNAL SERVER ERROR\n%s',
-                     ts,
+        logger.error('%s\n %s %s %s %s %s %s',
+                     e,
                      request.referrer,
                      request.remote_addr,
                      request.method,
                      request.scheme,
                      request.path,
                      tb)
-        return "Internal Server Error", 500
+        return "Something went wrong. The webmaster has been notified about this error and our team will fix it asap.", 500
