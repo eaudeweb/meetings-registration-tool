@@ -4,11 +4,11 @@ services:
 
   mediaserver:
     container_name: mrt.nginx
-    restart: on-failure
+    restart: unless-stopped
 
   app:
     container_name: mrt.app
-    restart: on-failure
+    restart: unless-stopped
     environment:
      - FLASK_MIGRATE=no
      - FLASK_CREATE_SUPERUSER=no
@@ -20,20 +20,20 @@ services:
 
   async:
     container_name: mrt.rq
-    restart: on-failure
+    restart: unless-stopped
 
   redis:
     container_name: mrt.redis
-    restart: on-failure
+    restart: unless-stopped
 
   db:
     container_name: mrt.db
-    restart: on-failure
+    restart: unless-stopped
 
   log:
     image: gliderlabs/logspout:v3.2.5
     container_name: mrt.logs
-    restart: on-failure
+    restart: unless-stopped
     environment:
      - SYSLOG_HOSTNAME=${HOSTNAME}_{{ index .Container.Config.Labels "com.docker.compose.project"}}
      - LOGSPOUT=ignore
@@ -42,9 +42,3 @@ services:
     volumes:
       - '/var/run/docker.sock:/tmp/docker.sock'
     command: 'syslog://$${HOST}:$${PORT}?filter.name=$${FILTER}'
-
-volumes:
-  app-files:
-    driver: local
-  app-data:
-    driver: local
