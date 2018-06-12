@@ -147,10 +147,9 @@ def create_app(config={}):
     _configure_uploads(app)
     _configure_logging(app)
 
-    if not app.config.get('DEBUG'):
-        if app.config.get('SENTRY_DSN'):
-            app.wsgi_app = ProxyFix(app.wsgi_app)
-            sentry.init_app(app)
+    app.wsgi_app = ProxyFix(app.wsgi_app)
+    if not app.config.get('DEBUG') and app.config.get('SENTRY_DSN'):
+        sentry.init_app(app)
 
     app.config['REPRESENTING_TEMPLATES'] = (
         Path('meetings/participant/representing'))
