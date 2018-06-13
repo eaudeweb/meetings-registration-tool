@@ -5,6 +5,8 @@ services:
   mediaserver:
     container_name: mrt.nginx
     restart: unless-stopped
+    environment:
+     - LOGSPOUT=ignore
 
   app:
     image: eaudeweb/mrt:${MRT_IMAGE_TAG:latest}
