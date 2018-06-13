@@ -12,11 +12,13 @@ services:
     environment:
      - FLASK_MIGRATE=no
      - FLASK_CREATE_SUPERUSER=no
+     - SERVER_PORT=5000
     healthcheck:
-      test: "curl -f --max-time 1 http://localhost:5000/login || exit 1"
+      test: "curl -f --max-time 1 http://localhost:$$SERVER_PORT/healthcheck || exit 1"
       interval: 10s
       timeout: 2s
       retries: 3
+    network_mode: host
 
   async:
     container_name: mrt.rq
