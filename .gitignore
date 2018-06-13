@@ -60,6 +60,7 @@ db.env
 log.env
 app.env
 .idea/
+data-storage/
 
 # Docker
 docker-compose.override.yml
