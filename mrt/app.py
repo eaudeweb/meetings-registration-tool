@@ -8,7 +8,7 @@ from werkzeug import SharedDataMiddleware
 from werkzeug.contrib.fixers import ProxyFix
 from flask import Flask, redirect, render_template, url_for, g
 from flask_babel import Babel
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user as user
 from flask_thumbnails import Thumbnail
 from flask_uploads import configure_uploads, patch_request_class
 
@@ -146,6 +146,7 @@ def create_app(config={}):
 
     _configure_uploads(app)
     _configure_logging(app)
+    _configure_healthcheck(app)
 
     app.wsgi_app = ProxyFix(app.wsgi_app)
     if not app.config.get('DEBUG') and app.config.get('SENTRY_DSN'):
@@ -234,6 +235,13 @@ def _configure_logging(app):
                      request.method,
                      request.scheme,
                      request.path,
-                     tb, extra={'request': request, 'stack': True})
+                     tb, extra={'request': request, 'user': user, 'stack': True})
         return "Something went wrong. The webmaster has been notified about \
             this error and our team will fix it asap.", 500
+
+
+def _configure_healthcheck(app):
+
+    @app.route('/healthcheck')
+    def healthcheck():
+        return ('', 204)

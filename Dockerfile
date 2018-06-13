@@ -4,7 +4,7 @@ ARG REQUIREMENTS_FILE=requirements-dep.txt
 
 ENV APP_HOME=/var/local/meetings/
 
-RUN runDeps="curl vim build-essential libpq-dev libxml2-dev libxslt1-dev libjpeg-dev libxrender1 libfontconfig libxtst6" \
+RUN runDeps="curl vim build-essential libpq-dev libxml2-dev libxslt1-dev libjpeg-dev libxrender1 libfontconfig libxtst6 libpcre3 libpcre3-dev" \
     && apt-get update \
     && apt-get install -y --no-install-recommends $runDeps \
     && curl -o /tmp/wkhtmltopdf.tgz -sL https://svn.eionet.europa.eu/repositories/Zope/trunk/wk/wkhtmltopdf-0.12.2.4.tgz  \
@@ -21,7 +21,7 @@ RUN runDeps="curl vim build-essential libpq-dev libxml2-dev libxslt1-dev libjpeg
 COPY requirements.txt $REQUIREMENTS_FILE $APP_HOME
 WORKDIR $APP_HOME
 
-RUN pip install -r $REQUIREMENTS_FILE \
+RUN pip install --no-cache-dir -r $REQUIREMENTS_FILE \
     && mkdir -p $APP_HOME/instance/files
 
 COPY . $APP_HOME
