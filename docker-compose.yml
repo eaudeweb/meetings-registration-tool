@@ -23,7 +23,7 @@ services:
     depends_on:
       - app
     volumes:
-      - app-files:/var/local/meetings/instance/files/:ro
+      - ./data-storage/files:/var/local/meetings/instance/files:ro
     command: /bin/sh -c 'echo "$$NGINX_CONF" > /etc/nginx/conf.d/default.conf && exec nginx -g "daemon off;"'
 
   app:
@@ -39,7 +39,7 @@ services:
         condition: service_healthy
     volumes:
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
-      - app-files:/var/local/meetings/instance/files
+      - ./data-storage/files:/var/local/meetings/instance/files:z
 
   async:
     image: eaudeweb/mrt:${MRT_VERSION:-latest}
@@ -50,7 +50,7 @@ services:
         condition: service_healthy
     volumes:
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
-      - app-files:/var/local/meetings/instance/files
+      - ./data-storage/files:/var/local/meetings/instance/files:z
     command: ["rq", "workers", "printouts"]
 
   redis:
@@ -75,7 +75,5 @@ services:
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
-  app-files:
-    driver: local
   app-data:
     driver: local
