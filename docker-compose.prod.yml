@@ -29,7 +29,7 @@ services:
     container_name: mrt.rq
     restart: unless-stopped
     environment:
-     - DOMAIN_NAME=https://meetings.cms.int
+     - DOMAIN_NAME=http://app:5000
 
   redis:
     container_name: mrt.redis

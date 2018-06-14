@@ -4,13 +4,15 @@ ARG REQUIREMENTS_FILE=requirements-dep.txt
 
 ENV APP_HOME=/var/local/meetings/
 
-RUN runDeps="curl vim build-essential libpq-dev libxml2-dev libxslt1-dev libjpeg-dev libxrender1 libfontconfig libxtst6 libpcre3 libpcre3-dev" \
+# libssl1.0-dev => https://stackoverflow.com/questions/42094214/why-is-qsslsocket-working-with-qt-5-3-but-not-qt-5-7-on-debian-stretch?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+# libpcre3 libpcre3-dev => uwsgi
+# libpng-dev fails to install see https://github.com/tcoopman/image-webpack-loader/issues/95
+RUN runDeps="curl vim build-essential libssl1.0-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev libxrender1 libfontconfig libxtst6 libpcre3 libpcre3-dev" \
     && apt-get update \
     && apt-get install -y --no-install-recommends $runDeps \
     && curl -o /tmp/wkhtmltopdf.tgz -sL https://svn.eionet.europa.eu/repositories/Zope/trunk/wk/wkhtmltopdf-0.12.2.4.tgz  \
     && tar -zxvf /tmp/wkhtmltopdf.tgz -C /tmp/ \
     && mv -v /tmp/wkhtmltopdf /usr/bin/ \
-    # libpng-dev fails to install see https://github.com/tcoopman/image-webpack-loader/issues/95
     && curl -o /tmp/libpng12.deb -sL http://mirrors.kernel.org/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1_amd64.deb \
     && dpkg -i /tmp/libpng12.deb \
     && rm /tmp/libpng12.deb \
