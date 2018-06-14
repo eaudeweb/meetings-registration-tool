@@ -32,6 +32,8 @@ services:
       - docker/app.env
     environment:
       - APP_VERSION=${MRT_VERSION:-latest}
+      - DOMAIN_NAME=http://localhost/
+      - UWSGI_PORT=5000
     depends_on:
       db:
         condition: service_healthy
@@ -48,6 +50,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    environment:
+      - DOMAIN_NAME=http://app:5000/
     volumes:
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
       - ./data-storage/files:/var/local/meetings/instance/files:z

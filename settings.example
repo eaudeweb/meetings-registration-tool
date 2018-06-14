@@ -45,7 +45,7 @@ PRODUCT_SIDE_LOGO = 'badge_right_logo.png'
 BADGE_BACK_LOGO = 'badge_back_logo.png'
 
 # Domain name for correctly displaying registration URLs
-DOMAIN_NAME = ''
+DOMAIN_NAME = os.environ.get('DOMAIN_NAME', 'localhost')
 
 # Choose a subset of the available languages: ['english', 'french', 'spanish']
 # TRANSLATIONS = []
