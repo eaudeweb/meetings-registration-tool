@@ -37,6 +37,10 @@ Online registration system for managing meeting participants and for printing ba
         cd meetings-registration-tool
         git pull
 
+1. Upgrade image tag::
+
+        vim .env
+
 1. Get the latest docker images and restart the docker containers::
 
         docker-compose pull
