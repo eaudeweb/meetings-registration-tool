@@ -10,16 +10,16 @@ Online registration system for managing meeting participants and for printing ba
 
 1. Clone the repo::
 
-    git clone <https://github.com/eaudeweb/meetings-registration-tool.git>
-    cd meetings-registration-tool
+        git clone <https://github.com/eaudeweb/meetings-registration-tool.git>
+        cd meetings-registration-tool
 
 1. Create configuration files::
 
-    cp settings.example settings.py
-    cp docker/postgres.env.example docker/postgres.env
-    cp docker/init.sql.example docker/init.sql
-    cp docker/log.env.example docker/log.env
-    cp docker/app.env.example docker/app.env
+        cp settings.example settings.py
+        cp docker/postgres.env.example docker/postgres.env
+        cp docker/init.sql.example docker/init.sql
+        cp docker/log.env.example docker/log.env
+        cp docker/app.env.example docker/app.env
 
 1. Edit all the above files
 
@@ -27,21 +27,21 @@ Online registration system for managing meeting participants and for printing ba
 
 1. Spin up the docker containers::
 
-    docker-compose up -d
-    docker-compose ps
+        docker-compose up -d
+        docker-compose ps
 
 ## Upgrade
 
 1. Upgrade repo::
 
-    cd meetings-registration-tool
-    git pull
+        cd meetings-registration-tool
+        git pull
 
 1. Get the latest docker images and restart the docker containers::
 
-    docker-compose pull
-    docker-compose up -d
-    docker-compose ps
+        docker-compose pull
+        docker-compose up -d
+        docker-compose ps
 
 ## Logging
 
@@ -49,13 +49,13 @@ For production logging:
 
 1. Update log.env with your Papertrail host and port destination values (<https://papertrailapp.com/account/destinations>):
 
-    vim docker/log.env
+        vim docker/log.env
 
 For accurate _remote_addr_ values, please insert the correct header in VHOST file. See <https://stackoverflow.com/questions/45260132/docker-get-users-real-ip> for example.
 
 1. Error logging is made with Sentry.io. Get client key from <https://sentry.io/[organisation]/[project]/settings/keys/> and set the value of SENTRY_DSN from settings.py file::
 
-    SENTRY_DSN='<https://xxx@sentry.io/232313>'
+        SENTRY_DSN='<https://xxx@sentry.io/232313>'
 
 Restart the application and run <http://app-url/crashme> to test the integration.
 
@@ -63,13 +63,13 @@ Restart the application and run <http://app-url/crashme> to test the integration
 
 To backup the application run the following commands:
 
-    docker exec mrt.db pg_dump -Upostgres <db_name> -Cc | gzip  > db.sql.gz
-    docker exec mrt.app tar cvf - /var/local/meetings/instance/files/ | gzip > files.gz
+        docker exec mrt.db pg_dump -Upostgres <db_name> -Cc | gzip  > db.sql.gz
+        docker exec mrt.app tar cvf - /var/local/meetings/instance/files/ | gzip > files.gz
 
 -Cc is equivalent to --create --clean.
 
-    --create tells pg_dump to include tables, views, and functions in the backup, not just the data contained in the tables.
-    --clean tells pg_dump to start the SQL script by dropping the data that is currently in the database. This makes it easier to restore in one step.
+    `--create` tells pg_dump to include tables, views, and functions in the backup, not just the data contained in the tables.
+    `--clean` tells pg_dump to start the SQL script by dropping the data that is currently in the database. This makes it easier to restore in one step.
 
 If you are using rsync.net or other incremental backup system, don't forget to add `--rsyncable` to gzip command.
 
