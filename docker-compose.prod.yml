@@ -9,7 +9,6 @@ services:
      - LOGSPOUT=ignore
 
   app:
-    image: eaudeweb/mrt:${MRT_IMAGE_TAG:latest}
     container_name: mrt.app
     restart: unless-stopped
     environment:
@@ -25,7 +24,6 @@ services:
     network_mode: host
 
   async:
-    image: eaudeweb/mrt:${MRT_IMAGE_TAG:latest}
     container_name: mrt.rq
     restart: unless-stopped
     environment:

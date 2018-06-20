@@ -3,29 +3,29 @@
 Online registration system for managing meeting participants and for printing badges or reports.
 
 ## Installation
-------------
 
 * Install `Docker <https://docker.com>`_
 * Install `Docker Compose <https://docs.docker.com/compose>`_
 
 1. Clone the repo::
 
-        git clone <https://github.com/eaudeweb/meetings-registration-tool.git>
+        git clone https://github.com/eaudeweb/meetings-registration-tool.git
         cd meetings-registration-tool
 
-1. Create configuration files::
+1. Create configuration files and edit all the following files:
 
         cp settings.example settings.py
-        cp docker/postgres.env.example docker/postgres.env
+        cp .env.example .env
+        cp docker/db.env.example docker/db.env
         cp docker/init.sql.example docker/init.sql
         cp docker/log.env.example docker/log.env
         cp docker/app.env.example docker/app.env
 
-1. Edit all the above files
+1. Create the docker-compose.override.yml, either by copying docker-compose.prod.yml or docker-compose.dev.yml:
 
-1. Create
+        cp docker-compose.prod.yml docker-compose.override.yml
 
-1. Spin up the docker containers::
+1. Spin up the docker containers:
 
         docker-compose up -d
         docker-compose ps
@@ -71,8 +71,6 @@ To backup the application run the following commands:
     `--create` tells pg_dump to include tables, views, and functions in the backup, not just the data contained in the tables.
     `--clean` tells pg_dump to start the SQL script by dropping the data that is currently in the database. This makes it easier to restore in one step.
 
-If you are using rsync.net or other incremental backup system, don't forget to add `--rsyncable` to gzip command.
-
 ## Data migration
 
 1. Database
@@ -81,8 +79,8 @@ Copy the Postgres SQL dump file inside the postgres container, drop the current 
 
     $ docker cp backup.sql mrt.db:/tmp/backup.sql
     $ docker exec -it mrt.db bash
-    /# dropdb cms_meetings;
-    /# createdb cms_meetings;
+    /# dropdb <db>;
+    /# createdb <db>;
     /# psql < /tmp/backup.sql
 
 1. Files

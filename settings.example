@@ -3,8 +3,9 @@
 import os
 
 SQLALCHEMY_DATABASE_URI = 'postgresql://demo:demo@db/meetings'
-SECRET_KEY = 'secret'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+SECRET_KEY = 'secret'
 
 # Total upload size limit - if total size of all files used in registration
 # exceeds this value the server returns a 413 Request Entity Too Large response
