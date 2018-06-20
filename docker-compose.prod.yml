@@ -21,7 +21,6 @@ services:
       interval: 10s
       timeout: 2s
       retries: 3
-    network_mode: host
 
   async:
     container_name: mrt.rq

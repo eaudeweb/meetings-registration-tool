@@ -25,6 +25,10 @@ Online registration system for managing meeting participants and for printing ba
 
         cp docker-compose.prod.yml docker-compose.override.yml
 
+1. Create a folderfor data::
+
+        mkdir data-storage
+
 1. Spin up the docker containers:
 
         docker-compose up -d
