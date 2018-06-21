@@ -34,6 +34,10 @@ Online registration system for managing meeting participants and for printing ba
         docker-compose up -d
         docker-compose ps
 
+1. To cleanup queue jobs and printouts older than a month use crontab and run the command:
+
+        docker exec mrt.rq python manage.py rq cleanup --hook clean_printouts
+
 ## Upgrade
 
 1. Upgrade repo::
