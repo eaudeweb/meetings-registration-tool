@@ -655,7 +655,7 @@ class CustomFieldValue(db.Model):
 
     participant_id = db.Column(
         db.Integer, db.ForeignKey('participant.id'),
-        nullable=False)
+        nullable=False, index=True)
     participant = db.relationship(
         'Participant',
         backref=db.backref('custom_field_values', lazy='dynamic',
