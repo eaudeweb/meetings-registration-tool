@@ -34,7 +34,7 @@ Online registration system for managing meeting participants and for printing ba
         docker-compose up -d
         docker-compose ps
 
-1. To cleanup queue jobs and printouts older than a month use crontab and run the command:
+1. To clean printout jobs older than one month and delete the files, run this command (to keep the printout files remove the --hook parameter):
 
         docker exec mrt.rq python manage.py rq cleanup --hook clean_printouts
 
@@ -102,3 +102,43 @@ Copy the _files_ directory to the _mrt.app_ container, under the _instance_ dire
     $ sudo docker cp ./files mrt.app:/var/local/meetings/instance/
     $ sudo docker exec -ti mrt.app bash
     # chown root:root /var/local/meetings/instance/files
+
+## Running unit tests
+
+Simply run py.test testsuite, it will find and run the tests. For a bit of speedup you can install pytest-xdist and run tests in parallel, py.test testsuite -n 4.
+
+## Create a migration after changes in models.py
+
+Simply run the next commands in the application container:
+
+        python manage.py alembic revision -- --autogenerate -m 'commit message'
+        python manage.py alembic upgrade head
+
+## i18n deployment on development
+
+Run the pybabel command that comes with Babel to extract your strings:
+
+        pybabel extract -F mrt/babel.cfg -k lazy_gettext -o mrt/translations/messages.pot mrt/
+
+Create translations:
+
+        pybabel init -i mrt/translations/messages.pot -d mrt/translations -l es
+        pybabel init -i mrt/translations/messages.pot -d mrt/translations -l fr
+
+To compile the translations for use, pybabel helps again:
+
+        pybabel compile -d mrt/translations
+
+Merge the changes:
+
+        pybabel update -i mrt/translations/messages.pot -d mrt/translations
+
+## Use the UN official list of countries
+
+By default, the list of countries used in country selection fields is the one supplied by the babel package (which in turn gets the data from CLDR). If you want to switch to the UN official list of countries, you can do so by running the command:
+
+        python manage.py countries_un
+
+Running this command is a one-time step. The list of countries is extracted from the excel file mrt/static/localedata/countries_un.xslx and based on the information parsed, the data files used by babel are partially overwritten. Since running the command modifies the files used by babel, the only way to restore the default list is to restore those data files (which can be done by reinstalling the babel package, for example).
+
+If the babel package is updated, the command will have to be run again, to modify the newly added locale data files.
