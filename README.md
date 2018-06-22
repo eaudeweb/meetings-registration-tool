@@ -2,6 +2,12 @@
 
 Online registration system for managing meeting participants and for printing badges or reports.
 
+[![Travis](https://travis-ci.org/eaudeweb/meetings-registration-tool.svg?branch=master)](
+https://travis-ci.org/eaudeweb/meetings-registration-tool)
+[![Coverage](https://coveralls.io/repos/github/eaudeweb/meetings-registration-tool/badge.svg?branch=master)](https://coveralls.io/github/eaudeweb/meetings-registration-tool?branch=master)
+[![Docker](https://dockerbuildbadges.quelltext.eu/status.svg?organization=eaudeweb&repository=mrt)](https://hub.docker.com/r/eaudeweb/mrt/builds)
+
+
 ## Installation
 
 * Install `Docker <https://docker.com>`_
