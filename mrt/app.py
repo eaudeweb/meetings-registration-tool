@@ -44,27 +44,6 @@ _TRANSLATIONS = [_DEFAULT_LANG, 'french', 'spanish']
 _TITLE_CHOICES = ['Ms', 'Mr', 'Dr', 'Prof']
 
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': True,
-
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'console'
-        },
-    },
-
-    'loggers': {
-        'mrt': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    }
-}
-
 DEFAULT_CONFIG = {
     'REDIS_URL': 'redis://localhost:6379/0',
     'DEBUG': True,
@@ -79,7 +58,6 @@ DEFAULT_CONFIG = {
     'DEFAULT_LANG': _DEFAULT_LANG,
     'TRANSLATIONS': _TRANSLATIONS,
     'TITLE_CHOICES': _TITLE_CHOICES,
-    'LOGGING': LOGGING,
 }
 
 
@@ -244,7 +222,10 @@ def _configure_uploads(app):
 
 
 def _configure_logging(app):
-    logging.config.dictConfig(app.config['LOGGING'])
+    if app.config.has_key('LOGGING'):
+        logging.config.dictConfig(app.config['LOGGING'])
+    else:
+        logging.basicConfig()
     logger = logging.getLogger("mrt")
 
     @app.errorhandler(Exception)
