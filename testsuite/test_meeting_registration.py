@@ -86,7 +86,7 @@ def test_meeting_registration_success_phrases(app, user, default_meeting):
     email_phrase = meeting.phrases.filter_by(
         group=Phrase.EMAIL_CONFIRMATION,
         name=Phrase.FOR_PARTICIPANTS).scalar()
-    email_phrase.description.english = 'Email success message'
+    email_phrase.description.english = 'Dear John John, Email success message'
 
     data = ParticipantFactory.attributes()
     data['category_id'] = category.id
@@ -115,7 +115,7 @@ def test_meeting_registration_success_phrases_fr(app, user, default_meeting):
     email_phrase = meeting.phrases.filter_by(
         group=Phrase.EMAIL_CONFIRMATION,
         name=Phrase.FOR_PARTICIPANTS).scalar()
-    email_phrase.description.french = 'Email success message french'
+    email_phrase.description.french = 'Dear John John, Email success message french'
 
     for field in meeting.custom_fields:
         field.label.french = field.label.english + ' french'
@@ -707,7 +707,7 @@ def register_participant_online(client, participant_data, meeting, user=None):
     add_custom_fields_for_meeting(meeting)
     populate_participant_form(meeting, participant_data)
     resp = client.post(url_for('meetings.registration',
-                       meeting_acronym=meeting.acronym), data=participant_data)
+                               meeting_acronym=meeting.acronym), data=participant_data)
     return resp
 
 
@@ -720,7 +720,7 @@ def register_media_participant_online(client, participant_data, meeting,
                                   form_class=MediaParticipantDummyForm)
     populate_participant_form(meeting, participant_data)
     resp = client.post(url_for('meetings.media_registration',
-                       meeting_acronym=meeting.acronym), data=participant_data)
+                               meeting_acronym=meeting.acronym), data=participant_data)
     return resp
 
 
