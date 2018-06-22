@@ -1,4 +1,3 @@
 -r requirements.txt
 
 uwsgi==2.0.17
-raven==6.9.0

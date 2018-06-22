@@ -54,3 +54,6 @@ speaklater==1.3
 
 # scripts
 requests==2.18.4
+
+# sentry
+raven==6.9.0
