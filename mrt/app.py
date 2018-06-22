@@ -44,6 +44,24 @@ _TRANSLATIONS = [_DEFAULT_LANG, 'french', 'spanish']
 _TITLE_CHOICES = ['Ms', 'Mr', 'Dr', 'Prof']
 
 
+LOGGING = {
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+        },
+    },
+
+    'loggers': {
+        'mrt': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
+}
+
 DEFAULT_CONFIG = {
     'REDIS_URL': 'redis://localhost:6379/0',
     'DEBUG': True,
@@ -58,6 +76,7 @@ DEFAULT_CONFIG = {
     'DEFAULT_LANG': _DEFAULT_LANG,
     'TRANSLATIONS': _TRANSLATIONS,
     'TITLE_CHOICES': _TITLE_CHOICES,
+    'LOGGING': LOGGING,
 }
 
 
