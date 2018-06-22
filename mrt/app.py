@@ -45,6 +45,9 @@ _TITLE_CHOICES = ['Ms', 'Mr', 'Dr', 'Prof']
 
 
 LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+
     'handlers': {
         'console': {
             'level': 'DEBUG',
