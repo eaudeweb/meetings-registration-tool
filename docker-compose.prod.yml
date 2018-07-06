@@ -3,7 +3,7 @@ version: '2.1'
 services:
 
   mediaserver:
-    container_name: mrt.nginx
+    container_name: mrt.mediaserver
     restart: unless-stopped
     environment:
      - LOGSPOUT=ignore
