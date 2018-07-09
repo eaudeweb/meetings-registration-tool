@@ -66,7 +66,6 @@ REGIONS = {
     '7': 'Depositary Government',
     '8': 'Previous host country',
     '9': 'Next host country',
-    '10': 'Nomenclature specialist',
 }
 
 

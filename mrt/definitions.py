@@ -71,7 +71,6 @@ REPRESENTING_REGIONS = (
     ('Depositary Government', 'Depositary Government'),
     ('Europe', 'Europe'),
     ('Next host country', 'Next host country'),
-    ('Nomenclature specialist', 'Nomenclature specialist'),
     ('North America', 'North America'),
     ('Oceania', 'Oceania'),
     ('Previous host country', 'Previous host country')
