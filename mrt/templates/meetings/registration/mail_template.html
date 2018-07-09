@@ -7,7 +7,8 @@
       background: #ddd;
     }
 
-    table th, table td {
+    table th,
+    table td {
       background: #fff;
       padding: 8px;
     }
@@ -27,7 +28,7 @@
 <body>
 </body>
 
-<h4>Dear {{ participant.first_name }} {{ participant.first_name }},</h4>
+<h4>Dear {{ participant.first_name }} {{ participant.last_name }},</h4>
 
 <h4>{{ phrase.description[g.language_verbose]|nl2br }}</h4>
 
@@ -64,17 +65,15 @@
     </tr>
 
     {% if participant.represented_country %}
-      <tr>
-        <th>{{ participant.label('represented_country') }}</th>
-        <td>{{ participant.represented_country }}</td>
-      </tr>
-    {% endif %}
-
-    {% if participant.represented_organization %}
-      <tr>
-        <th>{{ participant.label('represented_organization') }}</th>
-        <td>{{ participant.represented_organization }}</td>
-      </tr>
+    <tr>
+      <th>{{ participant.label('represented_country') }}</th>
+      <td>{{ participant.represented_country }}</td>
+    </tr>
+    {% endif %} {% if participant.represented_organization %}
+    <tr>
+      <th>{{ participant.label('represented_organization') }}</th>
+      <td>{{ participant.represented_organization }}</td>
+    </tr>
     {% endif %}
 
   </tbody>

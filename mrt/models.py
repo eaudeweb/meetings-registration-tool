@@ -422,7 +422,7 @@ class Participant(db.Model):
 
     def _clone_custom_field(self, custom_field):
         cf = (CustomField.query
-              .filter_by(meeting=self.default_meeting)
+              .filter_by(meeting_id=self.meeting_id)
               .filter_by(slug=custom_field.slug)
               .scalar())
         if not cf:
