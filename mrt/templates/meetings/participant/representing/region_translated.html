@@ -1,3 +1,1 @@
-{{ participant.represented_region|region_in('en') }} /
-{{ participant.represented_region|region_in('fr') }} /
-{{ participant.represented_region|region_in('es') }}
+{% for lang in config.TRANSLATIONS %}{{ participant.represented_region|region_in(LANGUAGES_MAP[lang]) }} {% if not loop.last %}/ {% endif %}{% endfor %}

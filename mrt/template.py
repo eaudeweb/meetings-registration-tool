@@ -125,6 +125,8 @@ def inject_badge_context(participant):
 def region_in(region, lang_code='en'):
     if not region:
         return ''
+    if isinstance(region, basestring):
+        return translate(region, lang_code)
     return translate(region.value, lang_code)
 
 
