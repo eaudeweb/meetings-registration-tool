@@ -51,7 +51,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - DOMAIN_NAME=http://app:5000/
+      - DOMAIN_NAME=http://app:5000
     volumes:
       - ./settings.py:/var/local/meetings/instance/settings.py:ro
       - ./data-storage/files:/var/local/meetings/instance/files:z
