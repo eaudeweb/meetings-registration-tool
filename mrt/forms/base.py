@@ -3,7 +3,7 @@ from collections import OrderedDict
 from flask import request, g, current_app as app
 from werkzeug import MultiDict
 
-from wtforms import ValidationError
+from wtforms import ValidationError, validators
 from wtforms.widgets import TextInput, TextArea
 from wtforms_alchemy import ClassMap
 from wtforms_alchemy import ModelForm
@@ -111,13 +111,22 @@ class AdminCustomFieldLabelInputForm(TranslationInputForm):
             raise ValidationError(self.duplicate_message)
 
 
+def _check_if_required(form, field):
+    french_field = form._fields.get('french')
+    spanish_field = form._fields.get('spanish')
+
+    if french_field and spanish_field:
+        if bool(french_field.data) or bool(spanish_field.data):
+            return validators.DataRequired()(form, field)
+
 class DescriptionInputForm(TranslationBase):
 
     class Meta:
         model = Translation
         field_args = {
             'english': {
-                'widget': TextArea()
+                'widget': TextArea(),
+                'validators': [ _check_if_required]
             },
             'french': {
                 'widget': TextArea()

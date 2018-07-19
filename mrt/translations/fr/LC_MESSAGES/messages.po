@@ -204,3 +204,29 @@ msgstr "Vos détails"
 #~ msgid "Confirm Password"
 #~ msgstr "Confirmez le mot de passe"
 
+msgid "Africa"
+msgstr "Afrique"
+
+msgid "Asia"
+msgstr "Asie"
+
+msgid "Central and South America and the Carribean"
+msgstr "Amérique centrale et du Sud et Caraïbes"
+
+msgid "Depositary Government"
+msgstr "Gouvernement dépositaire"
+
+msgid "Europe"
+msgstr "L'Europe"
+
+msgid "Next host country"
+msgstr "Prochain pays hôte"
+
+msgid "North America"
+msgstr "Amérique du Nord"
+
+msgid "Oceania"
+msgstr "Océanie"
+
+msgid "Previous host country"
+msgstr "Pays hôte précédent"

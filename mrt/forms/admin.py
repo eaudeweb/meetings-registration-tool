@@ -243,7 +243,7 @@ class MeetingTypeEditForm(BaseForm):
         model = MeetingType
         only = ('slug', 'label')
         field_args = {
-            'slug': {'validators': [slug_unique]}
+            'slug': {'validators': [slug_unique, DataRequired()]}
         }
 
     def __init__(self, *args, **kwargs):
