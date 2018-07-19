@@ -1,8 +1,5 @@
-{% extends "meetings/registration/form.html" %}
-
-{% block head %}
-  {{ super() }}
-  <style type="text/css">
+{% extends "meetings/registration/form.html" %} {% block head %} {{ super() }}
+<style type="text/css">
     .form-control {
         border-radius: 0;
         box-shadow: none;
@@ -11,10 +8,9 @@
     }
 
     form {
-        background:#f7f7f7;
+        background: #f7f7f7;
         padding: 10px;
-        border-radius:5px;
-        width: 800px;
+        border-radius: 5px;
         margin-left: auto;
         margin-right: auto;
     }
@@ -36,13 +32,13 @@
         padding-left: 2rem;
     }
 
-    @media (min-width: 768px){
+    @media (min-width: 768px) {
         .col-sm-2 {
-         width: 25%;
+            width: 25%;
         }
 
-        .col-sm-2.control-label{
-         width: 40%;
+        .col-sm-2.control-label {
+            width: 40%;
 
         }
     }
@@ -53,24 +49,25 @@
     }
 
     label.control-label {
-        float:left;
+        float: left;
         width: 200px!important;
     }
 
-    .form-group > label {
-       text-align: right!important;
-   }
+    .form-group>label {
+        text-align: right!important;
+    }
 
-   li > .form-group > label {
-       text-align:left!important;
-   }
+    li>.form-group>label {
+        text-align: left!important;
+    }
 
-  .title {
-      margin: 0;
-  }
+    .title {
+        margin: 0;
+    }
 
-  .product-logo, .product-side-logo {
-      display: none;
-  }
-    </style>
+    .product-logo,
+    .product-side-logo {
+        display: none;
+    }
+</style>
 {% endblock %}

@@ -7,7 +7,6 @@ https://travis-ci.org/eaudeweb/meetings-registration-tool)
 [![Coverage](https://coveralls.io/repos/github/eaudeweb/meetings-registration-tool/badge.svg?branch=master)](https://coveralls.io/github/eaudeweb/meetings-registration-tool?branch=master)
 [![Docker](https://dockerbuildbadges.quelltext.eu/status.svg?organization=eaudeweb&repository=mrt)](https://hub.docker.com/r/eaudeweb/mrt/builds)
 
-
 ## Installation
 
 * Install `Docker <https://docker.com>`_
@@ -30,10 +29,6 @@ https://travis-ci.org/eaudeweb/meetings-registration-tool)
 1. Create the docker-compose.override.yml, either by copying docker-compose.prod.yml or docker-compose.dev.yml:
 
         cp docker-compose.prod.yml docker-compose.override.yml
-
-1. Create a folderfor data::
-
-        mkdir data-storage
 
 1. Spin up the docker containers:
 
@@ -148,3 +143,13 @@ By default, the list of countries used in country selection fields is the one su
 Running this command is a one-time step. The list of countries is extracted from the excel file mrt/static/localedata/countries_un.xslx and based on the information parsed, the data files used by babel are partially overwritten. Since running the command modifies the files used by babel, the only way to restore the default list is to restore those data files (which can be done by reinstalling the babel package, for example).
 
 If the babel package is updated, the command will have to be run again, to modify the newly added locale data files.
+
+## Integration in CMS pages
+
+Simply insert the snippet bellow in the CMS page:
+
+        <div style="width: 100%; height: 2500px; overflow: hidden; position: relative;">
+                <iframe scrolling="no" src="<registration-url>" style="left: -50px; top: -180px; width: 105%; height: 2700px; position: absolute;"></iframe>
+        </div>
+
+The registration URL can be copied from Meeting -> Settings -> Overview -> Participant registration form.
