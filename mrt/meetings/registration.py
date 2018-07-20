@@ -126,8 +126,12 @@ class Registration(BaseRegistration):
         return user.get_default(Participant.DEFAULT)
 
     def get_success_phrase(self):
-        return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,
-                                           name=Phrase.PARTICIPANT).scalar()
+        return g.meeting.phrases.filter(
+            ((Phrase.group == Phrase.ONLINE_REGISTRATION) &
+             (Phrase.name == Phrase.PARTICIPANT)) |
+            ((Phrase.group == Phrase.ONLINE_REGISTRATION_CONFIRMATION) &
+             (Phrase.name == Phrase.FOR_PARTICIPANTS))
+        ).scalar()
 
     def get_header_phrase(self):
         return g.meeting.phrases.filter_by(group=Phrase.ONLINE_REGISTRATION,

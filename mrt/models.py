@@ -942,6 +942,7 @@ class PhraseMixin(object):
     SUBJECT = 'Subject'
     BODY = 'Body'
     ONLINE_REGISTRATION = 'Online registration'
+    ONLINE_REGISTRATION_CONFIRMATION = 'Online registration confirmation'
     EMAIL_CONFIRMATION = 'Email registration confirmation'
     PARTICIPANT = 'Confirmation for participants'
     USER_REGISTRATION = 'Create user after registration'

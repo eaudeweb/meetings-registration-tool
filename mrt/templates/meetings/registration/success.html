@@ -6,7 +6,9 @@
 
   <div class="text-center">
     <h2>{{ gettext('Thank you for submitting your registration information.')}}</h2>
-    <h4>{{ phrases['success_phrase'].description[g.language_verbose] }}</h4>
+    {% if phrases['success_phrase'] %}
+      <h4>{{ phrases['success_phrase'].description[g.language_verbose] }}</h4>
+    {% endif %}
   </div>
 
   {% if not current_user.is_authenticated and g.meeting.login_button_visible %}
