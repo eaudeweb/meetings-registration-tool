@@ -39,6 +39,40 @@ https://travis-ci.org/eaudeweb/meetings-registration-tool)
 
         docker exec mrt.rq python manage.py rq cleanup --hook clean_printouts
 
+## Production deployment notes
+
+The application needs an webserver in front to handle the requests.
+
+### Apache conf
+
+        <VirtualHost *:443>
+                ProxyPreserveHost On
+                RequestHeader set X-Forwarded-Proto "https"
+
+                ProxyPass /static/files http://localhost:5001/static/files retry=2
+                ProxyPass / http://localhost:5000/ retry=2
+                ProxyPassReverse / http://localhost:5000/
+        </VirtualHost>
+
+### Nginx conf
+
+        server {
+
+        location /static/files {
+                proxy_pass http://localhost:5001/static/files;
+                proxy_set_header Host $host;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto "https";
+        }
+
+        location / {
+                proxy_pass http://localhost:5000;
+                proxy_set_header Host $host;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                client_max_body_size 30m;
+                proxy_set_header X-Forwarded-Proto "https";
+        }
+
 ## Upgrade
 
 1. Upgrade repo::
