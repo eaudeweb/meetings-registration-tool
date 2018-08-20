@@ -424,6 +424,7 @@ class Participant(db.Model):
         cf = (CustomField.query
               .filter_by(meeting_id=self.meeting_id)
               .filter_by(slug=custom_field.slug)
+              .filter_by(custom_field_type=self.participant_type)
               .scalar())
         if not cf:
             cf = copy_attributes(CustomField(), custom_field)
