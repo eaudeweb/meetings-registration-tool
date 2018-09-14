@@ -424,7 +424,7 @@ class Participant(db.Model):
         cf = (CustomField.query
               .filter_by(meeting_id=self.default_meeting.id)
               .filter_by(slug=custom_field.slug)
-              .filter_by(custom_field_type=self.participant_type)
+              .filter_by(custom_field_type=CustomField.PARTICIPANT)
               .scalar())
         if not cf:
             cf = copy_attributes(CustomField(), custom_field)
@@ -525,6 +525,7 @@ class Participant(db.Model):
 
 
 class CustomField(db.Model):
+
 
     TEXT = 'text'
     TEXT_AREA = 'text_area'
