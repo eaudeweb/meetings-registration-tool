@@ -425,7 +425,7 @@ class Participant(db.Model):
               .filter_by(meeting_id=self.default_meeting.id)
               .filter_by(slug=custom_field.slug)
               .filter_by(custom_field_type=CustomField.PARTICIPANT)
-              .scalar())
+              .first())
         if not cf:
             cf = copy_attributes(CustomField(), custom_field)
             cf.label = Translation(english=custom_field.label.english)
