@@ -13,7 +13,8 @@ from mrt.models import MeetingType, Category, Condition, ConditionValue
 
 from mrt.forms.base import BaseForm, TranslationInputForm, OrderedFieldsForm
 from mrt.forms.fields import MeetingSettingsField
-from mrt.forms.fields import CategoryField, EmailRequired, EmailField
+from mrt.forms.fields import CategoryField, EmailField
+from mrt.forms.validators import EmailValidator
 from mrt.forms.fields import LanguageField
 
 from mrt.utils import copy_attributes, Logo, logos_upload
@@ -306,7 +307,7 @@ class ParticipantDummyForm(OrderedFieldsForm):
 
     category_id = CategoryField('Category', validators=[InputRequired()],
                                 coerce=int, choices=[])
-    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
+    email = EmailField('Email', validators=[EmailValidator(), InputRequired()])
 
     language = LanguageField('Working language',
                              choices=Participant.LANGUAGE_CHOICES)
@@ -335,7 +336,7 @@ class DefaultParticipantDummyForm(BaseForm):
 
     CUSTOM_FIELD_TYPE = 'participant'
 
-    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
+    email = EmailField('Email', validators=[EmailValidator(), InputRequired()])
 
     class Meta:
         model = Participant
@@ -355,7 +356,7 @@ class MediaParticipantDummyForm(OrderedFieldsForm):
 
     category_id = CategoryField('Category', validators=[InputRequired()],
                                 coerce=int, choices=[])
-    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
+    email = EmailField('Email', validators=[EmailValidator(), InputRequired()])
 
     class Meta:
         model = Participant
@@ -372,7 +373,7 @@ class DefaultMediaParticipantDummyForm(BaseForm):
 
     CUSTOM_FIELD_TYPE = 'media'
 
-    email = EmailField('Email', validators=[EmailRequired(), InputRequired()])
+    email = EmailField('Email', validators=[EmailValidator(), InputRequired()])
 
     class Meta:
         model = Participant

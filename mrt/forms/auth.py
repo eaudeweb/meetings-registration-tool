@@ -7,12 +7,13 @@ from wtforms import Form
 from wtforms import StringField, PasswordField, validators
 
 from mrt.models import db, User, Staff
+from mrt.forms.validators import EmailValidator
 from .base import BaseForm
 
 
 class LoginForm(Form):
 
-    email = StringField('Email', [validators.Email()])
+    email = StringField('Email', [EmailValidator()])
     password = PasswordField('Password')
 
     def __init__(self, *args, **kwargs):
@@ -20,6 +21,7 @@ class LoginForm(Form):
         super(LoginForm, self).__init__(*args, **kwargs)
 
     def validate_email(self, field):
+        EmailValidator()(self, field)
         user = self.get_user()
         if user is None:
             raise validators.ValidationError('Invalid user')
@@ -47,7 +49,7 @@ class UserForm(BaseForm):
 
 class RecoverForm(Form):
 
-    email = StringField('Email', [validators.Email()])
+    email = StringField('Email', [EmailValidator()])
 
     def validate_email(self, field):
         user = self.get_user()

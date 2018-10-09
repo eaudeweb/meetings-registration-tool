@@ -14,6 +14,7 @@ from wtforms import HiddenField
 from mrt.forms.meetings import BaseParticipantForm
 from mrt.forms.meetings.participant import _RulesMixin, _RulesMeta
 from mrt.forms.fields import RegistrationImageField, RegistrationDocumentField
+from mrt.forms.validators import EmailValidator
 from mrt.models import db, User, CustomField
 from mrt import utils
 
@@ -28,6 +29,10 @@ class RegistrationForm(_RulesMixin, BaseParticipantForm):
     CUSTOM_FIELDS_TYPE = 'participant'
 
     _CUSTOM_FIELDS_MAP = {
+        CustomField.EMAIL: {
+            'field': StringField,
+            'validators': [EmailValidator()],
+        },
         CustomField.IMAGE: {
             'field': RegistrationImageField,
             'validators': [FileAllowed(IMAGES)]
@@ -72,15 +77,13 @@ class MediaRegistrationForm(RegistrationForm):
 
 class RegistrationUserForm(Form):
 
-    email = StringField(__('Email'), [validators.Email()])
+    email = StringField(__('Email'), [EmailValidator()])
     password = PasswordField(__('Password'), [validators.DataRequired()])
     confirm = PasswordField(
         __('Confirm Password'), [validators.DataRequired()])
 
     def validate_email(self, field):
-        if not utils.validate_email(field.data):
-            raise validators.ValidationError(
-                _('Invalid email. Enter another email.'))
+        EmailValidator()(self, field)
         user = User.query.filter_by(email=field.data).scalar()
         if user:
             raise validators.ValidationError(
