@@ -10,6 +10,7 @@ Flask-Uploads==0.2.1
 Flask==0.12.2
 html5lib==0.99999999
 itsdangerous==0.24
+ipaddress==1.0.22
 Jinja2==2.9.6
 jsmin==2.2.2
 Mako==1.0.7
