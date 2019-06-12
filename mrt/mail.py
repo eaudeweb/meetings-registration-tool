@@ -89,7 +89,7 @@ def send_bulk_message(recipients, subject, message):
 
 @notification_signal.connect_via(ANY)
 def send_notification_message(recipients, participant):
-    sender = get_default_sender()
+    sender = get_meeting_sender()
     if not sender:
         flash('No email for sender.', 'error')
         return
