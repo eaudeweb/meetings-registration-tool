@@ -13,14 +13,11 @@ from mrt.utils import set_language
 mail = Mail()
 
 
-def get_default_sender():
-    return app.config['MAIL_DEFAULT_SENDER']
-
-
 def get_meeting_sender():
-    if hasattr(g, 'meeting') and g.meeting and g.meeting.owner:
-        return g.meeting.owner.user.email
-    return get_default_sender()
+    return app.config['MAIL_DEFAULT_SENDER']
+    # if hasattr(g, 'meeting') and g.meeting and g.meeting.owner:
+    #     return g.meeting.owner.user.email
+    # return get_default_sender()
 
 
 def get_recipients(meeting, notification_type):
