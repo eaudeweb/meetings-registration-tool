@@ -7,7 +7,7 @@ ENV APP_HOME=/var/local/meetings/
 # libssl1.0-dev => https://stackoverflow.com/questions/42094214/why-is-qsslsocket-working-with-qt-5-3-but-not-qt-5-7-on-debian-stretch?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
 # libpcre3 libpcre3-dev => uwsgi
 # libpng-dev fails to install see https://github.com/tcoopman/image-webpack-loader/issues/95
-RUN runDeps="curl vim build-essential libssl1.0-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev libxrender1 libfontconfig libxtst6 libpcre3 libpcre3-dev" \
+RUN runDeps="curl vim build-essential libssl-dev libpq-dev libxml2-dev libxslt1-dev libjpeg-dev libxrender1 libfontconfig libxtst6 libpcre3 libpcre3-dev" \
     && apt-get update \
     && apt-get install -y --no-install-recommends $runDeps \
     && curl -o /tmp/wkhtmltopdf.tgz -sL https://svn.eionet.europa.eu/repositories/Zope/trunk/wk/wkhtmltopdf-0.12.2.4.tgz  \
