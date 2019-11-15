@@ -64,6 +64,7 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+    command: ["redis-server", "--bind", "0.0.0.0"]
 
   db:
     image: postgres:10-alpine
