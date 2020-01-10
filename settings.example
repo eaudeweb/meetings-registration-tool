@@ -67,6 +67,36 @@ CUSTOMIZED_COUNTRIES = {
         'en': u'Democratic People\u2019s Republic of Korea',
         'es': u'Rep\u00FAblica Popular Democr\u00E1tica de Corea',
         'fr': u' R\u00E9publique populaire d\u00E9mocratique de Cor\u00E9e'
+    },
+    'MK': {
+        'en': u'North Macedonia',
+        'es': u'Macedonia del Norte',
+        'fr': u'Macédoine du Nord'
+    },
+    'SZ': {
+        'en': u'Eswatini',
+        'es': u'Eswatini',
+        'fr': u'Eswatini'
+    },
+    'CV': {
+        'en': u'Cabo Verde',
+        'es': u'Cabo Verde',
+        'fr': u'Cabo Verde'
+    },
+    'MD': {
+        'en': u'Republic of Moldova',
+        'es': u'Rep\u00fablica de Moldova',
+        'fr': u'R\u00e9publique de Moldova'
+    },
+    'TZ': {
+        'en': u'United Republic of Tanzania',
+        'es': u'Rep\u00fablica Unida de Tanzan\u00eda',
+        'fr': u'R\u00e9publique-Unie de Tanzanie'
+    },
+    'SY': {
+        'en': u'Syrian Arab Republic',
+        'es': u'Rep\u00fablica \u00c1rabe Siria',
+        'fr': u'R\u00e9publique Arabe Syrienne'
     }
 }
 
