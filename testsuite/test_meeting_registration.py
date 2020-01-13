@@ -1,3 +1,5 @@
+import pytest
+
 from flask import url_for
 from pyquery import PyQuery
 from StringIO import StringIO
@@ -73,7 +75,7 @@ def test_meeting_registration_email_sender(app, user, default_meeting):
         assert resp.status_code == 200
         assert Participant.query.filter_by(meeting=meeting).count() == 1
         assert len(outbox) == 2
-        assert outbox[1].sender == meeting.owner.user.email
+        assert outbox[1].sender == app.config['MAIL_DEFAULT_SENDER']
 
 
 def test_meeting_registration_success_phrases(app, user, default_meeting):
@@ -102,7 +104,12 @@ def test_meeting_registration_success_phrases(app, user, default_meeting):
         assert participant.participant_type.code == Participant.PARTICIPANT
         assert len(outbox) == 2
         success_message = PyQuery(outbox[1].html)('h4').text()
-        assert success_message == email_phrase.description.english
+        assert success_message == (
+            'Dear {} {}, '.format(
+                participant.first_name, participant.last_name
+            ) +
+            email_phrase.description.english
+        )
 
 
 def test_meeting_registration_success_phrases_fr(app, user, default_meeting):
@@ -135,7 +142,13 @@ def test_meeting_registration_success_phrases_fr(app, user, default_meeting):
         assert participant.participant_type.code == Participant.PARTICIPANT
         assert len(outbox) == 2
         success_message = PyQuery(outbox[1].html)('h4').text()
-        assert success_message == email_phrase.description.french
+        assert success_message == (
+            'Dear {} {}, '.format(
+                participant.first_name, participant.last_name
+            ) +
+            email_phrase.description.french
+        )
+
         labels = PyQuery(outbox[1].html)('th')
         for label in labels:
             assert label.text.endswith('french')
@@ -299,6 +312,9 @@ def test_meeting_registration_media_user_success_details(app, user,
         assert html('td[for="last_name"]').text() == participant.last_name
 
 
+# since the introduction of a new email validator (https://helpdesk.eaudeweb.ro/issues/5422),
+# multiple emails are not supported anymore
+@pytest.mark.xfail
 def test_meeting_registration_with_multiple_emails(app, user, default_meeting):
     meeting = add_new_meeting(app, user)
     category = MeetingCategoryFactory(meeting=meeting)
@@ -562,6 +578,9 @@ def test_meeting_registration_is_prepopulated(app, user, default_meeting):
         assert part.country.code == html('#country option[selected]').val()
 
 
+# since the introduction of a new email validator (https://helpdesk.eaudeweb.ro/issues/5422),
+# multiple emails are not supported anymore
+@pytest.mark.xfail
 def test_meeting_registration_multiple_email_user_form_prepopuluted(
         app, user, default_meeting):
     meeting = add_new_meeting(app, user)
