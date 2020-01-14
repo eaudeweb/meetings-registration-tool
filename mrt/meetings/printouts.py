@@ -5,7 +5,7 @@ from path import Path
 
 from flask import current_app as app
 from flask import g, url_for
-from flask import request, render_template, jsonify, abort, redirect
+from flask import request, render_template, jsonify, abort, redirect, Response
 from flask import send_from_directory
 from flask_login import login_required, current_user
 from flask.views import MethodView
@@ -115,7 +115,8 @@ class JobStatus(MethodView):
             except NoSuchJobError:
                 job.status = Job.FAILED
                 db.session.commit()
-                abort(404)
+                # abort(404)
+                return Response(status=404)
 
             if job_redis.is_finished:
                 result = {'status': job_redis.get_status(),

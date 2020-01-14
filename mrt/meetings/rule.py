@@ -2,7 +2,7 @@ from collections import namedtuple
 
 from werkzeug.datastructures import MultiDict
 
-from flask import g, render_template, jsonify, abort, request
+from flask import g, render_template, jsonify, abort, request, Response
 from flask import redirect, url_for, flash
 from flask_login import login_required
 from flask.views import MethodView
@@ -103,4 +103,5 @@ class RulesData(PermissionRequiredMixin, MethodView):
         if cf.field_type in (CustomField.SELECT, CustomField.RADIO):
             query = cf.choices.all()
             return jsonify(data=[(unicode(i), unicode(i)) for i in query])
-        return abort(400)
+        # return abort(400)
+        return Response(status=400)
