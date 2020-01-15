@@ -1,3 +1,5 @@
+import logging
+
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
@@ -660,8 +662,6 @@ class MediaParticipantsExport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'media participants excel'
 
     def post(self):
-        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME,
-                               Participant.MEDIA)
         return redirect(url_for('meetings.media_participants'))
 
 class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
@@ -672,8 +672,23 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants import template'
 
     def post(self):
-        return redirect(url_for('meetings.participants'))
+        participants = get_participants_full(g.meeting.id, Participant.PARTICIPANT)
 
+        custom_fields = (
+            g.meeting.custom_fields
+            .filter_by(custom_field_type=Participant.PARTICIPANT)
+            .order_by(CustomField.sort))
+
+        header = [cf.label.english + '*' if cf.required else cf.label.english for cf in custom_fields]
+
+        file_name = 'import_{}_list_{}.xls'.format(Participant.PARTICIPANT, g.meeting.acronym)
+        file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
+        generate_excel(header, [], str(file_path))
+
+
+        return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
+                                   file_name,
+                                   as_attachment=True)
 
 def _process_participants_excel(meeting_id, participant_type):
     g.meeting = Meeting.query.get(meeting_id)
