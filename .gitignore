@@ -66,4 +66,5 @@ data-storage/
 docker-compose.override.yml
 backups/
 .env
+.venv/
 data-storage/
