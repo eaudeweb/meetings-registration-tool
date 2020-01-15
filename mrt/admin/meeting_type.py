@@ -1,5 +1,7 @@
 from flask import (
-    render_template, request, redirect, url_for, flash, jsonify, abort)
+    render_template, request, redirect, url_for, flash, jsonify, abort,
+    Response
+)
 from flask.views import MethodView
 
 from mrt.admin.mixins import PermissionRequiredMixin
@@ -50,7 +52,8 @@ class MeetingTypeEdit(PermissionRequiredMixin, MethodView):
     def delete(self, meeting_type_slug):
         meeting_type = MeetingType.query.get_or_404(meeting_type_slug)
         if meeting_type.default:
-            abort(403)
+            # abort(403)
+            return Response(status=403)
 
         meetings_nr = meeting_type.meetings.count()
         if meetings_nr:

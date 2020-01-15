@@ -40,14 +40,14 @@ def app(request, tmpdir):
         'UPLOADED_LOGOS_DEST': logos_path,
         'MEDIA_FOLDER': Path(tmpdir),
         'HOSTNAME': 'http://meetings.edw.ro/',
-        'MAIL_DEFAULT_SENDER': 'noreply',
+        'MAIL_DEFAULT_SENDER': 'no-reply@eaudeweb.ro',
         'TEMPLATES_PATH': templates_path,
         'MAIL_SUPPRESS_SEND': True,
         'TRANSLATIONS': _TRANSLATIONS,
         'BLUEPRINTS': ('aewa_extra_views', 'cites_extra_views',)
     }
 
-    app = create_app(test_config)
+    app = create_app(test_config, skip_logging=True)
     app_context = app.app_context()
     app_context.push()
     app.jinja_loader = jinja2.ChoiceLoader([

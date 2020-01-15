@@ -1,6 +1,6 @@
 from functools import wraps
 from flask.views import MethodView
-from flask import g, render_template, request, session, abort
+from flask import g, render_template, request, session, abort, Response
 from flask import redirect, url_for
 from flask_login import login_user, logout_user, current_user
 
@@ -29,7 +29,8 @@ def _render_if_media_disabled(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if not g.meeting.media_participant_enabled:
-            abort(404)
+            # abort(404)
+            return Response(status=404)
         return func(*args, **kwargs)
     return wrapper
 
@@ -168,10 +169,12 @@ class UserRegistration(MethodView):
 
     def post(self):
         if current_user.is_authenticated:
-            abort(404)
+            # abort(404)
+            return Response(status=404)
         registration_token = session.get('registration_token', None)
         if not registration_token:
-            abort(400)
+            # abort(400)
+            return Response(status=400)
         participant = (
             Participant.query
             .filter_by(registration_token=registration_token)
@@ -212,7 +215,8 @@ class UserRegistrationSuccess(MethodView):
     def get(self):
         registration_token = session.get('registration_token', None)
         if not registration_token:
-            abort(400)
+            # abort(400)
+            return Response(status=400)
         session.pop('registration_token', None)
         participant = (Participant.query
                        .filter_by(registration_token=registration_token)
