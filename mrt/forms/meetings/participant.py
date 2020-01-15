@@ -103,7 +103,14 @@ class BaseParticipantForm(BaseForm):
             for field_name, field in self._fields.items():
                 setattr(field, '_participant', participant)
 
-    def filter(self, field_types=[]):
+    def get_fields(self, field_ids):
+        """Iterate over the specified fields"""
+        for field_id in field_ids:
+            yield self._fields[field_id]
+
+    def filter(self, field_types=None):
+        if field_types is None:
+            field_types = []
         fields = OrderedDict([
             (slug, field) for slug, field in self._fields.items()
             if slug in self._custom_fields and

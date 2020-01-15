@@ -32,6 +32,21 @@
       <div class="panel-body">
         {{ flag_form.flag(
             class_="form-control form-reset-control select") }}
+        <hr>
+        <p>
+          Select which fields to display
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr">
+        {% for field in all_fields %}
+          <div>
+            <input {% if field.id in selected_field_ids %}checked{% endif %}
+                   class="" id="{{ field.id }}"
+                   name="{{ field.name }}"
+                   placeholder="{{ field.label.text }}" type="checkbox" >
+            <label for="{{ field.id }}">{{ field.label.text }}</label>
+          </div>
+        {% endfor %}
+        </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>
@@ -45,7 +60,8 @@
       <form method="POST" class="text-right">
         <button class="btn btn-danger btn-sm btn-download" type="submit">
           <span class="glyphicon glyphicon-download"></span>
-          Download as pdf</button>
+          Download as pdf
+        </button>
       </form>
     </div>
 

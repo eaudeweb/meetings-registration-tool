@@ -19,6 +19,8 @@ from sqlalchemy.orm import joinedload
 from mrt.custom_country import Country
 from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm
+from mrt.forms.meetings import ParticipantEditForm
+from mrt.forms.meetings import custom_form_factory
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.models import get_participants_full
@@ -242,9 +244,35 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         participants = pagination.items
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+        participant_form = custom_form_factory(ParticipantEditForm)
+        all_fields = list(participant_form().exclude([
+            CustomField.CHECKBOX,
+            CustomField.IMAGE,
+            CustomField.EVENT
+        ]))
+        selected_field_ids = []
+        if not selected_field_ids:
+            # Set some defaults for the selected fields
+            selected_field_ids = [
+                "first_name",
+                "last_name",
+                "category_id",
+                "represented_region",
+                "represented_country",
+            ]
+            if g.meeting.address_field_id:
+                selected_field_ids.append(g.meeting.address_field.slug)
+            if g.meeting.telephone_field_id:
+                selected_field_ids.append(g.meeting.telephone_field.slug)
+            selected_field_ids.append("email")
+        selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
+
         return render_template(
             'meetings/printouts/provisional_list.html',
-            participants=participants,
+            all_fields=all_fields,
+            selected_field_ids=selected_field_ids,
+            selected_fields=selected_fields,
+            participants=[participant_form(obj=obj) for obj in participants],
             pagination=pagination,
             count=count,
             title=title,
