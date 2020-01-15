@@ -1,3 +1,4 @@
+import collections
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
@@ -303,6 +304,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         count = query.count()
         pagination = query.paginate(page, per_page=50)
         participants = pagination.items
+
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
         participant_form = custom_form_factory(ParticipantEditForm)
@@ -312,13 +314,24 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         ]
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
+
+        group_key = request.args.get("group_by", "")
+        grouped_participants = collections.OrderedDict()
+        for obj in participants:
+            key = getattr(obj, group_key, "")
+            obj = participant_form(obj=custom_object_factory(obj))
+            try:
+                grouped_participants[key].append(obj)
+            except KeyError:
+                grouped_participants[key] = [obj]
+
         return render_template(
             'meetings/printouts/provisional_list.html',
             all_fields=all_fields,
             sortable_fields=sortable_fields,
             selected_field_ids=selected_field_ids,
             selected_fields=selected_fields,
-            participants=[participant_form(obj=custom_object_factory(obj)) for obj in participants],
+            grouped_participants=grouped_participants,
             pagination=pagination,
             count=count,
             title=title,

@@ -10,28 +10,37 @@
 <div class="printout-item-container">
 
   <table class="table table-bordered table-condensed">
-
-    <thead>
-    <tr class="column-headers">
-      {% for field in selected_fields %}
-        <th>
-          {{ field.label.text }}
-        </th>
-      {% endfor %}
-    </tr>
-    </thead>
-
-    <tbody>
-
-    {% for participant in participants %}
-      <tr>
-        {% for field in participant.get_fields(selected_field_ids) %}
-          <td>{{ field.render_data() }}</td>
+    {% for group, participants in grouped_participants.items() %}
+      <thead>
+      {% if group %}
+        <tr class="group-value">
+          <th colspan="{{ selected_fields|length - 1 }}">
+            {{ group }}
+          </th>
+        </tr>
+      {% endif %}
+      <tr class="column-headers">
+        {% for field in selected_fields %}
+          {% if field.id != request.args.get('group_by') %}
+            <th>
+              {{ field.label.text }}
+            </th>
+          {% endif %}
         {% endfor %}
       </tr>
+      </thead>
+      <tbody>
+      {% for participant in participants %}
+        <tr>
+          {% for field in participant.get_fields(selected_field_ids) %}
+            {% if field.id != request.args.get('group_by') %}
+              <td>{{ field.render_data() }}</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
     {% endfor %}
-
-    </tbody>
 
   </table>
 
