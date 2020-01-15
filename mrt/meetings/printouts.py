@@ -30,6 +30,7 @@ from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
 from mrt.utils import generate_excel
+from mrt.utils import str2bool
 
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
@@ -234,6 +235,23 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
 
         return query
 
+    @staticmethod
+    def _get_default_field_ids():
+        """Get default field ids to display."""
+        selected_field_ids = [
+            "first_name",
+            "last_name",
+            "category_id",
+            "represented_region",
+            "represented_country",
+            "email",
+        ]
+        if g.meeting.address_field_id:
+            selected_field_ids.append(g.meeting.address_field.slug)
+        if g.meeting.telephone_field_id:
+            selected_field_ids.append(g.meeting.telephone_field.slug)
+        return selected_field_ids
+
     def get(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
@@ -250,21 +268,16 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             CustomField.IMAGE,
             CustomField.EVENT
         ]))
+
+        default_field_ids = self._get_default_field_ids()
         selected_field_ids = []
-        if not selected_field_ids:
-            # Set some defaults for the selected fields
-            selected_field_ids = [
-                "first_name",
-                "last_name",
-                "category_id",
-                "represented_region",
-                "represented_country",
-            ]
-            if g.meeting.address_field_id:
-                selected_field_ids.append(g.meeting.address_field.slug)
-            if g.meeting.telephone_field_id:
-                selected_field_ids.append(g.meeting.telephone_field.slug)
-            selected_field_ids.append("email")
+        for field in all_fields:
+            try:
+                should_be_included = str2bool(request.args[field.id])
+            except (KeyError, ValueError):
+                should_be_included = field.id in default_field_ids
+            if should_be_included:
+                selected_field_ids.append(field.id)
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
 
         return render_template(
