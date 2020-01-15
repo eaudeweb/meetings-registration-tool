@@ -318,8 +318,12 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         group_key = request.args.get("group_by", "")
         grouped_participants = collections.OrderedDict()
         for obj in participants:
-            key = getattr(obj, group_key, "")
             obj = participant_form(obj=custom_object_factory(obj))
+            if group_key:
+                key = getattr(obj, group_key).render_data()
+            else:
+                key = ""
+
             try:
                 grouped_participants[key].append(obj)
             except KeyError:
