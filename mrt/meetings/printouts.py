@@ -664,6 +664,16 @@ class MediaParticipantsExport(PermissionRequiredMixin, MethodView):
                                Participant.MEDIA)
         return redirect(url_for('meetings.media_participants'))
 
+class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
+
+    JOB_NAME = 'participants import template'
+
+    def post(self):
+        return redirect(url_for('meetings.participants'))
+
 
 def _process_participants_excel(meeting_id, participant_type):
     g.meeting = Meeting.query.get(meeting_id)
