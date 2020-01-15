@@ -286,14 +286,19 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
     def _get_selected_field_ids(cls):
         """Get the selected fields according to the request arguments."""
         default_field_ids = cls._get_default_field_ids()
+        if "flag" not in request.args:
+            return default_field_ids
         selected_field_ids = []
         for field in cls._get_all_fields():
-            try:
-                should_be_included = str2bool(request.args["field_" + field.id])
-            except (KeyError, ValueError):
-                should_be_included = field.id in default_field_ids
-            if should_be_included:
+            if str2bool(request.args.get("field_" + field.id, "off")):
                 selected_field_ids.append(field.id)
+        try:
+            group_by = request.args["group_by"]
+            if group_by and group_by not in selected_field_ids:
+                selected_field_ids.append(group_by)
+        except KeyError:
+            pass
+
         return selected_field_ids
 
     def get(self):
