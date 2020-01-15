@@ -23,7 +23,7 @@ def test_pdf_renderer_as_rq(app, pdf_renderer):
     with app.test_request_context():
         g.meeting = MeetingFactory()
         res = renderer.as_rq()
-        assert isinstance(res, str)
+        assert isinstance(res, unicode)
 
     # Assert pdf file exists
     assert (app.config['UPLOADED_PRINTOUTS_DEST'] /

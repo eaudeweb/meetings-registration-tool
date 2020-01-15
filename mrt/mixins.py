@@ -1,5 +1,5 @@
 
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, Response
 from flask import current_app as app
 from flask_login import current_user as user
 from querystring_parser import parser
@@ -61,6 +61,7 @@ class PermissionRequiredMixin(object):
         if not user.is_authenticated:
             return app.login_manager.unauthorized()
         if not self.check_permissions():
-            abort(403)
+            return Response(status=403)
+            # abort(403)
         return super(PermissionRequiredMixin, self).dispatch_request(
             *args, **kwargs)
