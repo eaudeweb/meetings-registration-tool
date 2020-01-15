@@ -287,6 +287,20 @@ li.separator {
     border: none;
 }
 
+.selected-fields-inputs {
+    display: grid;
+    margin: 1rem;
+    grid-gap: 0 1rem;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+
+.sorting-fields-inputs {
+    display: grid;
+    margin: 1rem;
+    grid-gap: 2rem;
+    grid-template-columns: 50% 20%;
+}
+
 .tt-dropdown-menu {
     -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     background-clip: padding-box;

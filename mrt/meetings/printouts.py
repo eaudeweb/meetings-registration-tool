@@ -225,15 +225,33 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
-            .order_by(Category.sort, Category.id,
-                      Participant.representing,
-                      Participant.last_name, Participant.id)
         )
+
+        ordering = []
+        try:
+            grouping = getattr(Participant, request.args["group_by"])
+            if request.args["group_by_direction"].lower() != "asc":
+                grouping = desc(grouping)
+            ordering.append(grouping)
+        except (KeyError, AttributeError):
+            pass
+
+        try:
+            sorting = getattr(Participant, request.args["sort_by"])
+            if request.args["sort_by_direction"].lower() != "asc":
+                sorting = desc(sorting)
+            ordering.append(sorting)
+        except (KeyError, AttributeError):
+            ordering.extend([
+                Category.sort, Category.id,
+                Participant.representing,
+                Participant.last_name, Participant.id,
+            ])
 
         if flag:
             attr = getattr(Participant, flag)
             query = query.filter(attr == True)
-
+        query = query.order_by(*ordering)
         return query
 
     @staticmethod
@@ -270,7 +288,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         selected_field_ids = []
         for field in cls._get_all_fields():
             try:
-                should_be_included = str2bool(request.args[field.id])
+                should_be_included = str2bool(request.args["field_" + field.id])
             except (KeyError, ValueError):
                 should_be_included = field.id in default_field_ids
             if should_be_included:
@@ -287,14 +305,17 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         participants = pagination.items
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
-
         participant_form = custom_form_factory(ParticipantEditForm)
         all_fields = self._get_all_fields()
+        sortable_fields = [
+            field for field in all_fields if hasattr(Participant, field.id)
+        ]
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
         return render_template(
             'meetings/printouts/provisional_list.html',
             all_fields=all_fields,
+            sortable_fields=sortable_fields,
             selected_field_ids=selected_field_ids,
             selected_fields=selected_fields,
             participants=[participant_form(obj=custom_object_factory(obj)) for obj in participants],

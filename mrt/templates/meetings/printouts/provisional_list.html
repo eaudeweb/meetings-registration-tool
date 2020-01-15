@@ -33,19 +33,62 @@
         {{ flag_form.flag(
             class_="form-control form-reset-control select") }}
         <hr>
-        <p>
-          Select which fields to display
-        </p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr">
+        <label>
+          Fields to display
+        </label>
+        <div class="selected-fields-inputs">
         {% for field in all_fields %}
           <div>
             <input {% if field.id in selected_field_ids %}checked{% endif %}
-                   class="" id="{{ field.id }}"
-                   name="{{ field.name }}"
+                   class="" id="field_{{ field.id }}"
+                   name="field_{{ field.name }}"
                    placeholder="{{ field.label.text }}" type="checkbox" >
-            <label for="{{ field.id }}">{{ field.label.text }}</label>
+            <label for="field_{{ field.id }}">{{ field.label.text }}</label>
           </div>
         {% endfor %}
+        </div>
+        <hr/>
+        <div class="sorting-fields-inputs">
+          <div>
+            <label for="sort_by">Sort by</label><br/>
+            <select id="sort_by" name="sort_by" class="form-control form-reset-control select">
+              <option value="">---</option>
+              {% for field in sortable_fields %}
+                <option value="{{ field.id }}" {% if request.args.get('sort_by') == field.id %}selected{% endif %}>
+                  {{ field.label.text }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="sort_by_direction">Sort order</label><br/>
+            <select name="sort_by_direction" id="sort_by_direction" class="form-control form-reset-control select">
+              <option value="asc">Ascending</option>
+              <option value="desc" {% if request.args.get('sort_by_direction') == "desc" %}selected{% endif %}>
+                Descending
+              </option>
+            </select>
+          </div>
+          <div>
+            <label for="group_by">Group by</label><br/>
+            <select id="group_by" name="group_by" class="form-control form-reset-control select">
+              <option value="">---</option>
+              {% for field in sortable_fields %}
+                <option value="{{ field.id }}" {% if request.args.get('group_by') == field.id %}selected{% endif %}>
+                  {{ field.label.text }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="group_by_direction">Group order</label><br/>
+            <select name="group_by_direction" id="group_by_direction" class="form-control form-reset-control select">
+              <option value="asc">Ascending</option>
+              <option value="desc" {% if request.args.get('group_by_direction') == "desc" %}selected{% endif %}>
+                Descending
+              </option>
+            </select>
+          </div>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
