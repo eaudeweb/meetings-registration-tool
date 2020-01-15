@@ -29,7 +29,7 @@ from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
-from mrt.utils import generate_excel
+from mrt.utils import generate_excel, generate_import_excel
 
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
@@ -679,12 +679,9 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
             .filter_by(custom_field_type=Participant.PARTICIPANT)
             .order_by(CustomField.sort))
 
-        header = [cf.label.english + '*' if cf.required else cf.label.english for cf in custom_fields]
-
         file_name = 'import_{}_list_{}.xls'.format(Participant.PARTICIPANT, g.meeting.acronym)
         file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
-        generate_excel(header, [], str(file_path))
-
+        generate_import_excel(custom_fields, file_path)
 
         return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
                                    file_name,

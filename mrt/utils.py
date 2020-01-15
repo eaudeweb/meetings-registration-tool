@@ -1,6 +1,8 @@
 import os
 import re
 import xlwt
+from openpyxl import Workbook
+from openpyxl.worksheet.datavalidation import DataValidation
 
 from datetime import date
 from json import JSONEncoder as _JSONEncoder
@@ -199,6 +201,17 @@ def generate_excel(header, rows, filename):
             ws.row(row).set_cell_text(col, unicode(item[col]), style)
 
     wb.save(filename)
+
+
+def generate_import_excel(fields, file_name):
+    workbook = Workbook()
+    sheet = workbook.active
+
+    for i, field in enumerate(fields, 1):
+        col_name = field.label.english + '*' if field.required else field.label.english
+        sheet.cell(row=1, column=i).value = col_name
+
+    workbook.save(file_name)
 
 
 def get_translation(locale):
