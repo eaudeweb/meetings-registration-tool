@@ -71,6 +71,11 @@
             <td>{{ category.participants.filter_by(deleted=False).count() }}</td>
           </tr>
         {% endfor %}
+        <tr class="row">
+            <th class="col-sm-6"></th>
+            <th class="col-sm-4">Total Delegates</th>
+            <th>{{ total_delegates }}</th>
+        </tr>
 
       </table>
       {% endif %}
