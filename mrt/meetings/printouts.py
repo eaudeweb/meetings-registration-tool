@@ -21,6 +21,7 @@ from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm
 from mrt.forms.meetings import ParticipantEditForm
 from mrt.forms.meetings import custom_form_factory
+from mrt.forms.meetings import custom_object_factory
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField
 from mrt.models import get_participants_full
@@ -291,13 +292,12 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         all_fields = self._get_all_fields()
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
-
         return render_template(
             'meetings/printouts/provisional_list.html',
             all_fields=all_fields,
             selected_field_ids=selected_field_ids,
             selected_fields=selected_fields,
-            participants=[participant_form(obj=obj) for obj in participants],
+            participants=[participant_form(obj=custom_object_factory(obj)) for obj in participants],
             pagination=pagination,
             count=count,
             title=title,
