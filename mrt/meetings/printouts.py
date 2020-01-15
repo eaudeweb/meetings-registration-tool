@@ -236,6 +236,16 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         return query
 
     @staticmethod
+    def _get_all_fields():
+        """Get all displayable fields for this meeting."""
+        participant_form = custom_form_factory(ParticipantEditForm)
+        return list(participant_form().exclude([
+            CustomField.CHECKBOX,
+            CustomField.IMAGE,
+            CustomField.EVENT
+        ]))
+
+    @staticmethod
     def _get_default_field_ids():
         """Get default field ids to display."""
         selected_field_ids = [
@@ -252,6 +262,20 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             selected_field_ids.append(g.meeting.telephone_field.slug)
         return selected_field_ids
 
+    @classmethod
+    def _get_selected_field_ids(cls):
+        """Get the selected fields according to the request arguments."""
+        default_field_ids = cls._get_default_field_ids()
+        selected_field_ids = []
+        for field in cls._get_all_fields():
+            try:
+                should_be_included = str2bool(request.args[field.id])
+            except (KeyError, ValueError):
+                should_be_included = field.id in default_field_ids
+            if should_be_included:
+                selected_field_ids.append(field.id)
+        return selected_field_ids
+
     def get(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
@@ -262,22 +286,10 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         participants = pagination.items
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
-        participant_form = custom_form_factory(ParticipantEditForm)
-        all_fields = list(participant_form().exclude([
-            CustomField.CHECKBOX,
-            CustomField.IMAGE,
-            CustomField.EVENT
-        ]))
 
-        default_field_ids = self._get_default_field_ids()
-        selected_field_ids = []
-        for field in all_fields:
-            try:
-                should_be_included = str2bool(request.args[field.id])
-            except (KeyError, ValueError):
-                should_be_included = field.id in default_field_ids
-            if should_be_included:
-                selected_field_ids.append(field.id)
+        participant_form = custom_form_factory(ParticipantEditForm)
+        all_fields = self._get_all_fields()
+        selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
 
         return render_template(
@@ -295,8 +307,9 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
     def post(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
+        selected_field_ids = self._get_selected_field_ids()
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               title, flag)
+                               title, flag, None, selected_field_ids)
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
@@ -562,7 +575,7 @@ def _process_short_list(meeting_id, title, flag):
                        context=context).as_rq()
 
 
-def _process_provisional_list(meeting_id, title, flag, template_name=None):
+def _process_provisional_list(meeting_id, title, flag, template_name=None, selected_field_ids=None):
     g.meeting = Meeting.query.get(meeting_id)
     query = ProvisionalList._get_query(flag)
     count = query.count()
@@ -574,6 +587,7 @@ def _process_provisional_list(meeting_id, title, flag, template_name=None):
                'count': count,
                'title': title,
                'flag': flag,
+               'selected_field_ids': selected_field_ids,
                'template': template_name}
 
     return PdfRenderer('meetings/printouts/printout.html',
