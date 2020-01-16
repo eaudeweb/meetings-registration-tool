@@ -28,9 +28,12 @@ class Statistics(PermissionRequiredMixin, MethodView):
         participant_categories = (
             Category.get_categories_for_meeting(Category.PARTICIPANT))
         media_categories = Category.get_categories_for_meeting(Category.MEDIA)
+        total_delegates = sum(category.participants.filter_by(deleted=False).count()
+                                    for category in participant_categories)
         return render_template(self.template_name,
                                participant_categories=participant_categories,
-                               media_categories=media_categories)
+                               media_categories=media_categories,
+                               total_delegates=total_delegates)
 
 
 class MailLogs(PermissionRequiredMixin, MethodView):
