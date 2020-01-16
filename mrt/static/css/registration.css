@@ -42,4 +42,11 @@ li.separator {
     margin: auto 124px;
 }
 
+.image-crop-registration {
+    margin-top: 3rem;
+}
 
+.image-crop-registration img {
+    max-width: 100%;
+    margin-bottom: 3rem;
+}
