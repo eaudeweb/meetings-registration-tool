@@ -569,6 +569,7 @@ class CustomField(db.Model):
     US_PASSPORT = u"51x51"
     EU_PASSPORT = u"35x45"
     PHOTO_SIZE_CHOICES = (
+        ("", "---"),
         (US_PASSPORT, "US (51 x 51 mm)"),
         (EU_PASSPORT, "EU (35 x 45 mm)"),
     )

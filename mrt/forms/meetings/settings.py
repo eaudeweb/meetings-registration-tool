@@ -74,6 +74,9 @@ class CustomFieldEditForm(BaseForm):
     hint = ModelFormField(TranslationInputForm, label='Hint')
     custom_field_choices = SelectMultipleFieldWithoutValidation(
         'Choices', choices=[], coerce=unicode)
+    photo_size = fields.SelectField(
+        'Photo Size', choices=CustomField.PHOTO_SIZE_CHOICES, coerce=unicode
+    )
 
     class Meta:
         model = CustomField
