@@ -672,8 +672,6 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants import template'
 
     def post(self):
-        participants = get_participants_full(g.meeting.id, Participant.PARTICIPANT)
-
         custom_fields = (
             g.meeting.custom_fields
             .filter_by(custom_field_type=Participant.PARTICIPANT)
@@ -686,6 +684,24 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
         return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
                                    file_name,
                                    as_attachment=True)
+
+class ParticipantsImport(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
+
+    JOB_NAME = 'participants import'
+
+    def post(self):
+        import_file = request.files['importFile']
+
+        custom_fields = (
+            g.meeting.custom_fields
+            .filter_by(custom_field_type=Participant.PARTICIPANT)
+            .order_by(CustomField.sort))
+
+        return redirect(url_for('meetings.participants'))
+
 
 def _process_participants_excel(meeting_id, participant_type):
     g.meeting = Meeting.query.get(meeting_id)

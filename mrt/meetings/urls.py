@@ -84,6 +84,9 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/participants/import_template',
     view_func=views.ParticipantsImportTemplate.as_view('participants_import_template'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/participants/import_participants',
+    view_func=views.ParticipantsImport.as_view('participants_import'))
 
 # default participants
 meetings.add_url_rule(
