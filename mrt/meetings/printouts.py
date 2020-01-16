@@ -228,6 +228,11 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                      .joinedload(Category.title))
         )
 
+        try:
+            query = query.filter(Participant.category_id == int(request.args["category_filter"]))
+        except (KeyError, ValueError, TypeError):
+            pass
+
         ordering = []
         try:
             grouping = getattr(Participant, request.args["group_by"])

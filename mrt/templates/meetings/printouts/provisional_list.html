@@ -36,19 +36,34 @@
         {{ flag_form.flag(
             class_="form-control form-reset-control select") }}
         <hr>
-        <label>
+        <label for="">
+          Filter category
+        </label>
+        <br/>
+        <select name="category_filter" id="category_filter"
+                class="form-control form-reset-control select">
+          <option value="">---</option>
+          {% for category in g.meeting.categories.all() %}
+            <option value="{{ category.id }}"
+                    {% if request.args.get('category_filter') == category.id|string %}selected{% endif %}>
+              {{ category.title }}
+            </option>
+          {% endfor %}
+        </select>
+        <hr>
+        <label for="category_filter">
           Fields to display
         </label>
         <div class="selected-fields-inputs">
-        {% for field in all_fields %}
-          <div>
-            <input {% if field.id in selected_field_ids %}checked{% endif %}
-                   class="" id="field_{{ field.id }}"
-                   name="field_{{ field.name }}"
-                   placeholder="{{ field.label.text }}" type="checkbox" >
-            <label for="field_{{ field.id }}">{{ field.label.text }}</label>
-          </div>
-        {% endfor %}
+          {% for field in all_fields %}
+            <div>
+              <input {% if field.id in selected_field_ids %}checked{% endif %}
+                     class="" id="field_{{ field.id }}"
+                     name="field_{{ field.name }}"
+                     placeholder="{{ field.label.text }}" type="checkbox">
+              <label for="field_{{ field.id }}">{{ field.label.text }}</label>
+            </div>
+          {% endfor %}
         </div>
         <hr/>
         <div class="sorting-fields-inputs">
