@@ -78,7 +78,7 @@
         enctype="multipart/form-data">
     {{ form._fields['ts_'] }}
     {% for field in form.exclude([CustomField.EVENT]) %}
-      {{ form_group(field, label_size="2", input_size="10") }}
+      {{ form_group(field, label_size="2", input_size="10", options=field.render_kw) }}
     {% endfor %}
 
     {% if form.has(CustomField.EVENT) %}
