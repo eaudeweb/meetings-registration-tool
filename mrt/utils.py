@@ -1,6 +1,8 @@
+import logging
 import os
 import re
 import xlwt
+import openpyxl
 from openpyxl import Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 
@@ -20,7 +22,6 @@ from werkzeug import FileStorage
 from babel import support, Locale
 from path import Path
 from mrt.definitions import LANGUAGES_MAP, LANGUAGES_ISO_MAP
-
 
 logos_upload = UploadSet('logos', IMAGES)
 sentry = Sentry()
@@ -207,9 +208,12 @@ def generate_import_excel(fields, file_name):
     workbook = Workbook()
     sheet = workbook.active
 
-    for i, field in enumerate(fields, 1):
-        col_name = field.label.english + '*' if field.required else field.label.english
-        sheet.cell(row=1, column=i).value = col_name
+    for col_idx, field in enumerate(fields, 1):
+        cell_col_letter = openpyxl.utils.get_column_letter(col_idx)
+
+        col_name = field.label.english + ' [required] ' if field.required else field.label.english
+        sheet.cell(row=1, column=col_idx).value = col_name
+        sheet.column_dimensions[cell_col_letter].width = len(col_name) + 1
 
     workbook.save(file_name)
 
