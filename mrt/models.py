@@ -566,6 +566,13 @@ class CustomField(db.Model):
         (MEDIA, 'Media'),
     )
 
+    US_PASSPORT = u"51x51"
+    EU_PASSPORT = u"35x45"
+    PHOTO_SIZE_CHOICES = (
+        (US_PASSPORT, "US (51 x 51 mm)"),
+        (EU_PASSPORT, "EU (35 x 45 mm)"),
+    )
+
     query_class = CustomFieldQuery
 
     __table_args__ = (
@@ -616,6 +623,11 @@ class CustomField(db.Model):
         ChoiceType(CUSTOM_FIELD_TYPE_CHOICES),
         nullable=False, default=PARTICIPANT,
         info={'label': 'Custom field type'})
+    photo_size = db.Column(
+        ChoiceType(PHOTO_SIZE_CHOICES),
+        nullable=True, default=None,
+        info={'label': 'Photo size'}
+    )
 
     max_length = db.Column(db.Integer)
 
