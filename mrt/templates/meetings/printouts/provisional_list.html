@@ -41,11 +41,12 @@
         </label>
         <br/>
         <select name="category_filter" id="category_filter"
-                class="form-control form-reset-control select">
+                data-placeholder="Select one or more categories"
+                class="form-control form-reset-control select" multiple>
           <option value="">---</option>
           {% for category in g.meeting.categories.all() %}
             <option value="{{ category.id }}"
-                    {% if request.args.get('category_filter') == category.id|string %}selected{% endif %}>
+                    {% if category.id|string in request.args.getlist('category_filter') %}selected{% endif %}>
               {{ category.title }}
             </option>
           {% endfor %}

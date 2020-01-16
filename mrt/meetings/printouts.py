@@ -235,9 +235,10 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
         )
-
         try:
-            query = query.filter(Participant.category_id == int(request.args["category_filter"]))
+            categories = map(int, request.args.getlist("category_filter"))
+            if categories:
+                query = query.filter(Participant.category_id.in_(categories))
         except (KeyError, ValueError, TypeError):
             pass
 
