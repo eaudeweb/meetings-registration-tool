@@ -529,6 +529,7 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
             Participant.query.current_meeting()
             .filter_by(id=participant_id)
             .first_or_404())
+        participant.set_representing()
         nostripe = request.args.get('nostripe')
         context = {'participant': participant, 'nostripe': nostripe}
         return PdfRenderer('meetings/participant/badge.html',
@@ -547,6 +548,7 @@ class ParticipantLabel(PermissionRequiredMixin, MethodView):
             Participant.query.current_meeting().participants()
             .filter_by(id=participant_id)
             .first_or_404())
+        participant.set_representing()
         context = {'participant': participant}
         return PdfRenderer('meetings/participant/label.html',
                            width=LABEL_W, height=LABEL_H,
@@ -566,6 +568,7 @@ class ParticipantEnvelope(PermissionRequiredMixin, MethodView):
             .first_or_404())
 
         set_language(participant.lang)
+        participant.set_representing()
 
         context = {'participant': participant}
 
@@ -644,6 +647,7 @@ class ParticipantAcknowledgePDF(PermissionRequiredMixin, MethodView):
             Participant.query.current_meeting().participants()
             .filter_by(id=participant_id)
             .first_or_404())
+        participant.set_representing()
         context = {'participant': participant}
         language = getattr(participant, 'lang', 'english')
         set_language(language)
