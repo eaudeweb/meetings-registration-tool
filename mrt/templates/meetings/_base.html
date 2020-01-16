@@ -119,7 +119,14 @@
         </ul>
       </li>
     {% endif %}
-
+    
+    {% if has_perm('manage_meeting') %}
+        <li class="{{ active('/statistics') }}">
+        <a href="{{ url_for('meetings.statistics') }}">
+            Overview</a>
+      </li>
+    {% endif %}
+          
     {% if has_perm('manage_meeting') %}
       <li class="dropdown {{ active('/settings') }} pull-right" id="settings_tab">
         <a class="dropdown-toggle" data-toggle="dropdown">
@@ -164,10 +171,6 @@
           <li>
             <a href="{{ url_for('meetings.clone') }}">
               Clone this meeting</a>
-          </li>
-          <li class="{{ active('/statistics') }}">
-            <a href="{{ url_for('meetings.statistics') }}">
-              Overview</a>
           </li>
         </ul>
       </li>
