@@ -20,13 +20,15 @@
   </div> {# stripe #}
 
   <div class="content">
+
     {% if badge_context['participant_photo'] %}
       <img src="{{ badge_context['participant_photo'] }}" alt=""
-           class="photo">
+           class="{% if a6 %}photo_a6{% else %}photo{% endif %}">
     {% endif %}
-    <div class="description">
+
+    <div class="{% if a6 %}description_a6{% else %}description{% endif %}">
       <h2>
-       {{ participant.name_on_badge }}
+       {{ participant.name_on_badge }}<br>
         <small>{{ participant.representing|safe }}</small>
       </h2>
     </div> {# description #}
@@ -36,7 +38,6 @@
         <img src="{{ badge_context['background'] }}" alt="" />
       </div>
     {% endif %}
-
   </div> {# content #}
 
 </div> {# container #}
