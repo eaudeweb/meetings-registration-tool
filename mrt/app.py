@@ -68,7 +68,8 @@ def register_monitoring_views(app):
         raise ValueError("Crashing as requested")
 
 
-def create_app(config={}):
+# skip logging for tests
+def create_app(config={}, skip_logging=False):
     app = Flask(__name__, instance_relative_config=True)
     app.config.update(DEFAULT_CONFIG)
     app.config.from_pyfile('settings.py', silent=True)
@@ -145,7 +146,8 @@ def create_app(config={}):
     redis_store.init_app(app)
 
     _configure_uploads(app)
-    _configure_logging(app)
+    if not skip_logging:
+        _configure_logging(app)
     _configure_healthcheck(app)
 
     app.wsgi_app = ProxyFix(app.wsgi_app)

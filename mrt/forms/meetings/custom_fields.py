@@ -44,8 +44,8 @@ _CUSTOM_FIELDS_MAP = {
 }
 
 
-def custom_form_factory(form, field_types=[], field_slugs=[],
-                        excluded_field_types=[],
+def custom_form_factory(form, field_types=None, field_slugs=None,
+                        excluded_field_types=None,
                         registration_fields=False):
     fields = (CustomField.query.filter_by(meeting_id=g.meeting.id)
               .order_by(CustomField.sort))

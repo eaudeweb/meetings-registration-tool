@@ -14,7 +14,7 @@ docutils==0.12
 git-lint==0.0.6.1
 html-linter==0.1.9
 pep8==1.6.2
-PyYAML==3.11
+PyYAML==5.1
 template-remover==0.1.9
 termcolor==1.1.0
 

@@ -1,4 +1,4 @@
-from flask import render_template, jsonify, flash, abort, url_for
+from flask import render_template, jsonify, flash, abort, url_for, Response
 from flask import request
 from flask_login import current_user
 from flask.views import MethodView
@@ -38,7 +38,8 @@ class UserToggle(PermissionRequiredMixin, MethodView):
     def post(self, user_id):
         user = User.query.get_or_404(user_id)
         if user == current_user:
-            abort(400)
+            # abort(400)
+            return Response(status=400)
         user.active = not user.active
         db.session.commit()
         return jsonify(status="success")

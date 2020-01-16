@@ -1,6 +1,6 @@
 from flask import flash
 from flask import render_template, jsonify
-from flask import request, redirect, url_for, abort
+from flask import request, redirect, url_for, abort, Response
 from flask.views import MethodView
 
 from mrt.models import db, CustomField
@@ -49,7 +49,8 @@ class BaseCustomFieldEdit(MethodView):
             return jsonify(status="error", message=msg)
 
         if self.obj.is_primary:
-            abort(400)
+            # abort(400)
+            return Response(status=400)
 
         db.session.delete(self.obj)
         db.session.commit()
