@@ -1,4 +1,6 @@
 import logging
+import openpyxl
+import zipfile
 
 from datetime import datetime
 from itertools import groupby
@@ -29,8 +31,8 @@ from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
-from mrt.utils import generate_excel, generate_import_excel
-
+from mrt.utils import read_sheet, generate_excel, generate_import_excel
+from openpyxl.utils.exceptions import InvalidFileException
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
@@ -677,7 +679,7 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
             .filter_by(custom_field_type=Participant.PARTICIPANT)
             .order_by(CustomField.sort))
 
-        file_name = 'import_{}_list_{}.xls'.format(Participant.PARTICIPANT, g.meeting.acronym)
+        file_name = 'import_{}_list_{}.xlsx'.format(Participant.PARTICIPANT, g.meeting.acronym)
         file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
         generate_import_excel(custom_fields, file_path)
 
@@ -693,12 +695,36 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants import'
 
     def post(self):
-        import_file = request.files['importFile']
+        logging.error(request.files)
+        try:
+            xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
+        except KeyError:
+            logging.error("missing multipart/form-data key")
+            return
+        except (zipfile.BadZipfile, InvalidFileException) as e:
+            logging.error("Invalid xlsx file: %s", e)
+            return
 
         custom_fields = (
             g.meeting.custom_fields
             .filter_by(custom_field_type=Participant.PARTICIPANT)
             .order_by(CustomField.sort))
+
+        logging.error([field.field_type for field in custom_fields])
+
+        try:
+            rows = list(read_sheet(xlsx, custom_fields))
+        except ValueError as e:
+            logging.error(e)
+            return
+
+        logging.error(rows)
+
+        '''
+        sheet_cols = xlsx.max_column
+        logging.error(sheet_cols)
+        logging.error(len(custom_fields))
+        '''
 
         return redirect(url_for('meetings.participants'))
 
