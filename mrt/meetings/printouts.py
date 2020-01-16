@@ -215,6 +215,14 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         'verified': 'List of acknowledged participants',
         'credentials': 'List of participants with checked credentials',
     }
+    GROUPABLE_FIELDS = [
+        "country",
+        "category_id",
+        "represented_region",
+        "represented_country",
+        "represented_organization",
+        "language",
+    ]
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
@@ -322,6 +330,10 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         sortable_fields = [
             field for field in all_fields if hasattr(Participant, field.id)
         ]
+        groupable_fields = [
+            field for field in sortable_fields if field.id in self.GROUPABLE_FIELDS
+        ]
+
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
 
@@ -343,6 +355,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             'meetings/printouts/provisional_list.html',
             all_fields=all_fields,
             sortable_fields=sortable_fields,
+            groupable_fields=groupable_fields,
             selected_field_ids=selected_field_ids,
             selected_fields=selected_fields,
             grouped_participants=grouped_participants,

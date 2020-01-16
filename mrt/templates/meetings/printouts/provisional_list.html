@@ -91,7 +91,7 @@
             <label for="group_by">Group by</label><br/>
             <select id="group_by" name="group_by" class="form-control form-reset-control select">
               <option value="">---</option>
-              {% for field in sortable_fields %}
+              {% for field in groupable_fields %}
                 <option value="{{ field.id }}" {% if request.args.get('group_by') == field.id %}selected{% endif %}>
                   {{ field.label.text }}
                 </option>
