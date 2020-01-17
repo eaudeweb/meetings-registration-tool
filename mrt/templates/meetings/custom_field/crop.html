@@ -25,6 +25,13 @@
 
   <script>
     $(function() {
+    	var photo = document.getElementById("photo");
+    	var minWidth = 51;
+      var minHeight = 51;
+      if (photo && photo.dataset.photosize && photo.dataset.photosize !== '') {
+      	minWidth = parseInt(photo.dataset.photosize.split('x')[0]);
+      	minHeight = parseInt(photo.dataset.photosize.split('x')[1]);
+      }
 
       var updateCoords = function (c) {
         $('input[name=x1]').val(c.x);
@@ -35,8 +42,10 @@
         $('input[name=h]').val(c.h);
       };
 
+
       $("#photo").Jcrop({
-        aspectRatio: 64 / 77,
+        aspectRatio: minWidth / minHeight,
+        minSize: [minWidth, minHeight],
         onChange: updateCoords,
         onSelect: updateCoords,
         boxWidth: 400
@@ -75,7 +84,7 @@
 
 
   <div class="crop-container text-center">
-    <img id="photo" src="{{ photo_url }}" alt="">
+    <img id="photo" src="{{ photo_url }}" alt="" data-photosize="{{ photo_size }}">
 
     <form method="POST">
       <input type="hidden" name="x1">
