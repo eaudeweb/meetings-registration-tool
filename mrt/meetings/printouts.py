@@ -6,6 +6,7 @@ from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
 from path import Path
+from werkzeug.datastructures import ImmutableMultiDict
 
 from flask import current_app as app
 from flask import g, url_for
@@ -20,12 +21,13 @@ from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
-from mrt.custom_country import Country
+from mrt.custom_country import Country, get_all_countries
 from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
-from mrt.models import redis_store, db, CustomFieldValue, CustomField
+from mrt.models import redis_store, db, CustomFieldValue, CustomField, CustomFieldChoice
 from mrt.models import get_participants_full
+from mrt.models import Action
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
@@ -33,6 +35,8 @@ from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
 from mrt.utils import read_sheet, generate_excel, generate_import_excel
 from openpyxl.utils.exceptions import InvalidFileException
+from mrt.forms.meetings import RegistrationForm, ParticipantEditForm
+from mrt.forms.meetings import custom_form_factory
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
@@ -678,6 +682,7 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
             g.meeting.custom_fields
             .filter_by(custom_field_type=Participant.PARTICIPANT)
             .order_by(CustomField.sort))
+        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
 
         file_name = 'import_{}_list_{}.xlsx'.format(Participant.PARTICIPANT, g.meeting.acronym)
         file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
@@ -695,36 +700,56 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants import'
 
     def post(self):
-        logging.error(request.files)
         try:
             xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
         except KeyError:
-            logging.error("missing multipart/form-data key")
-            return
+            return Response({"message": "missing xlsx file"}, status=400)
         except (zipfile.BadZipfile, InvalidFileException) as e:
-            logging.error("Invalid xlsx file: %s", e)
-            return
+            return Response({"message": "Invalid xlsx file: {}".format(e)}, status=400)
 
         custom_fields = (
             g.meeting.custom_fields
             .filter_by(custom_field_type=Participant.PARTICIPANT)
             .order_by(CustomField.sort))
+        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
 
-        logging.error([field.field_type for field in custom_fields])
+        has_errors = False
+        errors = []
 
         try:
             rows = list(read_sheet(xlsx, custom_fields))
         except ValueError as e:
-            logging.error(e)
-            return
+            rows = []
+            has_errors = True
+            errors.append({"row": 0, "field": None, "details": [str(e)]})
 
-        logging.error(rows)
+        participants_form = []
 
-        '''
-        sheet_cols = xlsx.max_column
-        logging.error(sheet_cols)
-        logging.error(len(custom_fields))
-        '''
+        participants_form = read_participants_excel(custom_fields, rows)
+
+        for form in participants_form:
+            if not form.validate():
+                has_errors = True
+                for field, field_errors in form.errors.items():
+                    errors.append({"row": row_num, "field": field, "details": ['\n'.join(field_errors)]})
+
+        logging.error(errors)
+
+        if has_errors:
+            status_code = 400
+            message = "No participants added"
+        else:
+            logging.error('boooooooooon')
+            _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
+                                rows, Participant.PARTICIPANT)
+            status_code = 200
+            message = "{} participants added".format(len(rows))
+            return redirect(url_for('meetings.participants'))
+
+        return Response(
+            {"errors": errors, "message": message},
+            status=status_code,
+        )
 
         return redirect(url_for('meetings.participants'))
 
@@ -803,3 +828,65 @@ def _process_participants_excel(meeting_id, participant_type):
     file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / filename
     generate_excel(header, rows, str(file_path))
     return url_for('meetings.printouts_download', filename=filename)
+
+
+def _process_import_participants_excel(meeting_id, participants_rows, participants_type):
+    custom_fields = (
+        g.meeting.custom_fields
+        .filter_by(custom_field_type=participant_type)
+        .order_by(CustomField.sort))
+    custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
+
+    logging.error(custom_fields)
+
+    for form in read_participants_excel(custom_fields, participants_rows):
+        form.save()
+
+    return redirect(url_for('meetings.participants'))
+
+
+def read_participants_excel(custom_fields, rows):
+    meeting_categories = {}
+    for c in Category.get_categories_for_meeting(ParticipantEditForm.CUSTOM_FIELDS_TYPE):
+        meeting_categories[c.title.english] = c.id
+
+    countries = {}
+    for (code, name) in get_all_countries():
+        countries[name] = code
+
+    participants_form = []
+    for row_num, row in enumerate(rows, start=2):
+        Form = custom_form_factory(ParticipantEditForm)
+
+        participant_details = []
+        for i, cell in enumerate(row):
+            if custom_fields[i].field_type.code == CustomField.CATEGORY:
+                value = meeting_categories.get(unicode(row[cell]), ' ')
+            elif custom_fields[i].field_type.code == CustomField.COUNTRY:
+                value = None
+                if row[cell]:
+                    value = countries.get(row[cell], None)
+            elif custom_fields[i].field_type.code == CustomField.MULTI_CHECKBOX:
+                query = CustomFieldChoice.query.filter_by(custom_field=custom_fields[i])
+                multi_check_box_values = {}
+                for val in query:
+                    multi_check_box_values[unicode(val.value)] = val.value
+
+                value = []
+                if row[cell]:
+                    elements = row[cell].split(',')
+                    for el in elements:
+                        value.append(multi_check_box_values.get(unicode(el.strip()), ''))
+            else:
+                value = row[cell]
+
+            if type(value) is list:
+                # Multi checkbox values
+                for val in value:
+                    participant_details.append((custom_fields[i].slug, val))
+            else:
+                participant_details.append((custom_fields[i].slug, value))
+
+        participants_form.append(Form(ImmutableMultiDict(participant_details)))
+
+    return participants_form
