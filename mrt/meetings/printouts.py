@@ -654,7 +654,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants excel'
 
     def post(self):
-        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME,
+        _add_to_printout_queue(_process_export_participants_excel, self.JOB_NAME,
                                Participant.PARTICIPANT)
         return redirect(url_for('meetings.participants'))
 
@@ -702,7 +702,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
         return decode_particpants_excel(request, Participant.PARTICIPANT, self.JOB_NAME)
 
 
-def _process_participants_excel(meeting_id, participant_type):
+def _process_export_participants_excel(meeting_id, participant_type):
     g.meeting = Meeting.query.get(meeting_id)
     participants = get_participants_full(g.meeting.id, participant_type)
 
