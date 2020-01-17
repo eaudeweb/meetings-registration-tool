@@ -7,6 +7,7 @@ from wtforms import fields
 from wtforms.validators import DataRequired, ValidationError, Length
 from wtforms_alchemy import ModelFormField
 
+from mrt.forms.fields import CustomSelectField
 from mrt.models import CategoryDefault, Category
 from mrt.models import CustomField, CustomFieldChoice, CustomFieldValue
 from mrt.models import db
@@ -73,8 +74,9 @@ class CustomFieldEditForm(BaseForm):
     hint = ModelFormField(TranslationInputForm, label='Hint')
     custom_field_choices = SelectMultipleFieldWithoutValidation(
         'Choices', choices=[], coerce=unicode)
-    photo_size = fields.SelectField(
+    photo_size = CustomSelectField(
         'Photo Size',
+        default="",
         choices=CustomField.PHOTO_SIZE_CHOICES,
         coerce=lambda _value: getattr(_value, 'code', unicode(_value)),
         description=(
