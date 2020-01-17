@@ -80,7 +80,7 @@ class CustomFieldEditForm(BaseForm):
         description=(
             "If a photo size is selected, the participant will be "
             "required to crop the image to the corresponding aspect ratio "
-            "while registering."
+            "while registering. (width x height)"
         )
     )
 
