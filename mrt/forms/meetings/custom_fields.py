@@ -129,7 +129,7 @@ def custom_form_factory(form, field_types=None, field_slugs=None,
         if f.field_type.code == CustomField.IMAGE and f.photo_size and f.photo_size.code:
             attrs['render_kw']["data-photoSize"] = f.photo_size.code
             for coord in ("x1", "y1", "x2", "y2"):
-                form_attrs['%s_%s_' % (f.slug, coord)] = HiddenField()
+                form_attrs['%s_%s_' % (f.slug, coord)] = HiddenField(default=0)
 
         # set field to form
         # _set_rules_for_custom_fields(f, attrs)

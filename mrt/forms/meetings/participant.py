@@ -130,10 +130,13 @@ class BaseParticipantForm(BaseForm):
     def crop_image(self, field_slug, field_value):
         # XXX We need to check if the ratio is respected, and enforce it
         #  here.
-        x1 = int(float(getattr(self, '%s_x1_' % field_slug, 0).data))
-        y1 = int(float(getattr(self, '%s_y1_' % field_slug, 0).data))
-        x2 = int(float(getattr(self, '%s_x2_' % field_slug, 0).data))
-        y2 = int(float(getattr(self, '%s_y2_' % field_slug, 0).data))
+        try:
+            x1 = int(float(getattr(self, '%s_x1_' % field_slug).data))
+            y1 = int(float(getattr(self, '%s_y1_' % field_slug).data))
+            x2 = int(float(getattr(self, '%s_x2_' % field_slug).data))
+            y2 = int(float(getattr(self, '%s_y2_' % field_slug).data))
+        except AttributeError:
+            return
 
         unlink_uploaded_file(field_value, 'crop',
                              dir_name=app.config['PATH_CUSTOM_KEY'])
