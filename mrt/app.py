@@ -34,7 +34,7 @@ from mrt.custom_country import country_in
 from mrt.template import inject_badge_context
 from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
-from mrt.template import pluralize, clean_html
+from mrt.template import pluralize, clean_html, year_processor
 from mrt.template import sort_by_tuple_element
 from mrt.utils import slugify, Logo, sentry
 
@@ -108,6 +108,7 @@ def create_app(config={}, skip_logging=False):
     app.add_template_filter(clean_html)
     app.add_template_global(active)
     app.add_template_global(date_processor)
+    app.add_template_global(year_processor)
     app.add_template_global(inject_static_file)
     app.add_template_global(inject_badge_context)
     app.add_template_global(has_perm)
