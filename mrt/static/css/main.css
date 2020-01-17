@@ -301,9 +301,24 @@ li.separator {
     grid-template-columns: 50% 20%;
 }
 
-.group-value th {
+.provisional-table .group1-value th {
+    font-size: 1.5rem;
+    border-top-width: 2px!important;
+    background-color: rgba(157, 157, 157, 0.5);
+}
+
+.provisional-table .group2-value th {
     border-top-width: 2px!important;
     background-color: rgba(213, 225, 235, 0.5);
+}
+
+.provisional-table {
+    table-layout: fixed;
+}
+
+.provisional-table td {
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .tt-dropdown-menu {

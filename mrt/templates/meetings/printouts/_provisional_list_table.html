@@ -8,40 +8,43 @@
 
 
 <div class="printout-item-container">
-
-  <table class="table table-bordered table-condensed">
-    {% for group, participants in grouped_participants.items() %}
+  {% for (group1_label, group1_value), group_participants2 in grouped_participants.items() %}
+    <table class="table table-bordered table-condensed provisional-table">
       <thead>
-      {% if group %}
-        <tr class="group-value">
-          <th colspan="{{ selected_fields|length - 1 }}">
-            {{ group }}
+      <tr class="group1-value">
+        <th colspan="{{ selected_fields|length }}">
+          {{ group1_value }}
+        </th>
+      </tr>
+      </thead>
+      {% for (group2_label, group2_value), participants in group_participants2.items() %}
+        <thead>
+        <tr class="group2-value">
+          <th colspan="{{ selected_fields|length }}">
+            {{ group2_label }}: {{ group2_value }}
           </th>
         </tr>
-      {% endif %}
-      <tr class="column-headers">
-        {% for field in selected_fields %}
-          {% if field.id != request.args.get('group_by') %}
+        <tr class="column-headers">
+          {% for field in selected_fields %}
             <th>
               {{ field.label.text }}
             </th>
-          {% endif %}
-        {% endfor %}
-      </tr>
-      </thead>
-      <tbody>
-      {% for participant in participants %}
-        <tr>
-          {% for field in participant.get_fields(selected_field_ids) %}
-            {% if field.id != request.args.get('group_by') %}
-              <td>{{ field.render_data() }}</td>
-            {% endif %}
           {% endfor %}
         </tr>
+        </thead>
+        <tbody>
+        {% for participant in participants %}
+          <tr>
+            {% for field in participant.get_fields(selected_field_ids) %}
+              <td>{{ field.render_data() }}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
       {% endfor %}
-      </tbody>
-    {% endfor %}
+    </table>
 
-  </table>
+  {% endfor %}
+
 
 </div> {# printout-item-container #}

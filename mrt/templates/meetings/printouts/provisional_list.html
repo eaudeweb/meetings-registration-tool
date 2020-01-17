@@ -68,48 +68,6 @@
           {% endfor %}
         </div>
         <hr/>
-        <div class="sorting-fields-inputs">
-          <div>
-            <label for="sort_by">Sort by</label><br/>
-            <select id="sort_by" name="sort_by" class="form-control form-reset-control select">
-              <option value="">---</option>
-              {% for field in sortable_fields %}
-                <option value="{{ field.id }}" {% if request.args.get('sort_by') == field.id %}selected{% endif %}>
-                  {{ field.label.text }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-          <div>
-            <label for="sort_by_direction">Sort order</label><br/>
-            <select name="sort_by_direction" id="sort_by_direction" class="form-control form-reset-control select">
-              <option value="asc">Ascending</option>
-              <option value="desc" {% if request.args.get('sort_by_direction') == "desc" %}selected{% endif %}>
-                Descending
-              </option>
-            </select>
-          </div>
-          <div>
-            <label for="group_by">Group by</label><br/>
-            <select id="group_by" name="group_by" class="form-control form-reset-control select">
-              <option value="">---</option>
-              {% for field in groupable_fields %}
-                <option value="{{ field.id }}" {% if request.args.get('group_by') == field.id %}selected{% endif %}>
-                  {{ field.label.text }}
-                </option>
-              {% endfor %}
-            </select>
-          </div>
-          <div>
-            <label for="group_by_direction">Group order</label><br/>
-            <select name="group_by_direction" id="group_by_direction" class="form-control form-reset-control select">
-              <option value="asc">Ascending</option>
-              <option value="desc" {% if request.args.get('group_by_direction') == "desc" %}selected{% endif %}>
-                Descending
-              </option>
-            </select>
-          </div>
-        </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Preview</button>
         </div>

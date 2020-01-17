@@ -243,25 +243,30 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             pass
 
         ordering = []
-        try:
-            grouping = getattr(Participant, request.args["group_by"])
-            if request.args["group_by_direction"].lower() != "asc":
-                grouping = desc(grouping)
-            ordering.append(grouping)
-        except (KeyError, AttributeError):
-            pass
-
-        try:
-            sorting = getattr(Participant, request.args["sort_by"])
-            if request.args["sort_by_direction"].lower() != "asc":
-                sorting = desc(sorting)
-            ordering.append(sorting)
-        except (KeyError, AttributeError):
-            ordering.extend([
-                Category.sort, Category.id,
-                Participant.representing,
-                Participant.last_name, Participant.id,
-            ])
+        # try:
+        #     grouping = getattr(Participant, request.args["group_by"])
+        #     if request.args["group_by_direction"].lower() != "asc":
+        #         grouping = desc(grouping)
+        #     ordering.append(grouping)
+        # except (KeyError, AttributeError):
+        #     pass
+        #
+        # try:
+        #     sorting = getattr(Participant, request.args["sort_by"])
+        #     if request.args["sort_by_direction"].lower() != "asc":
+        #         sorting = desc(sorting)
+        #     ordering.append(sorting)
+        # except (KeyError, AttributeError):
+        #     ordering.extend([
+        #         Category.sort, Category.id,
+        #         Participant.representing,
+        #         Participant.last_name, Participant.id,
+        #     ])
+        ordering.extend([
+            Category.sort, Category.id,
+            Participant.representing,
+            Participant.last_name, Participant.id,
+        ])
 
         if flag:
             attr = getattr(Participant, flag)
@@ -328,35 +333,32 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
         participant_form = custom_form_factory(ParticipantEditForm)
         all_fields = self._get_all_fields()
-        sortable_fields = [
-            field for field in all_fields if hasattr(Participant, field.id)
-        ]
-        groupable_fields = [
-            field for field in sortable_fields if field.id in self.GROUPABLE_FIELDS
-        ]
 
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
-
-        group_key = request.args.get("group_by", "")
         grouped_participants = collections.OrderedDict()
-        for obj in participants:
-            obj = participant_form(obj=custom_object_factory(obj))
-            if group_key:
-                key = getattr(obj, group_key).render_data()
-            else:
-                key = ""
+
+        for participant in participants:
+            obj = participant_form(obj=custom_object_factory(participant))
+
+            category = obj.category_id.label.text, obj.category_id.render_data() or "---"
+            try:
+                category_dict = grouped_participants[category]
+            except KeyError:
+                category_dict = collections.OrderedDict()
+                grouped_participants[category] = category_dict
+
+            group_key = Category.GROUP_FIELD[participant.category.group.code]
+            group_value = getattr(obj, group_key).label.text, getattr(obj, group_key).render_data() or "---"
 
             try:
-                grouped_participants[key].append(obj)
+                category_dict[group_value].append(obj)
             except KeyError:
-                grouped_participants[key] = [obj]
+                category_dict[group_value] = [obj]
 
         return render_template(
             'meetings/printouts/provisional_list.html',
             all_fields=all_fields,
-            sortable_fields=sortable_fields,
-            groupable_fields=groupable_fields,
             selected_field_ids=selected_field_ids,
             selected_fields=selected_fields,
             grouped_participants=grouped_participants,
