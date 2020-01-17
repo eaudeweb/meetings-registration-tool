@@ -318,16 +318,15 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         except KeyError:
             pass
 
-        return selected_field_ids
+        return selected_field_ids or default_field_ids
 
     def get(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
-        page = request.args.get('page', 1, type=int)
         query = self._get_query(flag)
-        count = query.count()
-        pagination = query.paginate(page, per_page=50)
-        participants = pagination.items
+
+        participants = list(query.all())
+        count = len(participants)
 
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
@@ -362,7 +361,6 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             selected_field_ids=selected_field_ids,
             selected_fields=selected_fields,
             grouped_participants=grouped_participants,
-            pagination=pagination,
             count=count,
             title=title,
             flag_form=flag_form,
