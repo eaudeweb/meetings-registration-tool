@@ -80,4 +80,71 @@ $(function () {
         fileSizes[inputIdx] = 0;
       }
     });
+
+  function updateCoords(c, name) {
+    $('input[name=' + name + '_x1_]').val(c.x);
+    $('input[name=' + name + '_y1_]').val(c.y);
+    $('input[name=' + name + '_x2_]').val(c.x2);
+    $('input[name=' + name + '_y2_]').val(c.y2);
+    $('input[name=' + name + '_w_]').val(c.w);
+    $('input[name=' + name + '_h_]').val(c.h);
+  }
+
+  function showPhotoCrop(event) {
+    var name = event.target.name;
+    var selectedFile = event.target.files[0];
+    var reader = new FileReader();
+    var photoSize = event.target.dataset.photosize.split('x');
+    var minWidth = parseInt(photoSize[0]);
+    var minHeight = parseInt(photoSize[1]);
+    var ratio = minWidth / minHeight;
+
+    var imgtag = document.getElementById("photo_" + name);
+    var crop_div = document.getElementById('image_crop_' + name);
+
+    if ($(imgtag).data('Jcrop')) {
+      $(imgtag).data('Jcrop').destroy();
+      $(imgtag)[0].style = "";
+    }
+
+    imgtag.title = selectedFile.name;
+
+    reader.onload = function(event) {
+      imgtag.src = event.target.result;
+      crop_div.style.display = "inherit";
+
+      $(imgtag).Jcrop({
+        aspectRatio: ratio,
+        minSize: [minWidth, minHeight],
+        onChange: c => updateCoords(c, name),
+        onSelect: c => updateCoords(c, name),
+        boxWidth: 800,
+      }, function () {
+        // Set an optimal selection by default.
+        var imageWidth = imgtag.width;
+        var imageHeight = imgtag.height;
+        var croppedWidth, croppedHeight;
+
+        if (ratio <= 1) {
+          croppedWidth = imageWidth / 2;
+          croppedHeight = imageWidth / 2 / ratio;
+        } else {
+          croppedHeight = imageHeight / 2;
+          croppedWidth = imageHeight / 2 * ratio;
+        }
+
+        this.animateTo([
+          (imageWidth - croppedWidth) / 2,
+          (imageHeight - croppedHeight) / 2,
+          (imageWidth - croppedWidth) / 2 + croppedWidth,
+          (imageHeight - croppedHeight) / 2 + croppedHeight,
+        ]);
+      });
+    };
+    reader.readAsDataURL(selectedFile);
+  }
+
+  document.querySelectorAll('[data-photosize]').forEach(
+    el => el.addEventListener('change', showPhotoCrop)
+  );
 });

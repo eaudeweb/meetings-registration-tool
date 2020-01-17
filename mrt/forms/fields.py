@@ -288,7 +288,8 @@ class _BaseFileFieldMixin(object):
         try:
             cfv.value = custom_upload.save(self.data, name=str(uuid4()) + '.')
         except:
-            sentry.captureException()
+            if app.config.get('SENTRY_DSN'):
+                sentry.captureException()
             return cfv
         unlink_participant_custom_file(current_filename)
         if not cfv.id:
