@@ -7,6 +7,7 @@ from flask_wtf.file import FileAllowed
 from sqlalchemy_utils import Choice
 
 from werkzeug import OrderedMultiDict
+from wtforms.fields.simple import HiddenField
 from wtforms.validators import DataRequired, Length, Optional
 
 from mrt.forms.fields import CustomBooleanField, CustomCountryField
@@ -73,6 +74,7 @@ def custom_form_factory(form, field_types=None, field_slugs=None,
     for f in fields:
         attrs = {'label': unicode(CustomFieldLabel(f.label)),
                  'validators': [],
+                 'render_kw': {},
                  'description': f.hint}
 
         data = _CUSTOM_FIELDS_MAP[f.field_type.code]
@@ -123,6 +125,11 @@ def custom_form_factory(form, field_types=None, field_slugs=None,
             query = CustomFieldChoice.query.filter_by(custom_field=f)
             attrs['choices'] = [(unicode(c.value), c.value) for c in query]
             attrs['coerce'] = unicode
+
+        if f.field_type.code == CustomField.IMAGE and f.photo_size and f.photo_size.code:
+            attrs['render_kw']["data-photoSize"] = f.photo_size.code
+            for coord in ("x1", "y1", "x2", "y2"):
+                form_attrs['%s_%s_' % (f.slug, coord)] = HiddenField(default=0)
 
         # set field to form
         # _set_rules_for_custom_fields(f, attrs)

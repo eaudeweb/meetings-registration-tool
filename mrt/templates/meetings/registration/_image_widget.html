@@ -20,6 +20,21 @@
   <div class="file-field-input {% if show %}hide{% endif %}"
        data-type="image">
     {{ default_widget(field, **field_kwargs) }}
+    <div id="image_crop_{{ field.name }}" class="image-crop-registration" style="display: none;">
+      <div class="well">
+        <p>
+          Left-click and drag to select the area that you want to remain.
+          Remember the area you are selecting is the part of the photo that will be kept, the rest will be removed.
+        </p>
+      </div>
+      <img id="photo_{{ field.name }}" src="#" alt="">
+      <input type="hidden" name="{{ field.name }}_x1_">
+      <input type="hidden" name="{{ field.name }}_y1_">
+      <input type="hidden" name="{{ field.name }}_x2_">
+      <input type="hidden" name="{{ field.name }}_y2_">
+      <input type="hidden" name="{{ field.name }}_w_">
+      <input type="hidden" name="{{ field.name }}_h_">
+    </div>
   </div>
 
 </div> {# /.file-field-container #}

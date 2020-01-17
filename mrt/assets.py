@@ -65,14 +65,14 @@ _BUNDLE_REGISTRATION_CSS = (
     'css/bootstrap-theme.min.css',
     'css/bootstrap-datetimepicker.min.css',
     'css/registration.css',
-)
+) + _BUNDLE_UPLOAD_CSS
 _BUNDLE_REGISTRATION_JS = (
     'js/lib/jquery.min.js',
     'js/lib/jquery.showif.js',
     'js/file_validation.js',
     'js/lib/moment.js',
     'js/lib/bootstrap-datetimepicker.min.js',
-)
+) + _BUNDLE_UPLOAD_JS
 
 _BUNDLE_ERROR_CSS = (
     'css/bootstrap.min.css',

@@ -19,14 +19,21 @@
   $(function() {
     var required = $('#required').parents('.form-group');
     var choices = $('#custom_field_choices').parents('.form-group');
+    var photo_size = $('#photo_size').parents('.form-group');
     choices.find('select').select2({ tags: true });
     $('#field_type').on('change', function() {
-      $(this).val() == 'event' ?  required.hide() : required.show();
-      if($(this).val() == 'multi_checkbox' || $(this).val() == 'radio') {
+      $(this).val() === 'event' ?  required.hide() : required.show();
+      if($(this).val() === 'multi_checkbox' || $(this).val() === 'radio') {
         choices.show();
         choices.find('input').focus();
-      } else {
+        photo_size.hide();
+      } else if ($(this).val() === 'image') {
+      	choices.hide();
+        photo_size.show();
+        photo_size.find('input').focus();
+			} else {
         choices.hide();
+        photo_size.hide();
       }
     }).change();
   });
@@ -86,6 +93,7 @@
           {% endif %}
 
           {{ form_group(form.custom_field_choices, options=options) }}
+          {{ form_group(form.photo_size, options=options) }}
         </div>
 
         <div class="{% if custom_field and custom_field.is_protected %}hide{% endif %}">

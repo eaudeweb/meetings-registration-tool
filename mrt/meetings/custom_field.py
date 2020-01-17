@@ -190,8 +190,13 @@ class CustomFieldCropUpload(BaseCustomFieldFile):
         cf = self.get_custom_field(participant, field_slug,
                                    field_type='image')
         cfv = self.get_custom_field_value(cf, participant)
+        photo_size = None
+        if cf.photo_size and cf.photo_size.code:
+            photo_size = cf.photo_size.code
+
         return render_template('meetings/custom_field/crop.html',
                                participant=participant,
+                               photo_size=photo_size,
                                data=cfv.value)
 
     def post(self, participant_id, field_slug):

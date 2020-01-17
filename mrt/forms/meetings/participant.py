@@ -2,6 +2,7 @@ import json
 from collections import OrderedDict
 
 from flask import g
+from flask import current_app as app
 
 from sqlalchemy import and_
 from wtforms import fields, compat
@@ -14,6 +15,9 @@ from mrt.forms.base import BaseForm
 from mrt.models import db, Participant, Action, Condition
 from mrt.models import CustomField
 from mrt.models import CategoryTag, Category
+from mrt.utils import crop_file
+from mrt.utils import unlink_thumbnail_file
+from mrt.utils import unlink_uploaded_file
 
 
 class _RulesMixin(object):
@@ -130,6 +134,25 @@ class BaseParticipantForm(BaseForm):
         return bool([f for f in self._fields if f in self._custom_fields and
                      self._custom_fields[f].field_type == field_type])
 
+    def crop_image(self, field_slug, field_value):
+        # XXX We need to check if the ratio is respected, and enforce it
+        #  here.
+        try:
+            x1 = int(float(getattr(self, '%s_x1_' % field_slug).data))
+            y1 = int(float(getattr(self, '%s_y1_' % field_slug).data))
+            x2 = int(float(getattr(self, '%s_x2_' % field_slug).data))
+            y2 = int(float(getattr(self, '%s_y2_' % field_slug).data))
+        except (AttributeError, ValueError, TypeError, OverflowError):
+            return
+
+        unlink_uploaded_file(field_value, 'crop',
+                             dir_name=app.config['PATH_CUSTOM_KEY'])
+        unlink_thumbnail_file(field_value, dir_name='crops')
+
+        valid_crop = x2 > 0 and y2 > 0
+        if valid_crop:
+            crop_file(field_value, 'custom', (x1, y1, x2, y2))
+
     def save(self, participant=None, commit=True):
         participant = participant or Participant()
         participant.meeting_id = g.meeting.id
@@ -151,7 +174,10 @@ class BaseParticipantForm(BaseForm):
 
         for field in saveable_added_custom_fields:
             cf = self._custom_fields[field.name]
-            field.save(cf, participant)
+
+            field_value = field.save(cf, participant)
+            if field.type == "RegistrationImageField" and field_value and field.render_kw.get("data-photoSize"):
+                self.crop_image(field.id, field_value.value)
 
         db.session.flush()
         participant.set_representing()
