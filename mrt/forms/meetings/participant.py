@@ -169,7 +169,7 @@ class BaseParticipantForm(BaseForm):
             cf = self._custom_fields[field.name]
 
             field_value = field.save(cf, participant)
-            if field.type == "RegistrationImageField" and field_value:
+            if field.type == "RegistrationImageField" and field_value and field.render_kw.get("data-photoSize"):
                 self.crop_image(field.id, field_value.value)
 
         db.session.flush()
