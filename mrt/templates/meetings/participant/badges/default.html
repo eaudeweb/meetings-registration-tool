@@ -23,10 +23,10 @@
 
     {% if badge_context['participant_photo'] %}
       <img src="{{ badge_context['participant_photo'] }}" alt=""
-           class="{% if a6 %}photo_a6{% else %}photo{% endif %}">
+           class="photo">
     {% endif %}
 
-    <div class="{% if a6 %}description_a6{% else %}description{% endif %}">
+    <div class="description">
       <h2>
        {{ participant.name_on_badge }}<br>
         <small>{{ participant.representing|safe }}</small>

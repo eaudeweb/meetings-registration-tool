@@ -61,31 +61,12 @@ h2 {
     top: 0.0785in;
 }
 
-.content .photo_a6 {
-    max-height: 3.2in;
-    max-width: 2.5in;
-    position: absolute;
-    left: 0.0785in;
-    top: 0.0785in;
-}
-
 .content .description {
     line-height: 10pt;
     position: absolute;
     top: 0.1667in;
     left: 1.1900in;
     z-index: 9999;
-}
-
-.content .description_a6 {
-    position: absolute;
-    top: 0.5in;
-    left: 2.7in;
-    z-index: 9999;
-}
-
-.content .description_a6 h2 {
-	font-size: 25px;
 }
 
 .content .description small {
