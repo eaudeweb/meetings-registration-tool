@@ -27,7 +27,9 @@ from mrt.mail import send_single_message
 from mrt.models import db, Participant, CustomField, Category, Phrase, Rule
 from mrt.models import search_for_participant
 
-from mrt.definitions import BADGE_W, BADGE_H, LABEL_W, LABEL_H, ENVEL_W
+from mrt.definitions import (
+    BADGE_W, BADGE_H, BADGE_A6_W, BADGE_A6_H, LABEL_W, LABEL_H, ENVEL_W
+)
 from mrt.definitions import ENVEL_H, ACK_W, ACK_H
 from mrt.pdf import PdfRenderer
 from mrt.signals import activity_signal
@@ -531,11 +533,16 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
             .first_or_404())
         participant.set_representing()
         nostripe = request.args.get('nostripe')
-        context = {'participant': participant, 'nostripe': nostripe}
-        return PdfRenderer('meetings/participant/badge.html',
-                           width=BADGE_W, height=BADGE_H,
-                           footer=False, orientation='portrait',
-                           context=context).as_response()
+        a6 = request.args.get('a6')
+        context = {'participant': participant, 'nostripe': nostripe, 'a6': a6}
+        return PdfRenderer(
+            'meetings/participant/badge.html',
+            width=BADGE_A6_W if a6 else BADGE_W,
+            height=BADGE_A6_H if a6 else BADGE_H,
+            footer=False,
+            orientation='portrait',
+            context=context
+        ).as_response()
 
 
 class ParticipantLabel(PermissionRequiredMixin, MethodView):
