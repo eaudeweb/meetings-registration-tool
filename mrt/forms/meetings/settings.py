@@ -69,13 +69,14 @@ class MeetingCategoryAddForm(BaseForm):
 
 
 class CustomFieldEditForm(BaseForm):
-
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
     hint = ModelFormField(TranslationInputForm, label='Hint')
     custom_field_choices = SelectMultipleFieldWithoutValidation(
         'Choices', choices=[], coerce=unicode)
     photo_size = fields.SelectField(
-        'Photo Size', choices=CustomField.PHOTO_SIZE_CHOICES, coerce=unicode
+        'Photo Size',
+        choices=CustomField.PHOTO_SIZE_CHOICES,
+        coerce=lambda _value: getattr(_value, 'code', unicode(_value)),
     )
 
     class Meta:
