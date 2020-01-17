@@ -61,8 +61,9 @@
               <input {% if field.id in selected_field_ids %}checked{% endif %}
                      class="" id="field_{{ field.id }}"
                      name="field_{{ field.name }}"
-                     placeholder="{{ field.label.text }}" type="checkbox">
-              <label for="field_{{ field.id }}">{{ field.label.text }}</label>
+                     placeholder="{{ field.label.text }}" type="checkbox"
+                     style="vertical-align: top;">
+              <label for="field_{{ field.id }}" style="max-width: 90%;">{{ field.label.text }}</label>
             </div>
           {% endfor %}
         </div>
