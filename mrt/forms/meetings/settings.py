@@ -77,6 +77,11 @@ class CustomFieldEditForm(BaseForm):
         'Photo Size',
         choices=CustomField.PHOTO_SIZE_CHOICES,
         coerce=lambda _value: getattr(_value, 'code', unicode(_value)),
+        description=(
+            "If a photo size is selected, the participant will be "
+            "required to crop the image to the corresponding aspect ratio "
+            "while registering."
+        )
     )
 
     class Meta:
