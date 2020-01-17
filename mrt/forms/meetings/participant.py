@@ -135,7 +135,7 @@ class BaseParticipantForm(BaseForm):
             y1 = int(float(getattr(self, '%s_y1_' % field_slug).data))
             x2 = int(float(getattr(self, '%s_x2_' % field_slug).data))
             y2 = int(float(getattr(self, '%s_y2_' % field_slug).data))
-        except AttributeError:
+        except (AttributeError, ValueError, TypeError, OverflowError):
             return
 
         unlink_uploaded_file(field_value, 'crop',
