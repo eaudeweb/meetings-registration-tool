@@ -104,6 +104,7 @@ $(function () {
 
     if ($(imgtag).data('Jcrop')) {
       $(imgtag).data('Jcrop').destroy();
+      $(imgtag)[0].style = "";
     }
 
     imgtag.title = selectedFile.name;
@@ -117,7 +118,7 @@ $(function () {
         minSize: [minWidth, minHeight],
         onChange: c => updateCoords(c, name),
         onSelect: c => updateCoords(c, name),
-        boxWidth: 400,
+        boxWidth: 800,
       }, function () {
         // Set an optimal selection by default.
         var imageWidth = imgtag.width;
