@@ -1,4 +1,3 @@
-import logging
 import openpyxl
 import zipfile
 
@@ -35,7 +34,7 @@ from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
 from mrt.utils import read_sheet, generate_excel, generate_import_excel
 from openpyxl.utils.exceptions import InvalidFileException
-from mrt.forms.meetings import RegistrationForm, ParticipantEditForm
+from mrt.forms.meetings import ParticipantEditForm
 from mrt.forms.meetings import custom_form_factory
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
@@ -700,58 +699,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants import'
 
     def post(self):
-        try:
-            xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
-        except KeyError:
-            return Response({"message": "missing xlsx file"}, status=400)
-        except (zipfile.BadZipfile, InvalidFileException) as e:
-            return Response({"message": "Invalid xlsx file: {}".format(e)}, status=400)
-
-        custom_fields = (
-            g.meeting.custom_fields
-            .filter_by(custom_field_type=Participant.PARTICIPANT)
-            .order_by(CustomField.sort))
-        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
-
-        has_errors = False
-        errors = []
-
-        try:
-            rows = list(read_sheet(xlsx, custom_fields))
-        except ValueError as e:
-            rows = []
-            has_errors = True
-            errors.append({"row": 0, "field": None, "details": [str(e)]})
-
-        participants_form = []
-
-        participants_form = read_participants_excel(custom_fields, rows)
-
-        for form in participants_form:
-            if not form.validate():
-                has_errors = True
-                for field, field_errors in form.errors.items():
-                    errors.append({"row": row_num, "field": field, "details": ['\n'.join(field_errors)]})
-
-        logging.error(errors)
-
-        if has_errors:
-            status_code = 400
-            message = "No participants added"
-        else:
-            logging.error('boooooooooon')
-            _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
-                                rows, Participant.PARTICIPANT)
-            status_code = 200
-            message = "{} participants added".format(len(rows))
-            return redirect(url_for('meetings.participants'))
-
-        return Response(
-            {"errors": errors, "message": message},
-            status=status_code,
-        )
-
-        return redirect(url_for('meetings.participants'))
+        return decode_particpants_excel(request, Participant.PARTICIPANT, self.JOB_NAME)
 
 
 def _process_participants_excel(meeting_id, participant_type):
@@ -831,18 +779,63 @@ def _process_participants_excel(meeting_id, participant_type):
 
 
 def _process_import_participants_excel(meeting_id, participants_rows, participants_type):
+    g.meeting = Meeting.query.get(meeting_id)
+
+    custom_fields = (
+        g.meeting.custom_fields
+        .filter_by(custom_field_type=participants_type)
+        .order_by(CustomField.sort))
+    custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
+
+    for form in read_participants_excel(custom_fields, participants_rows):
+        form.save()
+
+    return 'Successfully added'
+
+
+def decode_particpants_excel(request, participant_type, JOB_NAME):
+    try:
+        xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
+    except KeyError:
+        return Response({"message": "missing xlsx file"}, status=400)
+    except (zipfile.BadZipfile, InvalidFileException) as e:
+        return Response({"message": "Invalid xlsx file: {}".format(e)}, status=400)
+
     custom_fields = (
         g.meeting.custom_fields
         .filter_by(custom_field_type=participant_type)
         .order_by(CustomField.sort))
     custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
 
-    logging.error(custom_fields)
+    has_errors = False
+    errors = []
 
-    for form in read_participants_excel(custom_fields, participants_rows):
-        form.save()
+    try:
+        rows = list(read_sheet(xlsx, custom_fields))
+    except ValueError as e:
+        rows = []
+        has_errors = True
+        errors.append({"row": 0, "field": None, "details": [str(e)]})
 
-    return redirect(url_for('meetings.participants'))
+    for form in read_participants_excel(custom_fields, rows):
+        if not form.validate():
+            has_errors = True
+            for field, field_errors in form.errors.items():
+                errors.append({"row": row_num, "field": field, "details": ['\n'.join(field_errors)]})
+
+    if has_errors:
+        status_code = 400
+        message = "No participants added"
+    else:
+        _add_to_printout_queue(_process_import_participants_excel, JOB_NAME,
+                            rows, participant_type)
+        status_code = 200
+        message = "{} participants added".format(len(rows))
+
+    return Response(
+        {"errors": errors, "message": message},
+        status=status_code,
+    )
 
 
 def read_participants_excel(custom_fields, rows):
