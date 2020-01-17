@@ -82,13 +82,12 @@ $(function () {
     });
 
   function updateCoords(c, name) {
-    console.log(c, name);
-    $('input[name='+ name + '_x1]').val(c.x);
-    $('input[name=' + name +'_y1]').val(c.y);
-    $('input[name=' + name +'_x2]').val(c.x2);
-    $('input[name=' + name +'_y2]').val(c.y2);
-    $('input[name=' + name +'_w]').val(c.w);
-    $('input[name=' + name +'_h]').val(c.h);
+    $('input[name=' + name + '_x1_]').val(c.x);
+    $('input[name=' + name + '_y1_]').val(c.y);
+    $('input[name=' + name + '_x2_]').val(c.x2);
+    $('input[name=' + name + '_y2_]').val(c.y2);
+    $('input[name=' + name + '_w_]').val(c.w);
+    $('input[name=' + name + '_h_]').val(c.h);
   }
 
   function showPhotoCrop(event) {
