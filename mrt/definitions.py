@@ -94,6 +94,8 @@ CATEGORY_REPRESENTING = (
 
 BADGE_W = '3.4in'
 BADGE_H = '2.15in'
+BADGE_A6_W = '5.8in'
+BADGE_A6_H = '4.1in'
 LABEL_W = '11.7in'
 LABEL_H = '8.3in'
 ENVEL_W = '9.0in'

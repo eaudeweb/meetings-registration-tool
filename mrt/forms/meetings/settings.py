@@ -7,6 +7,7 @@ from wtforms import fields
 from wtforms.validators import DataRequired, ValidationError, Length
 from wtforms_alchemy import ModelFormField
 
+from mrt.forms.fields import CustomSelectField
 from mrt.models import CategoryDefault, Category
 from mrt.models import CustomField, CustomFieldChoice, CustomFieldValue
 from mrt.models import db
@@ -69,11 +70,21 @@ class MeetingCategoryAddForm(BaseForm):
 
 
 class CustomFieldEditForm(BaseForm):
-
     label = ModelFormField(CustomFieldLabelInputForm, label='Field label')
     hint = ModelFormField(TranslationInputForm, label='Hint')
     custom_field_choices = SelectMultipleFieldWithoutValidation(
         'Choices', choices=[], coerce=unicode)
+    photo_size = CustomSelectField(
+        'Photo Size',
+        default="",
+        choices=CustomField.PHOTO_SIZE_CHOICES,
+        coerce=lambda _value: getattr(_value, 'code', unicode(_value)),
+        description=(
+            "If a photo size is selected, the participant will be "
+            "required to crop the image to the corresponding aspect ratio "
+            "while registering. (width x height)"
+        )
+    )
 
     class Meta:
         model = CustomField
