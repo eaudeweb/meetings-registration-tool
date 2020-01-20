@@ -866,6 +866,9 @@ class CategoryMixin(object):
         (ORGANIZATION, 'Group category by represented organization'),
         (REGION, 'Group category by represented region'),
     )
+    # Map the value from the DB with the corresponding Form field.
+    # This is used when grouping participants according the value
+    # of the fields
     GROUP_FIELD = {
         REGION: "represented_region",
         ORGANIZATION: "represented_organization",
