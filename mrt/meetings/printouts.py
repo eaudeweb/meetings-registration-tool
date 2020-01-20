@@ -336,33 +336,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
 
-        # Group the participants on two levels:
-        #  - the category
-        #  - the specified group field of each category.
-        grouped_participants = collections.defaultdict(lambda: collections.defaultdict(list))
-        for participant in participants:
-            obj = participant_form(obj=custom_object_factory(participant))
-            # Include the sort order specified by the user
-            category = participant.category.sort, obj.category_id.render_data() or "---"
-            group_key = Category.GROUP_FIELD[participant.category.group.code]
-            group_value = (
-                getattr(obj, group_key).label.text,
-                getattr(obj, group_key).render_data() or "---"
-            )
-            # Include the sort field to ensure the sorting order is respected.
-            grouped_participants[category][group_value].append(
-                (
-                    getattr(obj, participant.category.sort_field.code).render_data() or "---",
-                    obj
-                )
-            )
-
-        # Apply sorting rules
-        final_results = collections.OrderedDict(sorted(grouped_participants.items()))
-        for key, value in final_results.items():
-            final_results[key] = collections.OrderedDict(sorted(value.items()))
-            for participant_list in final_results[key].values():
-                participant_list.sort()
+        final_results = self.group_participants(participant_form, participants)
 
         return render_template(
             'meetings/printouts/provisional_list.html',
@@ -375,12 +349,46 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             flag_form=flag_form,
             flag=flag)
 
+    @staticmethod
+    def group_participants(participant_form, participants):
+        # Group the participants on two levels:
+        #  - the category
+        #  - the specified group field of each category.
+        grouped_participants = collections.defaultdict(lambda: collections.defaultdict(list))
+        for participant in participants:
+            obj = participant_form(obj=custom_object_factory(participant))
+            category = participant.category, obj.category_id.render_data() or "---"
+            group_key = Category.GROUP_FIELD[participant.category.group.code]
+            group_value = (
+                getattr(obj, group_key).label.text,
+                getattr(obj, group_key).render_data() or "---"
+            )
+            # Include the sort field to ensure the sorting order is respected.
+            grouped_participants[category][group_value].append(
+                (
+                    getattr(obj, participant.category.sort_field.code).render_data() or "---",
+                    obj
+                )
+            )
+        # Apply sorting rules
+        # 1. Sort by category sort int.
+        final_results = collections.OrderedDict(sorted(
+            grouped_participants.items(), key=lambda x: x[0][0].sort
+        ))
+        for key, value in final_results.items():
+            final_results[key] = collections.OrderedDict(sorted(value.items()))
+            for participant_list in final_results[key].values():
+                participant_list.sort()
+        return final_results
+
     def post(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         selected_field_ids = self._get_selected_field_ids()
-        _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               title, flag, None, selected_field_ids)
+        return _process_provisional_list(g.meeting.id,
+                                         title, flag, None, selected_field_ids)
+        # _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
+        #                        title, flag, None, selected_field_ids)
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
@@ -654,7 +662,11 @@ def _process_provisional_list(meeting_id, title, flag, template_name=None, selec
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     template_name = (template_name or
                      'meetings/printouts/_provisional_list_pdf.html')
+    participant_form = custom_form_factory(ParticipantEditForm)
+    grouped_participants = ProvisionalList.group_participants(participant_form, participants)
+
     context = {'participants': participants,
+               'grouped_participants': grouped_participants,
                'count': count,
                'title': title,
                'flag': flag,
@@ -665,7 +677,7 @@ def _process_provisional_list(meeting_id, title, flag, template_name=None, selec
                        title=title,
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='portrait',
-                       context=context).as_rq()
+                       context=context).as_response()
 
 
 def _process_delegation_list(meeting_id, title, flag):

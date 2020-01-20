@@ -112,3 +112,15 @@ tr {
 .title img {
     margin: 20px;
 }
+
+
+.custom-fields-table tr td:first-of-type {
+    padding-right: 8px;
+    text-align: right;
+}
+
+@media print {
+  a[href]:after {
+    content: none !important;
+  }
+}
