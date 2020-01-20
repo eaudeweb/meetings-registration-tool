@@ -874,9 +874,9 @@ class CategoryMixin(object):
         ORGANIZATION: "represented_organization",
         COUNTRY: "represented_country",
     }
-    FIRST_NAME = 'first_name'
-    LAST_NAME = 'last_name'
-    BADGE_NAME = 'field_badge_name'
+    FIRST_NAME = u"first_name"
+    LAST_NAME = u"last_name"
+    BADGE_NAME = u"field_badge_name"
     CATEGORY_SORTING = (
         (LAST_NAME, "Sort category by family name"),
         (FIRST_NAME, "Sort category by given name"),
