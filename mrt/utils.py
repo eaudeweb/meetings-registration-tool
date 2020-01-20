@@ -224,33 +224,33 @@ def generate_import_excel(fields, file_name):
 
 
 def read_sheet(xlsx, fields, sheet_name=None):
-        expected_headers = get_import_template_header(fields)
+    expected_headers = get_import_template_header(fields)
 
-        if sheet_name is None:
-            sheet = xlsx.active
-            sheet_name = sheet.title
-        else:
-            try:
-                sheet = xlsx.get_sheet_by_name(sheet_name)
-            except KeyError:
-                raise ValueError("Missing sheet %r" % sheet_name)
+    if sheet_name is None:
+        sheet = xlsx.active
+        sheet_name = sheet.title
+    else:
+        try:
+            sheet = xlsx.get_sheet_by_name(sheet_name)
+        except KeyError:
+            raise ValueError("Missing sheet %r" % sheet_name)
 
-        it = sheet.rows
+    it = sheet.rows
 
-        # Exclude empty cells.
-        headers = [header.value.lower() for header in next(it) if header.value]
-        # Check for consistency.
-        difference = {h.lower() for h in expected_headers}.difference(set(headers))
-        if difference:
-            raise ValueError(
-                "Missing column(s) %r in sheet %r" % (difference, sheet_name)
-            )
-        # Iterate over the rows
-        for row in it:
-            row = [str(cell.value or "").strip() for cell in row[: len(headers)]]
-            if not any(row):
-                break
-            yield collections.OrderedDict(zip(expected_headers, row))
+    # Exclude empty cells.
+    headers = [header.value.lower() for header in next(it) if header.value]
+    # Check for consistency.
+    difference = {h.lower() for h in expected_headers}.difference(set(headers))
+    if difference:
+        raise ValueError(
+            "Missing column(s) %r in sheet %r" % (difference, sheet_name)
+        )
+    # Iterate over the rows
+    for row in it:
+        row = [str(cell.value or "").strip() for cell in row[: len(headers)]]
+        if not any(row):
+            break
+        yield collections.OrderedDict(zip(expected_headers, row))
 
 
 def get_translation(locale):
