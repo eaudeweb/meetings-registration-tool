@@ -533,12 +533,12 @@ class ParticipantBadge(PermissionRequiredMixin, MethodView):
             .first_or_404())
         participant.set_representing()
         nostripe = request.args.get('nostripe')
-        a6 = request.args.get('a6')
-        context = {'participant': participant, 'nostripe': nostripe, 'a6': a6}
+        template_name = g.meeting.settings.get('badge_template', 'default')
+        context = {'participant': participant, 'nostripe': nostripe}
         return PdfRenderer(
             'meetings/participant/badge.html',
-            width=BADGE_A6_W if a6 else BADGE_W,
-            height=BADGE_A6_H if a6 else BADGE_H,
+            width=BADGE_A6_W if template_name == 'default_a6' else BADGE_W,
+            height=BADGE_A6_H if template_name == 'default_a6' else BADGE_H,
             footer=False,
             orientation='portrait',
             context=context
