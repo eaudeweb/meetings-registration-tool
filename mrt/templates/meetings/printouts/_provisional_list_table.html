@@ -33,7 +33,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for participant in participants %}
+        {% for (ignored, participant) in participants %}
           <tr>
             {% for field in participant.get_fields(selected_field_ids) %}
               <td>{{ field.render_data() }}</td>

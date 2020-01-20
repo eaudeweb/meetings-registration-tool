@@ -345,13 +345,24 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             # Include the sort order specified by the user
             category = participant.category.sort, obj.category_id.render_data() or "---"
             group_key = Category.GROUP_FIELD[participant.category.group.code]
-            group_value = getattr(obj, group_key).label.text, getattr(obj, group_key).render_data() or "---"
-            grouped_participants[category][group_value].append(obj)
+            group_value = (
+                getattr(obj, group_key).label.text,
+                getattr(obj, group_key).render_data() or "---"
+            )
+            # Include the sort field to ensure the sorting order is respected.
+            grouped_participants[category][group_value].append(
+                (
+                    getattr(obj, participant.category.sort_field.code).render_data() or "---",
+                    obj
+                )
+            )
 
         # Apply sorting rules
         final_results = collections.OrderedDict(sorted(grouped_participants.items()))
         for key, value in final_results.items():
             final_results[key] = collections.OrderedDict(sorted(value.items()))
+            for participant_list in final_results[key].values():
+                participant_list.sort()
 
         return render_template(
             'meetings/printouts/provisional_list.html',
