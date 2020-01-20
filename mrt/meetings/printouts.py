@@ -335,32 +335,30 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
 
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
-        grouped_participants = collections.OrderedDict()
 
+        # Group the participants on two levels:
+        #  - the category
+        #  - the specified group field of each category.
+        grouped_participants = collections.defaultdict(lambda: collections.defaultdict(list))
         for participant in participants:
             obj = participant_form(obj=custom_object_factory(participant))
-
-            category = obj.category_id.label.text, obj.category_id.render_data() or "---"
-            try:
-                category_dict = grouped_participants[category]
-            except KeyError:
-                category_dict = collections.OrderedDict()
-                grouped_participants[category] = category_dict
-
+            # Include the sort order specified by the user
+            category = participant.category.sort, obj.category_id.render_data() or "---"
             group_key = Category.GROUP_FIELD[participant.category.group.code]
             group_value = getattr(obj, group_key).label.text, getattr(obj, group_key).render_data() or "---"
+            grouped_participants[category][group_value].append(obj)
 
-            try:
-                category_dict[group_value].append(obj)
-            except KeyError:
-                category_dict[group_value] = [obj]
+        # Apply sorting rules
+        final_results = collections.OrderedDict(sorted(grouped_participants.items()))
+        for key, value in final_results.items():
+            final_results[key] = collections.OrderedDict(sorted(value.items()))
 
         return render_template(
             'meetings/printouts/provisional_list.html',
             all_fields=all_fields,
             selected_field_ids=selected_field_ids,
             selected_fields=selected_fields,
-            grouped_participants=grouped_participants,
+            grouped_participants=final_results,
             count=count,
             title=title,
             flag_form=flag_form,
