@@ -860,19 +860,16 @@ class CategoryMixin(object):
 
     REGION = 'region'
     COUNTRY = 'country'
-    RCOUNTRY = 'rcountry'
     ORGANIZATION = 'organization'
     CATEGORY_GROUPS = (
-        (COUNTRY, 'Group category by country'),
-        (RCOUNTRY, 'Group category by represented country'),
+        (COUNTRY, 'Group category by represented country'),
         (ORGANIZATION, 'Group category by represented organization'),
         (REGION, 'Group category by represented region'),
     )
     GROUP_FIELD = {
         REGION: "represented_region",
         ORGANIZATION: "represented_organization",
-        RCOUNTRY: "represented_country",
-        COUNTRY: "country",
+        COUNTRY: "represented_country",
     }
 
     id = db.Column(db.Integer, primary_key=True)
