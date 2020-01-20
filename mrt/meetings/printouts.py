@@ -815,9 +815,9 @@ def decode_particpants_excel(request, participant_type, JOB_NAME):
     except ValueError as e:
         rows = []
         has_errors = True
-        errors.append({"row": 0, "field": None, "details": [str(e)]})
+        errors.append({"row": 1, "field": None, "details": [str(e)]})
 
-    for form in read_participants_excel(custom_fields, rows):
+    for row_num, form in enumerate(read_participants_excel(custom_fields, rows), start=2):
         if not form.validate():
             has_errors = True
             for field, field_errors in form.errors.items():
