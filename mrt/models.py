@@ -874,6 +874,16 @@ class CategoryMixin(object):
         ORGANIZATION: "represented_organization",
         COUNTRY: "represented_country",
     }
+    TITLE = 'title'
+    FIRST_NAME = 'first_name'
+    LAST_NAME = 'last_name'
+    BADGE_NAME = 'field_badge_name'
+    CATEGORY_SORTING = (
+        (TITLE, "Sort category by title"),
+        (FIRST_NAME, "Sort category by given name"),
+        (LAST_NAME, "Sort category by family name"),
+        (BADGE_NAME, "Sort category by badge name"),
+    )
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -899,6 +909,8 @@ class CategoryMixin(object):
 
     group = db.Column(ChoiceType(CATEGORY_GROUPS),
                       info={'label': 'Group'})
+    sort_field = db.Column(ChoiceType(CATEGORY_SORTING),
+                           info={'label': 'Sort by'})
 
     sort = db.Column(db.Integer, default=0)
 
