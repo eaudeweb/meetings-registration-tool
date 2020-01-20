@@ -385,10 +385,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         selected_field_ids = self._get_selected_field_ids()
-        return _process_provisional_list(g.meeting.id,
-                                         title, flag, None, selected_field_ids)
-        # _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-        #                        title, flag, None, selected_field_ids)
+        _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
+                               title, flag, None, selected_field_ids)
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
@@ -677,7 +675,7 @@ def _process_provisional_list(meeting_id, title, flag, template_name=None, selec
                        title=title,
                        height='11.693in', width='8.268in',
                        margin=_PRINTOUT_MARGIN, orientation='portrait',
-                       context=context).as_response()
+                       context=context).as_rq()
 
 
 def _process_delegation_list(meeting_id, title, flag):
