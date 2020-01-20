@@ -355,8 +355,10 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             grouped_participants.items(), key=lambda x: x[0][0].sort
         ))
         for key, value in final_results.items():
+            # 2. Sort by the custom group field for this category
             final_results[key] = collections.OrderedDict(sorted(value.items()))
             for participant_list in final_results[key].values():
+                # 3. Sort by the custom sort field or this category
                 participant_list.sort()
         return final_results
 
