@@ -228,50 +228,24 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                            'view_participant')
 
     @staticmethod
-    def _get_query(flag):
+    def _get_query(flag, categories):
         query = (
             Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
         )
-        try:
-            categories = map(int, request.args.getlist("category_filter"))
-            if categories:
-                query = query.filter(Participant.category_id.in_(categories))
-        except (KeyError, ValueError, TypeError):
-            pass
-
-        ordering = []
-        # try:
-        #     grouping = getattr(Participant, request.args["group_by"])
-        #     if request.args["group_by_direction"].lower() != "asc":
-        #         grouping = desc(grouping)
-        #     ordering.append(grouping)
-        # except (KeyError, AttributeError):
-        #     pass
-        #
-        # try:
-        #     sorting = getattr(Participant, request.args["sort_by"])
-        #     if request.args["sort_by_direction"].lower() != "asc":
-        #         sorting = desc(sorting)
-        #     ordering.append(sorting)
-        # except (KeyError, AttributeError):
-        #     ordering.extend([
-        #         Category.sort, Category.id,
-        #         Participant.representing,
-        #         Participant.last_name, Participant.id,
-        #     ])
-        ordering.extend([
-            Category.sort, Category.id,
-            Participant.representing,
-            Participant.last_name, Participant.id,
-        ])
+        if categories:
+            query = query.filter(Participant.category_id.in_(categories))
 
         if flag:
             attr = getattr(Participant, flag)
             query = query.filter(attr == True)
-        query = query.order_by(*ordering)
+        query = query.order_by(
+            Category.sort, Category.id,
+            Participant.representing,
+            Participant.last_name, Participant.id,
+        )
         return query
 
     @staticmethod
@@ -323,7 +297,12 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
     def get(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
-        query = self._get_query(flag)
+        try:
+            categories = map(int, request.args.getlist("category_filter"))
+        except (KeyError, ValueError, TypeError):
+            categories = []
+
+        query = self._get_query(flag, categories)
 
         participants = list(query.all())
         count = len(participants)
@@ -384,9 +363,13 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
     def post(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
+        try:
+            categories = map(int, request.args.getlist("category_filter"))
+        except (KeyError, ValueError, TypeError):
+            categories = []
         selected_field_ids = self._get_selected_field_ids()
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               title, flag, None, selected_field_ids)
+                               title, flag, None, selected_field_ids, categories)
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
@@ -652,9 +635,9 @@ def _process_short_list(meeting_id, title, flag):
                        context=context).as_rq()
 
 
-def _process_provisional_list(meeting_id, title, flag, template_name=None, selected_field_ids=None):
+def _process_provisional_list(meeting_id, title, flag, template_name=None, selected_field_ids=None, categories=None):
     g.meeting = Meeting.query.get(meeting_id)
-    query = ProvisionalList._get_query(flag)
+    query = ProvisionalList._get_query(flag, categories)
     count = query.count()
     participants = query
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
