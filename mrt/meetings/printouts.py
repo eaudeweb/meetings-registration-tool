@@ -891,17 +891,17 @@ def read_participants_excel(custom_fields, rows):
         participant_details = []
         for i, (slug, value) in enumerate(row.items()):
             value = value.strip()
+            if not value:
+                continue
             custom_field = custom_fields[slug]
             field_type = custom_field.field_type.code
 
             if field_type == CustomField.CATEGORY:
                 value = meeting_categories.get(unicode(value), -1)
             elif field_type == CustomField.COUNTRY:
-                if value:
-                    value = countries.get(value, "invalid-country")
+                value = countries.get(value, "invalid-country")
             elif field_type == CustomField.MULTI_CHECKBOX:
-                if value:
-                    value = [el.strip() for el in value.split(",")]
+                value = [el.strip() for el in value.split(",")]
 
             if isinstance(value, list):
                 # Multi checkbox values
