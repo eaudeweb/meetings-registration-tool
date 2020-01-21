@@ -374,5 +374,5 @@ def parse_rfc6266_header(header_value):
         else:
             value = urllib.unquote(value)
 
-        results[key] = value.decode(charset)
+        results[key] = value.decode(charset, "ignore").strip('"')
     return results

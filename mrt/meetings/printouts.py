@@ -910,6 +910,7 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
     ]
     for form in read_participants_excel(custom_fields, participants_rows, form_class, read_files=True):
         # Paranoid validation
+        # TODO: figure out what to do if the downloaded files are not valid.
         if form.validate():
             form.save()
 
@@ -970,6 +971,7 @@ def read_participants_excel(custom_fields, rows, form_class, read_files=False):
                     )
                 else:
                     # TODO: Add some form of validation to check the URLs are valid
+                    #  A HEAD request could also be done in theory fast enough.
                     pass
 
             if isinstance(value, list):
