@@ -681,13 +681,15 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants import template'
 
     def post(self):
+        participant_type = Participant.PARTICIPANT
+
         custom_fields = (
             g.meeting.custom_fields
-            .filter_by(custom_field_type=Participant.PARTICIPANT)
+            .filter_by(custom_field_type=participant_type)
             .order_by(CustomField.sort))
         custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
 
-        file_name = 'import_{}_list_{}.xlsx'.format(Participant.PARTICIPANT, g.meeting.acronym)
+        file_name = 'import_{}_list_{}.xlsx'.format(participant_type, g.meeting.acronym)
         file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
         generate_import_excel(custom_fields, file_path)
 
