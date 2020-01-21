@@ -708,6 +708,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
 
     def post(self):
         participant_type = Participant.PARTICIPANT
+        form_class = ParticipantEditForm
 
         if request.files.get("import_file"):
             try:
@@ -746,11 +747,11 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             return render_template('meetings/participant/import/list.html')
 
         forms = []
-        for form in read_participants_excel(custom_fields, rows):
+        for form in read_participants_excel(custom_fields, rows, form_class):
             has_errors = not form.validate() or has_errors
             forms.append(form)
 
-        all_fields = list(custom_form_factory(ParticipantEditForm)().exclude([
+        all_fields = list(custom_form_factory(form_class)().exclude([
             CustomField.DOCUMENT, CustomField.IMAGE, CustomField.EVENT,
         ]))
         context = {
@@ -768,7 +769,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             )
         elif request.form["action"] == "import":
             _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
-                                   rows, participant_type)
+                                   rows, participant_type, form_class)
             context["import_started"] = True
         else:
             flash(
@@ -855,7 +856,7 @@ def _process_export_participants_excel(meeting_id, participant_type):
     return url_for('meetings.printouts_download', filename=filename)
 
 
-def _process_import_participants_excel(meeting_id, participants_rows, participants_type):
+def _process_import_participants_excel(meeting_id, participants_rows, participants_type, form_class):
     g.meeting = Meeting.query.get(meeting_id)
 
     custom_fields = (
@@ -864,7 +865,7 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
         .order_by(CustomField.sort))
     custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
 
-    for form in read_participants_excel(custom_fields, participants_rows):
+    for form in read_participants_excel(custom_fields, participants_rows, form_class):
         # Paranoid validation
         if form.validate():
             form.save()
@@ -872,9 +873,9 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
     return 'Successfully added'
 
 
-def read_participants_excel(custom_fields, rows):
+def read_participants_excel(custom_fields, rows, form_class):
     meeting_categories = {}
-    for c in Category.get_categories_for_meeting(ParticipantEditForm.CUSTOM_FIELDS_TYPE):
+    for c in Category.get_categories_for_meeting(form_class.CUSTOM_FIELDS_TYPE):
         meeting_categories[c.title.english.lower()] = c.id
 
     countries = {}
@@ -885,7 +886,7 @@ def read_participants_excel(custom_fields, rows):
         custom_field.slug: custom_field for custom_field in custom_fields
     }
 
-    Form = custom_form_factory(ParticipantEditForm)
+    Form = custom_form_factory(form_class)
 
     for row_num, row in enumerate(rows, start=2):
         participant_details = []
