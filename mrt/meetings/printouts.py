@@ -698,6 +698,18 @@ class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
                                    as_attachment=True)
 
 
+class MediaParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
+
+    JOB_NAME = 'media participants import template'
+
+    def post(self):
+        participant_type = Participant.MEDIA
+        pass
+
+
 class ParticipantsImport(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', 'view_participant',
@@ -780,6 +792,17 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             )
 
         return render_template('meetings/participant/import/list.html', **context)
+
+
+class MediaParticipantsImport(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
+
+    JOB_NAME = 'media participants import'
+
+    def get(self):
+        pass
 
 
 def _process_export_participants_excel(meeting_id, participant_type):

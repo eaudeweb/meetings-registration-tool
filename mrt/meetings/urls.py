@@ -134,6 +134,12 @@ meetings.add_url_rule(
 meetings.add_url_rule(
     '/<int:meeting_id>/media_participants/export',
     view_func=views.MediaParticipantsExport.as_view('media_participants_export'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/media_participants/import_template',
+    view_func=views.MediaParticipantsImportTemplate.as_view('media_participants_import_template'))
+meetings.add_url_rule(
+    '/<int:meeting_id>/media_participants/import_participants',
+    view_func=views.MediaParticipantsImport.as_view('media_participants_import'))
 
 # categories
 meetings.add_url_rule('/<int:meeting_id>/settings/categories',
