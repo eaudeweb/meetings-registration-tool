@@ -17,7 +17,33 @@
   <script>
 	$(function () {
 		$("#results-table").dataTable({
-			scrollX: true
+			scrollX: true,
+			columnDefs: [
+				{
+					targets: [0],
+					visible: false,
+				}
+			],
+      initComplete: function () {
+				// Add a filter to only show errors
+        var api = this.api();
+        $("#results-table_filter").append(
+        	"<div class='pull-right' style='margin: 0 8px; width: 50%; text-align: right;' >" +
+          " <label for='results-table_error_filter' style='float: none; margin: 0 4px;'>" +
+          "   Filter rows:" +
+          " </label>" +
+        	" <select id='results-table_error_filter' class='select' style='width: 40%;'>" +
+          "   <option value=''>All rows</option>" +
+          "   <option value='True'>Errors only</option>" +
+          "   <option value='False'>Valid only</option>" +
+          " </select>" +
+          "</div>"
+        );
+        $("#results-table_error_filter").select2();
+        $("#results-table_error_filter").on("change", function (event) {
+          api.columns(0).search(event.target.value).draw();
+				})
+			}
 		});
 	});
   </script>
@@ -59,9 +85,11 @@
 
   {% if all_fields %}
     <div class="table-responsive">
-      <table id="results-table">
+      <table id="results-table" class="table table-bordered table-condensed">
         <thead>
         <tr>
+          <th>Has Errors</th>
+          <th>Row</th>
           {% for field in all_fields %}
             <th>{{ field.label.text }}</th>
           {% endfor %}
@@ -70,6 +98,8 @@
         <tbody>
         {% for form in forms %}
           <tr {% if form.errors %}class="bg-warning" {% else %}class="bg-success"{% endif %}>
+            <td>{{ form.errors|length > 0 }}</td>
+            <td>{{ form.excel_row }}</td>
             {% for field in all_fields %}
               <td
                   {% if form[field.id].errors %}
