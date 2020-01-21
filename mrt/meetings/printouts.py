@@ -747,9 +747,8 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             global_errors.append({"row": 1, "field": None, "details": [str(e)]})
 
         forms = []
-        for row_num, form in enumerate(read_participants_excel(custom_fields, rows), start=2):
+        for form in read_participants_excel(custom_fields, rows):
             has_errors = not form.validate() or has_errors
-            form.excel_row = row_num
             forms.append(form)
 
         if has_errors:
@@ -911,6 +910,7 @@ def read_participants_excel(custom_fields, rows):
                 participant_details.append((slug, value))
 
         form = Form(ImmutableMultiDict(participant_details))
+        form.excel_row = row_num
         # Set the original value so the frontend can present it as such.
         for slug, value in row.items():
             form[slug].excel_value = value.strip()
