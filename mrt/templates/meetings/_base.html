@@ -180,6 +180,11 @@
               Import participants
             </a>
           </li>
+          <li class="{{ active('/import_media_participant') }}">
+            <a href="{{ url_for('meetings.media_participants_import') }}">
+              Import media participants
+            </a>
+          </li>
         </ul>
       </li>
     {% endif %}

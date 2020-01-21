@@ -707,7 +707,20 @@ class MediaParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
 
     def post(self):
         participant_type = Participant.MEDIA
-        pass
+
+        custom_fields = (
+            g.meeting.custom_fields
+            .filter_by(custom_field_type=participant_type)
+            .order_by(CustomField.sort))
+        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
+
+        file_name = 'import_{}_list_{}.xlsx'.format(participant_type, g.meeting.acronym)
+        file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
+        generate_import_excel(custom_fields, file_path)
+
+        return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
+                                   file_name,
+                                   as_attachment=True)
 
 
 class ParticipantsImport(PermissionRequiredMixin, MethodView):
@@ -716,12 +729,15 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
                            'manage_participant')
 
     JOB_NAME = 'participants import'
+    participant_type = Participant.PARTICIPANT
 
     def get(self):
-        return render_template('meetings/participant/import/list.html')
+        context = {
+            "participant_type": self.participant_type,
+        }
+        return render_template('meetings/participant/import/list.html', **context)
 
     def post(self):
-        participant_type = Participant.PARTICIPANT
         form_class = ParticipantEditForm
 
         if request.files.get("import_file"):
@@ -746,7 +762,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
 
         custom_fields = (
             g.meeting.custom_fields
-                .filter_by(custom_field_type=participant_type)
+                .filter_by(custom_field_type=self.participant_type)
                 .order_by(CustomField.sort))
         custom_fields = [field for field in custom_fields if
                          (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
@@ -773,6 +789,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             "has_errors": has_errors,
             "all_fields": all_fields,
             "file_name": file_name,
+            "participant_type": self.participant_type,
         }
 
         if has_errors:
@@ -783,7 +800,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             )
         elif request.form["action"] == "import":
             _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
-                                   rows, participant_type, form_class)
+                                   rows, self.participant_type, form_class)
             context["import_started"] = True
         else:
             flash(
@@ -800,9 +817,20 @@ class MediaParticipantsImport(PermissionRequiredMixin, MethodView):
                            'manage_participant')
 
     JOB_NAME = 'media participants import'
+    participant_type = Participant.MEDIA
 
     def get(self):
-        pass
+        context = {
+            "participant_type": self.participant_type,
+        }
+        return render_template('meetings/participant/import/list.html', **context)
+
+
+    def post(self):
+        context = {
+            "participant_type": self.participant_type,
+        }
+        return render_template('meetings/participant/import/list.html', **context)
 
 
 def _process_export_participants_excel(meeting_id, participant_type):
