@@ -673,54 +673,38 @@ class MediaParticipantsExport(PermissionRequiredMixin, MethodView):
     def post(self):
         return redirect(url_for('meetings.media_participants'))
 
-class ParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
+
+class DataImportTemplate(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', 'view_participant',
                            'manage_participant')
+
+    def post(self):
+        custom_fields = (
+            g.meeting.custom_fields
+            .filter_by(custom_field_type=self.participant_type)
+            .order_by(CustomField.sort))
+        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
+
+        file_name = 'import_{}_list_{}.xlsx'.format(self.participant_type, g.meeting.acronym)
+        file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
+        generate_import_excel(custom_fields, file_path)
+
+        return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
+                                   file_name,
+                                   as_attachment=True)
+
+
+class ParticipantsImportTemplate(DataImportTemplate):
 
     JOB_NAME = 'participants import template'
-
-    def post(self):
-        participant_type = Participant.PARTICIPANT
-
-        custom_fields = (
-            g.meeting.custom_fields
-            .filter_by(custom_field_type=participant_type)
-            .order_by(CustomField.sort))
-        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
-
-        file_name = 'import_{}_list_{}.xlsx'.format(participant_type, g.meeting.acronym)
-        file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
-        generate_import_excel(custom_fields, file_path)
-
-        return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
-                                   file_name,
-                                   as_attachment=True)
+    participant_type = Participant.PARTICIPANT
 
 
-class MediaParticipantsImportTemplate(PermissionRequiredMixin, MethodView):
-
-    permission_required = ('manage_meeting', 'view_participant',
-                           'manage_participant')
+class MediaParticipantsImportTemplate(DataImportTemplate):
 
     JOB_NAME = 'media participants import template'
-
-    def post(self):
-        participant_type = Participant.MEDIA
-
-        custom_fields = (
-            g.meeting.custom_fields
-            .filter_by(custom_field_type=participant_type)
-            .order_by(CustomField.sort))
-        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
-
-        file_name = 'import_{}_list_{}.xlsx'.format(participant_type, g.meeting.acronym)
-        file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
-        generate_import_excel(custom_fields, file_path)
-
-        return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
-                                   file_name,
-                                   as_attachment=True)
+    participant_type = Participant.MEDIA
 
 
 class ParticipantsImport(PermissionRequiredMixin, MethodView):
