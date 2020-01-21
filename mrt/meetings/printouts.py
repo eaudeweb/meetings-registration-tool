@@ -749,6 +749,16 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             has_errors = not form.validate() or has_errors
             forms.append(form)
 
+        all_fields = list(custom_form_factory(ParticipantEditForm)().exclude([
+            CustomField.DOCUMENT, CustomField.IMAGE, CustomField.EVENT,
+        ]))
+        context = {
+            "forms": forms,
+            "has_errors": has_errors,
+            "all_fields": all_fields,
+            "file_name": file_name,
+        }
+
         if has_errors:
             flash(
                 'XLS file has errors, please review and correct them and try again. '
@@ -758,23 +768,14 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
         elif request.form["action"] == "import":
             _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
                                    rows, participant_type)
+            context["import_started"] = True
         else:
             flash(
                 'XLS file is valid, please review and hit "Start import" after.',
                 'success',
             )
 
-        all_fields = list(custom_form_factory(ParticipantEditForm)().exclude([
-            CustomField.DOCUMENT, CustomField.IMAGE, CustomField.EVENT,
-        ]))
-
-        return render_template(
-            'meetings/participant/import/list.html',
-            forms=forms,
-            has_errors=has_errors,
-            all_fields=all_fields,
-            file_name=file_name,
-        )
+        return render_template('meetings/participant/import/list.html', **context)
 
 
 def _process_export_participants_excel(meeting_id, participant_type):

@@ -56,14 +56,14 @@
   {{ super() }}
 
   <div>
-    {% if not has_errors and file_name %}
+    {% if not has_errors and file_name and not import_started %}
       <form method="POST" enctype="multipart/form-data" action="{{ url_for('.participants_import') }}">
         <input name="file_name" type="hidden" value="{{ file_name }}"/>
         <button class="btn btn-sm btn-success" name="action" value="import">
           Start import
         </button>
       </form>
-    {% else %}
+    {% elif not import_started %}
       Participants can be imported via an XLS file. First
       <form method="POST" action="{{ url_for('.participants_import_template') }}" style="display: inline">
         <button class="btn btn-sm btn-default" type="submit">
