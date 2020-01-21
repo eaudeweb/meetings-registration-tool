@@ -56,27 +56,36 @@
   {{ super() }}
 
   <div>
-    {% if not has_errors and file_name and not import_started %}
+    {% if file_name and not import_started %}
       <form method="POST" enctype="multipart/form-data" action="{{ url_for('.participants_import') }}">
         <input name="file_name" type="hidden" value="{{ file_name }}"/>
-        <button class="btn btn-sm btn-success" name="action" value="import">
-          Start import
-        </button>
+        {% if not has_errors %}
+          <button class="btn btn-success" name="action" value="import">
+            Start import
+          </button>
+          &nbsp; or &nbsp;
+        {% endif %}
+        <a href="{{ url_for('.participants_import') }}" class="btn btn-default">
+          Upload a new file
+        </a>
       </form>
     {% elif not import_started %}
       Participants can be imported via an XLS file. First
       <form method="POST" action="{{ url_for('.participants_import_template') }}" style="display: inline">
-        <button class="btn btn-sm btn-default" type="submit">
-          <i class="glyphicon glyphicon-download"></i>Download the import template
+        <button class="btn btn-link" type="submit">
+          <i class="glyphicon glyphicon-download"></i> Download the import template
         </button>
       </form>
       and fill in the participant data.
       <hr/>
-      <p>Upload the XLS file back to import the data. You will get the chance to review the import results here.</p>
+      <p>
+        Then upload the template XLS file to validate the data.
+        You will get the chance to review the validated data before starting the import.
+      </p>
       <form method="POST" enctype="multipart/form-data" action="{{ url_for('.participants_import') }}">
         <input id="fileupload" name="import_file" type="file" style=""/>
-        <button class="btn btn-sm btn-default" type="submit" name="action" value="upload">
-          <i class="glyphicon glyphicon-upload"></i> Submit
+        <button class="btn btn-success" type="submit" name="action" value="upload">
+          <i class="glyphicon glyphicon-upload"></i> Upload and validate
         </button>
       </form>
     {% endif %}
@@ -85,11 +94,20 @@
 
   {% if all_fields %}
     <div class="table-responsive">
+      <div>
+        <h5>Legend:</h5>
+        <span>
+          <i class="dot bg-success"></i> Participant can be imported
+          <i class="dot bg-warning"></i> Participant cannot be imported
+          <i class="dot bg-danger"></i> Field is not valid (hover for details)
+        </span>
+      </div>
+      <hr/>
       <table id="results-table" class="table table-bordered table-condensed">
         <thead>
         <tr>
           <th>Has Errors</th>
-          <th>Row</th>
+          <th></th>
           {% for field in all_fields %}
             <th>{{ field.label.text }}</th>
           {% endfor %}
