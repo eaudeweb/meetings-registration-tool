@@ -740,7 +740,8 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
 
         try:
             rows = list(read_sheet(xlsx, custom_fields))
-        except ValueError as e:
+            assert rows, "file has no data"
+        except (AssertionError, ValueError) as e:
             flash("Invalid XLS file: %s" % e, 'danger')
             return render_template('meetings/participant/import/list.html')
 
