@@ -874,11 +874,11 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
 def read_participants_excel(custom_fields, rows):
     meeting_categories = {}
     for c in Category.get_categories_for_meeting(ParticipantEditForm.CUSTOM_FIELDS_TYPE):
-        meeting_categories[c.title.english] = c.id
+        meeting_categories[c.title.english.lower()] = c.id
 
     countries = {}
     for code, name in get_all_countries():
-        countries[name] = code
+        countries[name.lower()] = code
 
     custom_fields = {
         custom_field.slug: custom_field for custom_field in custom_fields
@@ -896,9 +896,9 @@ def read_participants_excel(custom_fields, rows):
             field_type = custom_field.field_type.code
 
             if field_type == CustomField.CATEGORY:
-                value = meeting_categories.get(unicode(value), -1)
+                value = meeting_categories.get(unicode(value).lower(), -1)
             elif field_type == CustomField.COUNTRY:
-                value = countries.get(value, "invalid-country")
+                value = countries.get(value.lower(), "invalid-country")
             elif field_type == CustomField.MULTI_CHECKBOX:
                 value = [el.strip() for el in value.split(",")]
 
