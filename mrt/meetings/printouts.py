@@ -737,14 +737,12 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
                          (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
 
         has_errors = False
-        global_errors = []
 
         try:
             rows = list(read_sheet(xlsx, custom_fields))
         except ValueError as e:
-            rows = []
-            has_errors = True
-            global_errors.append({"row": 1, "field": None, "details": [str(e)]})
+            flash("Invalid XLS file: %s" % e, 'danger')
+            return render_template('meetings/participant/import/list.html')
 
         forms = []
         for form in read_participants_excel(custom_fields, rows):
@@ -775,7 +773,6 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             forms=forms,
             has_errors=has_errors,
             all_fields=all_fields,
-            global_errors=global_errors,
             file_name=file_name,
         )
 
@@ -866,7 +863,9 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
     custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
 
     for form in read_participants_excel(custom_fields, participants_rows):
-        form.save()
+        # Paranoid validation
+        if form.validate():
+            form.save()
 
     return 'Successfully added'
 
