@@ -888,7 +888,7 @@ def read_participants_excel(custom_fields, rows):
 
     for row_num, row in enumerate(rows, start=2):
         participant_details = []
-        for i, (slug, value) in enumerate(row.items()):
+        for slug, value in row.items():
             value = value.strip()
             if not value:
                 continue
