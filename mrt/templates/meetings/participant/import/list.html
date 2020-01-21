@@ -6,11 +6,15 @@
 
 
 {% block breadcrumb %}
-
-  {{ breadcrumb( [
-      ('', 'Import Participants')
-  ] ) }}
-
+    {% if participant_type == Participant.PARTICIPANT %}
+        {{ breadcrumb( [
+            ('', 'Import Participants')
+        ] ) }}
+    {% else %}
+        {{ breadcrumb( [
+            ('', 'Import Media')
+        ] ) }}
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

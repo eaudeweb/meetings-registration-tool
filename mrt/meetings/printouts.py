@@ -38,7 +38,7 @@ from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
 from mrt.utils import read_sheet, generate_excel, generate_import_excel
 from openpyxl.utils.exceptions import InvalidFileException
-from mrt.forms.meetings import ParticipantEditForm
+from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.forms.meetings import custom_form_factory
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
@@ -730,6 +730,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
 
     JOB_NAME = 'participants import'
     participant_type = Participant.PARTICIPANT
+    form_class = ParticipantEditForm
 
     def get(self):
         context = {
@@ -738,14 +739,15 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
         return render_template('meetings/participant/import/list.html', **context)
 
     def post(self):
-        form_class = ParticipantEditForm
-
         if request.files.get("import_file"):
             try:
                 xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
             except (zipfile.BadZipfile, InvalidFileException) as e:
                 flash("Invalid XLS file: %s" % e, 'danger')
-                return render_template('meetings/participant/import/list.html')
+                context = {
+                    "participant_type": self.participant_type,
+                }
+                return render_template('meetings/participant/import/list.html', **context)
 
             request.files["import_file"].seek(0)
             file_name = str(uuid.uuid4()) + '.xlsx'
@@ -758,7 +760,10 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
                 xlsx = openpyxl.load_workbook(app.config['UPLOADED_PRINTOUTS_DEST'] / file_name, read_only=True)
             except (zipfile.BadZipfile, InvalidFileException) as e:
                 flash("Invalid XLS file: %s" % e, 'danger')
-                return render_template('meetings/participant/import/list.html')
+                context = {
+                    "participant_type": self.participant_type,
+                }
+                return render_template('meetings/participant/import/list.html', **context)
 
         custom_fields = (
             g.meeting.custom_fields
@@ -774,14 +779,17 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             assert rows, "file has no data"
         except (AssertionError, ValueError) as e:
             flash("Invalid XLS file: %s" % e, 'danger')
-            return render_template('meetings/participant/import/list.html')
+            context = {
+                "participant_type": self.participant_type,
+            }
+            return render_template('meetings/participant/import/list.html', **context)
 
         forms = []
-        for form in read_participants_excel(custom_fields, rows, form_class):
+        for form in read_participants_excel(custom_fields, rows, self.form_class):
             has_errors = not form.validate() or has_errors
             forms.append(form)
 
-        all_fields = list(custom_form_factory(form_class)().exclude([
+        all_fields = list(custom_form_factory(self.form_class)().exclude([
             CustomField.DOCUMENT, CustomField.IMAGE, CustomField.EVENT,
         ]))
         context = {
@@ -800,7 +808,7 @@ class ParticipantsImport(PermissionRequiredMixin, MethodView):
             )
         elif request.form["action"] == "import":
             _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
-                                   rows, self.participant_type, form_class)
+                                   rows, self.participant_type, self.form_class)
             context["import_started"] = True
         else:
             flash(
@@ -818,6 +826,7 @@ class MediaParticipantsImport(PermissionRequiredMixin, MethodView):
 
     JOB_NAME = 'media participants import'
     participant_type = Participant.MEDIA
+    form_class = MediaParticipantEditForm
 
     def get(self):
         context = {
@@ -827,9 +836,83 @@ class MediaParticipantsImport(PermissionRequiredMixin, MethodView):
 
 
     def post(self):
+        if request.files.get("import_file"):
+            try:
+                xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
+            except (zipfile.BadZipfile, InvalidFileException) as e:
+                flash("Invalid XLS file: %s" % e, 'danger')
+                context = {
+                    "participant_type": self.participant_type,
+                }
+                return render_template('meetings/participant/import/list.html', **context)
+
+            request.files["import_file"].seek(0)
+            file_name = str(uuid.uuid4()) + '.xlsx'
+            # Save the file so we only upload it once.
+            request.files["import_file"].save(app.config['UPLOADED_PRINTOUTS_DEST'] / file_name)
+
+        else:
+            file_name = request.form["file_name"]
+            try:
+                xlsx = openpyxl.load_workbook(app.config['UPLOADED_PRINTOUTS_DEST'] / file_name, read_only=True)
+            except (zipfile.BadZipfile, InvalidFileException) as e:
+                flash("Invalid XLS file: %s" % e, 'danger')
+                context = {
+                    "participant_type": self.participant_type,
+                }
+                return render_template('meetings/participant/import/list.html', **context)
+
+        custom_fields = (
+            g.meeting.custom_fields
+                .filter_by(custom_field_type=self.participant_type)
+                .order_by(CustomField.sort))
+        custom_fields = [field for field in custom_fields if
+                         (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
+
+        has_errors = False
+
+        try:
+            rows = list(read_sheet(xlsx, custom_fields))
+            assert rows, "file has no data"
+        except (AssertionError, ValueError) as e:
+            flash("Invalid XLS file: %s" % e, 'danger')
+            context = {
+                "participant_type": self.participant_type,
+            }
+            return render_template('meetings/participant/import/list.html', **context)
+
+        forms = []
+        for form in read_participants_excel(custom_fields, rows, self.form_class):
+            has_errors = not form.validate() or has_errors
+            forms.append(form)
+
+        all_fields = list(custom_form_factory(self.form_class)().exclude([
+            CustomField.DOCUMENT, CustomField.IMAGE, CustomField.EVENT,
+        ]))
         context = {
+            "forms": forms,
+            "has_errors": has_errors,
+            "all_fields": all_fields,
+            "file_name": file_name,
             "participant_type": self.participant_type,
         }
+
+        if has_errors:
+            flash(
+                'XLS file has errors, please review and correct them and try again. '
+                'Hover over cells to find more about the errors.',
+                'danger'
+            )
+        elif request.form["action"] == "import":
+            _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
+                                   rows, self.participant_type, self.form_class)
+            context["import_started"] = True
+        else:
+            flash(
+                'XLS file is valid, please review and hit "Start import" after.',
+                'success',
+            )
+
         return render_template('meetings/participant/import/list.html', **context)
 
 
