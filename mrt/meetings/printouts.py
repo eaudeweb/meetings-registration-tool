@@ -901,13 +901,7 @@ def read_participants_excel(custom_fields, rows):
                     value = countries.get(value, "invalid-country")
             elif field_type == CustomField.MULTI_CHECKBOX:
                 if value:
-                    multi_check_box_values = {
-                        _label: _id for _id, _label in custom_field.choices
-                    }
-                    value = [
-                        value.append(multi_check_box_values.get(unicode(el.strip()), ''))
-                        for el in value.split(",")
-                    ]
+                    value = [el.strip() for el in value.split(",")]
 
             if isinstance(value, list):
                 # Multi checkbox values
