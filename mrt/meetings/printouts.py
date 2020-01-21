@@ -877,7 +877,7 @@ def read_participants_excel(custom_fields, rows):
         meeting_categories[c.title.english] = c.id
 
     countries = {}
-    for (code, name) in get_all_countries():
+    for code, name in get_all_countries():
         countries[name] = code
 
     custom_fields = {
