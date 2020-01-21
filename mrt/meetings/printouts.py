@@ -897,7 +897,8 @@ def read_participants_excel(custom_fields, rows):
             if field_type == CustomField.CATEGORY:
                 value = meeting_categories.get(unicode(value), -1)
             elif field_type == CustomField.COUNTRY:
-                value = countries.get(value, None)
+                if value:
+                    value = countries.get(value, "invalid-country")
             elif field_type == CustomField.MULTI_CHECKBOX:
                 if value:
                     multi_check_box_values = {
