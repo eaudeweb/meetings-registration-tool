@@ -881,38 +881,36 @@ def read_participants_excel(custom_fields, rows):
     for (code, name) in get_all_countries():
         countries[name] = code
 
+    Form = custom_form_factory(ParticipantEditForm)
+
     participants_form = []
     for row_num, row in enumerate(rows, start=2):
-        Form = custom_form_factory(ParticipantEditForm)
-
         participant_details = []
-        for i, cell in enumerate(row):
-            if custom_fields[i].field_type.code == CustomField.CATEGORY:
-                value = meeting_categories.get(unicode(row[cell]), ' ')
-            elif custom_fields[i].field_type.code == CustomField.COUNTRY:
-                value = None
-                if row[cell]:
-                    value = countries.get(row[cell], None)
-            elif custom_fields[i].field_type.code == CustomField.MULTI_CHECKBOX:
-                query = CustomFieldChoice.query.filter_by(custom_field=custom_fields[i])
-                multi_check_box_values = {}
-                for val in query:
-                    multi_check_box_values[unicode(val.value)] = val.value
+        for i, (cell, value) in enumerate(row.items()):
+            value = value.strip()
+            custom_field = custom_fields[i]
+            field_type = custom_field.field_type.code
 
-                value = []
-                if row[cell]:
-                    elements = row[cell].split(',')
-                    for el in elements:
+            if field_type == CustomField.CATEGORY:
+                value = meeting_categories.get(unicode(value), ' ')
+            elif field_type == CustomField.COUNTRY:
+                value = countries.get(row[cell], None)
+            elif field_type == CustomField.MULTI_CHECKBOX:
+                if value:
+                    multi_check_box_values = {
+                        _label: _id for _id, _label in custom_field.choices
+                    }
+                    value = [
                         value.append(multi_check_box_values.get(unicode(el.strip()), ''))
-            else:
-                value = row[cell]
+                        for el in value.split(",")
+                    ]
 
-            if type(value) is list:
+            if isinstance(value, list):
                 # Multi checkbox values
                 for val in value:
-                    participant_details.append((custom_fields[i].slug, val))
+                    participant_details.append((custom_field.slug, val))
             else:
-                participant_details.append((custom_fields[i].slug, value))
+                participant_details.append((custom_field.slug, value))
 
         participants_form.append(Form(ImmutableMultiDict(participant_details)))
 
