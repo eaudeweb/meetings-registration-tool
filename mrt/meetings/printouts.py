@@ -916,6 +916,8 @@ def read_participants_excel(custom_fields, rows):
                 participant_details.append((slug, value))
 
         form = Form(ImmutableMultiDict(participant_details))
-        form.raw_data = row
+        # Set the original value so the frontend can present it as such.
+        for slug, value in row.items():
+            form[slug].excel_value = value.strip()
         yield form
 
