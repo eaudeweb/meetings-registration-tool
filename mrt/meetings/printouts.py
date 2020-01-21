@@ -881,20 +881,23 @@ def read_participants_excel(custom_fields, rows):
     for (code, name) in get_all_countries():
         countries[name] = code
 
+    custom_fields = {
+        custom_field.slug: custom_field for custom_field in custom_fields
+    }
+
     Form = custom_form_factory(ParticipantEditForm)
 
-    participants_form = []
     for row_num, row in enumerate(rows, start=2):
         participant_details = []
-        for i, (cell, value) in enumerate(row.items()):
+        for i, (slug, value) in enumerate(row.items()):
             value = value.strip()
-            custom_field = custom_fields[i]
+            custom_field = custom_fields[slug]
             field_type = custom_field.field_type.code
 
             if field_type == CustomField.CATEGORY:
                 value = meeting_categories.get(unicode(value), ' ')
             elif field_type == CustomField.COUNTRY:
-                value = countries.get(row[cell], None)
+                value = countries.get(value, None)
             elif field_type == CustomField.MULTI_CHECKBOX:
                 if value:
                     multi_check_box_values = {
@@ -908,10 +911,11 @@ def read_participants_excel(custom_fields, rows):
             if isinstance(value, list):
                 # Multi checkbox values
                 for val in value:
-                    participant_details.append((custom_field.slug, val))
+                    participant_details.append((slug, val))
             else:
-                participant_details.append((custom_field.slug, value))
+                participant_details.append((slug, value))
 
-        participants_form.append(Form(ImmutableMultiDict(participant_details)))
+        form = Form(ImmutableMultiDict(participant_details))
+        form.raw_data = row
+        yield form
 
-    return participants_form
