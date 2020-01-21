@@ -1,3 +1,5 @@
+import io
+import mimetypes
 import uuid
 
 import openpyxl
@@ -7,8 +9,10 @@ from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
 
+import requests
 from flask import flash
 from path import Path
+from werkzeug.datastructures import FileStorage
 from werkzeug.datastructures import ImmutableMultiDict
 
 from flask import current_app as app
@@ -36,6 +40,7 @@ from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
+from mrt.utils import parse_rfc6266_header
 from mrt.utils import read_sheet, generate_excel, generate_import_excel
 from openpyxl.utils.exceptions import InvalidFileException
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
@@ -684,7 +689,10 @@ class DataImportTemplate(PermissionRequiredMixin, MethodView):
             g.meeting.custom_fields
             .filter_by(custom_field_type=self.participant_type)
             .order_by(CustomField.sort))
-        custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
+        custom_fields = [
+            field for field in custom_fields
+            if field.field_type.code != CustomField.EVENT
+        ]
 
         file_name = 'import_{}_list_{}.xlsx'.format(self.participant_type, g.meeting.acronym)
         file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
@@ -749,8 +757,7 @@ class DataImport(PermissionRequiredMixin, MethodView):
             g.meeting.custom_fields
                 .filter_by(custom_field_type=self.participant_type)
                 .order_by(CustomField.sort))
-        custom_fields = [field for field in custom_fields if
-                         (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
+        custom_fields = [field for field in custom_fields if field.field_type.code != CustomField.EVENT]
 
         has_errors = False
 
@@ -770,7 +777,7 @@ class DataImport(PermissionRequiredMixin, MethodView):
             forms.append(form)
 
         all_fields = list(custom_form_factory(self.form_class)().exclude([
-            CustomField.DOCUMENT, CustomField.IMAGE, CustomField.EVENT,
+            CustomField.EVENT,
         ]))
         context = {
             "forms": forms,
@@ -897,9 +904,11 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
         g.meeting.custom_fields
         .filter_by(custom_field_type=participants_type)
         .order_by(CustomField.sort))
-    custom_fields = [field for field in custom_fields if (field.field_type.code != CustomField.IMAGE and field.field_type.code != CustomField.DOCUMENT)]
-
-    for form in read_participants_excel(custom_fields, participants_rows, form_class):
+    custom_fields = [
+        field for field in custom_fields
+        if field.field_type.code != CustomField.EVENT
+    ]
+    for form in read_participants_excel(custom_fields, participants_rows, form_class, read_files=True):
         # Paranoid validation
         if form.validate():
             form.save()
@@ -907,7 +916,7 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
     return 'Successfully added'
 
 
-def read_participants_excel(custom_fields, rows, form_class):
+def read_participants_excel(custom_fields, rows, form_class, read_files=False):
     meeting_categories = {}
     for c in Category.get_categories_for_meeting(form_class.CUSTOM_FIELDS_TYPE):
         meeting_categories[c.title.english.lower()] = c.id
@@ -937,6 +946,31 @@ def read_participants_excel(custom_fields, rows, form_class):
                 value = countries.get(value.lower(), "invalid-country")
             elif field_type == CustomField.MULTI_CHECKBOX:
                 value = [el.strip() for el in value.split(",")]
+            elif field_type in (CustomField.IMAGE, CustomField.DOCUMENT):
+                if read_files:
+                    resp = requests.get(value, stream=True)
+                    resp.raise_for_status()
+
+                    content_type = resp.headers.get('content-type', 'application/octet-stream')
+                    content_length = resp.headers.get('content-length', None)
+                    filename = parse_rfc6266_header(resp.headers.get("content-disposition", "")).get("filename")
+
+                    if not filename:
+                        # Attempt to guess the extension of the file
+                        ext = mimetypes.guess_extension(content_type)
+                        if ext:
+                            filename = str(uuid.uuid4()) + ext
+
+                    value = FileStorage(
+                        stream=io.BytesIO(resp.content),
+                        filename=filename,
+                        content_type=content_type,
+                        content_length=content_length,
+                        headers=resp.headers,
+                    )
+                else:
+                    # TODO: Add some form of validation to check the URLs are valid
+                    pass
 
             if isinstance(value, list):
                 # Multi checkbox values
@@ -945,7 +979,7 @@ def read_participants_excel(custom_fields, rows, form_class):
             else:
                 participant_details.append((slug, value))
 
-        form = Form(ImmutableMultiDict(participant_details))
+        form = Form(formdata=ImmutableMultiDict(participant_details), read_from_request=False)
         form.excel_row = row_num
         # Set the original value so the frontend can present it as such.
         for slug, value in row.items():

@@ -1,6 +1,8 @@
 import logging
 import os
 import re
+import urllib
+
 import xlwt
 import openpyxl
 import collections
@@ -337,3 +339,40 @@ class CustomFieldLabel(object):
     def __unicode__(self):
         lang = getattr(g, 'language_verbose', 'english')
         return getattr(self, lang) or self.english
+
+
+def parse_rfc6266_header(header_value):
+    """Parse RFC6266 header and extract the filename."""
+    header_value = header_value.strip()
+
+    results = dict()
+    for item in header_value.split(";"):
+        item = item.strip()
+        try:
+            key, value = item.split("=")
+        except ValueError:
+            key, value = "", item
+
+        charset = "ascii"
+        encoding = ""
+        if key.endswith("*"):
+            # Possibly non-ascii value
+            key = key.rstrip("*")
+            # XXX Black magic afoot, as this is kinda standard but not quite.
+            #  Although everybody implements it, but not quite.
+            try:
+                charset, encoding, value = value.split("'")
+            except ValueError:
+                try:
+                    charset, value = value.split("'")
+                except ValueError:
+                    pass
+        if encoding.lower() == "q":
+            value = value.decode("quopri")
+        elif encoding.lower() == "b":
+            value = value.decode("base64")
+        else:
+            value = urllib.unquote(value)
+
+        results[key] = value.decode(charset)
+    return results
