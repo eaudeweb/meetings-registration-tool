@@ -42,7 +42,6 @@ from mrt.utils import slugify, Logo, sentry
 _DEFAULT_LANG = 'english'
 _TRANSLATIONS = [_DEFAULT_LANG, 'french', 'spanish']
 _TITLE_CHOICES = ['Ms', 'Mr', 'Dr', 'Prof']
-_SEX_CHOICES = ['Female', 'Male', "Neutral"]
 
 
 DEFAULT_CONFIG = {
@@ -59,7 +58,6 @@ DEFAULT_CONFIG = {
     'DEFAULT_LANG': _DEFAULT_LANG,
     'TRANSLATIONS': _TRANSLATIONS,
     'TITLE_CHOICES': _TITLE_CHOICES,
-    'SEX_CHOICES': _SEX_CHOICES,
 }
 
 
