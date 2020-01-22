@@ -2,8 +2,10 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import click
 import code
+import re
 import os
 import subprocess
+import requests
 
 from flask import g
 from alembic.config import CommandLine
@@ -12,11 +14,11 @@ from rq import get_failed_queue
 
 from mrt.models import redis_store, db
 from mrt.models import User, Staff, Job
-from mrt.models import CustomField, Translation, Participant, Meeting
+from mrt.models import CustomField, Translation, Participant, Meeting, MeetingType
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
-
+from collections import defaultdict
 
 @click.group()
 def cli():
@@ -249,3 +251,72 @@ def compile_translations():
     command = ['pybabel', 'compile', '-d', 'mrt/translations']
     FNULL = open(os.devnull, 'w')
     subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)
+
+
+@cli.command()
+@click.pass_context
+def sync_cites_meetings(ctx):
+    app = ctx.obj['app']
+    cites_meetings_urls = {
+        'english': 'https://cites.org/ws/meetings-mrt',
+        'french': 'https://cites.org/fra/ws/meetings-mrt',
+        'spanish': 'https://cites.org/esp/ws/meetings-mrt',
+    }
+
+    retrieved_meetings = defaultdict(dict)
+    headers = {'Accept': 'application/json'}
+
+    for language in cites_meetings_urls:
+        response = requests.get(cites_meetings_urls[language], headers=headers)
+        response.raise_for_status()
+
+        for meeting in response.json():
+            unique_id = meeting.get('id', '')
+            meeting_dict = retrieved_meetings[unique_id]
+
+            meeting_dict['{}_title'.format(language)] = meeting.get('title', '')
+            meeting_dict['{}_city'.format(language)] = meeting.get('city', '')
+            meeting_dict['description'] = meeting.get('description', '')
+            meeting_dict['meeting_type'] = meeting.get('type', '')
+            meeting_dict['start'] = meeting.get('start', '')
+            meeting_dict['end'] = meeting.get('end', '')
+            meeting_dict['location'] = meeting.get('location', '')
+            meeting_dict['country'] = meeting.get('country', '')
+            meeting_dict['country_code2'] = meeting.get('country_code2', '')
+            meeting_dict['country_code3'] = meeting.get('country_code3', '')
+            meeting_dict['meeting_number'] = meeting.get('meeting_number', '')
+            meeting_dict['link'] = meeting.get('link', '')
+            meeting_dict['acronym'] = meeting_dict['meeting_type'] + meeting_dict['meeting_number']
+
+
+    with app.test_request_context():
+        for meeting in retrieved_meetings:
+            meeting_dict = retrieved_meetings[meeting]
+
+            if Meeting.query.filter_by(acronym=meeting_dict['acronym']).count():
+                # Meeting already exists
+                continue
+            else:
+                curr_meeting_type = MeetingType.query.filter_by(label=meeting_dict['meeting_type']).first()
+                date_start = datetime.strptime(
+                                re.sub(re.compile('<.*?>'), '', meeting_dict['start']),
+                                '%d/%m/%Y')
+                date_end = datetime.strptime(
+                                re.sub(re.compile('<.*?>'), '', meeting_dict['end']),
+                                '%d/%m/%Y')
+
+                curr_meeting = Meeting(acronym=meeting_dict['acronym'],
+                                      date_start=date_start,
+                                      date_end=date_end)
+                curr_meeting.meeting_type = curr_meeting_type
+                curr_meeting.venue_country = meeting_dict['country_code2']
+                curr_meeting.venue_city = Translation(
+                                            english = meeting_dict['english_city'],
+                                            french = meeting_dict['french_city'],
+                                            spanish = meeting_dict['spanish_city'])
+                curr_meeting.title = Translation(
+                                            english = meeting_dict['english_title'],
+                                            french = meeting_dict['french_title'],
+                                            spanish = meeting_dict['spanish_title'])
+                db.session.add(curr_meeting)
+        db.session.commit()
