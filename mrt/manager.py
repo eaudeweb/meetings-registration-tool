@@ -6,7 +6,6 @@ import re
 import os
 import subprocess
 import requests
-import logging
 
 from flask import g
 from alembic.config import CommandLine
@@ -19,6 +18,7 @@ from mrt.models import CustomField, Translation, Participant, Meeting, MeetingTy
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
+from collections import defaultdict
 
 @click.group()
 def cli():
@@ -255,10 +255,7 @@ def compile_translations():
 
 @cli.command()
 @click.pass_context
-@click.option('--language',
-              type=click.Choice(['english', 'french', 'spanish']),
-              default='english')
-def sync_cites_meetings(ctx, language):
+def sync_cites_meetings(ctx):
     app = ctx.obj['app']
     cites_meetings_urls = {
         'english': 'https://cites.org/ws/meetings-mrt',
@@ -266,58 +263,60 @@ def sync_cites_meetings(ctx, language):
         'spanish': 'https://cites.org/esp/ws/meetings-mrt',
     }
 
+    retrieved_meetings = defaultdict(dict)
     headers = {'Accept': 'application/json'}
-    response = requests.get(cites_meetings_urls[language], headers=headers)
-    response.raise_for_status()
 
-    with app.test_request_context():
-        for meeting in Meeting.query.all():
-            logging.error(meeting.acronym)
+    for language in cites_meetings_urls:
+        response = requests.get(cites_meetings_urls[language], headers=headers)
+        response.raise_for_status()
 
         for meeting in response.json():
-            title = meeting.get('title', '')
-            description = meeting.get('description', '')
-            meeting_type = meeting.get('type', '')
-            start = meeting.get('start', '')
-            end = meeting.get('end', '')
-            location = meeting.get('location', '')
-            city = meeting.get('city', '')
-            country = meeting.get('country', '')
-            country_code2 = meeting.get('country_code2', '')
-            country_code3 = meeting.get('country_code3', '')
-            meeting_number = meeting.get('meeting_number', '')
-            link = meeting.get('link', '')
-            acronym = meeting_type + meeting_number
+            unique_id = meeting.get('id', '')
+            meeting_dict = retrieved_meetings[unique_id]
 
-            if Meeting.query.filter_by(acronym=acronym).count():
+            meeting_dict['{}_title'.format(language)] = meeting.get('title', '')
+            meeting_dict['{}_city'.format(language)] = meeting.get('city', '')
+            meeting_dict['description'] = meeting.get('description', '')
+            meeting_dict['meeting_type'] = meeting.get('type', '')
+            meeting_dict['start'] = meeting.get('start', '')
+            meeting_dict['end'] = meeting.get('end', '')
+            meeting_dict['location'] = meeting.get('location', '')
+            meeting_dict['country'] = meeting.get('country', '')
+            meeting_dict['country_code2'] = meeting.get('country_code2', '')
+            meeting_dict['country_code3'] = meeting.get('country_code3', '')
+            meeting_dict['meeting_number'] = meeting.get('meeting_number', '')
+            meeting_dict['link'] = meeting.get('link', '')
+            meeting_dict['acronym'] = meeting_dict['meeting_type'] + meeting_dict['meeting_number']
+
+
+    with app.test_request_context():
+        for meeting in retrieved_meetings:
+            meeting_dict = retrieved_meetings[meeting]
+
+            if Meeting.query.filter_by(acronym=meeting_dict['acronym']).count():
                 # Meeting already exists
-                curr_meeting = Meeting.query.filter_by(acronym=acronym).first()
-
-                if language == 'french':
-                    curr_meeting.title.french = title
-                    curr_meeting.venue_city.french = city
-                elif language == 'spanish':
-                    curr_meeting.title.spanish = title
-                    curr_meeting.venue_city.spanish = city
+                continue
             else:
-                curr_meeting_type = MeetingType.query.filter_by(label=meeting_type).first()
+                curr_meeting_type = MeetingType.query.filter_by(label=meeting_dict['meeting_type']).first()
                 date_start = datetime.strptime(
-                                re.sub(re.compile('<.*?>'), '', start),
+                                re.sub(re.compile('<.*?>'), '', meeting_dict['start']),
                                 '%d/%m/%Y')
                 date_end = datetime.strptime(
-                                re.sub(re.compile('<.*?>'), '', end),
+                                re.sub(re.compile('<.*?>'), '', meeting_dict['end']),
                                 '%d/%m/%Y')
 
-                curr_meeting = Meeting(acronym=acronym,
+                curr_meeting = Meeting(acronym=meeting_dict['acronym'],
                                       date_start=date_start,
                                       date_end=date_end)
                 curr_meeting.meeting_type = curr_meeting_type
-                curr_meeting.venue_country = country_code2
-
-                if language == 'english':
-                    curr_meeting.title = Translation(english=title)
-                    curr_meeting.venue_city = Translation(english=city)
-
-            db.session.add(curr_meeting)
+                curr_meeting.venue_country = meeting_dict['country_code2']
+                curr_meeting.venue_city = Translation(
+                                            english = meeting_dict['english_city'],
+                                            french = meeting_dict['french_city'],
+                                            spanish = meeting_dict['spanish_city'])
+                curr_meeting.title = Translation(
+                                            english = meeting_dict['english_title'],
+                                            french = meeting_dict['french_title'],
+                                            spanish = meeting_dict['spanish_title'])
+                db.session.add(curr_meeting)
         db.session.commit()
-
