@@ -31,25 +31,16 @@ class Statistics(PermissionRequiredMixin, MethodView):
         total_delegates = sum(category.participants.filter_by(deleted=False).count()
                                     for category in participant_categories)
 
-        # sex fields
-        sex_custom_field = g.meeting.custom_fields.filter_by(
-            slug='sex'
-        ).one()
-
         return render_template(
             self.template_name,
             participant_categories=participant_categories,
             media_categories=media_categories,
             total_delegates=total_delegates,
             male_delegates=(
-                sex_custom_field.custom_field_values.filter_by(
-                    value='Male'
-                ).count() if sex_custom_field else 0
+                g.meeting.participants.filter_by(sex='Male').count()
             ),
             female_delegates=(
-                sex_custom_field.custom_field_values.filter_by(
-                    value='Male'
-                ).count() if sex_custom_field else 0
+                g.meeting.participants.filter_by(sex='Female').count()
             )
         )
 
