@@ -75,6 +75,19 @@ def date_processor(date_start, date_end, in_format='%Y-%m-%d',
                     return format_date(date_start, out_format, locale=locale)
 
 
+def year_processor(date_start, date_end, in_format='%Y-%m-%d',
+                   out_format='yyyy', locale='en_US'):
+    if not date_end:
+        return format_date(date_start, out_format, locale=locale)
+    else:
+        if date_start.year != date_end.year:
+            return '%s - %s' % (
+                format_date(date_start, out_format, locale=locale),
+                format_date(date_end, out_format, locale=locale))
+        else:
+            return format_date(date_start, out_format, locale=locale)
+
+
 def crop(filename):
     file_path = Path(app.config['UPLOADED_CROP_DEST']) / filename
     if file_path.exists() and file_path.isfile():
