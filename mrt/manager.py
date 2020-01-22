@@ -2,8 +2,11 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import click
 import code
+import re
 import os
 import subprocess
+import requests
+import logging
 
 from flask import g
 from alembic.config import CommandLine
@@ -12,11 +15,10 @@ from rq import get_failed_queue
 
 from mrt.models import redis_store, db
 from mrt.models import User, Staff, Job
-from mrt.models import CustomField, Translation, Participant, Meeting
+from mrt.models import CustomField, Translation, Participant, Meeting, MeetingType
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
-
 
 @click.group()
 def cli():
@@ -249,3 +251,73 @@ def compile_translations():
     command = ['pybabel', 'compile', '-d', 'mrt/translations']
     FNULL = open(os.devnull, 'w')
     subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)
+
+
+@cli.command()
+@click.pass_context
+@click.option('--language',
+              type=click.Choice(['english', 'french', 'spanish']),
+              default='english')
+def sync_cites_meetings(ctx, language):
+    app = ctx.obj['app']
+    cites_meetings_urls = {
+        'english': 'https://cites.org/ws/meetings-mrt',
+        'french': 'https://cites.org/fra/ws/meetings-mrt',
+        'spanish': 'https://cites.org/esp/ws/meetings-mrt',
+    }
+
+    headers = {'Accept': 'application/json'}
+    response = requests.get(cites_meetings_urls[language], headers=headers)
+    response.raise_for_status()
+
+    with app.test_request_context():
+        for meeting in Meeting.query.all():
+            logging.error(meeting.acronym)
+
+        for meeting in response.json():
+            title = meeting.get('title', '')
+            description = meeting.get('description', '')
+            meeting_type = meeting.get('type', '')
+            start = meeting.get('start', '')
+            end = meeting.get('end', '')
+            location = meeting.get('location', '')
+            city = meeting.get('city', '')
+            country = meeting.get('country', '')
+            country_code2 = meeting.get('country_code2', '')
+            country_code3 = meeting.get('country_code3', '')
+            meeting_number = meeting.get('meeting_number', '')
+            link = meeting.get('link', '')
+            acronym = meeting_type + meeting_number
+
+            if Meeting.query.filter_by(acronym=acronym).count():
+                # Meeting already exists
+                curr_meeting = Meeting.query.filter_by(acronym=acronym).first()
+
+                if language == 'french':
+                    curr_meeting.title.french = title
+                    curr_meeting.venue_city.french = city
+                elif language == 'spanish':
+                    curr_meeting.title.spanish = title
+                    curr_meeting.venue_city.spanish = city
+            else:
+                curr_meeting_type = MeetingType.query.filter_by(label=meeting_type).first()
+                date_start = datetime.strptime(
+                                re.sub(re.compile('<.*?>'), '', start),
+                                '%d/%m/%Y')
+                date_end = datetime.strptime(
+                                re.sub(re.compile('<.*?>'), '', end),
+                                '%d/%m/%Y')
+
+                curr_meeting = Meeting(acronym=acronym,
+                                      date_start=date_start,
+                                      date_end=date_end)
+                curr_meeting.meeting_type = curr_meeting_type
+                curr_meeting.venue_country = country_code2
+
+                if language == 'english':
+                    curr_meeting.title = Translation(english=title)
+                    curr_meeting.venue_city = Translation(english=city)
+
+            db.session.add(curr_meeting)
+        db.session.commit()
+
