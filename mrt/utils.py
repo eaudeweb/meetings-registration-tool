@@ -253,6 +253,18 @@ def generate_import_excel(fields, file_name, field_types):
                 )
             )
 
+        if current_field.field_type.code == field_types.CHECKBOX:
+            sheet.add_data_validation(
+                DataValidation(
+                    type="list",
+                    error="The entry should be either Yes or No",
+                    errorTitle="Invalid entry",
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
+                    formula1='"Yes,No"',
+                    allow_blank=current_field.required,
+                )
+            )
+
     workbook.save(file_name)
 
 
