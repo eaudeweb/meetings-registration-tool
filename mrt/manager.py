@@ -18,7 +18,12 @@ from mrt.models import CustomField, Translation, Participant, Meeting, MeetingTy
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
+<<<<<<< 149c56e5504e215152bf99391b14634db23ff529
 from collections import defaultdict
+=======
+from mrt.forms.meetings.meeting import _add_choice_values_for_custom_field
+
+>>>>>>> Add command to add sex custom field to meetings
 
 @click.group()
 def cli():
@@ -319,4 +324,41 @@ def sync_cites_meetings(ctx):
                                             french = meeting_dict['french_title'],
                                             spanish = meeting_dict['spanish_title'])
                 db.session.add(curr_meeting)
+        db.session.commit()
+
+
+@cli.command(name='add_custom_sex_field')
+@click.pass_context
+def add_custom_sex_field(ctx):
+    app = ctx.obj['app']
+
+    with app.test_request_context():
+        meetings = Meeting.query.all()
+
+        for meeting in meetings:
+            query = (
+                CustomField.query
+                .filter_by(slug='sex', meeting=meeting)
+            )
+            if query.scalar():
+                continue
+
+            custom_field = CustomField()
+            custom_field.meeting = meeting
+            custom_field.slug = 'sex'
+            custom_field.label = Translation(english=u'Sex')
+            custom_field.required = False
+            custom_field.field_type = CustomField.SELECT
+            custom_field.is_primary = True
+
+            custom_field.visible_on_registration_form = True
+            custom_field.is_protected = True
+
+            db.session.add(custom_field)
+
+            _add_choice_values_for_custom_field(
+                custom_field, Participant.SEX_CHOICES)
+
+            click.echo(u'Sex field added for meeting %s \n' % meeting.id)
+
         db.session.commit()
