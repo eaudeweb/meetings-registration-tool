@@ -57,6 +57,19 @@ services:
       - ./data-storage/files:/var/local/meetings/instance/files:z
     command: ["rq", "workers", "printouts"]
 
+  scheduler_cites:
+    image: eaudeweb/mrt:${MRT_VERSION:-latest}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DOMAIN_NAME=http://app:5000
+    volumes:
+      - ./settings.py:/var/local/meetings/instance/settings.py:ro
+    command: ["sync_cites_meetings"]
+
   redis:
     image: redis:3.2.11-alpine
     healthcheck:
