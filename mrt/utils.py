@@ -240,6 +240,19 @@ def generate_import_excel(fields, file_name, field_types):
                 )
             )
 
+        if current_field.field_type.code == field_types.TEXT or current_field.field_type.code == field_types.TEXT_AREA:
+            sheet.add_data_validation(
+                DataValidation(
+                    type="textLength",
+                    error="The entry can not be longer than {}".format(current_field.max_length),
+                    errorTitle="Entry too long",
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
+                    operator="lessThan",
+                    formula1=current_field.max_length,
+                    allow_blank=current_field.required,
+                )
+            )
+
     workbook.save(file_name)
 
 
