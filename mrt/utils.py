@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 import urllib
@@ -9,7 +8,7 @@ import collections
 from openpyxl import Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 
-from datetime import date
+from datetime import date, datetime
 from json import JSONEncoder as _JSONEncoder
 from PIL import Image
 from unicodedata import normalize
@@ -214,7 +213,7 @@ def get_import_template_header(fields):
     )
 
 
-def generate_import_excel(fields, file_name):
+def generate_import_excel(fields, file_name, field_types):
     workbook = Workbook()
     sheet = workbook.active
     col_names = get_import_template_header(fields)
@@ -224,6 +223,22 @@ def generate_import_excel(fields, file_name):
 
         sheet.cell(row=1, column=col_idx).value = name
         sheet.column_dimensions[cell_col_letter].width = len(name) + 1
+
+        current_field = fields[col_idx - 1]
+        if current_field.field_type.code == field_types.DATE:
+            # Date may be bigger than column's header
+            sheet.column_dimensions[cell_col_letter].width = max(len(name) + 1, 15)
+            sheet.add_data_validation(
+                DataValidation(
+                    type="date",
+                    error="The entry should be a date",
+                    errorTitle="Invalid date",
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
+                    operator="greaterThan",
+                    formula1=date.min,
+                    allow_blank=current_field.required,
+                )
+            )
 
     workbook.save(file_name)
 
@@ -255,7 +270,9 @@ def read_sheet(xlsx, fields, sheet_name=None):
     slug_headers = [expected_headers[header].slug for header in headers]
     # Iterate over the rows
     for row in it:
-        row = [str(cell.value or "").strip() for cell in row[: len(headers)]]
+        row = [cell.value.strftime('%d.%m.%Y')
+                if (isinstance(cell.value, date) or isinstance(cell.value, datetime))
+                else str(cell.value or "").strip() for cell in row[: len(headers)]]
         if not any(row):
             break
         yield dict(zip(slug_headers, row))

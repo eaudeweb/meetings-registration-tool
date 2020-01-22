@@ -696,7 +696,7 @@ class DataImportTemplate(PermissionRequiredMixin, MethodView):
 
         file_name = 'import_{}_list_{}.xlsx'.format(self.participant_type, g.meeting.acronym)
         file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
-        generate_import_excel(custom_fields, file_path)
+        generate_import_excel(custom_fields, file_path, CustomField)
 
         return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
                                    file_name,
@@ -936,6 +936,7 @@ def read_participants_excel(custom_fields, rows, form_class, read_files=False):
         participant_details = []
         for slug, value in row.items():
             value = value.strip()
+
             if not value:
                 continue
             custom_field = custom_fields[slug]
