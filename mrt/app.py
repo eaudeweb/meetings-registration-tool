@@ -158,7 +158,7 @@ def create_app(config={}, skip_logging=False):
     app.wsgi_app = ProxyFix(app.wsgi_app)
     if not app.config.get('DEBUG') and app.config.get('SENTRY_DSN'):
         sentry_sdk.init(
-            "your dsn",
+            app.config.get('SENTRY_DSN'),
             integrations=[RqIntegration(), FlaskIntegration(), LoggingIntegration()]
         )
 
