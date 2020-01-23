@@ -121,21 +121,11 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'console'
         },
-        'sentry': {
-            'name': 'mrt:app',
-            'level': 'ERROR',
-            'class': 'raven.handlers.logging.SentryHandler',
-            'dsn': SENTRY_DSN,
-            'site': DOMAIN_NAME,
-            'release': APP_VERSION,
-            'environment': 'development',
-            'ignore_exceptions': ['Http404']
-        },
     },
 
     'loggers': {
         'mrt': {
-            'handlers': ['console', 'sentry'],
+            'handlers': ['console],
             'level': 'DEBUG',
             'propagate': False,
         },
