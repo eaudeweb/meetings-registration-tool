@@ -218,7 +218,9 @@ def generate_import_excel(fields, file_name, field_types):
     workbook = Workbook()
     sheet = workbook.active
     col_names = get_import_template_header(fields)
-    validation_sheet_count = 0
+
+    val_sheet = workbook.create_sheet("Validation", index=1)
+    val_sheet_col_idx = 1
 
     for col_idx, name in enumerate(col_names, 1):
         cell_col_letter = openpyxl.utils.get_column_letter(col_idx)
@@ -260,30 +262,33 @@ def generate_import_excel(fields, file_name, field_types):
                 current_field.field_type.code == field_types.LANGUAGE or\
                 current_field.field_type.code == field_types.CHECKBOX:
 
-            validation_sheet_count += 1
+            curr_validation_column = openpyxl.utils.get_column_letter(val_sheet_col_idx)
+            cell = val_sheet.cell(1, val_sheet_col_idx, current_field.slug.upper())
 
-            curr_val_name = "{}_validation".format(current_field.slug)
-            curr_val_sheet = workbook.create_sheet(curr_val_name, index=validation_sheet_count)
-            cell = curr_val_sheet.cell(1, 1, current_field.slug.upper())
-            curr_val_sheet.column_dimensions["A"].width = 25
+            val_sheet.column_dimensions[curr_validation_column].width = 25
 
             values = [custom_val.value for custom_val in current_field.choices]
             if current_field.field_type.code == field_types.CHECKBOX:
                 values = ["Yes", "No"]
 
             for row_index, value in enumerate(values, start=2):
-                curr_val_sheet.cell(row_index, 1, str(value))
+                val_sheet.cell(row_index, val_sheet_col_idx, str(value))
 
+            nr_values = len(values) + 1
             sheet.add_data_validation(
                 DataValidation(
                     type="list",
                     error="Choose a value from the allowed entries",
                     errorTitle="Invalid entry",
-                    formula1="'{}'!$A$2:$A${}".format(curr_val_name, len(values) + 1),
+                    formula1="'Validation'!${}$2:${}${}".format(curr_validation_column,
+                                                                curr_validation_column,
+                                                                nr_values),
                     sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
                     allow_blank=current_field.required,
                 )
             )
+
+            val_sheet_col_idx += 1
 
 
 
