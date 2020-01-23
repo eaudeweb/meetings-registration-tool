@@ -71,6 +71,23 @@
             <td>{{ category.participants.filter_by(deleted=False).count() }}</td>
           </tr>
         {% endfor %}
+          <tr class="row">
+            <th rowspan="3" class="col-sm-6">Sex</th>
+            <td class="col-sm-4">Female</td>
+            <td>{{ female_delegates }}</td>
+          </tr>
+
+          <tr class="row">
+            <td class="col-sm-4">Male</td>
+            <td>{{ male_delegates }}</td>
+          </tr>
+
+          <tr class="row">
+            <td class="col-sm-4">Neutral / Rather not say</td>
+            <td>{{ neutral_delegates }}</td>
+          </tr>
+
+
         <tr class="row">
             <th class="col-sm-6"></th>
             <th class="col-sm-4">Total Delegates</th>

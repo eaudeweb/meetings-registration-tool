@@ -4,7 +4,7 @@ from flask.views import MethodView
 from blinker import ANY
 from datetime import datetime, timedelta
 
-from mrt.models import db, Category, ActivityLog, MailLog
+from mrt.models import db, Category, ActivityLog, MailLog, Participant
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.signals import activity_signal
 
@@ -30,10 +30,28 @@ class Statistics(PermissionRequiredMixin, MethodView):
         media_categories = Category.get_categories_for_meeting(Category.MEDIA)
         total_delegates = sum(category.participants.filter_by(deleted=False).count()
                                     for category in participant_categories)
-        return render_template(self.template_name,
-                               participant_categories=participant_categories,
-                               media_categories=media_categories,
-                               total_delegates=total_delegates)
+
+        return render_template(
+            self.template_name,
+            participant_categories=participant_categories,
+            media_categories=media_categories,
+            total_delegates=total_delegates,
+            female_delegates=(
+                g.meeting.participants.filter_by(
+                    sex=Participant.SEX_CHOICES[0][0]
+                ).count()
+            ),
+            male_delegates=(
+                g.meeting.participants.filter_by(
+                    sex=Participant.SEX_CHOICES[1][0]
+                ).count()
+            ),
+            neutral_delegates=(
+                g.meeting.participants.filter_by(
+                    sex=Participant.SEX_CHOICES[2][0]
+                ).count()
+            )
+        )
 
 
 class MailLogs(PermissionRequiredMixin, MethodView):

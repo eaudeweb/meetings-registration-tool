@@ -256,6 +256,11 @@ class Participant(db.Model):
         ('Dr', lazy_gettext('Dr')),
         ('Prof', lazy_gettext('Prof')),
     )
+    SEX_CHOICES = (
+        ('Female', lazy_gettext('Female')),
+        ('Male', lazy_gettext('Male')),
+        ('Neutral / Rather not say', lazy_gettext('Neutral / Rather not say')),
+    )
     LANGUAGE_CHOICES = (
         ('English', lazy_gettext('English')),
         ('Spanish', lazy_gettext('Spanish')),
@@ -284,6 +289,8 @@ class Participant(db.Model):
 
     title = db.Column(ChoiceType(TITLE_CHOICES), nullable=False,
                       info={'label': _('Title')})
+
+    sex = db.Column(ChoiceType(SEX_CHOICES), info={'label': _('Sex')})
 
     first_name = db.Column(db.String(64), nullable=False,
                            info={'label': _('Given name')})
