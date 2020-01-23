@@ -21,7 +21,6 @@ from mrt.models import db, CustomFieldChoice, CustomFieldValue
 from mrt.models import MeetingType, Translation
 from mrt.utils import validate_email, unlink_participant_custom_file
 from mrt.utils import get_custom_file_as_filestorage
-from mrt.utils import sentry
 
 
 DOCUMENTS = _DOCUMENTS + ('pdf',)
