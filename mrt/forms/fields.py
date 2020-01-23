@@ -290,6 +290,9 @@ class _BaseFileFieldMixin(object):
         except:
             if app.config.get('SENTRY_DSN'):
                 sentry.captureException()
+            else:
+                import traceback
+                print(traceback.format_exc())
             return cfv
         unlink_participant_custom_file(current_filename)
         if not cfv.id:
@@ -383,7 +386,7 @@ class CustomDateField(CustomBaseFieldMixin, fields.DateField):
         super(CustomDateField, self).__init__(*args, **kwargs)
 
     def process_formdata(self, valuelist):
-        if not valuelist[0]:
+        if not valuelist or not valuelist[0]:
             self.data = ''
             return
         super(CustomDateField, self).process_formdata(valuelist)

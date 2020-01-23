@@ -24,11 +24,11 @@ class BaseForm(ModelForm):
     def get_session(cls):
         return db.session
 
-    def __init__(self, formdata=None, obj=None, **kwargs):
+    def __init__(self, formdata=None, obj=None, read_from_request=True, **kwargs):
         formdata = formdata.copy() if formdata else MultiDict()
-        if request.form and not len(formdata):
+        if read_from_request and request.form and not len(formdata):
             formdata.update(request.form)
-        if request.files:
+        if read_from_request and request.files:
             formdata.update(request.files)
         super(BaseForm, self).__init__(formdata=formdata, obj=obj, **kwargs)
         self.obj = obj

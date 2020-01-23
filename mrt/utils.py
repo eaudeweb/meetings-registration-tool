@@ -1,8 +1,14 @@
 import os
 import re
-import xlwt
+import urllib
 
-from datetime import date
+import xlwt
+import openpyxl
+import collections
+from openpyxl import Workbook
+from openpyxl.worksheet.datavalidation import DataValidation
+
+from datetime import date, datetime
 from json import JSONEncoder as _JSONEncoder
 from PIL import Image
 from unicodedata import normalize
@@ -18,7 +24,6 @@ from werkzeug import FileStorage
 from babel import support, Locale
 from path import Path
 from mrt.definitions import LANGUAGES_MAP, LANGUAGES_ISO_MAP
-
 
 logos_upload = UploadSet('logos', IMAGES)
 sentry = Sentry()
@@ -201,6 +206,146 @@ def generate_excel(header, rows, filename):
     wb.save(filename)
 
 
+def get_import_template_header(fields):
+    return collections.OrderedDict(
+        (field.label.english + ' [required]' if field.required else field.label.english, field)
+        for field in fields
+    )
+
+
+def generate_import_excel(fields, file_name, field_types, meeting_categories, countries):
+    workbook = Workbook()
+    sheet = workbook.active
+    col_names = get_import_template_header(fields)
+
+    val_sheet = workbook.create_sheet("Validation", index=1)
+    val_sheet_col_idx = 1
+
+    for col_idx, name in enumerate(col_names, 1):
+        cell_col_letter = openpyxl.utils.get_column_letter(col_idx)
+
+        sheet.cell(row=1, column=col_idx).value = name
+        sheet.column_dimensions[cell_col_letter].width = len(name) + 1
+
+        current_field = fields[col_idx - 1]
+        if current_field.field_type.code == field_types.DATE:
+            # Date may be bigger than column's header
+            sheet.column_dimensions[cell_col_letter].width = max(len(name) + 1, 15)
+            sheet.add_data_validation(
+                DataValidation(
+                    type="date",
+                    error="The entry should be a date",
+                    errorTitle="Invalid date",
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
+                    operator="greaterThan",
+                    formula1=date.min,
+                    allow_blank=current_field.required,
+                )
+            )
+
+        if (current_field.field_type.code == field_types.TEXT or\
+                current_field.field_type.code == field_types.TEXT_AREA) and\
+                current_field.max_length:
+
+            sheet.add_data_validation(
+                DataValidation(
+                    type="textLength",
+                    error="The entry can not be longer than {}".format(current_field.max_length),
+                    errorTitle="Entry too long",
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
+                    operator="lessThan",
+                    formula1=current_field.max_length,
+                    allow_blank=current_field.required,
+                )
+            )
+
+        if current_field.field_type.code == field_types.MULTI_CHECKBOX:
+            sheet.add_data_validation(
+                DataValidation(
+                    promptTitle = 'Fields selection',
+                    prompt='Please type the entries comma separated (entry1, entry2, entry3)',
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
+                    allow_blank=current_field.required,
+                )
+            )
+
+        if current_field.field_type.code == field_types.SELECT or\
+                current_field.field_type.code == field_types.RADIO or\
+                current_field.field_type.code == field_types.LANGUAGE or\
+                current_field.field_type.code == field_types.CHECKBOX or\
+                current_field.field_type.code == field_types.CATEGORY or\
+                current_field.field_type.code == field_types.COUNTRY:
+
+            curr_validation_column = openpyxl.utils.get_column_letter(val_sheet_col_idx)
+            cell = val_sheet.cell(1, val_sheet_col_idx, current_field.slug.upper())
+
+            val_sheet.column_dimensions[curr_validation_column].width = 25
+
+            values = [custom_val.value for custom_val in current_field.choices]
+            if current_field.field_type.code == field_types.CHECKBOX:
+                values = ["Yes", "No"]
+            elif current_field.field_type.code == field_types.CATEGORY:
+                values = meeting_categories
+            elif current_field.field_type.code == field_types.COUNTRY:
+                values = countries
+
+            for row_index, value in enumerate(values, start=2):
+                val_sheet.cell(row_index, val_sheet_col_idx, str(value))
+
+            nr_values = len(values) + 1
+            sheet.add_data_validation(
+                DataValidation(
+                    type="list",
+                    error="Choose a value from the allowed entries",
+                    errorTitle="Invalid entry",
+                    formula1="'Validation'!${}$2:${}${}".format(curr_validation_column,
+                                                                curr_validation_column,
+                                                                nr_values),
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
+                    allow_blank=current_field.required,
+                )
+            )
+
+            val_sheet_col_idx += 1
+
+    workbook.save(file_name)
+
+
+def read_sheet(xlsx, fields, sheet_name=None):
+    expected_headers = get_import_template_header(fields)
+
+    if sheet_name is None:
+        sheet = xlsx.active
+        sheet_name = sheet.title
+    else:
+        try:
+            sheet = xlsx.get_sheet_by_name(sheet_name)
+        except KeyError:
+            raise ValueError("Missing sheet %r" % sheet_name)
+
+    it = sheet.rows
+
+    # Exclude empty cells.
+    headers = [header.value.lower() for header in next(it) if header.value]
+    # Lowercase the expected_headers
+    expected_headers = {key.lower(): field for key, field in expected_headers.items()}
+    # Check for consistency.
+    difference = {h.lower() for h in expected_headers}.difference(set(headers))
+    if difference:
+        raise ValueError(
+            "Missing column(s) %r in sheet %r" % (difference, sheet_name)
+        )
+    slug_headers = [expected_headers[header].slug for header in headers]
+    # Iterate over the rows
+    for row in it:
+        row = [cell.value.strftime('%d.%m.%Y')
+                if (isinstance(cell.value, date) or isinstance(cell.value, datetime))
+                else str(cell.value or "").strip() for cell in row[: len(headers)]]
+        if not any(row):
+            break
+        yield dict(zip(slug_headers, row))
+
+
 def get_translation(locale):
     ctx = _request_ctx_stack.top
     if ctx is None:
@@ -280,6 +425,42 @@ class CustomFieldLabel(object):
         lang = getattr(g, 'language_verbose', 'english')
         return getattr(self, lang) or self.english
 
+
+def parse_rfc6266_header(header_value):
+    """Parse RFC6266 header and extract the filename."""
+    header_value = header_value.strip()
+
+    results = dict()
+    for item in header_value.split(";"):
+        item = item.strip()
+        try:
+            key, value = item.split("=")
+        except ValueError:
+            key, value = "", item
+
+        charset = "ascii"
+        encoding = ""
+        if key.endswith("*"):
+            # Possibly non-ascii value
+            key = key.rstrip("*")
+            # XXX Black magic afoot, as this is kinda standard but not quite.
+            #  Although everybody implements it, but not quite.
+            try:
+                charset, encoding, value = value.split("'")
+            except ValueError:
+                try:
+                    charset, value = value.split("'")
+                except ValueError:
+                    pass
+        if encoding.lower() == "q":
+            value = value.decode("quopri")
+        elif encoding.lower() == "b":
+            value = value.decode("base64")
+        else:
+            value = urllib.unquote(value)
+
+        results[key] = value.decode(charset, "ignore").strip('"')
+    return results
 
 def str2bool(val, default_to_none=False):
     val = str(val).lower()

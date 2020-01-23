@@ -1,8 +1,20 @@
+import io
+import mimetypes
+import uuid
+
+import openpyxl
+import zipfile
+
 import collections
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
+
+import requests
+from flask import flash
 from path import Path
+from werkzeug.datastructures import FileStorage
+from werkzeug.datastructures import ImmutableMultiDict
 
 from flask import current_app as app
 from flask import g, url_for
@@ -17,23 +29,28 @@ from rq.job import NoSuchJobError
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 
-from mrt.custom_country import Country
+from mrt.custom_country import Country, get_all_countries
 from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm
 from mrt.forms.meetings import ParticipantEditForm
 from mrt.forms.meetings import custom_form_factory
 from mrt.forms.meetings import custom_object_factory
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
-from mrt.models import redis_store, db, CustomFieldValue, CustomField
+from mrt.models import redis_store, db, CustomFieldValue, CustomField, CustomFieldChoice
 from mrt.models import get_participants_full
+from mrt.models import Action
 from mrt.pdf import PdfRenderer
 from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
-from mrt.utils import generate_excel
-from mrt.utils import str2bool
 
+from mrt.utils import parse_rfc6266_header
+from mrt.utils import read_sheet, generate_excel, generate_import_excel
+from openpyxl.utils.exceptions import InvalidFileException
+from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
+from mrt.forms.meetings import custom_form_factory
+from mrt.utils import str2bool
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
@@ -768,7 +785,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'participants excel'
 
     def post(self):
-        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME,
+        _add_to_printout_queue(_process_export_participants_excel, self.JOB_NAME,
                                Participant.PARTICIPANT)
         return redirect(url_for('meetings.participants'))
 
@@ -781,12 +798,158 @@ class MediaParticipantsExport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'media participants excel'
 
     def post(self):
-        _add_to_printout_queue(_process_participants_excel, self.JOB_NAME,
-                               Participant.MEDIA)
         return redirect(url_for('meetings.media_participants'))
 
 
-def _process_participants_excel(meeting_id, participant_type):
+class DataImportTemplate(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
+
+    def post(self):
+        custom_fields = (
+            g.meeting.custom_fields
+            .filter_by(custom_field_type=self.participant_type)
+            .order_by(CustomField.sort))
+        custom_fields = [
+            field for field in custom_fields
+            if field.field_type.code != CustomField.EVENT
+        ]
+
+        meeting_categories = [c.title.english.lower() for c in
+                              Category.get_categories_for_meeting(self.participant_type)]
+        countries = [country[1].encode('utf-8') for country in get_all_countries()]
+
+        file_name = 'import_{}_list_{}.xlsx'.format(self.participant_type, g.meeting.acronym)
+        file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
+        generate_import_excel(custom_fields, file_path,
+                              CustomField, meeting_categories,
+                              countries)
+
+        return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
+                                   file_name,
+                                   as_attachment=True)
+
+
+class ParticipantsImportTemplate(DataImportTemplate):
+
+    JOB_NAME = 'participants import template'
+    participant_type = Participant.PARTICIPANT
+
+
+class MediaParticipantsImportTemplate(DataImportTemplate):
+
+    JOB_NAME = 'media participants import template'
+    participant_type = Participant.MEDIA
+
+
+class DataImport(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', 'view_participant',
+                           'manage_participant')
+
+    def get(self):
+        context = {
+            "participant_type": self.participant_type,
+        }
+        return render_template('meetings/participant/import/list.html', **context)
+
+    def post(self):
+        if request.files.get("import_file"):
+            try:
+                xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
+            except (zipfile.BadZipfile, InvalidFileException) as e:
+                flash("Invalid XLS file: %s" % e, 'danger')
+                context = {
+                    "participant_type": self.participant_type,
+                }
+                return render_template('meetings/participant/import/list.html', **context)
+
+            request.files["import_file"].seek(0)
+            file_name = str(uuid.uuid4()) + '.xlsx'
+            # Save the file so we only upload it once.
+            request.files["import_file"].save(app.config['UPLOADED_PRINTOUTS_DEST'] / file_name)
+
+        else:
+            file_name = request.form["file_name"]
+            try:
+                xlsx = openpyxl.load_workbook(app.config['UPLOADED_PRINTOUTS_DEST'] / file_name, read_only=True)
+            except (zipfile.BadZipfile, InvalidFileException) as e:
+                flash("Invalid XLS file: %s" % e, 'danger')
+                context = {
+                    "participant_type": self.participant_type,
+                }
+                return render_template('meetings/participant/import/list.html', **context)
+
+        custom_fields = (
+            g.meeting.custom_fields
+                .filter_by(custom_field_type=self.participant_type)
+                .order_by(CustomField.sort))
+        custom_fields = [field for field in custom_fields if field.field_type.code != CustomField.EVENT]
+
+        has_errors = False
+
+        try:
+            rows = list(read_sheet(xlsx, custom_fields))
+            assert rows, "file has no data"
+        except (AssertionError, ValueError) as e:
+            flash("Invalid XLS file: %s" % e, 'danger')
+            context = {
+                "participant_type": self.participant_type,
+            }
+            return render_template('meetings/participant/import/list.html', **context)
+
+        forms = []
+        for form in read_participants_excel(custom_fields, rows, self.form_class):
+            has_errors = not form.validate() or has_errors
+            forms.append(form)
+
+        all_fields = list(custom_form_factory(self.form_class)().exclude([
+            CustomField.EVENT,
+        ]))
+        context = {
+            "forms": forms,
+            "has_errors": has_errors,
+            "all_fields": all_fields,
+            "file_name": file_name,
+            "participant_type": self.participant_type,
+        }
+
+        if has_errors:
+            flash(
+                'XLS file has errors, please review and correct them and try again. '
+                'Hover over cells to find more about the errors.',
+                'danger'
+            )
+        elif request.form["action"] == "import":
+            _add_to_printout_queue(_process_import_participants_excel, self.JOB_NAME,
+                                   rows, self.participant_type, self.form_class)
+            context["import_started"] = True
+        else:
+            flash(
+                'XLS file is valid, please review and hit "Start import" after.',
+                'success',
+            )
+
+        return render_template('meetings/participant/import/list.html', **context)
+
+
+class ParticipantsImport(DataImport):
+
+    JOB_NAME = 'participants import'
+    participant_type = Participant.PARTICIPANT
+    form_class = ParticipantEditForm
+
+
+class MediaParticipantsImport(DataImport):
+
+    JOB_NAME = 'media participants import'
+    participant_type = Participant.MEDIA
+    form_class = MediaParticipantEditForm
+
+
+
+def _process_export_participants_excel(meeting_id, participant_type):
     g.meeting = Meeting.query.get(meeting_id)
     participants = get_participants_full(g.meeting.id, participant_type)
 
@@ -860,3 +1023,98 @@ def _process_participants_excel(meeting_id, participant_type):
     file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / filename
     generate_excel(header, rows, str(file_path))
     return url_for('meetings.printouts_download', filename=filename)
+
+
+def _process_import_participants_excel(meeting_id, participants_rows, participants_type, form_class):
+    g.meeting = Meeting.query.get(meeting_id)
+
+    custom_fields = (
+        g.meeting.custom_fields
+        .filter_by(custom_field_type=participants_type)
+        .order_by(CustomField.sort))
+    custom_fields = [
+        field for field in custom_fields
+        if field.field_type.code != CustomField.EVENT
+    ]
+    for form in read_participants_excel(custom_fields, participants_rows, form_class, read_files=True):
+        # Paranoid validation
+        if form.validate():
+            form.save()
+        else:
+            raise AssertionError("".join(form.errors))
+
+    return 'Successfully added'
+
+
+def read_participants_excel(custom_fields, rows, form_class, read_files=False):
+    meeting_categories = {}
+    for c in Category.get_categories_for_meeting(form_class.CUSTOM_FIELDS_TYPE):
+        meeting_categories[c.title.english.lower()] = c.id
+
+    countries = {}
+    for code, name in get_all_countries():
+        countries[name.lower()] = code
+
+    custom_fields = {
+        custom_field.slug: custom_field for custom_field in custom_fields
+    }
+
+    Form = custom_form_factory(form_class)
+
+    for row_num, row in enumerate(rows, start=2):
+        participant_details = []
+        for slug, value in row.items():
+            value = value.strip()
+
+            if not value:
+                continue
+            custom_field = custom_fields[slug]
+            field_type = custom_field.field_type.code
+
+            if field_type == CustomField.CATEGORY:
+                value = meeting_categories.get(unicode(value).lower(), -1)
+            elif field_type == CustomField.COUNTRY:
+                value = countries.get(value.lower(), "invalid-country")
+            elif field_type == CustomField.MULTI_CHECKBOX:
+                value = [el.strip() for el in value.split(",")]
+            elif field_type in (CustomField.IMAGE, CustomField.DOCUMENT):
+                if read_files:
+                    resp = requests.get(value, stream=True)
+                    resp.raise_for_status()
+
+                    content_type = resp.headers.get('content-type', 'application/octet-stream')
+                    content_length = resp.headers.get('content-length', None)
+                    filename = parse_rfc6266_header(resp.headers.get("content-disposition", "")).get("filename")
+
+                    if not filename:
+                        # Attempt to guess the extension of the file
+                        ext = mimetypes.guess_extension(content_type)
+                        if ext:
+                            filename = str(uuid.uuid4()) + ext
+
+                    value = FileStorage(
+                        stream=io.BytesIO(resp.content),
+                        filename=filename,
+                        content_type=content_type,
+                        content_length=content_length,
+                        headers=resp.headers,
+                    )
+                else:
+                    # TODO: Add some form of validation to check the URLs are valid
+                    #  A HEAD request could also be done in theory fast enough.
+                    pass
+
+            if isinstance(value, list):
+                # Multi checkbox values
+                for val in value:
+                    participant_details.append((slug, val))
+            else:
+                participant_details.append((slug, value))
+
+        form = Form(formdata=ImmutableMultiDict(participant_details), read_from_request=False)
+        form.excel_row = row_num
+        # Set the original value so the frontend can present it as such.
+        for slug, value in row.items():
+            form[slug].excel_value = value.strip()
+        yield form
+

@@ -1,0 +1,161 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb %}
+
+
+{% block title %}Import {{ participant_type }}{% endblock %}
+
+
+{% block breadcrumb %}
+    {% if participant_type == Participant.PARTICIPANT %}
+        {{ breadcrumb( [
+            ('', 'Import Participants')
+        ] ) }}
+    {% else %}
+        {{ breadcrumb( [
+            ('', 'Import Media')
+        ] ) }}
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+	$(function () {
+		$("#results-table").dataTable({
+			scrollX: true,
+			columnDefs: [
+				{
+					targets: [0],
+					visible: false
+				}
+			],
+			initComplete: function () {
+				// Add a filter to only show errors
+				var api = this.api();
+				$("#results-table_filter").append(
+					"<div class='pull-right' style='margin: 0 8px; width: 50%; text-align: right;' >" +
+					" <label for='results-table_error_filter' style='float: none; margin: 0 4px;'>" +
+					"   Filter rows:" +
+					" </label>" +
+					" <select id='results-table_error_filter' class='select' style='width: 40%;'>" +
+					"   <option value=''>All rows</option>" +
+					"   <option value='True'>Errors only</option>" +
+					"   <option value='False'>Valid only</option>" +
+					" </select>" +
+					"</div>"
+				);
+				$("#results-table_error_filter").select2();
+				$("#results-table_error_filter").on("change", function (event) {
+					api.columns(0).search(event.target.value).draw();
+				});
+			}
+		});
+	});
+  </script>
+
+{% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <div>
+    {% if file_name and not import_started %}
+      {% if participant_type == Participant.PARTICIPANT %}
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('.participants_import') }}">
+      {% else %}
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('.media_participants_import') }}">
+      {% endif %}
+        <input name="file_name" type="hidden" value="{{ file_name }}"/>
+        {% if not has_errors %}
+          <button class="btn btn-success" name="action" value="import">
+            Start import
+          </button>
+          &nbsp; or &nbsp;
+        {% endif %}
+        {% if participant_type == Participant.PARTICIPANT %}
+            <a href="{{ url_for('.participants_import') }}" class="btn btn-default">
+        {% else %}
+            <a href="{{ url_for('.media_participants_import') }}" class="btn btn-default">
+        {% endif %}
+          Upload a new file
+        </a>
+      </form>
+    {% elif not import_started %}
+      Participants can be imported via an XLS file. First
+      {% if participant_type == Participant.PARTICIPANT %}
+        <form method="POST" action="{{ url_for('.participants_import_template') }}" style="display: inline">
+      {% else %}
+        <form method="POST" action="{{ url_for('.media_participants_import_template') }}" style="display: inline">
+      {% endif %}
+      
+        <button class="btn btn-link" type="submit">
+          <i class="glyphicon glyphicon-download"></i> Download the import template
+        </button>
+      </form>
+      and fill in the participant data.
+      <hr/>
+      <p>
+        Then upload the template XLS file to validate the data.
+        You will get the chance to review the validated data before starting the import.
+      </p>
+      {% if participant_type == Participant.PARTICIPANT %}
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('.participants_import') }}">
+      {% else %}
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('.media_participants_import') }}">
+      {% endif %}
+        <input id="fileupload" name="import_file" type="file" style=""/>
+        <button class="btn btn-success" type="submit" name="action" value="upload">
+          <i class="glyphicon glyphicon-upload"></i> Upload and validate
+        </button>
+      </form>
+    {% endif %}
+    <hr/>
+  </div>
+
+  {% if all_fields %}
+    <div class="table-responsive">
+      <div>
+        <h5>Legend:</h5>
+        <span>
+          <i class="dot bg-success"></i> Participant can be imported
+          <i class="dot bg-warning"></i> Participant cannot be imported
+          <i class="dot bg-danger"></i> Field is not valid (hover for details)
+        </span>
+      </div>
+      <hr/>
+      <table id="results-table" class="table table-bordered table-condensed">
+        <thead>
+        <tr>
+          <th>Has Errors</th>
+          <th></th>
+          {% for field in all_fields %}
+            <th>{{ field.label.text }}</th>
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for form in forms %}
+          <tr {% if form.errors %}class="bg-warning" {% else %}class="bg-success"{% endif %}>
+            <td>{{ form.errors|length > 0 }}</td>
+            <td>{{ form.excel_row }}</td>
+            {% for field in all_fields %}
+              <td
+                  {% if form[field.id].errors %}
+                    title="{{ '\n'.join(form[field.id].errors) }}"
+                    data-toggle="tooltip" data-placement="top" data-container="body"
+                    class="bg-danger"
+                  {% endif %}
+              >
+
+                {{ form[field.id].excel_value }}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+{% endblock %}

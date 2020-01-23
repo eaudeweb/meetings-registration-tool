@@ -569,3 +569,10 @@ li.separator {
   font-size: 11px;
   color: #666;
 }
+
+.dot {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  display: inline-block;
+}
