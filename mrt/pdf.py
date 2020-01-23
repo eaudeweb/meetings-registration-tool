@@ -64,7 +64,7 @@ class PdfRenderer(object):
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
         if proc.returncode:
-            logger.error("Unable to generate pdf: %s", stdout, stderr, exc_info=True)
+            logger.error("Unable to generate pdf %s: %s", stdout, stderr, exc_info=True)
             raise subprocess.CalledProcessError(proc.returncode, command)
 
     def _generate(self):
