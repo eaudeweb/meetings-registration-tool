@@ -1,4 +1,4 @@
-import os
+import logging
 import subprocess
 import uuid
 
@@ -8,6 +8,7 @@ from mrt.template import url_external
 
 from mrt.utils import read_file
 
+logger = logging.getLogger("mrt")
 
 _PAGE_DEFAULT_MARGIN = {'top': '0', 'bottom': '0', 'left': '0', 'right': '0'}
 
@@ -60,8 +61,11 @@ class PdfRenderer(object):
             command += ['--footer-html', footer_url]
         command += [str(self.template_path), str(self.pdf_path)]
 
-        FNULL = open(os.devnull, 'w')
-        subprocess.check_call(command, stdout=FNULL, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+        if proc.returncode:
+            logger.error("Unable to generate pdf: %s", stdout, stderr, exc_info=True)
+            raise subprocess.CalledProcessError(proc.returncode, command)
 
     def _generate(self):
         self._render_template()
