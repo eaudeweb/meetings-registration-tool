@@ -25,13 +25,15 @@
         }
       }).change();
 
-      // move country represented field and organisation represented field
+      // move country, organisation and region represented fields
       // to category
       var category = $('#category_id');
       $('#represented_country').parents('.form-group').appendTo(
         category.find('[class=group-country]'));
       $('#represented_organization').parents('.form-group').appendTo(
         category.find('[class=group-organization]'));
+      $('#represented_region').parents('.form-group').appendTo(
+        category.find('[class=group-region]'));
     });
   </script>
 

@@ -5,6 +5,7 @@ import uuid
 import openpyxl
 import zipfile
 
+import collections
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
@@ -31,6 +32,9 @@ from sqlalchemy.orm import joinedload
 from mrt.custom_country import Country, get_all_countries
 from mrt.forms.meetings import BadgeCategories, EventsForm
 from mrt.forms.meetings import FlagForm, CategoryTagForm
+from mrt.forms.meetings import ParticipantEditForm
+from mrt.forms.meetings import custom_form_factory
+from mrt.forms.meetings import custom_object_factory
 from mrt.models import Participant, Category, CategoryTag, Meeting, Job
 from mrt.models import redis_store, db, CustomFieldValue, CustomField, CustomFieldChoice
 from mrt.models import get_participants_full
@@ -40,11 +44,13 @@ from mrt.template import pluralize, url_external
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
+
 from mrt.utils import parse_rfc6266_header
 from mrt.utils import read_sheet, generate_excel, generate_import_excel
 from openpyxl.utils.exceptions import InvalidFileException
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.forms.meetings import custom_form_factory
+from mrt.utils import str2bool
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
@@ -226,52 +232,163 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         'verified': 'List of acknowledged participants',
         'credentials': 'List of participants with checked credentials',
     }
+    GROUPABLE_FIELDS = [
+        "country",
+        "category_id",
+        "represented_region",
+        "represented_country",
+        "represented_organization",
+        "language",
+    ]
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
 
     @staticmethod
-    def _get_query(flag):
+    def _get_query(flag, categories):
         query = (
             Participant.query.current_meeting().participants()
             .join(Participant.category, Category.title)
             .options(joinedload(Participant.category)
                      .joinedload(Category.title))
-            .order_by(Category.sort, Category.id,
-                      Participant.representing,
-                      Participant.last_name, Participant.id)
         )
+        if categories:
+            query = query.filter(Participant.category_id.in_(categories))
 
         if flag:
             attr = getattr(Participant, flag)
             query = query.filter(attr == True)
-
+        query = query.order_by(
+            Category.sort, Category.id,
+            Participant.representing,
+            Participant.last_name, Participant.id,
+        )
         return query
+
+    @staticmethod
+    def _get_all_fields():
+        """Get all displayable fields for this meeting."""
+        participant_form = custom_form_factory(ParticipantEditForm)
+        return list(participant_form().exclude([
+            CustomField.CHECKBOX,
+            CustomField.IMAGE,
+            CustomField.EVENT
+        ]))
+
+    @staticmethod
+    def _get_default_field_ids():
+        """Get default field ids to display."""
+        selected_field_ids = [
+            "first_name",
+            "last_name",
+            "category_id",
+            "represented_region",
+            "represented_country",
+            "email",
+        ]
+        if g.meeting.address_field_id:
+            selected_field_ids.append(g.meeting.address_field.slug)
+        if g.meeting.telephone_field_id:
+            selected_field_ids.append(g.meeting.telephone_field.slug)
+        return selected_field_ids
+
+    @classmethod
+    def _get_selected_field_ids(cls):
+        """Get the selected fields according to the request arguments."""
+        default_field_ids = cls._get_default_field_ids()
+        if "flag" not in request.args:
+            return default_field_ids
+        selected_field_ids = []
+        for field in cls._get_all_fields():
+            if str2bool(request.args.get("field_" + field.id, "off")):
+                selected_field_ids.append(field.id)
+        try:
+            group_by = request.args["group_by"]
+            if group_by and group_by not in selected_field_ids:
+                selected_field_ids.append(group_by)
+        except KeyError:
+            pass
+
+        return selected_field_ids or default_field_ids
 
     def get(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
-        page = request.args.get('page', 1, type=int)
-        query = self._get_query(flag)
-        count = query.count()
-        pagination = query.paginate(page, per_page=50)
-        participants = pagination.items
+        try:
+            categories = map(int, request.args.getlist("category_filter"))
+        except (KeyError, ValueError, TypeError):
+            categories = []
+
+        query = self._get_query(flag, categories)
+
+        participants = list(query.all())
+        count = len(participants)
+
         flag_form = FlagForm(request.args)
         flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+        participant_form = custom_form_factory(ParticipantEditForm)
+        all_fields = self._get_all_fields()
+
+        selected_field_ids = self._get_selected_field_ids()
+        selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
+
+        final_results = self.group_participants(participant_form, participants)
+
         return render_template(
             'meetings/printouts/provisional_list.html',
-            participants=participants,
-            pagination=pagination,
+            all_fields=all_fields,
+            selected_field_ids=selected_field_ids,
+            selected_fields=selected_fields,
+            grouped_participants=final_results,
             count=count,
             title=title,
             flag_form=flag_form,
             flag=flag)
 
+    @staticmethod
+    def group_participants(participant_form, participants):
+        # Group the participants on two levels:
+        #  - the category
+        #  - the specified group field of each category.
+        grouped_participants = collections.defaultdict(lambda: collections.defaultdict(list))
+        for participant in participants:
+            obj = participant_form(obj=custom_object_factory(participant))
+            category = participant.category, obj.category_id.render_data() or "---"
+            group_key = Category.GROUP_FIELD[participant.category.group.code]
+            group_value = (
+                getattr(obj, group_key).label.text,
+                getattr(obj, group_key).render_data() or "---"
+            )
+            # Include the sort field to ensure the sorting order is respected.
+            grouped_participants[category][group_value].append(
+                (
+                    getattr(obj, participant.category.sort_field.code).render_data() or "---",
+                    obj
+                )
+            )
+        # Apply sorting rules
+        # 1. Sort by category sort int.
+        final_results = collections.OrderedDict(sorted(
+            grouped_participants.items(), key=lambda x: x[0][0].sort
+        ))
+        for key, value in final_results.items():
+            # 2. Sort by the custom group field for this category
+            final_results[key] = collections.OrderedDict(sorted(value.items()))
+            for participant_list in final_results[key].values():
+                # 3. Sort by the custom sort field or this category
+                participant_list.sort()
+        return final_results
+
     def post(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
+        try:
+            categories = map(int, request.args.getlist("category_filter"))
+        except (KeyError, ValueError, TypeError):
+            categories = []
+        selected_field_ids = self._get_selected_field_ids()
         _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               title, flag)
+                               title, flag, None, selected_field_ids, categories)
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
@@ -537,18 +654,23 @@ def _process_short_list(meeting_id, title, flag):
                        context=context).as_rq()
 
 
-def _process_provisional_list(meeting_id, title, flag, template_name=None):
+def _process_provisional_list(meeting_id, title, flag, template_name=None, selected_field_ids=None, categories=None):
     g.meeting = Meeting.query.get(meeting_id)
-    query = ProvisionalList._get_query(flag)
+    query = ProvisionalList._get_query(flag, categories)
     count = query.count()
     participants = query
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     template_name = (template_name or
                      'meetings/printouts/_provisional_list_pdf.html')
+    participant_form = custom_form_factory(ParticipantEditForm)
+    grouped_participants = ProvisionalList.group_participants(participant_form, participants)
+
     context = {'participants': participants,
+               'grouped_participants': grouped_participants,
                'count': count,
                'title': title,
                'flag': flag,
+               'selected_field_ids': selected_field_ids,
                'template': template_name}
 
     return PdfRenderer('meetings/printouts/printout.html',

@@ -858,11 +858,29 @@ class CategoryMixin(object):
         (MEDIA, 'Category for media participants'),
     )
 
+    REGION = 'region'
     COUNTRY = 'country'
     ORGANIZATION = 'organization'
     CATEGORY_GROUPS = (
-        (COUNTRY, 'Group category by country'),
-        (ORGANIZATION, 'Group category by organization'),
+        (COUNTRY, 'Group category by represented country'),
+        (ORGANIZATION, 'Group category by represented organization'),
+        (REGION, 'Group category by represented region'),
+    )
+    # Map the value from the DB with the corresponding Form field.
+    # This is used when grouping participants according the value
+    # of the fields
+    GROUP_FIELD = {
+        REGION: "represented_region",
+        ORGANIZATION: "represented_organization",
+        COUNTRY: "represented_country",
+    }
+    FIRST_NAME = u"first_name"
+    LAST_NAME = u"last_name"
+    BADGE_NAME = u"field_badge_name"
+    CATEGORY_SORTING = (
+        (LAST_NAME, "Sort category by family name"),
+        (FIRST_NAME, "Sort category by given name"),
+        (BADGE_NAME, "Sort category by badge name"),
     )
 
     id = db.Column(db.Integer, primary_key=True)
@@ -889,6 +907,9 @@ class CategoryMixin(object):
 
     group = db.Column(ChoiceType(CATEGORY_GROUPS),
                       info={'label': 'Group'})
+    sort_field = db.Column(ChoiceType(CATEGORY_SORTING),
+                           nullable=False, default=LAST_NAME,
+                           info={'label': 'Sort by'})
 
     sort = db.Column(db.Integer, default=0)
 

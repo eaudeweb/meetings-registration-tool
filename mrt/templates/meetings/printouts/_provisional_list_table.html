@@ -8,50 +8,43 @@
 
 
 <div class="printout-item-container">
-
-  <table class="table table-bordered table-condensed">
-
+  {% for (group1, group1_value), group_participants2 in grouped_participants.items() %}
+    <table class="table table-bordered table-condensed provisional-table">
       <thead>
-        <tr class="column-headers">
-          <th>Name</th>
-          <th>Category</th>
-          <th>Representing</th>
-          <th>Country</th>
-          {% if g.meeting.address_field_id %}
-          <th>Address</th>
-          {% endif %}
-          {% if g.meeting.telephone_field_id %}
-          <th>Telephone</th>
-          {% endif %}
-          <th>Email</th>
-        </tr>
+      <tr class="group1-value">
+        <th colspan="{{ selected_fields|length }}">
+          {{ group1_value }}
+        </th>
+      </tr>
       </thead>
-
-      <tbody>
-
-        {% for participant in participants %}
-        <tr>
-          <td id="participant-name" data-id="{{ participant.id }}">
-            {{ participant.last_name|upper }}
-            {{ participant.first_name }}
-          </td>
-          <td>{{ participant.category }}</td>
-          <td style="width: 20%;">
-            {{ participant.representing|safe }}
-          </td>
-          <td>{{ participant.country }}</td>
-          {% if g.meeting.address_field_id %}
-          <td>{{ participant.address_value or '' }}</td>
-          {% endif %}
-          {% if g.meeting.telephone_field_id %}
-          <td>{{ participant.telephone_value or '' }}</td>
-          {% endif %}
-          <td>{{ participant.email }}</td>
+      {% for (group2_label, group2_value), participants in group_participants2.items() %}
+        <thead>
+        <tr class="group2-value">
+          <th colspan="{{ selected_fields|length }}">
+            {{ group2_label }}: {{ group2_value }}
+          </th>
         </tr>
+        <tr class="column-headers">
+          {% for field in selected_fields %}
+            <th>
+              {{ field.label.text }}
+            </th>
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for (ignored, participant) in participants %}
+          <tr>
+            {% for field in participant.get_fields(selected_field_ids) %}
+              <td>{{ field.render_data() }}</td>
+            {% endfor %}
+          </tr>
         {% endfor %}
+        </tbody>
+      {% endfor %}
+    </table>
 
-      </tbody>
+  {% endfor %}
 
-  </table>
 
 </div> {# printout-item-container #}
