@@ -243,7 +243,9 @@ def generate_import_excel(fields, file_name, field_types, meeting_categories):
                 )
             )
 
-        if current_field.field_type.code == field_types.TEXT or current_field.field_type.code == field_types.TEXT_AREA:
+        if current_field.field_type.code == field_types.TEXT or\
+                current_field.field_type.code == field_types.TEXT_AREA:
+
             sheet.add_data_validation(
                 DataValidation(
                     type="textLength",
@@ -252,6 +254,16 @@ def generate_import_excel(fields, file_name, field_types, meeting_categories):
                     sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
                     operator="lessThan",
                     formula1=current_field.max_length,
+                    allow_blank=current_field.required,
+                )
+            )
+
+        if current_field.field_type.code == field_types.MULTI_CHECKBOX:
+            sheet.add_data_validation(
+                DataValidation(
+                    promptTitle = 'Fields selection',
+                    prompt='Please type the entries comma separated (entry1, entry2, entry3)',
+                    sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
                     allow_blank=current_field.required,
                 )
             )
