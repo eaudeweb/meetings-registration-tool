@@ -213,7 +213,7 @@ def get_import_template_header(fields):
     )
 
 
-def generate_import_excel(fields, file_name, field_types, meeting_categories):
+def generate_import_excel(fields, file_name, field_types, meeting_categories, countries):
     workbook = Workbook()
     sheet = workbook.active
     col_names = get_import_template_header(fields)
@@ -272,7 +272,8 @@ def generate_import_excel(fields, file_name, field_types, meeting_categories):
                 current_field.field_type.code == field_types.RADIO or\
                 current_field.field_type.code == field_types.LANGUAGE or\
                 current_field.field_type.code == field_types.CHECKBOX or\
-                current_field.field_type.code == field_types.CATEGORY:
+                current_field.field_type.code == field_types.CATEGORY or\
+                current_field.field_type.code == field_types.COUNTRY:
 
             curr_validation_column = openpyxl.utils.get_column_letter(val_sheet_col_idx)
             cell = val_sheet.cell(1, val_sheet_col_idx, current_field.slug.upper())
@@ -284,6 +285,8 @@ def generate_import_excel(fields, file_name, field_types, meeting_categories):
                 values = ["Yes", "No"]
             elif current_field.field_type.code == field_types.CATEGORY:
                 values = meeting_categories
+            elif current_field.field_type.code == field_types.COUNTRY:
+                values = countries
 
             for row_index, value in enumerate(values, start=2):
                 val_sheet.cell(row_index, val_sheet_col_idx, str(value))

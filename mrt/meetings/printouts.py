@@ -696,10 +696,13 @@ class DataImportTemplate(PermissionRequiredMixin, MethodView):
 
         meeting_categories = [c.title.english.lower() for c in
                               Category.get_categories_for_meeting(self.participant_type)]
+        countries = [country[1].encode('utf-8') for country in get_all_countries()]
 
         file_name = 'import_{}_list_{}.xlsx'.format(self.participant_type, g.meeting.acronym)
         file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / file_name
-        generate_import_excel(custom_fields, file_path, CustomField, meeting_categories)
+        generate_import_excel(custom_fields, file_path,
+                              CustomField, meeting_categories,
+                              countries)
 
         return send_from_directory(app.config['UPLOADED_PRINTOUTS_DEST'],
                                    file_name,
