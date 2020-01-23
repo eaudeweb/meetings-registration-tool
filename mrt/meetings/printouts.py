@@ -1038,9 +1038,10 @@ def _process_import_participants_excel(meeting_id, participants_rows, participan
     ]
     for form in read_participants_excel(custom_fields, participants_rows, form_class, read_files=True):
         # Paranoid validation
-        # TODO: figure out what to do if the downloaded files are not valid.
         if form.validate():
             form.save()
+        else:
+            raise AssertionError("".join(form.errors))
 
     return 'Successfully added'
 
