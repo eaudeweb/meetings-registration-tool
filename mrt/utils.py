@@ -1,4 +1,3 @@
-import logging
 import os
 import re
 import urllib
@@ -214,7 +213,7 @@ def get_import_template_header(fields):
     )
 
 
-def generate_import_excel(fields, file_name, field_types):
+def generate_import_excel(fields, file_name, field_types, meeting_categories):
     workbook = Workbook()
     sheet = workbook.active
     col_names = get_import_template_header(fields)
@@ -260,7 +259,8 @@ def generate_import_excel(fields, file_name, field_types):
         if current_field.field_type.code == field_types.SELECT or\
                 current_field.field_type.code == field_types.RADIO or\
                 current_field.field_type.code == field_types.LANGUAGE or\
-                current_field.field_type.code == field_types.CHECKBOX:
+                current_field.field_type.code == field_types.CHECKBOX or\
+                current_field.field_type.code == field_types.CATEGORY:
 
             curr_validation_column = openpyxl.utils.get_column_letter(val_sheet_col_idx)
             cell = val_sheet.cell(1, val_sheet_col_idx, current_field.slug.upper())
@@ -270,6 +270,8 @@ def generate_import_excel(fields, file_name, field_types):
             values = [custom_val.value for custom_val in current_field.choices]
             if current_field.field_type.code == field_types.CHECKBOX:
                 values = ["Yes", "No"]
+            elif current_field.field_type.code == field_types.CATEGORY:
+                values = meeting_categories
 
             for row_index, value in enumerate(values, start=2):
                 val_sheet.cell(row_index, val_sheet_col_idx, str(value))
@@ -289,8 +291,6 @@ def generate_import_excel(fields, file_name, field_types):
             )
 
             val_sheet_col_idx += 1
-
-
 
     workbook.save(file_name)
 
