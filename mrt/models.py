@@ -883,7 +883,7 @@ class CategoryMixin(object):
     }
     FIRST_NAME = u"first_name"
     LAST_NAME = u"last_name"
-    BADGE_NAME = u"field_badge_name"
+    BADGE_NAME = u"badge_name"
     CATEGORY_SORTING = (
         (LAST_NAME, "Sort category by family name"),
         (FIRST_NAME, "Sort category by given name"),
