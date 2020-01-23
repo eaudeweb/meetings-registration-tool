@@ -243,8 +243,9 @@ def generate_import_excel(fields, file_name, field_types, meeting_categories, co
                 )
             )
 
-        if current_field.field_type.code == field_types.TEXT or\
-                current_field.field_type.code == field_types.TEXT_AREA:
+        if (current_field.field_type.code == field_types.TEXT or\
+                current_field.field_type.code == field_types.TEXT_AREA) and\
+                current_field.max_length:
 
             sheet.add_data_validation(
                 DataValidation(
