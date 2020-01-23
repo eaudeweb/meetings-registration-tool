@@ -3,7 +3,11 @@ import logging.config
 import importlib
 import traceback
 
+import sentry_sdk
 from flask import request
+from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
+from sentry_sdk.integrations.rq import RqIntegration
 from werkzeug import SharedDataMiddleware
 from werkzeug.contrib.fixers import ProxyFix
 from flask import Flask, redirect, render_template, url_for, g
@@ -36,7 +40,7 @@ from mrt.template import nl2br, active, date_processor, countries, crop
 from mrt.template import no_image_cache, activity_map, inject_static_file
 from mrt.template import pluralize, clean_html, year_processor
 from mrt.template import sort_by_tuple_element
-from mrt.utils import slugify, Logo, sentry
+from mrt.utils import slugify, Logo
 
 
 _DEFAULT_LANG = 'english'
@@ -153,7 +157,10 @@ def create_app(config={}, skip_logging=False):
 
     app.wsgi_app = ProxyFix(app.wsgi_app)
     if not app.config.get('DEBUG') and app.config.get('SENTRY_DSN'):
-        sentry.init_app(app)
+        sentry_sdk.init(
+            "your dsn",
+            integrations=[RqIntegration(), FlaskIntegration(), LoggingIntegration()]
+        )
 
     app.config['REPRESENTING_TEMPLATES'] = (
         Path('meetings/participant/representing'))

@@ -18,7 +18,6 @@ from flask import _request_ctx_stack, current_app as app, g, url_for
 from flask_babel import refresh
 from flask_uploads import IMAGES, UploadSet
 
-from raven.contrib.flask import Sentry
 from werkzeug import FileStorage
 
 from babel import support, Locale
@@ -26,7 +25,6 @@ from path import Path
 from mrt.definitions import LANGUAGES_MAP, LANGUAGES_ISO_MAP
 
 logos_upload = UploadSet('logos', IMAGES)
-sentry = Sentry()
 
 
 class Logo(object):
