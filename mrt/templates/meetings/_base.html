@@ -180,11 +180,13 @@
               Import participants
             </a>
           </li>
-          <li class="{{ active('/import_media_participant') }}">
-            <a href="{{ url_for('meetings.media_participants_import') }}">
-              Import media participants
-            </a>
-          </li>
+          {% if g.meeting.media_participant_enabled %}
+            <li class="{{ active('/import_media_participant') }}">
+                <a href="{{ url_for('meetings.media_participants_import') }}">
+                Import media participants
+                </a>
+            </li>
+          {% endif %}
         </ul>
       </li>
     {% endif %}
