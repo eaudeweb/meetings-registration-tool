@@ -287,6 +287,40 @@ li.separator {
     border: none;
 }
 
+.selected-fields-inputs {
+    display: grid;
+    margin: 1rem;
+    grid-gap: 0 1rem;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
+
+.sorting-fields-inputs {
+    display: grid;
+    margin: 1rem;
+    grid-gap: 2rem;
+    grid-template-columns: 50% 20%;
+}
+
+.provisional-table .group1-value th {
+    font-size: 1.5rem;
+    border-top-width: 2px!important;
+    background-color: rgba(157, 157, 157, 0.5);
+}
+
+.provisional-table .group2-value th {
+    border-top-width: 2px!important;
+    background-color: rgba(213, 225, 235, 0.5);
+}
+
+.provisional-table {
+    table-layout: fixed;
+}
+
+.provisional-table td {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 .tt-dropdown-menu {
     -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     background-clip: padding-box;

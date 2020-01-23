@@ -14,6 +14,7 @@
             <th>Name</th>
             <th>Category Type</th>
             <th>Category Group</th>
+            <th>Category Sort</th>
             <th>Badge color</th>
             {% if default %}
               <th>Meeting Types</th>
@@ -34,6 +35,7 @@
               </td>
               <td>{{ category.category_type }}</td>
               <td>{{ category.group }}</td>
+              <td>{{ category.sort_field }}</td>
               <td>
                 <span class="stripe" style="background: {{ category.color }}"></span>
                 <span class="color">{{ category.color }}</span>
