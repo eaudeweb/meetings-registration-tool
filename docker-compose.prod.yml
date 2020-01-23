@@ -14,7 +14,6 @@ services:
     environment:
      - FLASK_MIGRATE=no
      - FLASK_CREATE_SUPERUSER=no
-     - UWSGI_PORT=5000
      - DOMAIN_NAME=https://meetings.cms.int
     healthcheck:
       test: "curl -f --max-time 1 http://localhost:$$UWSGI_PORT/healthcheck || exit 1"
