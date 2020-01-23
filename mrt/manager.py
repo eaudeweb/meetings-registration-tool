@@ -18,12 +18,9 @@ from mrt.models import CustomField, Translation, Participant, Meeting, MeetingTy
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
 from mrt.utils import validate_email
-<<<<<<< 149c56e5504e215152bf99391b14634db23ff529
 from collections import defaultdict
-=======
 from mrt.forms.meetings.meeting import _add_choice_values_for_custom_field
 
->>>>>>> Add command to add sex custom field to meetings
 
 @click.group()
 def cli():
