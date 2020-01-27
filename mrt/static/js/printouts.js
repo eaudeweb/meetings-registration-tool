@@ -22,12 +22,10 @@ $(function () {
         job_row.addClass('success');
         job_row.find('.status').text(STATUS.FINISHED);
         
-        var filePath = "[?:[a-zA-Z0-9-_\.]+(?:.xls|.xlsx)";
-        
-        var html = 'Success';
-        if (result.toString().match(filePath)) {
+        html = result;
+        if (result.split('/').pop().indexOf('.') > -1)
             html = $('<a>').attr('href', result).text('Download file');
-        }
+
         job_row.find('.result').html(html);
     };
 
