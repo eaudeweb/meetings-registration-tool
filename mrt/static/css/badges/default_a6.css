@@ -20,6 +20,7 @@ h2 {
 }
 h3 {
 	font-size: 25px;
+	font-weight: bold;
 }
 
 .badge-container {
@@ -59,6 +60,7 @@ h3 {
     height: 0.6694in;
     font-size: 8pt;
     top: 2.63in;
+    color: #fff;
 }
 
 .stripe2 h2 {
@@ -83,9 +85,9 @@ h3 {
 
 .content .badge_name {
     position: absolute;
-    top: 0.8in;
+    top: 0.6in;
     left: 1.4in;
-    margin-right: 0.1in;
+    margin-right: 0.2in;
 }
 
 .content .description {
@@ -104,7 +106,7 @@ h3 {
 
 .content .description h1 {
     position: relative;
-    font-size: 30px;
+    font-size: 25px;
     left: 0.15in;
     top: -0.3in;
 }
