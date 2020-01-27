@@ -125,7 +125,7 @@ LOGGING = {
 
     'loggers': {
         'mrt': {
-            'handlers': ['console],
+            'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': False,
         },

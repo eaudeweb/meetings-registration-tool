@@ -31,5 +31,6 @@ COPY . $APP_HOME
 RUN pybabel compile -d mrt/translations \
     && mv settings.example instance/settings.py \
     && mv ./docker/docker-entrypoint.sh /bin/
+RUN env FLASK_APP=uwsgi flask assets build
 
 ENTRYPOINT ["docker-entrypoint.sh"]
