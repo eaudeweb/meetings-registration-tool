@@ -21,7 +21,13 @@ $(function () {
         var job_row = $('#' + this.id);
         job_row.addClass('success');
         job_row.find('.status').text(STATUS.FINISHED);
-        var html = $('<b>').text('Success - please refresh');
+        
+        var filePath = "[?:[a-zA-Z0-9-_\.]+(?:.xls|.xlsx)";
+        
+        var html = 'Success';
+        if (result.toString().match(filePath)) {
+            html = $('<a>').attr('href', result).text('Download file');
+        }
         job_row.find('.result').html(html);
     };
 
