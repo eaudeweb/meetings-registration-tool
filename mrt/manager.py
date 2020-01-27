@@ -330,13 +330,17 @@ def sync_cites_meetings(ctx):
 
 
 @cli.command(name='add_custom_field_sex')
+@click.option('--meeting', type=int)
 @click.pass_context
-def add_custom_field_sex(ctx):
+def add_custom_field_sex(ctx, meeting):
 # previously named add_custom_sex_field(ctx):
     app = ctx.obj['app']
 
     with app.test_request_context():
-        meetings = Meeting.query.all()
+
+        meeting_obj = Meeting.query.filter_by(id=meeting).scalar()
+
+        meetings = [meeting_obj] if meeting_obj else Meeting.query.all()
 
         for meeting in meetings:
             query = (
