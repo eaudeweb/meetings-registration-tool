@@ -338,8 +338,7 @@ def add_custom_field_sex(ctx, meeting):
 
     with app.test_request_context():
 
-        if meeting:
-            meeting_obj = Meeting.query.filter_by(id=meeting).scalar()
+        meeting_obj = Meeting.query.filter_by(id=meeting).scalar()
 
         meetings = [meeting_obj] if meeting_obj else Meeting.query.all()
 
