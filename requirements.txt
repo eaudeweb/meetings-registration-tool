@@ -59,7 +59,3 @@ requests==2.20.0
 
 # sentry
 sentry-sdk==0.14.1
-
-# slugify
-python-slugify==4.0.0 
-text-unidecode==1.3

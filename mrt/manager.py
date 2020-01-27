@@ -17,11 +17,10 @@ from mrt.models import User, Staff, Job
 from mrt.models import CustomField, Translation, Participant, Meeting, MeetingType
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
-from mrt.utils import validate_email
+from mrt.utils import slugify, validate_email
 from collections import defaultdict
 from mrt.forms.meetings.meeting import _add_choice_values_for_custom_field
 
-from slugify import slugify
 
 @click.group()
 def cli():
