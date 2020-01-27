@@ -262,6 +262,8 @@ meetings.add_url_rule(
 
 
 # logs
+meetings.add_url_rule('/<int:meeting_id>/settings/integration',
+                      view_func=views.Integration.as_view('integration'))
 meetings.add_url_rule('/<int:meeting_id>/settings/statistics',
                       view_func=views.Statistics.as_view('statistics'))
 meetings.add_url_rule('/<int:meeting_id>/logs/mails',

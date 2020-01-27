@@ -1,0 +1,50 @@
+{% extends "meetings/_base.html" %}
+{% from "_bits.html" import breadcrumb, form_group %}
+
+
+{% set title = "Integration" %}
+
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block breadcrumb %} {{ breadcrumb([('', title)]) }} {% endblock %}
+
+
+{% block content %}
+
+  {{ super() }}
+
+  <h3 class="page-title">{{ title }}</h3>
+
+
+  <table class="table bg-warning">
+
+    <tbody>
+      {% if g.meeting.online_registration %}
+        <tr>
+          <td><h4>Participant registration form</h4></td>
+          <td>
+            {% block registration_url %}
+              {% set url = url_external('meetings.registration') %}
+              <h4><a href="{{ url }}">{{ url }}</a></h4>
+            {% endblock %}
+          </td>
+        </tr>
+      {% endif %}
+
+      {% if g.meeting.media_participant_enabled %}
+        <tr>
+          <td><h4>Media Participant registration form</h4></td>
+          <td>
+            {% block media_registration_url %}
+              {% set url = url_external('meetings.media_registration') %}
+              <h4><a href="{{ url }}">{{ url }}</a></h4>
+            {% endblock %}
+          </td>
+        </tr>
+      {% endif %}
+    </tbody>
+
+  </table>
+{% endblock %}
+
