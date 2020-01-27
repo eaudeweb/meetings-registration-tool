@@ -21,7 +21,7 @@ $(function () {
         var job_row = $('#' + this.id);
         job_row.addClass('success');
         job_row.find('.status').text(STATUS.FINISHED);
-        var html = $('<a>').attr('href', result).text('Download file');
+        var html = $('<b>').text('Success - please refresh');
         job_row.find('.result').html(html);
     };
 
