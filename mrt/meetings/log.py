@@ -18,6 +18,7 @@ def activity_listener(sender, participant, action, staff=None):
     db.session.add(activity)
     db.session.commit()
 
+
 class Integration(PermissionRequiredMixin, MethodView):
 
     permission_required = ('manage_meeting', )
@@ -25,6 +26,7 @@ class Integration(PermissionRequiredMixin, MethodView):
 
     def get(self):
         return render_template(self.template_name)
+
 
 class Statistics(PermissionRequiredMixin, MethodView):
 
@@ -43,6 +45,9 @@ class Statistics(PermissionRequiredMixin, MethodView):
             participant_categories=participant_categories,
             media_categories=media_categories,
             total_delegates=total_delegates,
+            sex_field=(
+                g.meeting.custom_fields.filter_by(slug='sex').scalar()
+            ),
             female_delegates=(
                 g.meeting.participants.filter_by(
                     sex=Participant.SEX_CHOICES[0][0]

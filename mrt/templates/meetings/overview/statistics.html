@@ -74,30 +74,32 @@
       {% endif %}
     </div>
 
-    <div class="col-sm-4 col-sm-offset-1">
-      <table class="table table-bordered">
-        <thead>
+    {% if sex_field %}
+      <div class="col-sm-4 col-sm-offset-1">
+        <table class="table table-bordered">
+          <thead>
+            <tr class="row">
+              <th class="col-sm-8">Gender</th>
+              <th class="col-sm-4">Total</th>
+            </tr>
+          </thead>
+
           <tr class="row">
-            <th class="col-sm-8">Gender</th>
-            <th class="col-sm-4">Total</th>
+            <td class="col-sm-8">Female</td>
+            <td class="col-sm-4">{{ female_delegates }}</td>
           </tr>
-        </thead>
+          <tr class="row">
+            <td class="col-sm-8">Male</td>
+            <td class="col-sm-4">{{ male_delegates }}</td>
+          </tr>
+          <tr class="row">
+            <td class="col-sm-8">Neutral / Rather not say</td>
+            <td class="col-sm-4">{{ neutral_delegates }}</td>
+          </tr>
 
-        <tr class="row">
-          <td class="col-sm-8">Female</td>
-          <td class="col-sm-4">{{ female_delegates }}</td>
-        </tr>
-        <tr class="row">
-          <td class="col-sm-8">Male</td>
-          <td class="col-sm-4">{{ male_delegates }}</td>
-        </tr>
-        <tr class="row">
-          <td class="col-sm-8">Neutral / Rather not say</td>
-          <td class="col-sm-4">{{ neutral_delegates }}</td>
-        </tr>
-
-      </table>
-    </div>
+        </table>
+      </div>
+    {% endif %}
   </div>
 
 {% endblock %}
