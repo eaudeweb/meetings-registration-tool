@@ -22,8 +22,10 @@ $(function () {
         job_row.addClass('success');
         job_row.find('.status').text(STATUS.FINISHED);
         
-        html = result;
-        if (result.split('/').pop().indexOf('.') > -1)
+        var html = result;
+        if (result && (result.startsWith('https://') ||
+                       result.startsWith('http://') ||
+                       result.startsWith('/')))
             html = $('<a>').attr('href', result).text('Download file');
 
         job_row.find('.result').html(html);
