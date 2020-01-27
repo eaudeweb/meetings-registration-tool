@@ -21,6 +21,7 @@ from mrt.utils import validate_email
 from collections import defaultdict
 from mrt.forms.meetings.meeting import _add_choice_values_for_custom_field
 
+from slugify import slugify
 
 @click.group()
 def cli():
@@ -300,6 +301,11 @@ def sync_cites_meetings(ctx):
                 continue
             else:
                 curr_meeting_type = MeetingType.query.filter_by(label=meeting_dict['meeting_type']).first()
+                if not curr_meeting_type:
+                    curr_meeting_type = MeetingType(label=meeting_dict['meeting_type'],
+                                                    slug=slugify(meeting_dict['meeting_type']))
+                    db.session.add(curr_meeting_type)
+
                 date_start = datetime.strptime(
                                 re.sub(re.compile('<.*?>'), '', meeting_dict['start']),
                                 '%d/%m/%Y')
