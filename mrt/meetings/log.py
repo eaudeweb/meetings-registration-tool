@@ -18,6 +18,13 @@ def activity_listener(sender, participant, action, staff=None):
     db.session.add(activity)
     db.session.commit()
 
+class Integration(PermissionRequiredMixin, MethodView):
+
+    permission_required = ('manage_meeting', )
+    template_name = 'meetings/overview/integration.html'
+
+    def get(self):
+        return render_template(self.template_name)
 
 class Statistics(PermissionRequiredMixin, MethodView):
 
