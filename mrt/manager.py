@@ -329,9 +329,10 @@ def sync_cites_meetings(ctx):
         db.session.commit()
 
 
-@cli.command(name='add_custom_sex_field')
+@cli.command(name='add_custom_field_sex')
 @click.pass_context
-def add_custom_sex_field(ctx):
+def add_custom_field_sex(ctx):
+# previously named add_custom_sex_field(ctx):
     app = ctx.obj['app']
 
     with app.test_request_context():
