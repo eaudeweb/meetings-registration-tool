@@ -782,7 +782,7 @@ class ParticipantsExport(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', 'view_participant',
                            'manage_participant')
 
-    JOB_NAME = 'participants excel'
+    JOB_NAME = 'participants export excel'
 
     def post(self):
         _add_to_printout_queue(_process_export_participants_excel, self.JOB_NAME,
@@ -795,7 +795,7 @@ class MediaParticipantsExport(PermissionRequiredMixin, MethodView):
     permission_required = ('manage_meeting', 'view_media_participant',
                            'manage_media_participant')
 
-    JOB_NAME = 'media participants excel'
+    JOB_NAME = 'media participants export excel'
 
     def post(self):
         return redirect(url_for('meetings.media_participants'))

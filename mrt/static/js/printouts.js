@@ -21,7 +21,13 @@ $(function () {
         var job_row = $('#' + this.id);
         job_row.addClass('success');
         job_row.find('.status').text(STATUS.FINISHED);
-        var html = $('<a>').attr('href', result).text('Download file');
+        
+        var html = result;
+        if (result && (result.startsWith('https://') ||
+                       result.startsWith('http://') ||
+                       result.startsWith('/')))
+            html = $('<a>').attr('href', result).text('Download file');
+
         job_row.find('.result').html(html);
     };
 
