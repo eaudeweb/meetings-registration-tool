@@ -2,47 +2,103 @@
 
 <div class="badge-container">
 	<div class="stripe">
-    <h1>
-      {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }}<br>
-      {{ year_processor(g.meeting.date_start, g.meeting.date_end, out_format='yyyy') }}
-    </h1>
     
     <img src="{{ badge_context['product_logo'].url }}" class="logo" alt="">
     
     <img src="{{ badge_context['product_side_logo'].url }}"
          class="side-logo" alt="">
+
+    <h2>
+      {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }} - 
+      {{ year_processor(g.meeting.date_start, g.meeting.date_end, out_format='yyyy') }}
+    </h2>
   
   </div> {# stripe #}
 
   <div class="content">
+
   	{% if badge_context['participant_photo'] %}
       <img src="{{ badge_context['participant_photo'] }}" alt=""
            class="photo">
     {% endif %}
 		
-		<div class="description">
-  		<h2>
+		<div class="badge_name">
+  		<h3>
        {{ participant.name_on_badge }}
-      </h2>
+      </h3>
 		</div>
 
-		<div class="description2">
+		<div class="description">
 			<small>
 				Valid from {{ date_processor(g.meeting.date_start, g.meeting.date_end,
                         out_format='d MMM yyyy') }}
 			</small><br>
-	  	{% if g.meeting.badge_header %}
-	      {{ g.meeting.badge_header[language]|clean_html(tags='sup') }}
-	    {% else %}
-	      {{ g.meeting.title[language]|clean_html(tags='sup') }}
-	    {% endif %}
+      <h1>
+  	  	{% if g.meeting.badge_header %}
+  	      {{ g.meeting.badge_header[language]|clean_html(tags='sup') }}
+  	    {% else %}
+  	      {{ g.meeting.title[language]|clean_html(tags='sup') }}
+  	    {% endif %}
+      </h1>
 		</div>
 
   </div> {# content #}
 
 	<div class="stripe2 {% if nostripe %}nostripe{% endif %}"
        style="background: {{ participant.category.color }}">
-   	{{ participant.representing|safe }}
+   	<h2>{{ participant.representing|safe }}</h2>
+  </div> {# stripe #}
+
+</div> {# container #}
+
+<!-- and rotate it -->
+<div class="badge-container" style="-webkit-transform: rotate(180deg); -webkit-backface-visibility: hidden;">
+  <div class="stripe">
+    
+    <img src="{{ badge_context['product_logo'].url }}" class="logo" alt="">
+    
+    <img src="{{ badge_context['product_side_logo'].url }}"
+         class="side-logo" alt="">
+
+    <h2>
+      {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }} - 
+      {{ year_processor(g.meeting.date_start, g.meeting.date_end, out_format='yyyy') }}
+    </h2>
+  
+  </div> {# stripe #}
+
+  <div class="content">
+
+    {% if badge_context['participant_photo'] %}
+      <img src="{{ badge_context['participant_photo'] }}" alt=""
+           class="photo">
+    {% endif %}
+    
+    <div class="badge_name">
+      <h3>
+       {{ participant.name_on_badge }}
+      </h3>
+    </div>
+
+    <div class="description">
+      <small>
+        Valid from {{ date_processor(g.meeting.date_start, g.meeting.date_end,
+                        out_format='d MMM yyyy') }}
+      </small><br>
+      <h1>
+        {% if g.meeting.badge_header %}
+          {{ g.meeting.badge_header[language]|clean_html(tags='sup') }}
+        {% else %}
+          {{ g.meeting.title[language]|clean_html(tags='sup') }}
+        {% endif %}
+      </h1>
+    </div>
+
+  </div> {# content #}
+
+  <div class="stripe2 {% if nostripe %}nostripe{% endif %}"
+       style="background: {{ participant.category.color }}">
+    <h2>{{ participant.representing|safe }}</h2>
   </div> {# stripe #}
 
 </div> {# container #}
