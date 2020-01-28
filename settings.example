@@ -129,6 +129,10 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+        'sqlalchemy.engine': {
+            'handlers': ['console'],
+            'level': 'CRITICAL',  # Set to INFO to debug queries.
+        },
         'debug': {
             'level': 'DEBUG',
             'propagate': True,
