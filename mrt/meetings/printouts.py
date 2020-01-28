@@ -345,27 +345,66 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             flag_form=flag_form,
             flag=flag)
 
-    @staticmethod
-    def group_participants(participant_form, participants):
+    @classmethod
+    def set_participant_values(cls, participants):
+        """Loads all the value for these participants in a single query,
+        to prevent numerous round trips to the db.
+
+        Set the values directly to the participants
+        """
+        participants = {p.id: p for p in participants}
+
+        # TODO: There will be another slight benefit if we only load the selected fields
+        #  instead of all. The difference would be minor though.
+        query = (
+            CustomFieldValue.query.join(CustomField)
+                .options(
+                joinedload(CustomFieldValue.custom_field).joinedload(CustomField.label)
+            )
+                .filter(CustomFieldValue.participant_id.in_(participants.keys()))
+                .filter(CustomField.meeting == g.meeting)
+        )
+
+        for value in query:
+            setattr(
+                participants[value.participant_id],
+                value.custom_field.slug,
+                value.value or None
+            )
+
+    @classmethod
+    def group_participants(cls, participant_form, participants):
+        cls.set_participant_values(participants)
         # Group the participants on two levels:
         #  - the category
         #  - the specified group field of each category.
         grouped_participants = collections.defaultdict(lambda: collections.defaultdict(list))
+
         for participant in participants:
-            obj = participant_form(obj=custom_object_factory(participant))
+            # XXX DO NOT use the custom_object_factory here, as that will trigger
+            #  and individual query for each value for each field for each participant
+            #  scaling extremely poorly!
+            obj = participant_form(obj=participant)
             category = participant.category, obj.category_id.render_data() or "---"
             group_key = Category.GROUP_FIELD[participant.category.group.code]
-            group_value = (
-                getattr(obj, group_key).label.text,
-                getattr(obj, group_key).render_data() or "---"
-            )
-            # Include the sort field to ensure the sorting order is respected.
-            grouped_participants[category][group_value].append(
-                (
-                    getattr(obj, participant.category.sort_field.code).render_data() or "---",
-                    obj
+            try:
+                group_value = (
+                    getattr(obj, group_key).label.text,
+                    getattr(obj, group_key).render_data() or "---"
                 )
-            )
+            except AttributeError:
+                group_value = ("", "---")
+
+            try:
+                # Include the sort field to ensure the sorting order is respected.
+                grouped_participants[category][group_value].append(
+                    (
+                        getattr(obj, participant.category.sort_field.code).render_data() or "---",
+                        obj
+                    )
+                )
+            except AttributeError:
+                grouped_participants[category][group_value].append(("---", obj))
         # Apply sorting rules
         # 1. Sort by category sort int.
         final_results = collections.OrderedDict(sorted(

@@ -141,7 +141,7 @@ def custom_form_factory(form, field_types=None, field_slugs=None,
     return type(form)(form.__name__, (form,), form_attrs)
 
 
-def custom_object_factory(participant, field_type=[], obj=object):
+def custom_object_factory(participant, field_type=None, obj=object):
     object_attrs = {}
 
     if participant:
@@ -170,5 +170,8 @@ def custom_object_factory(participant, field_type=[], obj=object):
             else:
                 data = _CUSTOM_FIELDS_MAP[cf.field_type.code]
                 field = data['field']
+                # TODO: instead of triggering a single query for each value
+                #  of each field, we can easily provide all the data in a single
+                #  query.
                 object_attrs[cf.slug] = field.provide_data(cf, participant)
     return type(obj)(obj.__name__, (obj,), object_attrs)
