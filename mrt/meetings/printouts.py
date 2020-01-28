@@ -711,7 +711,7 @@ def _process_provisional_list(meeting_id, title, flag, template_name=None, selec
     g.meeting = Meeting.query.get(meeting_id)
     query = ProvisionalList._get_query(flag, categories)
     count = query.count()
-    participants = query
+    participants = list(query)
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     template_name = (template_name or
                      'meetings/printouts/_provisional_list_pdf.html')
