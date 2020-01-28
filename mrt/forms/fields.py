@@ -189,7 +189,7 @@ class CustomMultiCheckboxField(CustomBaseFieldMixin, MultiCheckboxField):
     widget = ListWidgetWithReset(prefix_label=False)
 
     def render_data(self):
-        return Markup('<br>'.join(self.data))
+        return Markup('<br>'.join(self.data or []))
 
     @classmethod
     def provide_data(cls, cf, participant):

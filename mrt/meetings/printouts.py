@@ -357,20 +357,34 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         # TODO: There will be another slight benefit if we only load the selected fields
         #  instead of all. The difference would be minor though.
         query = (
-            CustomFieldValue.query.join(CustomField)
-                .options(
+            CustomFieldValue.query.options(
                 joinedload(CustomFieldValue.custom_field).joinedload(CustomField.label)
+            )
+                .options(
+                joinedload(CustomFieldValue.choice).joinedload(CustomFieldChoice.value)
             )
                 .filter(CustomFieldValue.participant_id.in_(participants.keys()))
                 .filter(CustomField.meeting == g.meeting)
         )
 
         for value in query:
-            setattr(
-                participants[value.participant_id],
-                value.custom_field.slug,
-                value.value or None
-            )
+            if value.custom_field.field_type == CustomField.MULTI_CHECKBOX:
+                try:
+                    getattr(
+                        participants[value.participant_id], value.custom_field.slug
+                    ).append(value.choice.value.english)
+                except AttributeError:
+                    setattr(
+                        participants[value.participant_id],
+                        value.custom_field.slug,
+                        [value.choice.value.english],
+                    )
+            else:
+                setattr(
+                    participants[value.participant_id],
+                    value.custom_field.slug,
+                    value.value or None,
+                )
 
     @classmethod
     def group_participants(cls, participant_form, participants):
