@@ -319,6 +319,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         except (KeyError, ValueError, TypeError):
             categories = []
 
+        # TODO: Loading using the ORM uses too much memory, we should switch
+        #  to raw sql.
         query = self._get_query(flag, categories)
 
         participants = list(query.all())
@@ -356,39 +358,55 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         """
         participants = {p.id: p for p in participants}
 
-        # TODO: There will be another slight benefit if we only load the selected fields
-        #  instead of all. The difference would be minor though.
-        query = (
-            CustomFieldValue.query.options(
-                joinedload(CustomFieldValue.custom_field).joinedload(CustomField.label)
-            )
-                .options(
-                joinedload(CustomFieldValue.choice).joinedload(CustomFieldChoice.value)
-            )
-                .filter(CustomFieldValue.participant_id.in_(participants.keys()))
-                .filter(CustomField.meeting == g.meeting)
-        )
-        if selected_field_ids:
-            query = query.filter(CustomField.slug.in_(selected_field_ids))
+        # XXX Doing this in the ORM takes way too much memory!
+        query = """
+        SELECT custom_field_value.participant_id                              AS participant_id,
+               COALESCE(choice_translation.english, custom_field_value.value) AS value,
+               custom_field.slug                                              AS slug,
+               custom_field.field_type                                        AS field_type
+        FROM custom_field_value
+                 JOIN custom_field ON custom_field_value.custom_field_id = custom_field.id
+                 JOIN participant ON custom_field_value.participant_id = participant.id
+                 LEFT OUTER JOIN custom_field_choice ON custom_field_value.choice_id = custom_field_choice.id
+                 LEFT OUTER JOIN translation choice_translation ON custom_field_choice.value_id = choice_translation.id
+        WHERE participant.meeting_id = %s 
+        """
+        args = (g.meeting.id,)
 
-        for value in query:
-            if value.custom_field.field_type == CustomField.MULTI_CHECKBOX:
+        # TODO: We should instead pass the filters for flag and category ID here
+        query += " AND participant.id IN (%s)" % (
+            ",".join("%s" for ignored in range(len(participants)))
+        )
+        args += tuple(participants.keys())
+
+        if selected_field_ids:
+            # Force include the group and sort fields, even if they are not set to
+            # be displayed.
+            selected_field_ids = (
+                set(selected_field_ids)
+                    .union(Category.GROUP_FIELD.values())
+                    .union(code for code, label in Category.CATEGORY_SORTING)
+            )
+
+            query += " AND custom_field.slug IN (%s)" % (
+                ",".join("%s" for ignored in range(len(selected_field_ids)))
+            )
+            args += tuple(selected_field_ids)
+
+        with db.engine.connect() as conn:
+            for value in conn.execute(query, args):
                 try:
-                    getattr(
-                        participants[value.participant_id], value.custom_field.slug
-                    ).append(value.choice.value.english)
-                except AttributeError:
-                    setattr(
-                        participants[value.participant_id],
-                        value.custom_field.slug,
-                        [value.choice.value.english],
-                    )
-            else:
-                setattr(
-                    participants[value.participant_id],
-                    value.custom_field.slug,
-                    value.value or None,
-                )
+                    participant = participants[value.participant_id]
+                except KeyError:
+                    continue
+
+                if value.field_type == CustomField.MULTI_CHECKBOX:
+                    try:
+                        getattr(participant, value.slug).append(value.value)
+                    except AttributeError:
+                        setattr(participant, value.slug, [value.value])
+                else:
+                    setattr(participant, value.slug, value.value or None)
 
     @classmethod
     def group_participants(cls, participant_form, participants, selected_field_ids=None):
