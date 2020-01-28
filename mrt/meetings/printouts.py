@@ -1,5 +1,7 @@
 import io
+import logging
 import mimetypes
+import time
 import uuid
 
 import openpyxl
@@ -51,6 +53,10 @@ from openpyxl.utils.exceptions import InvalidFileException
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.forms.meetings import custom_form_factory
 from mrt.utils import str2bool
+
+
+logger = logging.getLogger("mrt")
+
 
 class ProcessingFileList(PermissionRequiredMixin, MethodView):
 
@@ -302,12 +308,6 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         for field in cls._get_all_fields():
             if str2bool(request.args.get("field_" + field.id, "off")):
                 selected_field_ids.append(field.id)
-        try:
-            group_by = request.args["group_by"]
-            if group_by and group_by not in selected_field_ids:
-                selected_field_ids.append(group_by)
-        except KeyError:
-            pass
 
         return selected_field_ids or default_field_ids
 
@@ -332,7 +332,9 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
 
-        final_results = self.group_participants(participant_form, participants)
+        final_results = self.group_participants(
+            participant_form, participants, selected_field_ids=selected_field_ids
+        )
 
         return render_template(
             'meetings/printouts/provisional_list.html',
@@ -346,7 +348,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             flag=flag)
 
     @classmethod
-    def set_participant_values(cls, participants):
+    def set_participant_values(cls, participants, selected_field_ids=None):
         """Loads all the value for these participants in a single query,
         to prevent numerous round trips to the db.
 
@@ -366,6 +368,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                 .filter(CustomFieldValue.participant_id.in_(participants.keys()))
                 .filter(CustomField.meeting == g.meeting)
         )
+        if selected_field_ids:
+            query = query.filter(CustomField.slug.in_(selected_field_ids))
 
         for value in query:
             if value.custom_field.field_type == CustomField.MULTI_CHECKBOX:
@@ -387,8 +391,10 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                 )
 
     @classmethod
-    def group_participants(cls, participant_form, participants):
-        cls.set_participant_values(participants)
+    def group_participants(cls, participant_form, participants, selected_field_ids=None):
+        start = time.time()
+        cls.set_participant_values(participants, selected_field_ids=selected_field_ids)
+        logger.info("Set participant values, time elapsed: %s", time.time() - start)
         # Group the participants on two levels:
         #  - the category
         #  - the specified group field of each category.
@@ -430,6 +436,7 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             for participant_list in final_results[key].values():
                 # 3. Sort by the custom sort field or this category
                 participant_list.sort()
+        logger.info("Grouped participants, time elapsed: %s", time.time() - start)
         return final_results
 
     def post(self):
@@ -716,7 +723,9 @@ def _process_provisional_list(meeting_id, title, flag, template_name=None, selec
     template_name = (template_name or
                      'meetings/printouts/_provisional_list_pdf.html')
     participant_form = custom_form_factory(ParticipantEditForm)
-    grouped_participants = ProvisionalList.group_participants(participant_form, participants)
+    grouped_participants = ProvisionalList.group_participants(
+        participant_form, participants, selected_field_ids=selected_field_ids
+    )
 
     context = {'participants': participants,
                'grouped_participants': grouped_participants,
