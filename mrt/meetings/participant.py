@@ -119,7 +119,7 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
         ordering = {
             key[0]: order
             for key, order in zip(
-                participants.order_by('registration_date asc').values(Participant.id),
+                participants.order_by(asc('registration_date')).values(Participant.id),
                 range(1, participants.count() + 1))
         }
 
@@ -127,18 +127,16 @@ class ParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
         for item in opt['order']:
             # Special case for column order - sorting by order is identical to sorting
             #  by registration_date
+            direction = {'asc': asc, 'desc': desc}.get(item['dir'])
             if item['column'] == 'order':
-                participants= participants.order_by('registration_date {dir}'.format(
-                    **item))
+                participants = participants.order_by(direction('registration_date'))
             # Special case for registration_date -> NULL values are turned into
             # datetime.min
             elif item['column'] == 'registration_date':
-                direction = {'asc': asc, 'desc': desc}.get(item['dir'])
                 participants = participants.order_by(direction(coalesce(
                     Participant.registration_date, datetime.min)))
             else:
-                participants = participants.order_by(
-                    '{column} {dir}'.format(**item))
+                participants = participants.order_by(direction(item['column']))
 
         if opt['search']:
             participants = search_for_participant(opt['search'], participants)
@@ -180,12 +178,11 @@ class MediaParticipantsFilter(PermissionRequiredMixin, MethodView, FilterView):
         for item in opt['order']:
             # Special case for registration_date -> NULL values are turned into
             # datetime.min
+            direction = {'asc': asc, 'desc': desc}.get(item['dir'])
             if item['column'] == 'registration_date':
-                direction = {'asc': asc, 'desc': desc}.get(item['dir'])
                 participants = participants.order_by(direction(coalesce(
                     Participant.registration_date, datetime.min)))
-            participants = participants.order_by(
-                '%s %s' % (item['column'], item['dir']))
+            participants = participants.order_by(direction(item['column']))
 
         if opt['search']:
             participants = (
