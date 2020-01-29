@@ -9,6 +9,10 @@
     {% assets "registration_css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}">
     {% endassets %}
+    {% assets "upload_css" %}
+      <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+
 
     {% block head %}{% endblock %}
 
@@ -20,6 +24,9 @@
     </div>
 
     {% assets "registration_js" %}
+      <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+    {% assets "upload_js" %}
       <script src="{{ ASSET_URL }}"></script>
     {% endassets %}
     {% block scripts %}{% endblock %}
