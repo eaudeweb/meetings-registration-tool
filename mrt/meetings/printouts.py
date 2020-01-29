@@ -1,5 +1,8 @@
+from __future__ import division
+
 import io
 import logging
+import math
 import mimetypes
 import time
 import uuid
@@ -302,8 +305,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
             categories_ids = map(int, request.args.getlist("category_filter"))
         except (KeyError, ValueError, TypeError):
             categories_ids = []
-        page = request.args.get("page", 1)
-        page_size = request.args.get("page_size", self.PAGE_SIZE)
+        page = int(request.args.get("page", 1))
+        page_size = int(request.args.get("page_size", self.PAGE_SIZE))
 
         flag_form = FlagForm(request.args)
 
@@ -320,6 +323,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                 page=page,
                 page_size=page_size,
             )
+            total_pages = int(math.ceil(count / page_size))
+
             return render_template(
                 'meetings/printouts/provisional_list.html',
                 all_fields=all_fields,
@@ -329,7 +334,9 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                 count=count,
                 title=title,
                 flag_form=flag_form,
-                flag=flag
+                flag=flag,
+                page=page,
+                total_pages=total_pages,
             )
 
     @staticmethod

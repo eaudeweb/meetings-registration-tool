@@ -17,6 +17,7 @@ from flask_thumbnails import Thumbnail
 from flask_uploads import configure_uploads, patch_request_class
 
 from path import Path
+from werkzeug.urls import url_encode
 
 from mrt.definitions import LANGUAGES_MAP
 from mrt.admin.urls import admin
@@ -118,6 +119,15 @@ def create_app(config={}, skip_logging=False):
     app.add_template_global(has_perm)
     app.add_template_global(url_external)
     app.add_template_global(Logo, name='get_logo')
+
+    @app.template_global()
+    def modify_query(**new_values):
+        args = request.args.copy()
+
+        for key, value in new_values.items():
+            args[key] = value
+
+        return '{}?{}'.format(request.path, url_encode(args))
 
     @app.context_processor
     def inject_context():

@@ -86,11 +86,38 @@
       </form>
     </div>
 
+    <div>
+      Page {{ page }} out of {{ total_pages }}
+      <br/>
+      <ul class="pagination">
+        {% if page > 1 %}
+          <li><a href="{{ modify_query(page=page - 1) }}">Previous</a></li>
+        {% endif %}
+        {% if page < total_pages %}
+          <li><a href="{{ modify_query(page=page + 1) }}">Next</a></li>
+        {% endif %}
+      </ul>
+    </div>
+
     {% with title=title %}
       {% include "meetings/printouts/_provisional_list_table.html" %}
     {% endwith %}
 
     <div class="printout-loading"></div>
+
+    <div>
+      Page {{ page }} out of {{ total_pages }}
+      <br/>
+      <ul class="pagination">
+        {% if page > 1 %}
+          <li><a href="{{ modify_query(page=page - 1) }}">Previous</a></li>
+        {% endif %}
+        {% if page < total_pages %}
+          <li><a href="{{ modify_query(page=page + 1) }}">Next</a></li>
+        {% endif %}
+      </ul>
+    </div>
+
   </div>
 
 {% endblock %}
