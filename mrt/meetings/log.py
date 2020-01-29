@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from mrt.models import db, Category, ActivityLog, MailLog, Participant
 from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.signals import activity_signal
+from mrt.definitions import LANGUAGES_ORDERED_LIST
 
 
 @activity_signal.connect_via(ANY)
@@ -25,7 +26,7 @@ class Integration(PermissionRequiredMixin, MethodView):
     template_name = 'meetings/overview/integration.html'
 
     def get(self):
-        return render_template(self.template_name)
+        return render_template(self.template_name, languages=LANGUAGES_ORDERED_LIST)
 
 
 class Statistics(PermissionRequiredMixin, MethodView):
