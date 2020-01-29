@@ -5,8 +5,9 @@ import code
 import re
 import os
 import subprocess
-import requests
+import logging
 
+import requests
 from flask import g
 from alembic.config import CommandLine
 from rq import Queue, Connection, Worker
@@ -20,6 +21,8 @@ from mrt.scripts.informea import get_meetings
 from mrt.utils import slugify, validate_email
 from collections import defaultdict
 from mrt.forms.meetings.meeting import _add_choice_values_for_custom_field
+
+logger = logging.getLogger("mrt")
 
 
 @click.group()
@@ -258,6 +261,7 @@ def compile_translations():
 @cli.command()
 @click.pass_context
 def sync_cites_meetings(ctx):
+    logger.info("Start sync_cites_meetings")
     app = ctx.obj['app']
     cites_meetings_urls = {
         'english': 'https://cites.org/ws/meetings-mrt',
@@ -291,6 +295,7 @@ def sync_cites_meetings(ctx):
             meeting_dict['acronym'] = meeting_dict['meeting_type'] + meeting_dict['meeting_number']
 
 
+    count = 0
     with app.test_request_context():
         for meeting in retrieved_meetings:
             meeting_dict = retrieved_meetings[meeting]
@@ -299,6 +304,7 @@ def sync_cites_meetings(ctx):
                 # Meeting already exists
                 continue
             else:
+                logger.info("Adding meeting %s", meeting_dict['acronym'])
                 curr_meeting_type = MeetingType.query.filter_by(label=meeting_dict['meeting_type']).first()
                 if not curr_meeting_type:
                     curr_meeting_type = MeetingType(label=meeting_dict['meeting_type'],
@@ -326,7 +332,11 @@ def sync_cites_meetings(ctx):
                                             french = meeting_dict['french_title'],
                                             spanish = meeting_dict['spanish_title'])
                 db.session.add(curr_meeting)
+                count += 1
         db.session.commit()
+
+    logger.info("Added %d meetings", count)
+    logger.info("Finished sync_cites_meetings")
 
 
 @cli.command(name='add_custom_field_sex')
