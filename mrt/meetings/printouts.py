@@ -238,38 +238,10 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
         'verified': 'List of acknowledged participants',
         'credentials': 'List of participants with checked credentials',
     }
-    GROUPABLE_FIELDS = [
-        "country",
-        "category_id",
-        "represented_region",
-        "represented_country",
-        "represented_organization",
-        "language",
-    ]
+    PAGE_SIZE = 50
 
     permission_required = ('manage_meeting', 'manage_participant',
                            'view_participant')
-
-    @staticmethod
-    def _get_query(flag, categories):
-        query = (
-            Participant.query.current_meeting().participants()
-            .join(Participant.category, Category.title)
-            .options(joinedload(Participant.category)
-                     .joinedload(Category.title))
-        )
-        if categories:
-            query = query.filter(Participant.category_id.in_(categories))
-
-        if flag:
-            attr = getattr(Participant, flag)
-            query = query.filter(attr == True)
-        query = query.order_by(
-            Category.sort, Category.id,
-            Participant.representing,
-            Participant.last_name, Participant.id,
-        )
-        return query
 
     @staticmethod
     def _get_all_fields():
@@ -311,46 +283,118 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
 
         return selected_field_ids or default_field_ids
 
+    @classmethod
+    def get_participants(cls, flag=None, categories_ids=None, selected_field_ids=None, page=1, page_size=PAGE_SIZE):
+        participants, total = cls._get_participants(
+            flag=flag,
+            categories_ids=categories_ids,
+            page=page,
+            page_size=page_size
+        )
+        cls.set_participant_values(participants, selected_field_ids=selected_field_ids)
+        grouped_participants = cls.group_participants(participants)
+        return grouped_participants, total
+
     def get(self):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         try:
-            categories = map(int, request.args.getlist("category_filter"))
+            categories_ids = map(int, request.args.getlist("category_filter"))
         except (KeyError, ValueError, TypeError):
-            categories = []
-
-        # TODO: Loading using the ORM uses too much memory, we should switch
-        #  to raw sql.
-        query = self._get_query(flag, categories)
-
-        participants = list(query.all())
-        count = len(participants)
+            categories_ids = []
+        page = request.args.get("page", 1)
+        page_size = request.args.get("page_size", self.PAGE_SIZE)
 
         flag_form = FlagForm(request.args)
-        flag = g.meeting.custom_fields.filter_by(slug=flag).first()
+
         participant_form = custom_form_factory(ParticipantEditForm)
         all_fields = self._get_all_fields()
-
         selected_field_ids = self._get_selected_field_ids()
         selected_fields = list(participant_form().get_fields(field_ids=selected_field_ids))
 
-        final_results = self.group_participants(
-            participant_form, participants, selected_field_ids=selected_field_ids
-        )
+        with db.session.no_autoflush:
+            grouped_participants, count = self.get_participants(
+                flag=flag,
+                categories_ids=categories_ids,
+                selected_field_ids=selected_field_ids,
+                page=page,
+                page_size=page_size,
+            )
+            return render_template(
+                'meetings/printouts/provisional_list.html',
+                all_fields=all_fields,
+                selected_field_ids=selected_field_ids,
+                selected_fields=selected_fields,
+                grouped_participants=grouped_participants,
+                count=count,
+                title=title,
+                flag_form=flag_form,
+                flag=flag
+            )
 
-        return render_template(
-            'meetings/printouts/provisional_list.html',
-            all_fields=all_fields,
-            selected_field_ids=selected_field_ids,
-            selected_fields=selected_fields,
-            grouped_participants=final_results,
-            count=count,
-            title=title,
-            flag_form=flag_form,
-            flag=flag)
+    @staticmethod
+    def _get_participants(flag=None, categories_ids=None, page=1, page_size=PAGE_SIZE):
+        categories = {c.id: c for c in g.meeting.categories.options(joinedload(Category.title)).all()}
+        query = """
+        SELECT participant.*,
+               CASE
+                   WHEN category."group" = 'region' THEN COALESCE(participant.represented_region, '---')
+                   WHEN category."group" = 'country' THEN COALESCE(participant.represented_country, '---')
+                   WHEN category."group" = 'organization' THEN COALESCE(participant.represented_organization, '---')
+                   ELSE '---'
+                   END        AS group_value,
+               CASE
+                   WHEN category.sort_field = 'first_name' THEN participant.first_name
+                   WHEN category.sort_field = 'last_name' THEN participant.last_name
+                   WHEN category.sort_field = 'badge_name' THEN participant.badge_name
+                   ELSE '---'
+                   END        AS sort_value
+        FROM participant
+                 JOIN category on participant.category_id = category.id
+        WHERE participant.meeting_id = %s 
+            AND participant.deleted = false 
+            AND participant.participant_type = %s
+        """
+
+        args = (g.meeting.id, Participant.PARTICIPANT)
+        if flag and flag in ("attended", "verified", "credentials"):
+            query += " AND participant.%s = true" % flag
+
+        if categories_ids:
+            query += " AND category.id IN (%s)" % (
+                ",".join("%s" for ignored in range(len(categories_ids)))
+            )
+            args += tuple(categories_ids)
+
+        query += " ORDER BY category.sort, category.id, group_value, sort_value"
+
+        paginated_query = query
+        paginated_args = tuple(args)
+        if page and page_size:
+            paginated_query += " LIMIT %s OFFSET %s"
+            page, page_size = int(page), int(page_size)
+            assert page >= 1, "Page needs to be larger than 1"
+            assert page_size >= 0, "Page size need to be larger than 0"
+            paginated_args += (page_size, (page - 1) * page_size)
+
+        participants = []
+        with db.engine.connect() as conn:
+            total = list(conn.execute("SELECT COUNT(*) AS total FROM (%s) AS anon" % query, args))[0].total
+            for row in conn.execute(paginated_query, paginated_args):
+                values = dict(row)
+                del values["group_value"]
+                del values["sort_value"]
+                participant = Participant(**values)
+                participant.meeting = g.meeting
+                participant.group_value = row.group_value
+                participant.sort_value = row.sort_value
+                participant.category = categories[participant.category_id]
+                participants.append(participant)
+
+        return participants, total
 
     @classmethod
-    def set_participant_values(cls, participants, selected_field_ids=None):
+    def set_participant_values(cls, participants, selected_field_ids=None, flag=None, categories_ids=None):
         """Loads all the value for these participants in a single query,
         to prevent numerous round trips to the db.
 
@@ -370,14 +414,19 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                  LEFT OUTER JOIN custom_field_choice ON custom_field_value.choice_id = custom_field_choice.id
                  LEFT OUTER JOIN translation choice_translation ON custom_field_choice.value_id = choice_translation.id
         WHERE participant.meeting_id = %s 
+            AND participant.deleted = false 
+            AND participant.participant_type = %s
         """
-        args = (g.meeting.id,)
+        args = (g.meeting.id, Participant.PARTICIPANT)
 
-        # TODO: We should instead pass the filters for flag and category ID here
-        query += " AND participant.id IN (%s)" % (
-            ",".join("%s" for ignored in range(len(participants)))
-        )
-        args += tuple(participants.keys())
+        if flag and flag in ("attended", "verified", "credentials"):
+            query += " AND participant.%s = true" % flag
+
+        if categories_ids:
+            query += " AND category.id IN (%s)" % (
+                ",".join("%s" for ignored in range(len(categories_ids)))
+            )
+            args += tuple(categories_ids)
 
         if selected_field_ids:
             # Force include the group and sort fields, even if they are not set to
@@ -409,20 +458,22 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                     setattr(participant, value.slug, value.value or None)
 
     @classmethod
-    def group_participants(cls, participant_form, participants, selected_field_ids=None):
+    def group_participants(cls, participants):
         start = time.time()
-        cls.set_participant_values(participants, selected_field_ids=selected_field_ids)
+        participant_form = custom_form_factory(ParticipantEditForm)
+
         logger.info("Set participant values, time elapsed: %s", time.time() - start)
         # Group the participants on two levels:
         #  - the category
         #  - the specified group field of each category.
-        grouped_participants = collections.defaultdict(lambda: collections.defaultdict(list))
+        grouped_participants = collections.OrderedDict()
 
         for participant in participants:
             # XXX DO NOT use the custom_object_factory here, as that will trigger
             #  and individual query for each value for each field for each participant
             #  scaling extremely poorly!
             obj = participant_form(obj=participant)
+
             category = participant.category, obj.category_id.render_data() or "---"
             group_key = Category.GROUP_FIELD[participant.category.group.code]
             try:
@@ -432,6 +483,12 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                 )
             except AttributeError:
                 group_value = ("", "---")
+
+            if category not in grouped_participants:
+                grouped_participants[category] = collections.OrderedDict()
+
+            if group_value not in grouped_participants[category]:
+                grouped_participants[category][group_value] = []
 
             try:
                 # Include the sort field to ensure the sorting order is respected.
@@ -443,19 +500,9 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                 )
             except AttributeError:
                 grouped_participants[category][group_value].append(("---", obj))
-        # Apply sorting rules
-        # 1. Sort by category sort int.
-        final_results = collections.OrderedDict(sorted(
-            grouped_participants.items(), key=lambda x: x[0][0].sort
-        ))
-        for key, value in final_results.items():
-            # 2. Sort by the custom group field for this category
-            final_results[key] = collections.OrderedDict(sorted(value.items()))
-            for participant_list in final_results[key].values():
-                # 3. Sort by the custom sort field or this category
-                participant_list.sort()
+
         logger.info("Grouped participants, time elapsed: %s", time.time() - start)
-        return final_results
+        return grouped_participants
 
     def post(self):
         flag = request.args.get('flag')
@@ -732,32 +779,43 @@ def _process_short_list(meeting_id, title, flag):
                        context=context).as_rq()
 
 
-def _process_provisional_list(meeting_id, title, flag, template_name=None, selected_field_ids=None, categories=None):
+def _process_provisional_list(
+        meeting_id,
+        title,
+        flag,
+        template_name=None,
+        selected_field_ids=None,
+        categories=None
+):
     g.meeting = Meeting.query.get(meeting_id)
-    query = ProvisionalList._get_query(flag, categories)
-    count = query.count()
-    participants = list(query)
+
     flag = g.meeting.custom_fields.filter_by(slug=flag).first()
     template_name = (template_name or
                      'meetings/printouts/_provisional_list_pdf.html')
-    participant_form = custom_form_factory(ParticipantEditForm)
-    grouped_participants = ProvisionalList.group_participants(
-        participant_form, participants, selected_field_ids=selected_field_ids
-    )
 
-    context = {'participants': participants,
-               'grouped_participants': grouped_participants,
-               'count': count,
-               'title': title,
-               'flag': flag,
-               'selected_field_ids': selected_field_ids,
-               'template': template_name}
+    with db.session.no_autoflush:
+        grouped_participants, count = ProvisionalList.get_participants(
+            flag=flag,
+            categories_ids=categories,
+            selected_field_ids=selected_field_ids,
+            page=0,
+            page_size=0,
+        )
 
-    return PdfRenderer('meetings/printouts/printout.html',
-                       title=title,
-                       height='11.693in', width='8.268in',
-                       margin=_PRINTOUT_MARGIN, orientation='portrait',
-                       context=context).as_rq()
+        context = {
+           'grouped_participants': grouped_participants,
+           'count': count,
+           'title': title,
+           'flag': flag,
+           'selected_field_ids': selected_field_ids,
+           'template': template_name
+        }
+
+        return PdfRenderer('meetings/printouts/printout.html',
+                           title=title,
+                           height='11.693in', width='8.268in',
+                           margin=_PRINTOUT_MARGIN, orientation='portrait',
+                           context=context).as_rq()
 
 
 def _process_delegation_list(meeting_id, title, flag):
