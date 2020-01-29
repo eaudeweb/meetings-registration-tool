@@ -24,34 +24,38 @@
 <div class="printout-item-container">
 
   {% for (group1, group1_value), group_participants2 in grouped_participants.items() %}
-    <h4 class="highlight text-center">
-      {{ group1.title.english }} /
-      {{ group1.title.french }} /
-      {{ group1.title.spanish }}
+    <div style="page-break-inside: avoid;">
+      <h4 class="highlight text-center">
+        {{ group1.title.english }} /
+        {{ group1.title.french }} /
+        {{ group1.title.spanish }}
 
-    </h4>
-    {% for (group2_label, group2_value), participants in group_participants2.items() %}
-      <h5 style="font-size: large">
-        <b>
-          {{ group2_label }}:
-        </b>
-        {{ group2_value }}
-      </h5>
-      {% for (ignored, participant) in participants %}
-        <div>
-          <table class="custom-fields-table">
-            {% for field in participant.get_fields(selected_field_ids) %}
-              {% if field.id != "category_id" and field.label.text != group2_label %}
-                <tr>
-                  <td>{{ field.label.text }}:</td>
-                  <td>{{ field.render_data() }}</td>
-                </tr>
-              {% endif %}
-            {% endfor %}
-          </table>
+      </h4>
+      {% for (group2_label, group2_value), participants in group_participants2.items() %}
+        <div style="page-break-inside: avoid;">
+        <h5 style="font-size: large">
+          <b>
+            {{ group2_label }}:
+          </b>
+          {{ group2_value }}
+        </h5>
+        {% for (ignored, participant) in participants %}
+          <div style="page-break-inside: avoid;">
+            <table class="custom-fields-table">
+              {% for field in participant.get_fields(selected_field_ids) %}
+                {% if field.id != "category_id" and field.label.text != group2_label %}
+                  <tr>
+                    <td>{{ field.label.text }}:</td>
+                    <td>{{ field.render_data() }}</td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </table>
+          </div>
+          <hr/>
+        {% endfor %}
         </div>
-        <hr/>
       {% endfor %}
-    {% endfor %}
+    </div>
   {% endfor %}
 </div> {# printout-item-container #}
