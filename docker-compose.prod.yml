@@ -24,8 +24,9 @@ services:
   async:
     container_name: mrt.rq
     restart: unless-stopped
-    environment:
-     - DOMAIN_NAME=http://app:5000
+
+  scheduler_cites:
+    container_name: mrt.scheduler
 
   redis:
     container_name: mrt.redis
