@@ -20,7 +20,6 @@ from mrt.forms.fields import LanguageField
 from mrt.utils import copy_attributes, Logo, logos_upload
 from mrt.definitions import MEETING_SETTINGS
 
-
 _CUSTOM_FIELD_MAPPER = {
     'StringField': CustomField.TEXT,
     'BooleanField': CustomField.CHECKBOX,
@@ -264,7 +263,8 @@ class MeetingCloneForm(MeetingEditForm):
                                                exclude_fk=True)
                 action_clone.rule = rule_clone
                 field = meeting.custom_fields.filter_by(
-                    slug=action.field.slug).one()
+                    slug=action.field.slug).filter_by(
+                    custom_field_type=action.field.custom_field_type).one()
                 action_clone.field = field
                 db.session.add(action_clone)
 
