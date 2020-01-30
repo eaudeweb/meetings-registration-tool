@@ -7,20 +7,27 @@
 
 body {
     font-family: Arial, sans-serif;
-}
+}	
 
 h1, h2, h3 {
-    font-weight: normal;
+    font-weight: bold;
 }
 
 h1 {
-    font-size: 14px;}
+    font-size: 24px;
+}
 h2 {
-    font-size: 13px;
+    font-size: 28px;
 }
 h3 {
-	font-size: 25px;
-	font-weight: bold;
+	font-size: 12px;
+	font-weight: normal;
+}
+
+.badge-valid{
+	float: right;
+	position: absolute;
+	right: -0.5in;
 }
 
 .badge-container {
@@ -37,21 +44,21 @@ h3 {
 
 .stripe .logo {
     position: absolute;
-    width: 0.4in;
+    width: 0.7in;
     top: 0.1300in;
     left: 0.1000in;
 }
 .stripe .side-logo {
     position: absolute;
     width: 0.4in;
-    top: 0.1300in;
-    left: 1in;
-}
-
-.stripe h2 {
-    position: absolute;
 	right: 0.3in;
 	top: 0.1in;
+}
+
+.badge_name h3, .badge-location{
+    position: absolute;
+    top: 0.3000in;
+    /*left: 1.7in;*/
 }
 
 .stripe2 {
@@ -85,7 +92,7 @@ h3 {
 
 .content .badge_name {
     position: absolute;
-    top: 0.6in;
+    top: 0.2in;
     left: 1.4in;
     margin-right: 0.2in;
 }
@@ -97,18 +104,18 @@ h3 {
     height: 1.2in;
 }
 
-.content .description small {
+/*.content .description small {
     position: relative;
     font-size: 10px;
     display: block;
     left: 0.15in;
 }
-
+*/
 .content .description h1 {
     position: relative;
-    font-size: 25px;
+ /*   font-size: 25px;*/
     left: 0.15in;
-    top: -0.3in;
+    top: -0.2in;
 }
 
 .nostripe {
