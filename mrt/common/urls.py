@@ -36,6 +36,7 @@ def add_meeting_global(endpoint, values):
 
 static_files = Blueprint('static_files', __name__, url_prefix="/static/files")
 
+
 class ProtectedStaticFiles(PermissionRequiredMixin, MethodView):
 
     permission_required = (
