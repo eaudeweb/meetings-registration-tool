@@ -36,9 +36,6 @@ def add_meeting_global(endpoint, values):
             g.meeting = Meeting.query.filter_by(acronym=acronym).first_or_404()
 
 
-static_files = Blueprint('static_files', __name__, url_prefix="/static/files")
-
-
 class ProtectedStaticFiles(PermissionRequiredMixin, MethodView):
 
     permission_required = (
@@ -47,15 +44,12 @@ class ProtectedStaticFiles(PermissionRequiredMixin, MethodView):
         'view_participant'
     )
 
-    def get(self, url=""):
-        file_path = app.config["FILES_PATH"] / url
+    def get(self, filename):
+        file_path = app.config["FILES_PATH"] / filename
         content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
         # XXX This only works for nginx. If we switch to something else
         #  flask.send_file should be used.
         return Response(headers={
-            "X-Accel-Redirect": "/protected_files/" + url,
+            "X-Accel-Redirect": "/protected_files/" + filename,
             "Content-Type": content_type,
         })
-
-
-static_files.add_url_rule("/<path:url>", view_func=ProtectedStaticFiles.as_view("protected_static_files"))

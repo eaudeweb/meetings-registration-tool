@@ -19,9 +19,9 @@ from flask_uploads import configure_uploads, patch_request_class
 from path import Path
 from werkzeug.urls import url_encode
 
+from mrt.common import ProtectedStaticFiles
 from mrt.definitions import LANGUAGES_MAP
 from mrt.admin.urls import admin
-from mrt.common.urls import static_files
 from mrt.assets import assets_env
 from mrt.auth.urls import auth
 
@@ -95,7 +95,6 @@ def create_app(config={}, skip_logging=False):
         module = importlib.import_module('contrib.{}.urls'.format(blueprint))
         app.register_blueprint(module.blueprint)
 
-    app.register_blueprint(static_files)
     app.register_blueprint(admin)
     app.register_blueprint(auth)
     app.register_blueprint(meetings)
@@ -231,6 +230,7 @@ def _configure_uploads(app):
             app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
+    app.add_url_rule("/static/files/<path:filename>", view_func=ProtectedStaticFiles.as_view("files"))
 
     # limit upload size to 1MB
     patch_request_class(app, app.config.get(
