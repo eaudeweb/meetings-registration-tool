@@ -7,12 +7,6 @@
     
     <img src="{{ badge_context['product_side_logo'].url }}"
          class="side-logo" alt="">
-
-    <h2>
-      {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }} - 
-      {{ year_processor(g.meeting.date_start, g.meeting.date_end, out_format='yyyy') }}
-    </h2>
-  
   </div> {# stripe #}
 
   <div class="content">
@@ -23,23 +17,27 @@
     {% endif %}
 		
 		<div class="badge_name">
-  		<h3>
+  		<h2>
        {{ participant.name_on_badge }}
+      </h2>
+        <h3 class="badge-location">
+        {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }} - 
+        {{ year_processor(g.meeting.date_start, g.meeting.date_end, out_format='yyyy') }}
       </h3>
 		</div>
 
 		<div class="description">
-			<small>
-				Valid from {{ date_processor(g.meeting.date_start, g.meeting.date_end,
-                        out_format='d MMM yyyy') }}
-			</small><br>
       <h1>
   	  	{% if g.meeting.badge_header %}
   	      {{ g.meeting.badge_header[language]|clean_html(tags='sup') }}
   	    {% else %}
   	      {{ g.meeting.title[language]|clean_html(tags='sup') }}
   	    {% endif %}
-      </h1>
+      </h1><br>
+			<!-- <small class="badge-valid">
+				Valid from {{ date_processor(g.meeting.date_start, g.meeting.date_end,
+                        out_format='d MMM yyyy') }}
+			</small> -->
 		</div>
 
   </div> {# content #}
@@ -59,12 +57,6 @@
     
     <img src="{{ badge_context['product_side_logo'].url }}"
          class="side-logo" alt="">
-
-    <h2>
-      {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }} - 
-      {{ year_processor(g.meeting.date_start, g.meeting.date_end, out_format='yyyy') }}
-    </h2>
-  
   </div> {# stripe #}
 
   <div class="content">
@@ -75,23 +67,27 @@
     {% endif %}
     
     <div class="badge_name">
-      <h3>
+      <h2>
        {{ participant.name_on_badge }}
+      </h2>
+        <h3 class="badge-location">
+        {{ g.meeting.venue_city.english }}, {{ g.meeting.venue_country }} - 
+        {{ year_processor(g.meeting.date_start, g.meeting.date_end, out_format='yyyy') }}
       </h3>
     </div>
 
     <div class="description">
-      <small>
-        Valid from {{ date_processor(g.meeting.date_start, g.meeting.date_end,
-                        out_format='d MMM yyyy') }}
-      </small><br>
       <h1>
         {% if g.meeting.badge_header %}
           {{ g.meeting.badge_header[language]|clean_html(tags='sup') }}
         {% else %}
           {{ g.meeting.title[language]|clean_html(tags='sup') }}
         {% endif %}
-      </h1>
+      </h1><br>
+      <!-- <small class="badge-valid">
+        Valid from {{ date_processor(g.meeting.date_start, g.meeting.date_end,
+                        out_format='d MMM yyyy') }}
+      </small> -->
     </div>
 
   </div> {# content #}

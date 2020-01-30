@@ -2,10 +2,10 @@ import os
 import re
 import urllib
 
-import xlwt
 import openpyxl
 import collections
 from openpyxl import Workbook
+from openpyxl.styles import Font
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from datetime import date, datetime
@@ -180,31 +180,25 @@ def read_file(f):
     f.close()
 
 
-def generate_excel(header, rows, filename):
-    style = xlwt.XFStyle()
-    normalfont = xlwt.Font()
-    headerfont = xlwt.Font()
-    headerfont.bold = True
-    style.font = headerfont
+def generate_export_excel(header, rows, filename):
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet.row_dimensions[1].font = Font(bold=True)
 
-    wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('Sheet 1')
-    row = 0
+    for col_idx, name in enumerate(header, 1):
+        cell_col_letter = openpyxl.utils.get_column_letter(col_idx)
+        sheet.cell(row=1, column=col_idx).value = name
+        sheet.column_dimensions[cell_col_letter].width = len(name) + 1
 
-    for col in range(len(header)):
-        ws.row(row).set_cell_text(col, header[col], style)
+    for row_idx, row in enumerate(rows, 2):
+        for col_idx, value in enumerate(row, 1):
+            cell_col_letter = openpyxl.utils.get_column_letter(col_idx)
+            sheet.cell(row=row_idx, column=col_idx).value = str(value)
 
-    style.font = normalfont
-
-    for item in rows:
-        row += 1
-        for col in range(len(item)):
-            ws.row(row).set_cell_text(col, unicode(item[col]), style)
-
-    wb.save(filename)
+    workbook.save(filename)
 
 
-def get_import_template_header(fields):
+def get_xlsx_header(fields):
     return collections.OrderedDict(
         (field.label.english + ' [required]' if field.required else field.label.english, field)
         for field in fields
@@ -214,7 +208,8 @@ def get_import_template_header(fields):
 def generate_import_excel(fields, file_name, field_types, meeting_categories, countries):
     workbook = Workbook()
     sheet = workbook.active
-    col_names = get_import_template_header(fields)
+    sheet.row_dimensions[1].font = Font(bold=True)
+    col_names = get_xlsx_header(fields)
 
     val_sheet = workbook.create_sheet("Validation", index=1)
     val_sheet_col_idx = 1
@@ -310,7 +305,7 @@ def generate_import_excel(fields, file_name, field_types, meeting_categories, co
 
 
 def read_sheet(xlsx, fields, sheet_name=None):
-    expected_headers = get_import_template_header(fields)
+    expected_headers = get_xlsx_header(fields)
 
     if sheet_name is None:
         sheet = xlsx.active
@@ -333,6 +328,13 @@ def read_sheet(xlsx, fields, sheet_name=None):
         raise ValueError(
             "Missing column(s) %r in sheet %r" % (difference, sheet_name)
         )
+
+    difference = set(headers).difference({h.lower() for h in expected_headers})
+    if difference:
+        raise ValueError(
+            "Please remove column(s) %r in sheet %r" % (difference, sheet_name)
+        )
+
     slug_headers = [expected_headers[header].slug for header in headers]
     # Iterate over the rows
     for row in it:

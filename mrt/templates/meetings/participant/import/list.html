@@ -82,7 +82,7 @@
         </a>
       </form>
     {% elif not import_started %}
-      Participants can be imported via an XLS file. First
+      Participants can be imported via an XLSX file. First
       {% if participant_type == Participant.PARTICIPANT %}
         <form method="POST" action="{{ url_for('.participants_import_template') }}" style="display: inline">
       {% else %}
@@ -96,7 +96,7 @@
       and fill in the participant data.
       <hr/>
       <p>
-        Then upload the template XLS file to validate the data.
+        Then upload the template XLSX file to validate the data.
         You will get the chance to review the validated data before starting the import.
       </p>
       {% if participant_type == Participant.PARTICIPANT %}
