@@ -241,6 +241,12 @@ def _configure_uploads(app):
 
 def _configure_logging(app):
     if app.config.has_key('LOGGING'):
+        try:
+            # XXX Temporary code to prevent production deployments
+            #  that have old settings files with raven from crashing.
+            del app.config["LOGGING"]["handlers"]["sentry"]
+        except KeyError:
+            pass
         logging.config.dictConfig(app.config['LOGGING'])
     else:
         logging.basicConfig()
