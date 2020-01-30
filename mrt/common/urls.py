@@ -1,6 +1,8 @@
 """
 Helpers for meeting urls
 """
+import mimetypes
+
 from flask import Blueprint
 from flask import Response
 from flask import current_app as app
@@ -46,10 +48,13 @@ class ProtectedStaticFiles(PermissionRequiredMixin, MethodView):
     )
 
     def get(self, url=""):
+        file_path = app.config["FILES_PATH"] / url
+        content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
         # XXX This only works for nginx. If we switch to something else
         #  flask.send_file should be used.
         return Response(headers={
-            "X-Accel-Redirect": "/protected_files/" + url
+            "X-Accel-Redirect": "/protected_files/" + url,
+            "Content-Type": content_type,
         })
 
 

@@ -231,10 +231,6 @@ def _configure_uploads(app):
             app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
-    app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
-    app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-        '/static/files': files_path,
-    })
 
     # limit upload size to 1MB
     patch_request_class(app, app.config.get(
