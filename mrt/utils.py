@@ -5,6 +5,7 @@ import urllib
 import openpyxl
 import collections
 from openpyxl import Workbook
+from openpyxl.styles import Font
 from openpyxl.worksheet.datavalidation import DataValidation
 
 from datetime import date, datetime
@@ -182,6 +183,7 @@ def read_file(f):
 def generate_export_excel(header, rows, filename):
     workbook = Workbook()
     sheet = workbook.active
+    sheet.row_dimensions[1].font = Font(bold=True)
 
     for col_idx, name in enumerate(header, 1):
         cell_col_letter = openpyxl.utils.get_column_letter(col_idx)
@@ -206,6 +208,7 @@ def get_xlsx_header(fields):
 def generate_import_excel(fields, file_name, field_types, meeting_categories, countries):
     workbook = Workbook()
     sheet = workbook.active
+    sheet.row_dimensions[1].font = Font(bold=True)
     col_names = get_xlsx_header(fields)
 
     val_sheet = workbook.create_sheet("Validation", index=1)
