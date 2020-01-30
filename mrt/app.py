@@ -21,6 +21,7 @@ from werkzeug.urls import url_encode
 
 from mrt.definitions import LANGUAGES_MAP
 from mrt.admin.urls import admin
+from mrt.common.urls import static_files
 from mrt.assets import assets_env
 from mrt.auth.urls import auth
 
@@ -94,6 +95,7 @@ def create_app(config={}, skip_logging=False):
         module = importlib.import_module('contrib.{}.urls'.format(blueprint))
         app.register_blueprint(module.blueprint)
 
+    app.register_blueprint(static_files)
     app.register_blueprint(admin)
     app.register_blueprint(auth)
     app.register_blueprint(meetings)

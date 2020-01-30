@@ -1,11 +1,13 @@
-
-from flask import current_app as app
-from flask import g
-
-
 """
 Helpers for meeting urls
 """
+from flask import Blueprint
+from flask import Response
+from flask import current_app as app
+from flask import g
+from flask.views import MethodView
+
+from mrt.meetings.mixins import PermissionRequiredMixin
 
 
 def add_meeting_id(endpoint, values):
@@ -30,3 +32,24 @@ def add_meeting_global(endpoint, values):
         acronym = values.pop('meeting_acronym', None)
         if acronym:
             g.meeting = Meeting.query.filter_by(acronym=acronym).first_or_404()
+
+
+static_files = Blueprint('static_files', __name__, url_prefix="/static/files")
+
+class ProtectedStaticFiles(PermissionRequiredMixin, MethodView):
+
+    permission_required = (
+        'manage_meeting',
+        'manage_participant',
+        'view_participant'
+    )
+
+    def get(self, url=""):
+        # XXX This only works for nginx. If we switch to something else
+        #  flask.send_file should be used.
+        return Response(headers={
+            "X-Accel-Redirect": "/protected_files/" + url
+        })
+
+
+static_files.add_url_rule("/<path:url>", view_func=ProtectedStaticFiles.as_view("protected_static_files"))
