@@ -50,8 +50,8 @@ from mrt.meetings.mixins import PermissionRequiredMixin
 from mrt.common.printouts import _add_to_printout_queue
 from mrt.common.printouts import _PRINTOUT_MARGIN
 
-from mrt.utils import parse_rfc6266_header
-from mrt.utils import read_sheet, generate_excel, generate_import_excel
+from mrt.utils import parse_rfc6266_header, get_xlsx_header
+from mrt.utils import read_sheet, generate_export_excel, generate_import_excel
 from openpyxl.utils.exceptions import InvalidFileException
 from mrt.forms.meetings import ParticipantEditForm, MediaParticipantEditForm
 from mrt.forms.meetings import custom_form_factory
@@ -358,8 +358,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                    END        AS sort_value
         FROM participant
                  JOIN category on participant.category_id = category.id
-        WHERE participant.meeting_id = %s 
-            AND participant.deleted = false 
+        WHERE participant.meeting_id = %s
+            AND participant.deleted = false
             AND participant.participant_type = %s
         """
 
@@ -420,8 +420,8 @@ class ProvisionalList(PermissionRequiredMixin, MethodView):
                  JOIN participant ON custom_field_value.participant_id = participant.id
                  LEFT OUTER JOIN custom_field_choice ON custom_field_value.choice_id = custom_field_choice.id
                  LEFT OUTER JOIN translation choice_translation ON custom_field_choice.value_id = choice_translation.id
-        WHERE participant.meeting_id = %s 
-            AND participant.deleted = false 
+        WHERE participant.meeting_id = %s
+            AND participant.deleted = false
             AND participant.participant_type = %s
         """
         args = (g.meeting.id, Participant.PARTICIPANT)
@@ -943,6 +943,8 @@ class MediaParticipantsExport(PermissionRequiredMixin, MethodView):
     JOB_NAME = 'media participants export excel'
 
     def post(self):
+        _add_to_printout_queue(_process_export_participants_excel, self.JOB_NAME,
+                               Participant.MEDIA)
         return redirect(url_for('meetings.media_participants'))
 
 
@@ -1004,7 +1006,7 @@ class DataImport(PermissionRequiredMixin, MethodView):
             try:
                 xlsx = openpyxl.load_workbook(request.files["import_file"], read_only=True)
             except (zipfile.BadZipfile, InvalidFileException) as e:
-                flash("Invalid XLS file: %s" % e, 'danger')
+                flash("Invalid XLSX file: %s" % e, 'danger')
                 context = {
                     "participant_type": self.participant_type,
                 }
@@ -1020,7 +1022,7 @@ class DataImport(PermissionRequiredMixin, MethodView):
             try:
                 xlsx = openpyxl.load_workbook(app.config['UPLOADED_PRINTOUTS_DEST'] / file_name, read_only=True)
             except (zipfile.BadZipfile, InvalidFileException) as e:
-                flash("Invalid XLS file: %s" % e, 'danger')
+                flash("Invalid XLSX file: %s" % e, 'danger')
                 context = {
                     "participant_type": self.participant_type,
                 }
@@ -1038,7 +1040,7 @@ class DataImport(PermissionRequiredMixin, MethodView):
             rows = list(read_sheet(xlsx, custom_fields))
             assert rows, "file has no data"
         except (AssertionError, ValueError) as e:
-            flash("Invalid XLS file: %s" % e, 'danger')
+            flash("Invalid XLSX file: %s" % e, 'danger')
             context = {
                 "participant_type": self.participant_type,
             }
@@ -1062,7 +1064,7 @@ class DataImport(PermissionRequiredMixin, MethodView):
 
         if has_errors:
             flash(
-                'XLS file has errors, please review and correct them and try again. '
+                'XLSX file has errors, please review and correct them and try again. '
                 'Hover over cells to find more about the errors.',
                 'danger'
             )
@@ -1072,7 +1074,7 @@ class DataImport(PermissionRequiredMixin, MethodView):
             context["import_started"] = True
         else:
             flash(
-                'XLS file is valid, please review and hit "Start import" after.',
+                'XLSX file is valid, please review and hit "Start import" after.',
                 'success',
             )
 
@@ -1105,8 +1107,8 @@ def _process_export_participants_excel(meeting_id, participant_type):
 
     columns = [cf.slug for cf in custom_fields]
     columns.append('registration_date')
-    header = [cf.label.english for cf in custom_fields]
-    header.append('Date of Registration')
+    header = get_xlsx_header(custom_fields)
+    header['Date of Registration'] = None
 
     added_custom_fields = custom_fields.filter_by(is_primary=False)
 
@@ -1164,9 +1166,9 @@ def _process_export_participants_excel(meeting_id, participant_type):
 
         rows.append([data.get(k) or '' for k in columns])
 
-    filename = '{}_list_{}.xls'.format(participant_type, g.meeting.acronym)
+    filename = '{}_list_{}.xlsx'.format(participant_type, g.meeting.acronym)
     file_path = app.config['UPLOADED_PRINTOUTS_DEST'] / filename
-    generate_excel(header, rows, str(file_path))
+    generate_export_excel(header, rows, str(file_path))
     return url_for('meetings.printouts_download', filename=filename)
 
 
