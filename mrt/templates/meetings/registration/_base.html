@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <title>
-      Registration for {{ g.meeting.acronym }} - {{ g.meeting.title|striptags }}
-    </title>
+<head>
+  <title>
+    Registration for {{ g.meeting.acronym }} - {{ g.meeting.title|striptags }}
+  </title>
+  {% include "common/_fav_icons.html" %}
 
-    {% assets "registration_css" %}
-      <link rel="stylesheet" href="{{ ASSET_URL }}">
-    {% endassets %}
-    {% assets "upload_css" %}
-      <link rel="stylesheet" href="{{ ASSET_URL }}">
-    {% endassets %}
+  {% assets "registration_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
+  {% assets "upload_css" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
 
 
-    {% block head %}{% endblock %}
+  {% block head %}{% endblock %}
 
-  </head>
+</head>
 
-  <body>
-    <div class="container content">
-      {% block content %}{% endblock %}
-    </div>
+<body>
+<div class="container content">
+  {% block content %}{% endblock %}
+</div>
 
-    {% assets "registration_js" %}
-      <script src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% assets "upload_js" %}
-      <script src="{{ ASSET_URL }}"></script>
-    {% endassets %}
-    {% block scripts %}{% endblock %}
-  </body>
+{% assets "registration_js" %}
+  <script src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% assets "upload_js" %}
+  <script src="{{ ASSET_URL }}"></script>
+{% endassets %}
+{% block scripts %}{% endblock %}
+</body>
 
 </html>

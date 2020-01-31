@@ -19,6 +19,7 @@ from flask_uploads import configure_uploads, patch_request_class
 from path import Path
 from werkzeug.urls import url_encode
 
+from mrt.common import ProtectedStaticFiles
 from mrt.definitions import LANGUAGES_MAP
 from mrt.admin.urls import admin
 from mrt.assets import assets_env
@@ -229,10 +230,7 @@ def _configure_uploads(app):
             app.config['UPLOADED_THUMBNAIL_DEST'] = files_path / path_thumb_key
     app.config['MEDIA_THUMBNAIL_URL'] = '/static/files/thumbnails/'
 
-    app.add_url_rule('/static/files/<filename>', 'files', build_only=True)
-    app.wsgi_app = SharedDataMiddleware(app.wsgi_app, {
-        '/static/files': files_path,
-    })
+    app.add_url_rule("/static/files/<path:filename>", view_func=ProtectedStaticFiles.as_view("files"))
 
     # limit upload size to 1MB
     patch_request_class(app, app.config.get(
@@ -243,6 +241,12 @@ def _configure_uploads(app):
 
 def _configure_logging(app):
     if app.config.has_key('LOGGING'):
+        try:
+            # XXX Temporary code to prevent production deployments
+            #  that have old settings files with raven from crashing.
+            del app.config["LOGGING"]["handlers"]["sentry"]
+        except KeyError:
+            pass
         logging.config.dictConfig(app.config['LOGGING'])
     else:
         logging.basicConfig()

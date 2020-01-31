@@ -9,7 +9,7 @@
     <title>
       {% block title %}{% endblock %} - {{ config.PRODUCT_TITLE }}
     </title>
-
+    {% include "common/_fav_icons.html" %}
     {% assets "css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}">
     {% endassets %}
