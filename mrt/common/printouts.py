@@ -16,7 +16,7 @@ _PRINTOUT_MARGIN = {
 
 def _add_to_printout_queue(method, job_name, *args):
     q = Queue(Job.PRINTOUTS_QUEUE, connection=redis_store._redis_client,
-              default_timeout=1200)
+              default_timeout=3600)
     job_redis = q.enqueue(method, g.meeting.id, *args, result_ttl=86400)
     job = Job(id=job_redis.id,
               name=job_name,
