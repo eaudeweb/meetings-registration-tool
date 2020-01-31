@@ -8,7 +8,6 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.worksheet.datavalidation import DataValidation
 
-from dateutil.parser import parse
 from datetime import date, datetime
 from json import JSONEncoder as _JSONEncoder
 from PIL import Image
@@ -339,22 +338,10 @@ def read_sheet(xlsx, fields, sheet_name=None):
     slug_headers = [expected_headers[header].slug for header in headers]
     # Iterate over the rows
     for row in it:
-        row_vals = []
-        for cell in row[:len(headers)]:
-            if isinstance(cell.value, date) or isinstance(cell.value, datetime):
-                cell_val = cell.value.strftime('%d.%m.%Y')
-            else:
-                decoded_val = (cell.value or "").encode('utf-8').decode('utf-8').strip()
-                try:
-                    cell_val = parse(decoded_val).strftime('%d.%m.%Y')
-                except:
-                    cell_val = decoded_val
-
-            row_vals.append(cell_val)
-
-        if not any(row_vals):
+        row = [(cell.value or "").encode('utf-8').decode('utf-8').strip() for cell in row[: len(headers)]]
+        if not any(row):
             break
-        yield dict(zip(slug_headers, row_vals))
+        yield dict(zip(slug_headers, row))
 
 
 def get_translation(locale):
