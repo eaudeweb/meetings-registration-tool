@@ -227,7 +227,7 @@ def generate_import_excel(fields, file_name, field_types, meeting_categories, co
             sheet.add_data_validation(
                 DataValidation(
                     type="date",
-                    error="The entry should be a date",
+                    error="The entry should be a date - standard format dd/mm/yyyy",
                     errorTitle="Invalid date",
                     sqref="{}2:{}2000".format(cell_col_letter, cell_col_letter),
                     operator="greaterThan",
@@ -338,9 +338,7 @@ def read_sheet(xlsx, fields, sheet_name=None):
     slug_headers = [expected_headers[header].slug for header in headers]
     # Iterate over the rows
     for row in it:
-        row = [cell.value.strftime('%d.%m.%Y')
-                if (isinstance(cell.value, date) or isinstance(cell.value, datetime))
-                else (cell.value or "").encode('utf-8').decode('utf-8').strip() for cell in row[: len(headers)]]
+        row = [(cell.value or "").encode('utf-8').decode('utf-8').strip() for cell in row[: len(headers)]]
         if not any(row):
             break
         yield dict(zip(slug_headers, row))

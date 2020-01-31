@@ -11,6 +11,7 @@ import openpyxl
 import zipfile
 
 import collections
+from dateutil.parser import parse
 from datetime import datetime
 from itertools import groupby
 from operator import attrgetter
@@ -1224,6 +1225,11 @@ def read_participants_excel(custom_fields, rows, form_class, read_files=False):
                 value = countries.get(value.lower(), "invalid-country")
             elif field_type == CustomField.MULTI_CHECKBOX:
                 value = [el.strip() for el in value.split(",")]
+            elif field_type == CustomField.DATE:
+                try:
+                    value = parse(value).strftime('%d.%m.%Y')
+                except:
+                    value = None
             elif field_type in (CustomField.IMAGE, CustomField.DOCUMENT):
                 if read_files:
                     resp = requests.get(value, stream=True)
