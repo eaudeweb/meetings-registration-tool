@@ -41,6 +41,8 @@ class Statistics(PermissionRequiredMixin, MethodView):
         total_delegates = sum(category.participants.filter_by(deleted=False).count()
                                     for category in participant_categories)
 
+        active_participants = Participant.query.current_meeting()
+
         return render_template(
             self.template_name,
             participant_categories=participant_categories,
@@ -50,17 +52,17 @@ class Statistics(PermissionRequiredMixin, MethodView):
                 g.meeting.custom_fields.filter_by(slug='sex').scalar()
             ),
             female_delegates=(
-                g.meeting.participants.filter_by(
+                active_participants.filter_by(
                     sex=Participant.SEX_CHOICES[0][0]
                 ).count()
             ),
             male_delegates=(
-                g.meeting.participants.filter_by(
+                active_participants.filter_by(
                     sex=Participant.SEX_CHOICES[1][0]
                 ).count()
             ),
             neutral_delegates=(
-                g.meeting.participants.filter_by(
+                active_participants.filter_by(
                     sex=Participant.SEX_CHOICES[2][0]
                 ).count()
             )
