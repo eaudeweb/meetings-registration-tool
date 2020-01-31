@@ -27,7 +27,7 @@
             {% block registration_url %}
               {% for lang in languages %}
                   {% set url = url_external('meetings.registration') %}
-                <h4>{{ lang.0|title }} - <a href="{{ url }}">{{ url }}?lang={{ lang.1 }}</a></h4>
+                <h4>{{ lang.0|title }} - <a href="{{ url }}?lang={{ lang.1 }}">{{ url }}?lang={{ lang.1 }}</a></h4>
               {% endfor %}
             {% endblock %}
           </td>
@@ -41,7 +41,7 @@
             {% block media_registration_url %}
               {% for lang in languages %}
                   {% set url = url_external('meetings.media_registration') %}
-                <h4>{{ lang.0|title }} - <a href="{{ url }}">{{ url }}?lang={{ lang.1 }}</a></h4>
+                <h4>{{ lang.0|title }} - <a href="{{ url }}?lang={{ lang.1 }}">{{ url }}?lang={{ lang.1 }}</a></h4>
               {% endfor %}
             {% endblock %}
           </td>
