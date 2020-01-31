@@ -193,7 +193,7 @@ def generate_export_excel(header, rows, filename):
     for row_idx, row in enumerate(rows, 2):
         for col_idx, value in enumerate(row, 1):
             cell_col_letter = openpyxl.utils.get_column_letter(col_idx)
-            sheet.cell(row=row_idx, column=col_idx).value = str(value)
+            sheet.cell(row=row_idx, column=col_idx).value = unicode(value).encode('utf-8')
 
     workbook.save(filename)
 
@@ -340,7 +340,7 @@ def read_sheet(xlsx, fields, sheet_name=None):
     for row in it:
         row = [cell.value.strftime('%d.%m.%Y')
                 if (isinstance(cell.value, date) or isinstance(cell.value, datetime))
-                else str(cell.value or "").strip() for cell in row[: len(headers)]]
+                else (cell.value or "").encode('utf-8').decode('utf-8').strip() for cell in row[: len(headers)]]
         if not any(row):
             break
         yield dict(zip(slug_headers, row))
