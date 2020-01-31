@@ -25,8 +25,10 @@
           <td><h4>Participant registration form</h4></td>
           <td>
             {% block registration_url %}
-              {% set url = url_external('meetings.registration') %}
-              <h4><a href="{{ url }}">{{ url }}</a></h4>
+              {% for lang in languages %}
+                  {% set url = url_external('meetings.registration') %}
+                <h4>{{ lang.0|title }} - <a href="{{ url }}?lang={{ lang.1 }}">{{ url }}?lang={{ lang.1 }}</a></h4>
+              {% endfor %}
             {% endblock %}
           </td>
         </tr>
@@ -37,8 +39,10 @@
           <td><h4>Media Participant registration form</h4></td>
           <td>
             {% block media_registration_url %}
-              {% set url = url_external('meetings.media_registration') %}
-              <h4><a href="{{ url }}">{{ url }}</a></h4>
+              {% for lang in languages %}
+                  {% set url = url_external('meetings.media_registration') %}
+                <h4>{{ lang.0|title }} - <a href="{{ url }}?lang={{ lang.1 }}">{{ url }}?lang={{ lang.1 }}</a></h4>
+              {% endfor %}
             {% endblock %}
           </td>
         </tr>
