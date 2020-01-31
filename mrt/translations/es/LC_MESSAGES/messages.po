@@ -7,134 +7,145 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: purepython@eaudeweb.ro\n"
-"POT-Creation-Date: 2016-12-05 16:48+0200\n"
+"POT-Creation-Date: 2020-01-31 09:11+0000\n"
 "PO-Revision-Date: 2016-12-05 15:51+0300\n"
 "Last-Translator: Iulia Chiriac <iulia.chiriac@eaudeweb.ro>\n"
+"Language: es\n"
 "Language-Team: es <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 1.3\n"
+"Generated-By: Babel 2.5.0\n"
 
-#: mrt/models.py:252
+#: mrt/models.py:254
 msgid "Ms"
 msgstr "Sra"
 
-#: mrt/models.py:253
+#: mrt/models.py:255
 msgid "Mr"
 msgstr "Sr"
 
-#: mrt/models.py:254
+#: mrt/models.py:256
 msgid "Dr"
 msgstr "Dr"
 
-#: mrt/models.py:255
+#: mrt/models.py:257
 msgid "Prof"
 msgstr "Prof"
 
-#: mrt/models.py:258
+#: mrt/models.py:260
+msgid "Female"
+msgstr "Feminino"
+
+#: mrt/models.py:261
+msgid "Male"
+msgstr "Masculino"
+
+#: mrt/models.py:262
+msgid "Neutral / Rather not say"
+msgstr "Neutral / Más bien no decir"
+
+#: mrt/models.py:265
 msgid "English"
 msgstr "Inglés"
 
-#: mrt/models.py:259
+#: mrt/models.py:266
 msgid "Spanish"
 msgstr "Español"
 
-#: mrt/models.py:260
+#: mrt/models.py:267
 msgid "French"
 msgstr "Francés"
 
-#: mrt/models.py:267
+#: mrt/models.py:274
 msgid "Participant"
 msgstr "Partícipe"
 
-#: mrt/models.py:268
+#: mrt/models.py:275
 msgid "Media"
 msgstr "Medios"
 
-#: mrt/models.py:269
+#: mrt/models.py:276
 msgid "Default"
 msgstr "Por defecto"
 
-#: mrt/models.py:270
+#: mrt/models.py:277
 msgid "Default Media"
 msgstr "Medios por defecto"
 
-#: mrt/models.py:284
+#: mrt/models.py:291
 msgid "Title"
 msgstr "Título"
 
-#: mrt/models.py:287
+#: mrt/models.py:293
+msgid "Sex"
+msgstr "Sexo"
+
+#: mrt/models.py:296
 msgid "Given name"
 msgstr "Nombre de pila"
 
-#: mrt/models.py:290
+#: mrt/models.py:299
 msgid "Family name"
 msgstr "Apellido"
 
-#: mrt/models.py:293
+#: mrt/models.py:302
 msgid "Name on the badge"
 msgstr "Nombre en la tarjeta de identificación"
 
-#: mrt/models.py:296
+#: mrt/models.py:305
 msgid "Email"
 msgstr "Correo electrónico"
 
-#: mrt/models.py:309
+#: mrt/models.py:318
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:58
 msgid "Working language"
 msgstr "Idioma de trabajo"
 
-#: mrt/models.py:312
+#: mrt/models.py:321
 msgid "Country"
 msgstr "País"
 
-#: mrt/models.py:318
+#: mrt/models.py:327
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:65
 msgid "Country represented"
 msgstr "País representado"
 
-#: mrt/models.py:322
+#: mrt/models.py:331
 #: mrt/templates/meetings/printouts/acknowledge_detail.html:77
 msgid "Representing region"
 msgstr "En representación de la región"
 
-#: mrt/models.py:326
+#: mrt/models.py:335
 msgid "Organization represented"
 msgstr "Organización representado"
 
-#: mrt/models.py:328
-#, fuzzy
+#: mrt/models.py:337
 msgid "Representing"
 msgstr "En representación de la región"
 
-#: mrt/models.py:331
+#: mrt/models.py:340
 msgid "Attended"
 msgstr "Asistió"
 
-#: mrt/models.py:334
+#: mrt/models.py:343
 msgid "Verified"
 msgstr "Verificado"
 
-#: mrt/models.py:337
+#: mrt/models.py:346
 msgid "Credentials"
 msgstr "Cartas credenciales"
 
-#: mrt/models.py:344 mrt/models.py:1157
+#: mrt/models.py:353 mrt/models.py:1210
 msgid "Participant type"
 msgstr "Tipo de participante"
 
-#: mrt/models.py:348
-#, fuzzy
+#: mrt/models.py:357
 msgid "Date of registration"
 msgstr "Los detalles de registro"
 
-#: mrt/forms/meetings/registration.py:83
-msgid "Invalid email. Enter another email."
-msgstr "Email inválido. Escriba otro email."
-
-#: mrt/forms/meetings/registration.py:87
+#: mrt/forms/meetings/registration.py:90
 msgid "Another participant is already registered with this email address."
 msgstr "Otro participante ya está registrado con esta dirección de corre"
 
@@ -156,7 +167,6 @@ msgid "Representative of"
 msgstr "Representante de"
 
 #: mrt/templates/meetings/registration/_document_widget.html:15
-#, fuzzy
 msgid "Use this document for registration"
 msgstr "Utilice esta foto para el registro"
 
@@ -164,19 +174,25 @@ msgstr "Utilice esta foto para el registro"
 msgid "Use this photo for registration"
 msgstr "Utilice esta foto para el registro"
 
-#: mrt/templates/meetings/registration/form.html:49
+#: mrt/templates/meetings/registration/_image_widget.html:26
+msgid ""
+"Left-click and drag to select the area that you want to remain, the rest "
+"will be removed"
+msgstr "Haga clic izquierdo y arrastre para seleccionar el área que desea permanecer, el resto se eliminará"
+
+#: mrt/templates/meetings/registration/form.html:51
 msgid "Logout"
 msgstr "Desloguearse"
 
-#: mrt/templates/meetings/registration/form.html:53
+#: mrt/templates/meetings/registration/form.html:55
 msgid "Login and pre-fill the registration form"
 msgstr "Acceder para pre-llenar el formulario de inscripción"
 
-#: mrt/templates/meetings/registration/form.html:87
+#: mrt/templates/meetings/registration/form.html:89
 msgid "I would also like to attend"
 msgstr "Me gustaría asistir"
 
-#: mrt/templates/meetings/registration/form.html:113
+#: mrt/templates/meetings/registration/form.html:115
 msgid "Submit"
 msgstr "Someter"
 
@@ -184,15 +200,13 @@ msgstr "Someter"
 msgid "Thank you for submitting your registration information."
 msgstr "Gracias por enviar su información de registro"
 
-#: mrt/templates/meetings/registration/success.html:34
+#: mrt/templates/meetings/registration/success.html:36
 msgid "Create account"
 msgstr "Crear una cuenta"
 
 #: mrt/templates/meetings/registration/user_success.html:8
 msgid "A new user was created. You can now login for future meetings."
-msgstr ""
-"Se creó un nuevo usuario. Ahora puede iniciar sesión para futuras "
-"reuniones."
+msgstr "Se creó un nuevo usuario. Ahora puede iniciar sesión para futuras reuniones."
 
 #: mrt/templates/meetings/registration/user_success.html:14
 msgid "Your participant details"
@@ -204,26 +218,30 @@ msgstr "Tus detalles"
 #~ msgid "Confirm Password"
 #~ msgstr "Confirmar Contraseña"
 
-msgid "Africa"
-msgstr "África"
+#~ msgid "Invalid email. Enter another email."
+#~ msgstr "Email inválido. Escriba otro email."
 
-msgid "Central and South America and the Carribean"
-msgstr "América Central y del Sur y el Caribe"
+#~ msgid "Africa"
+#~ msgstr "África"
 
-msgid "Depositary Government"
-msgstr "Gobierno Depositario"
+#~ msgid "Central and South America and the Carribean"
+#~ msgstr "América Central y del Sur y el Caribe"
 
-msgid "Europe"
-msgstr "Europa"
+#~ msgid "Depositary Government"
+#~ msgstr "Gobierno Depositario"
 
-msgid "Next host country"
-msgstr "Siguiente país de acogida"
+#~ msgid "Europe"
+#~ msgstr "Europa"
 
-msgid "North America"
-msgstr "Norteamérica"
+#~ msgid "Next host country"
+#~ msgstr "Siguiente país de acogida"
 
-msgid "Oceania"
-msgstr "Oceanía"
+#~ msgid "North America"
+#~ msgstr "Norteamérica"
 
-msgid "Previous host country"
-msgstr "País de acogida anterior"
+#~ msgid "Oceania"
+#~ msgstr "Oceanía"
+
+#~ msgid "Previous host country"
+#~ msgstr "País de acogida anterior"
+
