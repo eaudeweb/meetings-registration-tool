@@ -1120,7 +1120,7 @@ def _process_export_participants_excel(meeting_id, participant_type):
         data['title'] = p.title.value
         data['first_name'] = p.first_name
         data['last_name'] = p.last_name
-        data['sex'] = getattr(p.sex, 'value', '-')
+        data['gender'] = getattr(p.gender, 'value', '-')
         data['badge_name'] = p.name_on_badge
         data['country'] = p.country.name if p.country else None
         data['email'] = p.email

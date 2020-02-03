@@ -316,14 +316,14 @@ class ParticipantDummyForm(OrderedFieldsForm):
         model = Participant
         exclude = ('deleted', 'registration_token', 'participant_type',
                    'representing')
-        field_order = ('title', 'first_name', 'last_name', 'badge_name', 'sex',
-                       'language', 'country', 'email', 'category_id',
+        field_order = ('title', 'first_name', 'last_name', 'badge_name',
+                       'gender', 'language', 'country', 'email', 'category_id',
                        'represented_organization', 'represented_country',
                        'represented_region', 'attended', 'verified',
                        'credentials')
         visible_on_registration_form = (
-            'title', 'first_name', 'last_name', 'email', 'category_id', 'sex',
-            'language', 'country', 'represented_country',
+            'title', 'first_name', 'last_name', 'email', 'category_id',
+            'gender', 'language', 'country', 'represented_country',
             'represented_organization',)
         field_args = {
             'language': {'validators': [InputRequired()]},

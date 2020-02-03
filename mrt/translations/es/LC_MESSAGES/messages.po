@@ -79,8 +79,8 @@ msgid "Title"
 msgstr "Título"
 
 #: mrt/models.py:293
-msgid "Sex"
-msgstr "Sexo"
+msgid "Gender"
+msgstr "Género"
 
 #: mrt/models.py:296
 msgid "Given name"
