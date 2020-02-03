@@ -155,28 +155,18 @@ Run the pybabel command that comes with Babel to extract your strings:
 
         pybabel extract -F mrt/babel.cfg -k lazy_gettext -o mrt/translations/messages.pot mrt/
 
-Create translations:
+Create translations (this should be done only one time, at the start of the project):
 
-        pybabel init -i mrt/translations/messages.pot -d mrt/translations -l es
-        pybabel init -i mrt/translations/messages.pot -d mrt/translations -l fr
+        pybabel init -i mrt/translations/messages.po -d mrt/translations -l es
+        pybabel init -i mrt/translations/messages.po -d mrt/translations -l fr
+
+Update the changes you made:
+
+        pybabel update -i mrt/translations/messages.po -d mrt/translations
 
 To compile the translations for use, pybabel helps again:
 
         pybabel compile -d mrt/translations
-
-Merge the changes:
-
-        pybabel update -i mrt/translations/messages.pot -d mrt/translations
-
-## Use the UN official list of countries
-
-By default, the list of countries used in country selection fields is the one supplied by the babel package (which in turn gets the data from CLDR). If you want to switch to the UN official list of countries, you can do so by running the command:
-
-        python manage.py countries_un
-
-Running this command is a one-time step. The list of countries is extracted from the excel file mrt/static/localedata/countries_un.xslx and based on the information parsed, the data files used by babel are partially overwritten. Since running the command modifies the files used by babel, the only way to restore the default list is to restore those data files (which can be done by reinstalling the babel package, for example).
-
-If the babel package is updated, the command will have to be run again, to modify the newly added locale data files.
 
 ## Integration in CMS pages
 
@@ -186,4 +176,4 @@ Simply insert the snippet bellow in the CMS page:
                 <iframe scrolling="no" src="<registration-url>" style="left: -50px; top: -180px; width: 105%; height: 2700px; position: absolute;"></iframe>
         </div>
 
-The registration URL can be copied from Meeting -> Settings -> Overview -> Participant registration form.
+The registration URL can be copied from Meeting -> Settings -> Integration -> Participant registration form.
