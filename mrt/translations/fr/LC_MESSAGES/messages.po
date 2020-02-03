@@ -79,8 +79,8 @@ msgid "Title"
 msgstr "Titre"
 
 #: mrt/models.py:293
-msgid "Sex"
-msgstr "Sexe"
+msgid "Gender"
+msgstr "Genre"
 
 #: mrt/models.py:296
 msgid "Given name"
@@ -178,7 +178,9 @@ msgstr "Utiliser cette photo pour l'inscription."
 msgid ""
 "Left-click and drag to select the area that you want to remain, the rest "
 "will be removed"
-msgstr "Faites un clic gauche et faites glisser pour sélectionner la zone que vous souhaitez conserver, le reste sera supprimé"
+msgstr ""
+"Faites un clic gauche et faites glisser pour sélectionner la zone que "
+"vous souhaitez conserver, le reste sera supprimé"
 
 #: mrt/templates/meetings/registration/form.html:51
 msgid "Logout"

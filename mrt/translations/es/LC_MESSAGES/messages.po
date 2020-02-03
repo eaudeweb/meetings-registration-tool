@@ -79,8 +79,8 @@ msgid "Title"
 msgstr "Título"
 
 #: mrt/models.py:293
-msgid "Sex"
-msgstr "Sexo"
+msgid "Gender"
+msgstr "Género"
 
 #: mrt/models.py:296
 msgid "Given name"
@@ -178,7 +178,9 @@ msgstr "Utilice esta foto para el registro"
 msgid ""
 "Left-click and drag to select the area that you want to remain, the rest "
 "will be removed"
-msgstr "Haga clic izquierdo y arrastre para seleccionar el área que desea permanecer, el resto se eliminará"
+msgstr ""
+"Haga clic izquierdo y arrastre para seleccionar el área que desea "
+"permanecer, el resto se eliminará"
 
 #: mrt/templates/meetings/registration/form.html:51
 msgid "Logout"
@@ -206,7 +208,9 @@ msgstr "Crear una cuenta"
 
 #: mrt/templates/meetings/registration/user_success.html:8
 msgid "A new user was created. You can now login for future meetings."
-msgstr "Se creó un nuevo usuario. Ahora puede iniciar sesión para futuras reuniones."
+msgstr ""
+"Se creó un nuevo usuario. Ahora puede iniciar sesión para futuras "
+"reuniones."
 
 #: mrt/templates/meetings/registration/user_success.html:14
 msgid "Your participant details"

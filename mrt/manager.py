@@ -339,10 +339,10 @@ def sync_cites_meetings(ctx):
     logger.info("Finished sync_cites_meetings")
 
 
-@cli.command(name='add_custom_field_sex')
+@cli.command(name='add_custom_field_gender')
 @click.option('--meeting', type=int)
 @click.pass_context
-def add_custom_field_sex(ctx, meeting):
+def add_custom_field_gender(ctx, meeting):
 # previously named add_custom_sex_field(ctx):
     app = ctx.obj['app']
 
@@ -355,15 +355,15 @@ def add_custom_field_sex(ctx, meeting):
         for meeting in meetings:
             query = (
                 CustomField.query
-                .filter_by(slug='sex', meeting=meeting)
+                .filter_by(slug='gender', meeting=meeting)
             )
             if query.scalar():
                 continue
 
             custom_field = CustomField()
             custom_field.meeting = meeting
-            custom_field.slug = 'sex'
-            custom_field.label = Translation(english=u'Sex')
+            custom_field.slug = 'gender'
+            custom_field.label = Translation(english=u'Gender')
             custom_field.required = False
             custom_field.field_type = CustomField.SELECT
             custom_field.is_primary = True
@@ -374,8 +374,8 @@ def add_custom_field_sex(ctx, meeting):
             db.session.add(custom_field)
 
             _add_choice_values_for_custom_field(
-                custom_field, Participant.SEX_CHOICES)
+                custom_field, Participant.GENDER_CHOICES)
 
-            click.echo(u'Sex field added for meeting %s \n' % meeting.id)
+            click.echo(u'Gender field added for meeting %s \n' % meeting.id)
 
         db.session.commit()

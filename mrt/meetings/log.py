@@ -48,22 +48,22 @@ class Statistics(PermissionRequiredMixin, MethodView):
             participant_categories=participant_categories,
             media_categories=media_categories,
             total_delegates=total_delegates,
-            sex_field=(
-                g.meeting.custom_fields.filter_by(slug='sex').scalar()
+            gender_field=(
+                g.meeting.custom_fields.filter_by(slug='gender').scalar()
             ),
             female_delegates=(
                 active_participants.filter_by(
-                    sex=Participant.SEX_CHOICES[0][0]
+                    gender=Participant.gender_CHOICES[0][0]
                 ).count()
             ),
             male_delegates=(
                 active_participants.filter_by(
-                    sex=Participant.SEX_CHOICES[1][0]
+                    gender=Participant.gender_CHOICES[1][0]
                 ).count()
             ),
             neutral_delegates=(
                 active_participants.filter_by(
-                    sex=Participant.SEX_CHOICES[2][0]
+                    gender=Participant.gender_CHOICES[2][0]
                 ).count()
             )
         )
