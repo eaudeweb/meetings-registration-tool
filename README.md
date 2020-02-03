@@ -155,18 +155,18 @@ Run the pybabel command that comes with Babel to extract your strings:
 
         pybabel extract -F mrt/babel.cfg -k lazy_gettext -o mrt/translations/messages.pot mrt/
 
-Create translations:
+Create translations (this should be done only one time, at the start of the project):
 
-        pybabel init -i mrt/translations/messages.pot -d mrt/translations -l es
-        pybabel init -i mrt/translations/messages.pot -d mrt/translations -l fr
+        pybabel init -i mrt/translations/messages.po -d mrt/translations -l es
+        pybabel init -i mrt/translations/messages.po -d mrt/translations -l fr
+
+Update the changes you made:
+
+        pybabel update -i mrt/translations/messages.po -d mrt/translations
 
 To compile the translations for use, pybabel helps again:
 
         pybabel compile -d mrt/translations
-
-Merge the changes:
-
-        pybabel update -i mrt/translations/messages.pot -d mrt/translations
 
 ## Integration in CMS pages
 
@@ -176,4 +176,4 @@ Simply insert the snippet bellow in the CMS page:
                 <iframe scrolling="no" src="<registration-url>" style="left: -50px; top: -180px; width: 105%; height: 2700px; position: absolute;"></iframe>
         </div>
 
-The registration URL can be copied from Meeting -> Settings -> Overview -> Participant registration form.
+The registration URL can be copied from Meeting -> Settings -> Integration -> Participant registration form.
