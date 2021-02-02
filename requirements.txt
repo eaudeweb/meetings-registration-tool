@@ -1,5 +1,5 @@
 alembic==0.9.5
-bleach==2.0.0
+bleach==3.3.0
 click==6.7
 cssmin==0.2.0
 Flask-Assets==0.12
