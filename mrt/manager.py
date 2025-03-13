@@ -6,6 +6,8 @@ import re
 import os
 import subprocess
 import logging
+import json
+from sqlalchemy import or_
 
 import requests
 from flask import g
@@ -13,12 +15,12 @@ from alembic.config import CommandLine
 from rq import Queue, Connection, Worker
 from rq import get_failed_queue
 
-from mrt.models import redis_store, db
+from mrt.models import CustomFieldValue, redis_store, db
 from mrt.models import User, Staff, Job
 from mrt.models import CustomField, Translation, Participant, Meeting, MeetingType
 from mrt.pdf import _clean_printouts
 from mrt.scripts.informea import get_meetings
-from mrt.utils import slugify, validate_email
+from mrt.utils import slugify, unlink_participant_custom_file, validate_email
 from collections import defaultdict
 from mrt.forms.meetings.meeting import _add_choice_values_for_custom_field
 
@@ -379,3 +381,214 @@ def add_custom_field_gender(ctx, meeting):
             click.echo(u'Gender field added for meeting %s \n' % meeting.id)
 
         db.session.commit()
+
+
+@cli.command(
+    help="""
+        Delete custom field values specified by the `--field-names`
+        argument or listed in the file provided by `--field-names-file`
+        for which: the meeting does not have online registration enabled
+        and the date interval is in the past (is a finished meeting).
+        If the custom field is of type DOCUMENT or IMAGE, the file will
+        also be removed from the disk.
+    """
+)
+@click.pass_context
+@click.option("--count-only", is_flag=True, help="Count only without deleting.")
+@click.option(
+    "--field-names",
+    type=str,
+    multiple=True,
+    help="Comma separated list of field names to delete.",
+)
+@click.option(
+    "--field-names-file",
+    type=str,
+    help="File with a list of field names to delete.",
+)
+@click.option(
+    "--batch-size",
+    type=int,
+    default=300,
+    help="Batch size for deletion.",
+)
+def remove_unregistered_users_sensitive_data(ctx, count_only, field_names, field_names_file, batch_size):
+    def commit_changes_and_delete_disk_files(filenames_to_delete):
+        db.session.commit()
+        print("Deleting %s files from disk..." % len(filenames_to_delete))
+        for filename in filenames_to_delete:
+            unlink_participant_custom_file(filename)
+
+    if not field_names and not field_names_file:
+        print(
+            "INFO: You must provide at least one of --field-names or "
+            "--field-names-file."
+        )
+        return
+
+    if field_names_file:
+        fd = open(field_names_file, "r")
+        field_names = json.load(fd)
+        fd.close()
+
+    app = ctx.obj["app"]
+    with app.app_context():
+        cf_values = (
+            CustomFieldValue.query.join(CustomField)
+            .join(Meeting, CustomField.meeting_id == Meeting.id)
+            .filter(~Meeting.online_registration)
+            .filter(
+                Meeting.date_end < datetime.now(),
+                Meeting.date_start < datetime.now(),
+            )
+            .filter(CustomField.slug.in_(field_names))
+        )
+        cf_values_count = cf_values.count()
+        cf_values_filenames = cf_values.filter(
+            or_(
+                CustomField.field_type == CustomField.DOCUMENT,
+                CustomField.field_type == CustomField.IMAGE,
+            )
+        ).with_entities(CustomFieldValue.value)
+
+        print(
+            "There are %s custom field values and %s files on disk to delete"
+            % (cf_values_count, cf_values_filenames.count())
+        )
+        if count_only or cf_values_count == 0:
+            return
+
+        filenames_to_delete = []
+        for idx, cf_value in enumerate(cf_values, start=1):
+            is_file = (
+                cf_value.custom_field.field_type == CustomField.DOCUMENT
+                or cf_value.custom_field.field_type == CustomField.IMAGE
+            )
+            db.session.delete(cf_value)
+            if is_file:
+                filenames_to_delete.append(cf_value.value)
+
+            if idx % batch_size == 0:
+                print(
+                    "%s/%s Deleting batch from the database..."
+                    % (idx, cf_values_count)
+                )
+                commit_changes_and_delete_disk_files(filenames_to_delete)
+                filenames_to_delete = []
+
+        # Commit the last batch
+        print(
+            "Deleting last batch from the database..."
+        )
+        commit_changes_and_delete_disk_files(filenames_to_delete)
+
+        # Count the remaining values
+        cf_values_count_after = (
+            CustomFieldValue.query.join(CustomField)
+            .join(Meeting, CustomField.meeting_id == Meeting.id)
+            .filter(~Meeting.online_registration)
+            .filter(
+                Meeting.date_end < datetime.now(),
+                Meeting.date_start < datetime.now(),
+            )
+            .filter(CustomField.slug.in_(field_names))
+            .count()
+        )
+
+        print("Deleted %s values" % (cf_values_count - cf_values_count_after))
+
+
+@cli.command(
+    help="""
+        Delete custom field values that are of type DOCUMENT or IMAGE and
+        are not present on the disk.
+    """
+)
+@click.pass_context
+@click.option("--count-only", is_flag=True, help="Count only without deleting")
+@click.option(
+    "--batch-size",
+    type=int,
+    default=1000,
+    help="Batch size for deletion",
+)
+def delete_ghost_custom_field_value_objs(ctx, count_only, batch_size):
+    app = ctx.obj["app"]
+    with app.app_context():
+        dir_path = app.config['UPLOADED_CUSTOM_DEST']
+        cf_values = (
+            CustomFieldValue.query
+            .join(CustomField)
+            .filter(
+                or_(
+                    CustomField.field_type == CustomField.DOCUMENT,
+                    CustomField.field_type == CustomField.IMAGE
+                )
+            )
+            .with_entities(CustomFieldValue.value)
+            .all()
+        )
+
+        disk_filenames = set(file for file in os.listdir(dir_path))
+        db_filenames = set(str(value) for value, in cf_values)
+
+        ghost_objs = db_filenames - disk_filenames
+        print("There are %s ghost objects to delete" % len(ghost_objs))
+
+        if count_only or len(ghost_objs) == 0:
+            return
+
+        # Delete ghost objects
+        for idx, cf_value in enumerate(cf_values):
+            if cf_value.value in ghost_objs:
+                db.session.delete(cf_value)
+
+            if idx % batch_size == 0 and idx != 0:
+                print("%s/%s Deleting batch from the database..." % (idx, len(db_filenames)))
+                db.session.commit()
+            db.session.commit()
+
+
+@cli.command(
+    help="""
+        Delete files on disk from /custom_uploads that are not present in the
+        database.
+    """
+)
+@click.pass_context
+@click.option("--count-only", is_flag=True, help="Count only without deleting")
+@click.option(
+    "--batch-size",
+    type=int,
+    default=1000,
+    help="Batch size for deletion",
+)
+def delete_ghost_custom_field_value_files(ctx, count_only, batch_size):
+    app = ctx.obj["app"]
+    with app.app_context():
+        dir_path = app.config['UPLOADED_CUSTOM_DEST']
+        cf_values = (
+            CustomFieldValue.query
+            .join(CustomField)
+            .filter(
+                or_(
+                    CustomField.field_type == CustomField.DOCUMENT,
+                    CustomField.field_type == CustomField.IMAGE
+                )
+            )
+            .with_entities(CustomFieldValue.value)
+            .all()
+        )
+
+        disk_filenames = set(file for file in os.listdir(dir_path))
+        db_filenames = set(str(value) for value, in cf_values)
+
+        ghost_files = disk_filenames - db_filenames
+        print("There are %s ghost files to delete" % len(ghost_files))
+
+        if count_only or len(ghost_files) == 0:
+            return
+
+        for filename in ghost_files:
+            print("Deleting %s" % filename)
+            unlink_participant_custom_file(filename)
