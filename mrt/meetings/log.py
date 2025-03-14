@@ -53,17 +53,17 @@ class Statistics(PermissionRequiredMixin, MethodView):
             ),
             female_delegates=(
                 active_participants.filter_by(
-                    gender=Participant.gender_CHOICES[0][0]
+                    gender=Participant.GENDER_CHOICES[0][0]
                 ).count()
             ),
             male_delegates=(
                 active_participants.filter_by(
-                    gender=Participant.gender_CHOICES[1][0]
+                    gender=Participant.GENDER_CHOICES[1][0]
                 ).count()
             ),
             neutral_delegates=(
                 active_participants.filter_by(
-                    gender=Participant.gender_CHOICES[2][0]
+                    gender=Participant.GENDER_CHOICES[2][0]
                 ).count()
             )
         )
