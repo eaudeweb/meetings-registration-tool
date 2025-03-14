@@ -177,3 +177,59 @@ Simply insert the snippet bellow in the CMS page:
         </div>
 
 The registration URL can be copied from Meeting -> Settings -> Integration -> Participant registration form.
+
+
+## Delete sensitive data
+The application stores sensitive user-uploaded data. A management command is available to delete selected field information from all finished meetings.
+```
+python manage.py remove_unregistered_users_sensitive_data --field-names="passport"
+```
+Important: The application allows users to create custom fields, resulting in examples of sensitive data fields like "copia-del-pasaporte" or "passport-number" that are not intuitive.
+
+In order to find the name of the fields containing sensitive data, the code below might help:
+
+```
+from mrt.models import *
+import json
+
+# Find all fields that contain keyword
+query = (
+    CustomFieldValue.query
+    .join(CustomField)
+    .filter(CustomField.slug.contains("passport"))
+    .with_entities(CustomField.slug)
+    .distinct()
+    .all()
+)
+
+# Find all fields that have type IMAGE
+query = (    CustomFieldValue.query
+    .join(CustomField)
+    .filter(CustomField.field_type == CustomField.IMAGE)
+    .with_entities(CustomField.slug)
+    .distinct()
+    .all()
+)
+
+# Find all fields that have type DOCUMENT
+query = (
+    CustomFieldValue.query
+    .join(CustomField)
+    .filter(CustomField.field_type == CustomField.DOCUMENT)
+    .with_entities(CustomField.slug)
+    .distinct()
+    .all()
+)
+```
+
+Generate a file containing the custom field names, which can be provided to the management command using the `--field-names-file` argument. Feel free to modify the file as needed.
+```
+json_string = json.dumps([str(slug) for slug, in query])
+with open("output.json", 'w') as json_file:
+    json_file.write(json_string)
+```
+
+Run command
+```
+./manage.py remove_unregistered_users_sensitive_data --field-names-file output.json
+```
