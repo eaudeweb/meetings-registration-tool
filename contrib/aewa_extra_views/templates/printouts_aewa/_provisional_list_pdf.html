@@ -23,63 +23,39 @@
 
 <div class="printout-item-container">
 
-  {% for group, list in
-    participants|groupby('category')|sort(attribute="grouper.sort") %}
+  {% for (group1, group1_value), group_participants2 in grouped_participants.items() %}
+    <div style="page-break-inside: avoid;">
+      <h4 class="highlight text-center">
+        {{ group1.title.english }} /
+        {{ group1.title.french }} /
+        {{ group1.title.spanish }}
 
-    {% for representing, participant_group in
-      list|selectattr('representing', 'defined')|groupby('representing') %}
-
-        {% set outer_loop = loop %}
-        {% for participant in participant_group %}
+      </h4>
+      {% for (group2_label, group2_value), participants in group_participants2.items() %}
+        <div style="page-break-inside: avoid;">
+        <h5 style="font-size: large">
+          <b>
+            {{ group2_label }}:
+          </b>
+          {{ group2_value }}
+        </h5>
+        {% for (ignored, participant) in participants %}
           <div style="page-break-inside: avoid;">
-            {% if outer_loop.first and loop.first %}
-            <h5 class="highlight text-center">
-              {% for lang in config.TRANSLATIONS %}
-                {{ group.title[lang] }}
-                {% if not loop.last %}/{% endif %}
-              {% endfor %}
-            </h5>
+            <table class="custom-fields-table">
+              {% for field in participant.get_fields(selected_field_ids) %}
+              {% if field.id != "category_id" and field.label.text != group2_label %}
+              <tr>
+                <td>{{ field.label.text }}:</td>
+                <td>{{ field.render_data() }}</td>
+              </tr>
             {% endif %}
-            {% if loop.first %}
-              <hr>
-              <h5><b>
-                {{ representing|safe or 'Not specified' }}
-              </b></h5>
-            {% endif %}
-            <dl>
-              <dd style="margin-bottom: 5px;">
-                {{ participant.title }}
-                {{ participant.first_name }}
-                {{ participant.last_name }}
-              </dd>
-              <dd>{{ participant.hardcoded_field_value('functional-title') }}</dd>
-              <dd>{{ participant.hardcoded_field_value('department-unit') }}</dd>
-              <dd>{{ participant.hardcoded_field_value('organization') }}</dd>
-              <dd>{{ participant.address_value }}</dd>
-              <dd>
-                {{ participant.hardcoded_field_value('post-code') }}
-                {{ participant.hardcoded_field_value('city') }}
-              </dd>
-              <dd style="margin-bottom: 5px;">
-                {% for lang in config.TRANSLATIONS %}
-                  {{ participant.country|country_in(LANGUAGES_MAP[lang]) }}
-                  {% if not loop.last %}/{% endif %}
-                {% endfor %}
-              </dd>
-              {% if participant.telephone_value %}
-                <dd>Tel: {{ participant.telephone_value }}</dd>
-              {% endif %}
-              {% if participant.hardcoded_field_value('fax') %}
-                <dd>Fax:
-                    {{ participant.hardcoded_field_value('fax') }}</dd>
-              {% endif %}
-              <dd>E-mail: {{ participant.email }}</dd>
-            </dl>
+          {% endfor %}
+            </table>
           </div>
+          <hr/>
         {% endfor %}
-
-    {% endfor %}
-
+        </div>
+      {% endfor %}
+    </div>
   {% endfor %}
-
 </div> {# printout-item-container #}

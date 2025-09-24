@@ -14,8 +14,23 @@ class ProvisionalList(_ProvisionalList):
         flag = request.args.get('flag')
         title = self.TITLE_MAP.get(flag, self.DOC_TITLE)
         template_name = 'printouts_aewa/_provisional_list_pdf.html'
-        _add_to_printout_queue(_process_provisional_list, self.JOB_NAME,
-                               title, flag, template_name)
+
+        try:
+            categories = map(int, request.args.getlist('category_filter'))
+        except (KeyError, ValueError, TypeError):
+            categories = []
+
+        selected_field_ids = self._get_selected_field_ids()
+        _add_to_printout_queue(
+            _process_provisional_list,
+            self.JOB_NAME,
+            title,
+            flag,
+            template_name,
+            selected_field_ids,
+            categories,
+        )
+
         return redirect(url_for('.printouts_provisional_list', flag=flag))
 
 
