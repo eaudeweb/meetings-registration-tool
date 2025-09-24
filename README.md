@@ -233,3 +233,18 @@ Run command
 ```
 ./manage.py remove_unregistered_users_sensitive_data --field-names-file output.json
 ```
+
+BONUS:
+1. Delete custom field values that are of type DOCUMENT or IMAGE and are
+not present on the disk.
+
+        ```
+        ./manage.py delete_ghost_custom_field_value_objs (--count-only)
+        ```
+
+2. Delete files on disk from /custom_uploads that are not references in
+the database (aka ghost files)
+
+        ```
+        ./manage.py delete_ghost_custom_field_value_files (--count-only)
+        ```

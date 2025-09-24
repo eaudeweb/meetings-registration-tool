@@ -484,7 +484,8 @@ def remove_unregistered_users_sensitive_data(ctx, count_only, field_names, field
 
         # Count the remaining values
         cf_values_count_after = (
-            CustomFieldValue.query.join(CustomField)
+            CustomFieldValue.query
+            .join(CustomField)
             .join(Meeting, CustomField.meeting_id == Meeting.id)
             .filter(~Meeting.online_registration)
             .filter(
@@ -529,8 +530,8 @@ def delete_ghost_custom_field_value_objs(ctx, count_only, batch_size):
             .all()
         )
 
-        disk_filenames = set(file for file in os.listdir(dir_path))
-        db_filenames = set(str(value) for value, in cf_values)
+        disk_filenames = set(str(file) for file in os.listdir(dir_path))
+        db_filenames = set(str(value[0]) for value in cf_values)
 
         ghost_objs = db_filenames - disk_filenames
         print("There are %s ghost objects to delete" % len(ghost_objs))
@@ -580,9 +581,8 @@ def delete_ghost_custom_field_value_files(ctx, count_only, batch_size):
             .all()
         )
 
-        disk_filenames = set(file for file in os.listdir(dir_path))
-        db_filenames = set(str(value) for value, in cf_values)
-
+        disk_filenames = set(str(file) for file in os.listdir(dir_path))
+        db_filenames = set(str(value[0]) for value in cf_values)
         ghost_files = disk_filenames - db_filenames
         print("There are %s ghost files to delete" % len(ghost_files))
 
