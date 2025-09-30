@@ -180,61 +180,66 @@ The registration URL can be copied from Meeting -> Settings -> Integration -> Pa
 
 
 ## Delete sensitive data
-The application stores sensitive user-uploaded data. A management command is available to delete selected field information from all finished meetings.
-```
-python manage.py remove_unregistered_users_sensitive_data --field-names="passport"
-```
-Important: The application allows users to create custom fields, resulting in examples of sensitive data fields like "copia-del-pasaporte" or "passport-number" that are not intuitive.
+**WARNING: Always create a backup of the database before running these commands. After execution, verify that the data is correct.**
 
-In order to find the name of the fields containing sensitive data, the code below might help:
+The application stores sensitive user-uploaded data. A set of commands is provided to help remove obsolete data.
 
-```
-from mrt.models import *
-import json
+1. Delete selected field information from all finished meetings
 
-# Find all fields that contain keyword
-query = (
-    CustomFieldValue.query
-    .join(CustomField)
-    .filter(CustomField.slug.contains("passport"))
-    .with_entities(CustomField.slug)
-    .distinct()
-    .all()
-)
+        ```
+        python manage.py remove_finished_meetings_sensitive_data_and_documents --field-names="passport"
+        ```
 
-# Find all fields that have type IMAGE
-query = (    CustomFieldValue.query
-    .join(CustomField)
-    .filter(CustomField.field_type == CustomField.IMAGE)
-    .with_entities(CustomField.slug)
-    .distinct()
-    .all()
-)
+        Important: The application allows users to create custom fields, resulting in examples of sensitive data fields like "copia-del-pasaporte" or "passport-number" that are not intuitive.
 
-# Find all fields that have type DOCUMENT
-query = (
-    CustomFieldValue.query
-    .join(CustomField)
-    .filter(CustomField.field_type == CustomField.DOCUMENT)
-    .with_entities(CustomField.slug)
-    .distinct()
-    .all()
-)
-```
+        In order to find the name of the fields containing sensitive data, the code below might help:
 
-Generate a file containing the custom field names, which can be provided to the management command using the `--field-names-file` argument. Feel free to modify the file as needed.
-```
-json_string = json.dumps([str(slug) for slug, in query])
-with open("output.json", 'w') as json_file:
-    json_file.write(json_string)
-```
+        ```
+        from mrt.models import *
+        import json
 
-Run command
-```
-./manage.py remove_unregistered_users_sensitive_data --field-names-file output.json
-```
+        # Find all fields that contain keyword
+        query = (
+        CustomFieldValue.query
+        .join(CustomField)
+        .filter(CustomField.slug.contains("passport"))
+        .with_entities(CustomField.slug)
+        .distinct()
+        .all()
+        )
 
-BONUS:
+        # Find all fields that have type IMAGE
+        query = (    CustomFieldValue.query
+        .join(CustomField)
+        .filter(CustomField.field_type == CustomField.IMAGE)
+        .with_entities(CustomField.slug)
+        .distinct()
+        .all()
+        )
+
+        # Find all fields that have type DOCUMENT
+        query = (
+        CustomFieldValue.query
+        .join(CustomField)
+        .filter(CustomField.field_type == CustomField.DOCUMENT)
+        .with_entities(CustomField.slug)
+        .distinct()
+        .all()
+        )
+        ```
+
+        Generate a file containing the custom field names, which can be provided to the management command using the `--field-names-file` argument. Feel free to modify the file as needed.
+        ```
+        json_string = json.dumps([str(slug) for slug, in query])
+        with open("output.json", 'w') as json_file:
+        json_file.write(json_string)
+        ```
+
+        Run command
+        ```
+        ./manage.py remove_finished_meetings_sensitive_data_and_documents --field-names-file output.json
+        ```
+
 1. Delete custom field values that are of type DOCUMENT or IMAGE and are
 not present on the disk.
 
@@ -242,7 +247,7 @@ not present on the disk.
         ./manage.py delete_ghost_custom_field_value_objs (--count-only)
         ```
 
-2. Delete files on disk from /custom_uploads that are not references in
+1. Delete files on disk from /custom_uploads that are not references in
 the database (aka ghost files)
 
         ```

@@ -391,6 +391,10 @@ def add_custom_field_gender(ctx, meeting):
         and the date interval is in the past (is a finished meeting).
         If the custom field is of type DOCUMENT or IMAGE, the file will
         also be removed from the disk.
+
+        **WARNING**
+        Always create a backup of the database before running this command.
+        After execution, verify that the data is correct.
     """
 )
 @click.pass_context
@@ -412,7 +416,7 @@ def add_custom_field_gender(ctx, meeting):
     default=300,
     help="Batch size for deletion.",
 )
-def remove_unregistered_users_sensitive_data(ctx, count_only, field_names, field_names_file, batch_size):
+def remove_finished_meetings_sensitive_data_and_documents(ctx, count_only, field_names, field_names_file, batch_size):
     def commit_changes_and_delete_disk_files(filenames_to_delete):
         db.session.commit()
         print("Deleting %s files from disk..." % len(filenames_to_delete))
@@ -477,10 +481,11 @@ def remove_unregistered_users_sensitive_data(ctx, count_only, field_names, field
                 filenames_to_delete = []
 
         # Commit the last batch
-        print(
-            "Deleting last batch from the database..."
-        )
-        commit_changes_and_delete_disk_files(filenames_to_delete)
+        if filenames_to_delete:
+            print(
+                "Deleting last batch from the database..."
+            )
+            commit_changes_and_delete_disk_files(filenames_to_delete)
 
         # Count the remaining values
         cf_values_count_after = (
@@ -503,6 +508,10 @@ def remove_unregistered_users_sensitive_data(ctx, count_only, field_names, field
     help="""
         Delete custom field values that are of type DOCUMENT or IMAGE and
         are not present on the disk.
+
+        **WARNING**
+        Always create a backup of the database before running this command.
+        After execution, verify that the data is correct.
     """
 )
 @click.pass_context
@@ -517,7 +526,8 @@ def delete_ghost_custom_field_value_objs(ctx, count_only, batch_size):
     app = ctx.obj["app"]
     with app.app_context():
         dir_path = app.config['UPLOADED_CUSTOM_DEST']
-        cf_values = (
+
+        media_custom_field_values = (
             CustomFieldValue.query
             .join(CustomField)
             .filter(
@@ -526,34 +536,55 @@ def delete_ghost_custom_field_value_objs(ctx, count_only, batch_size):
                     CustomField.field_type == CustomField.IMAGE
                 )
             )
-            .with_entities(CustomFieldValue.value)
-            .all()
-        )
+        ).all()
 
         disk_filenames = set(str(file) for file in os.listdir(dir_path))
-        db_filenames = set(str(value[0]) for value in cf_values)
+        db_filenames = set(
+            str(cf_value.value) for cf_value in media_custom_field_values
+        )
 
-        ghost_objs = db_filenames - disk_filenames
-        print("There are %s ghost objects to delete" % len(ghost_objs))
+        db_entries_without_files = db_filenames - disk_filenames
+        print(
+            "Total files on disk:.......................%s \n"
+            "Total file entries in the database:........%s \n"
+            "DB entries without files:..................%s \n\n"
+            "There are %s ghost objects to delete."
+            % (
+                len(disk_filenames),
+                len(db_filenames),
+                len(db_entries_without_files),
+                len(db_entries_without_files)
+            )
+        )
 
-        if count_only or len(ghost_objs) == 0:
+        if count_only or len(db_entries_without_files) == 0:
             return
 
-        # Delete ghost objects
-        for idx, cf_value in enumerate(cf_values):
-            if cf_value.value in ghost_objs:
+        # Delete db entries without disk files in batches
+        deleted = 0
+        for cf_value in media_custom_field_values:
+            if cf_value.value in db_entries_without_files:
                 db.session.delete(cf_value)
+                deleted += 1
 
-            if idx % batch_size == 0 and idx != 0:
-                print("%s/%s Deleting batch from the database..." % (idx, len(db_filenames)))
+            if deleted % batch_size == 0 and deleted != 0:
+                print(
+                    "%s/%s Deleting batch from the database..."
+                    % (deleted, len(db_entries_without_files))
+                )
                 db.session.commit()
-            db.session.commit()
+        db.session.commit()
+        print("Deleted %s ghost objects." % deleted)
 
 
 @cli.command(
     help="""
         Delete files on disk from /custom_uploads that are not present in the
         database.
+
+        **WARNING**
+        Always create a backup of the database before running this command.
+        After execution, verify that the data is correct.
     """
 )
 @click.pass_context
@@ -568,7 +599,7 @@ def delete_ghost_custom_field_value_files(ctx, count_only, batch_size):
     app = ctx.obj["app"]
     with app.app_context():
         dir_path = app.config['UPLOADED_CUSTOM_DEST']
-        cf_values = (
+        media_custom_field_values = (
             CustomFieldValue.query
             .join(CustomField)
             .filter(
@@ -582,13 +613,26 @@ def delete_ghost_custom_field_value_files(ctx, count_only, batch_size):
         )
 
         disk_filenames = set(str(file) for file in os.listdir(dir_path))
-        db_filenames = set(str(value[0]) for value in cf_values)
-        ghost_files = disk_filenames - db_filenames
-        print("There are %s ghost files to delete" % len(ghost_files))
 
-        if count_only or len(ghost_files) == 0:
+        # custom_field_values is a list of tuples, so we take value[0]
+        # to get the filename string
+        db_filenames = set(str(value[0]) for value in media_custom_field_values)
+        disk_files_without_db_entry = disk_filenames - db_filenames
+
+        print(
+            "Total files on disk:.......................%s \n"
+            "Files with no DB entry:....................%s \n\n"
+            "There are %s ghost files to delete."
+            % (
+                len(disk_filenames),
+                len(disk_files_without_db_entry),
+                len(disk_files_without_db_entry)
+            )
+        )
+
+        if count_only or len(disk_files_without_db_entry) == 0:
             return
 
-        for filename in ghost_files:
+        for filename in disk_files_without_db_entry:
             print("Deleting %s" % filename)
             unlink_participant_custom_file(filename)
